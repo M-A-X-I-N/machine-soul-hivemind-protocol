@@ -1,0 +1,16 @@
+# Canonical Contour configuration for the Machine Soul.
+#
+# Keep shared/default doctrine in the `default` profile. Host profiles should
+# contain only intentional deviations from that baseline.
+#
+# Contour profiles inherit unspecified values from `default_profile`, so the
+# `spaceship` profile below can remain tiny unless that host actually needs an
+# override.
+
+default_profile: default
+
+profiles:
+  default: {}
+
+  # Host-specific overrides for workstation: spaceship
+  spaceship: {}
