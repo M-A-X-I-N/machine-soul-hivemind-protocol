@@ -1,33 +1,33 @@
 # Contour Assimilation Directive
 
-Canonical Contour terminal configuration lives here.
-
-The host resolver follows the repository-wide assimilation model:
-
-```text
-contour/<hostname>/
-    if present
-otherwise
-contour/default/
-```
-
-`shared/` contains reusable fragments or reference material only; it is not intended to be linked directly as Contour's active configuration.
-
-Initial skeleton:
+Canonical Contour terminal configuration lives here in a single file:
 
 ```text
 contour/
 ├── README.md
-├── shared/
-│   └── README.md
-├── default/
-│   └── contour.yml
-└── spaceship/
-    └── contour.yml
+└── contour.yml
 ```
 
-`default/` is the fallback manifestation for unspecialized hosts.
+The `default` profile contains the shared baseline for all hosts.
 
-`spaceship/` is the first explicit workstation-specific manifestation.
+Host-specific profiles contain only sanctioned deviations from that baseline.
+For now the only explicit host profile is `spaceship`.
 
-The active Contour configuration on a host should ultimately be linked or otherwise resolved to the appropriate `contour.yml` in this tree.
+Conceptually:
+
+```text
+default
+  └── shared Contour doctrine
+
+spaceship
+  └── inherits default and overrides only what differs
+```
+
+This keeps the configuration fully tracked in the repository without duplicating
+nearly-identical `contour.yml` files per workstation.
+
+If a future host needs a profile-scoped difference, add another profile to the
+same file and keep the override as small as possible.
+
+If a future difference turns out to require non-profile/global settings, that can
+be handled separately without changing the basic single-file policy.
