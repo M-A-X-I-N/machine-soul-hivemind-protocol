@@ -1,0 +1,10 @@
+# Contour configuration — spaceship
+#
+# Host-specific Contour manifestation for workstation: spaceship.
+#
+# This file is intentionally skeletal. Populate it with settings that differ
+# from or replace the default manifestation for this workstation.
+
+profiles: {}
+layouts: {}
+input_mapping: []
