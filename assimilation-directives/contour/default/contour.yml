@@ -1,8 +1,0 @@
-# Contour configuration — default host manifestation
-#
-# This file is intentionally skeletal. Populate it with the canonical fallback
-# Contour configuration used when no host-specific manifestation exists.
-
-profiles: {}
-layouts: {}
-input_mapping: []
