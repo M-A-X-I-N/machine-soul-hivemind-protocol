@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$All,
-    [ValidateSet('machine-soul-root', 'contour')]
+    [switch]$List,
     [string]$Action
 )
 
@@ -11,58 +11,95 @@ if ($env:OS -ne 'Windows_NT') {
     throw 'This entry point is for Windows hosts. Use ./setup.sh on Linux.'
 }
 
-$Actions = [ordered]@{
-    'machine-soul-root' = @{
-        Label  = 'Establish MACHINE_SOUL repository root'
-        Script = Join-Path $PSScriptRoot 'machine-soul-root\setup.ps1'
+$ActionRoot = Join-Path $PSScriptRoot 'actions'
+
+function Get-AvailableActions {
+    if (-not (Test-Path -LiteralPath $ActionRoot -PathType Container)) {
+        return @()
     }
-    'contour' = @{
-        Label  = 'Enable Contour configuration'
-        Script = Join-Path $PSScriptRoot 'contour\setup.ps1'
-    }
+
+    @(
+        Get-ChildItem -LiteralPath $ActionRoot -Directory |
+            ForEach-Object {
+                $SetupScript = Join-Path $_.FullName 'setup.ps1'
+                if (Test-Path -LiteralPath $SetupScript -PathType Leaf) {
+                    [pscustomobject]@{
+                        Name   = $_.Name
+                        Script = $SetupScript
+                    }
+                }
+            } |
+            Sort-Object Name
+    )
 }
 
 function Invoke-SetupAction {
-    param([Parameter(Mandatory)][string]$Name)
+    param([Parameter(Mandatory)]$Definition)
 
-    $Definition = $Actions[$Name]
-    if (-not $Definition) {
-        throw "Unknown setup action: $Name"
-    }
-
-    Write-Host "`n[Machine Soul] $($Definition.Label)"
+    Write-Host "`n[Machine Soul] $($Definition.Name)"
     & $Definition.Script
 }
 
-function Invoke-AllSetupActions {
-    foreach ($Name in $Actions.Keys) {
-        Invoke-SetupAction -Name $Name
-    }
-}
+$Actions = Get-AvailableActions
 
-if ($All) {
-    Invoke-AllSetupActions
+if ($List) {
+    $Actions.Name
     return
 }
 
 if ($Action) {
-    Invoke-SetupAction -Name $Action
+    $Match = $Actions | Where-Object Name -IEQ $Action | Select-Object -First 1
+    if (-not $Match) {
+        throw "No Windows setup action named '$Action' was discovered."
+    }
+
+    Invoke-SetupAction $Match
+    return
+}
+
+if ($All) {
+    foreach ($Definition in $Actions) {
+        Invoke-SetupAction $Definition
+    }
+    return
+}
+
+if ($Actions.Count -eq 0) {
+    Write-Host '[Machine Soul] No Windows setup actions were discovered.'
     return
 }
 
 while ($true) {
     Write-Host ''
     Write-Host 'Machine Soul Annexation'
-    Write-Host '  1. Set up everything for current OS'
-    Write-Host '  2. Establish MACHINE_SOUL repository root'
-    Write-Host '  3. Enable Contour configuration'
-    Write-Host '  Q. Quit'
+    Write-Host '  1. Set up everything available for Windows'
 
-    switch ((Read-Host 'Select action').Trim().ToLowerInvariant()) {
-        '1' { Invoke-AllSetupActions }
-        '2' { Invoke-SetupAction -Name 'machine-soul-root' }
-        '3' { Invoke-SetupAction -Name 'contour' }
-        'q' { return }
-        default { Write-Warning 'Unknown selection.' }
+    for ($Index = 0; $Index -lt $Actions.Count; $Index++) {
+        Write-Host ('  {0}. {1}' -f ($Index + 2), $Actions[$Index].Name)
     }
+
+    Write-Host '  Q. Quit'
+    $Choice = (Read-Host 'Select action').Trim()
+
+    if ($Choice -ieq 'q') {
+        return
+    }
+
+    if ($Choice -eq '1') {
+        foreach ($Definition in $Actions) {
+            Invoke-SetupAction $Definition
+        }
+        continue
+    }
+
+    $Selection = 0
+    if ([int]::TryParse($Choice, [ref]$Selection)) {
+        $ActionIndex = $Selection - 2
+        if ($ActionIndex -ge 0 -and $ActionIndex -lt $Actions.Count) {
+            Invoke-SetupAction $Actions[$ActionIndex]
+            continue
+        }
+    }
+
+    Write-Warning 'Unknown selection.'
 }
