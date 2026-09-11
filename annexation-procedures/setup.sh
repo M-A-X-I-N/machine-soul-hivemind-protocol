@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ACTION_ROOT="$SCRIPT_DIR/actions"
+MACHINE_SOUL_SETUP="$SCRIPT_DIR/linux/setup-machine-soul.sh"
 
 available_actions() {
     [[ -d "$ACTION_ROOT" ]] || return 0
@@ -14,6 +15,13 @@ available_actions() {
             fi
         done \
         | sort
+}
+
+run_machine_soul_setup() {
+    printf '\n[Machine Soul] machine-soul-root\n'
+    # Source this one so MACHINE_SOUL is also available to the current wrapper.
+    # shellcheck source=/dev/null
+    source "$MACHINE_SOUL_SETUP"
 }
 
 run_action() {
@@ -29,17 +37,27 @@ run_action() {
     bash "$script"
 }
 
+run_all() {
+    run_machine_soul_setup
+    for action in "${ACTIONS[@]}"; do
+        run_action "$action"
+    done
+}
+
 mapfile -t ACTIONS < <(available_actions)
 
 case "${1:-}" in
     --list)
+        printf '%s\n' 'machine-soul-root'
         printf '%s\n' "${ACTIONS[@]}"
         exit 0
         ;;
+    --machine-soul)
+        run_machine_soul_setup
+        exit 0
+        ;;
     --all)
-        for action in "${ACTIONS[@]}"; do
-            run_action "$action"
-        done
+        run_all
         exit 0
         ;;
     "") ;;
@@ -49,16 +67,12 @@ case "${1:-}" in
         ;;
 esac
 
-if (( ${#ACTIONS[@]} == 0 )); then
-    printf '[Machine Soul] No Linux setup actions were discovered.\n'
-    exit 0
-fi
-
 while true; do
     printf '\nMachine Soul Annexation\n'
     printf '  1. Set up everything available for Linux\n'
+    printf '  2. Establish MACHINE_SOUL repository root\n'
 
-    index=2
+    index=3
     for action in "${ACTIONS[@]}"; do
         printf '  %d. %s\n' "$index" "$action"
         ((index++))
@@ -72,13 +86,14 @@ while true; do
             exit 0
             ;;
         1)
-            for action in "${ACTIONS[@]}"; do
-                run_action "$action"
-            done
+            run_all
+            ;;
+        2)
+            run_machine_soul_setup
             ;;
         *)
             if [[ "$choice" =~ ^[0-9]+$ ]]; then
-                action_index=$((choice - 2))
+                action_index=$((choice - 3))
                 if (( action_index >= 0 && action_index < ${#ACTIONS[@]} )); then
                     run_action "${ACTIONS[$action_index]}"
                     continue
