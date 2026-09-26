@@ -96,7 +96,7 @@ State records must not contain secrets.
 
 ## 6. Ownership
 
-The framework may mutate/remove a destination without prompting only when it can prove the current object is the expected managed state for the operation.
+The configuration-deployment runtime may mutate/remove a destination without prompting only when it can prove the current object is the expected managed state for the operation.
 
 A remembered state record alone does not authorize overwriting current filesystem reality.
 
@@ -154,7 +154,7 @@ Unexpected destination changes block automatic restore until explicitly resolved
 
 ## 9. Transactionality
 
-Filesystem operations are not universally transactional, so the framework uses transactional intent:
+Filesystem operations are not universally transactional, so the configuration-deployment runtime uses transactional intent:
 
 1. preflight validation before destructive mutation;
 2. preserve recoverable prior state first;
