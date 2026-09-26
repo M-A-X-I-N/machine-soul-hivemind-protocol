@@ -181,9 +181,11 @@ ms_write_state() {
 ms_read_state_field() {
     local path="$1"
     local wanted="$2"
-    local key value
+    local line key value
     [[ -f "$path" ]] || return 1
-    while IFS='=' read -r key value; do
+    while IFS= read -r line; do
+        key="${line%%=*}"
+        value="${line#*=}"
         if [[ "$key" == "$wanted" ]]; then
             printf '%s\n' "$value"
             return 0
