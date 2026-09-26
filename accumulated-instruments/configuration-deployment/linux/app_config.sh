@@ -22,7 +22,7 @@ fi
 [[ -n "$repo_root" ]] || { printf 'ERROR: unable to resolve MACHINE_SOUL\n' >&2; exit 3; }
 
 # shellcheck source=machine_soul.sh
-source "$repo_root/accumulated-instruments/framework/linux/machine_soul.sh"
+source "$repo_root/accumulated-instruments/configuration-deployment/linux/machine_soul.sh"
 source_path="$repo_root/$source_relative"
 
 case "$action" in
