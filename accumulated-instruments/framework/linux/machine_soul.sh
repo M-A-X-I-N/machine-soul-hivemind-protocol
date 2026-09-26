@@ -213,6 +213,56 @@ ms_apply_file() {
         return 0
     fi
 
+    # A moved MACHINE_SOUL checkout changes the concrete symlink target.
+    # If deployment state proves the current stale link is the one we previously
+    # created, repair it in place while preserving the original pre-managed state.
+    if [[ ( "$status" == "WRONG_TARGET" || "$status" == "BROKEN" ) && -L "$destination" ]]; then
+        local relocation_state old_target_b64 old_target source_rel_b64 source_rel
+        local saved_prior_type saved_backup_b64 saved_backup saved_prior_target_b64 saved_prior_target
+        relocation_state="$(ms_state_path "$application" "$destination")" || return $?
+        if [[ -f "$relocation_state" ]]; then
+            old_target_b64="$(ms_read_state_field "$relocation_state" applied_target_b64 2>/dev/null || true)"
+            source_rel_b64="$(ms_read_state_field "$relocation_state" source_relative_b64 2>/dev/null || true)"
+            old_target=""
+            source_rel=""
+            [[ -n "$old_target_b64" ]] && old_target="$(ms_b64_decode "$old_target_b64")"
+            [[ -n "$source_rel_b64" ]] && source_rel="$(ms_b64_decode "$source_rel_b64")"
+
+            local raw_current current_target current_root
+            raw_current="$(readlink -- "$destination")" || return 3
+            current_target="$(ms_resolve_link_target "$destination" "$raw_current")" || return 3
+            current_root="$(ms_root)" || return $?
+
+            if [[ -n "$old_target" && "$current_target" == "$old_target" && "$current_root/$source_rel" == "$source" ]]; then
+                saved_prior_type="$(ms_read_state_field "$relocation_state" prior_type 2>/dev/null || true)"
+                saved_backup_b64="$(ms_read_state_field "$relocation_state" backup_b64 2>/dev/null || true)"
+                saved_prior_target_b64="$(ms_read_state_field "$relocation_state" prior_target_b64 2>/dev/null || true)"
+                saved_backup=""
+                saved_prior_target=""
+                [[ -n "$saved_backup_b64" ]] && saved_backup="$(ms_b64_decode "$saved_backup_b64")"
+                [[ -n "$saved_prior_target_b64" ]] && saved_prior_target="$(ms_b64_decode "$saved_prior_target_b64")"
+
+                rm -- "$destination" || return 3
+                if ! ln -s -- "$source" "$destination"; then
+                    ln -s -- "$raw_current" "$destination" || true
+                    ms_die "Failed to repair relocated managed symlink: $destination"
+                    return $?
+                fi
+
+                if [[ "$(ms_config_state "$source" "$destination")" != "APPLIED" ]]; then
+                    rm -- "$destination" || true
+                    ln -s -- "$raw_current" "$destination" || true
+                    ms_die "Relocated symlink repair verification failed: $destination"
+                    return $?
+                fi
+
+                ms_write_state "$relocation_state" "$application" "$source" "$destination" "$saved_prior_type" "$saved_backup" "$saved_prior_target" || return $?
+                printf 'APPLIED\n'
+                return 0
+            fi
+        fi
+    fi
+
     local prior_type="absent"
     local prior_target=""
     local backup=""
