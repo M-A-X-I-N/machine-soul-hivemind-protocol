@@ -8,7 +8,7 @@ $env:MACHINE_SOUL_ACCOUNT = 'ci-user'
 
 $state = Join-Path $repoRoot 'scratch\state\install\ci-install-windows\ci-user\oh-my-posh.json'
 try {
-    $script = Join-Path $repoRoot 'assimilation-directives\oh-my-posh\operations\windows\install.ps1'
+    $script = Join-Path $repoRoot 'annexation-procedures\oh-my-posh\windows\install.ps1'
     $output = & $script -DryRun
 
     if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
