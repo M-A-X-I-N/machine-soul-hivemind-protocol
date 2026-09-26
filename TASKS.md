@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-09 — Define configuration identity model**
+**V2-23 — Build shared runtime/framework**
 
 ## Roadmap
 
@@ -50,66 +50,66 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Establish lightweight structure/conventions for durable knowledge such as applications, hosts, platforms, architecture, investigations, and decisions.
   - Avoid duplicate or contradictory notes; update existing knowledge when appropriate.
 
-- [ ] **V2-09 — Define configuration identity model**
+- [x] **V2-09 — Define configuration identity model**
   - Formalize dimensions including application, host, platform/environment, user/account, plus optional shared/default layers.
   - Support cases such as `fish/workhorse/m-a-x-i-n` and `fish/workhorse/root`.
   - Define deterministic lookup/precedence.
 
-- [ ] **V2-10 — Define `$MACHINE_SOUL` semantics**
+- [x] **V2-10 — Define `$MACHINE_SOUL` semantics**
   - Preserve `$MACHINE_SOUL` or equivalent as canonical checkout root.
   - All repo-internal paths resolve from it.
   - Moving the checkout should require rebinding the root, not rewriting configs/scripts.
 
-- [ ] **V2-11 — Define `scratch/` semantics**
+- [x] **V2-11 — Define `scratch/` semantics**
   - `$MACHINE_SOUL/scratch/` is Git-ignored, machine-local mutable state.
   - Intended uses include backups, deployment state, local env/secrets, temporary files, caches/logs where useful.
 
-- [ ] **V2-12 — Define secrets/local environment policy**
+- [x] **V2-12 — Define secrets/local environment policy**
   - Tracked files may reference local values, but secrets/private keys/tokens must not be committed.
   - Prefer tracked examples/templates and real values under `scratch/`, likely via `.env`-style mechanisms where appropriate.
 
-- [ ] **V2-13 — Define managed-file symlink invariant**
+- [x] **V2-13 — Define managed-file symlink invariant**
   - Applying configuration always uses **file-level symlinks into tracked repo files**.
   - No normal config-copy deployment.
   - Whole-directory symlinks are not the standard mechanism.
 
-- [ ] **V2-14 — Define destination-state model**
+- [x] **V2-14 — Define destination-state model**
   - Deterministically handle: missing destination, correct managed symlink, ordinary file, wrong symlink, broken symlink, unexpected directory, and other conflicts.
   - `Check` should report meaningful states such as `APPLIED`, `NOT_APPLIED`, `CONFLICT`, `BROKEN`, and `WRONG_TARGET`.
 
-- [ ] **V2-15 — Define preservation/backup model**
+- [x] **V2-15 — Define preservation/backup model**
   - Existing unmanaged config causes an interactive confirmation by default.
   - If replacement proceeds, preserve the displaced object under `scratch/` using collision-safe organization.
   - Never silently destroy existing user configuration.
 
-- [ ] **V2-16 — Define deployment metadata/state model**
+- [x] **V2-16 — Define deployment metadata/state model**
   - Record enough machine-local state under `scratch/` to identify source, destination, application, host, account, prior object type, backup location, and other useful deployment metadata.
 
-- [ ] **V2-17 — Define restoration and ownership rules**
+- [x] **V2-17 — Define restoration and ownership rules**
   - `Unapply` removes only state known to be managed by this repo.
   - Restore what Apply displaced when safe.
   - If destination changed behind our back, stop/report conflict rather than overwrite external changes.
 
-- [ ] **V2-18 — Define transactional mutation rules**
+- [x] **V2-18 — Define transactional mutation rules**
   - Validate first, preserve old state, create link, verify, then record success.
   - Roll back immediately when a later step fails where possible.
 
-- [ ] **V2-19 — Define interactive/non-interactive conflict policy**
+- [x] **V2-19 — Define interactive/non-interactive conflict policy**
   - Interactive mode prompts `[y/N]`.
   - Automation uses explicit policies such as abort or backup-and-replace.
   - No dangerous “force means destroy whatever exists” behavior.
 
-- [ ] **V2-20 — Investigate installation architecture**
+- [x] **V2-20 — Investigate installation architecture**
   - Investigate Install/Uninstall independently from config Apply/Unapply across Windows and Linux.
   - Consider package managers, native installers, portable installs, privilege requirements, and app-specific quirks.
   - Produce architecture recommendation before implementation.
 
-- [ ] **V2-21 — Define standard per-application operations**
+- [x] **V2-21 — Define standard per-application operations**
   - At minimum: Apply config, Unapply config, Check config.
   - Where sensible: Install and Uninstall.
   - Define names, arguments, exit semantics, idempotency, unsupported behavior, and reporting/dry-run expectations.
 
-- [ ] **V2-22 — Define capability/support declarations**
+- [x] **V2-22 — Define capability/support declarations**
   - Every app/platform operation explicitly resolves to supported, unsupported, or not-yet-implemented.
 
 - [ ] **V2-23 — Build shared runtime/framework**
