@@ -60,9 +60,18 @@ ms_scratch_path() {
     printf '%s\n' "$path"
 }
 
+ms_abs_path_no_follow() {
+    local input="$1"
+    local parent base
+    parent="$(dirname "$input")"
+    base="$(basename "$input")"
+    parent="$(realpath -m -- "$parent")" || return 3
+    printf '%s/%s\n' "$parent" "$base"
+}
+
 ms_path_hash() {
     local path
-    path="$(realpath -m -- "$1")"
+    path="$(ms_abs_path_no_follow "$1")" || return $?
     printf '%s' "$path" | sha256sum | awk '{print $1}'
 }
 
@@ -79,7 +88,7 @@ ms_resolve_link_target() {
 ms_link_info() {
     local source destination expected raw actual
     source="$(realpath -m -- "$1")"
-    destination="$(realpath -m -- "$2")"
+    destination="$(ms_abs_path_no_follow "$2")" || return $?
     expected="$source"
 
     if [[ -L "$destination" ]]; then
@@ -113,7 +122,7 @@ ms_config_state() {
 ms_link_points_to_expected() {
     local source destination raw actual expected
     source="$(realpath -m -- "$1")"
-    destination="$(realpath -m -- "$2")"
+    destination="$(ms_abs_path_no_follow "$2")" || return $?
     [[ -L "$destination" ]] || return 1
     raw="$(readlink -- "$destination")" || return 1
     actual="$(ms_resolve_link_target "$destination" "$raw")" || return 1
@@ -190,7 +199,7 @@ ms_apply_file() {
     local policy="${4:-prompt}"
 
     source="$(realpath -m -- "$source")"
-    destination="$(realpath -m -- "$destination")"
+    destination="$(ms_abs_path_no_follow "$destination")" || return $?
 
     [[ -f "$source" ]] || { ms_die "Canonical source file does not exist: $source"; return $?; }
 
@@ -289,7 +298,7 @@ ms_unapply_file() {
     local destination="$3"
 
     source="$(realpath -m -- "$source")"
-    destination="$(realpath -m -- "$destination")"
+    destination="$(ms_abs_path_no_follow "$destination")" || return $?
 
     if [[ ! -e "$destination" && ! -L "$destination" ]]; then
         printf 'NOT_APPLIED\n'
