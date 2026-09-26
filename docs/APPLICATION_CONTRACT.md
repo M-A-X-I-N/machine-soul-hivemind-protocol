@@ -1,28 +1,21 @@
 # Application operation contract
 
-## 1. Module surface
+## 1. Paired application surfaces
 
-Application modules live under:
+Configuration content and operational machinery intentionally live in separate but parallel trees:
 
 ```text
 assimilation-directives/<application>/
+    # canonical tracked configuration files
+
+annexation-procedures/<application>/
+    # Apply / Unapply / Check / Install / Uninstall entry points
 ```
 
-An application may expose these standard operation names:
+An application's operational surface may contain:
 
 ```text
-operations/
-├── apply_config.*
-├── unapply_config.*
-├── check_config.*
-├── install.*
-└── uninstall.*
-```
-
-Platform-specific implementations may coexist, for example:
-
-```text
-operations/
+annexation-procedures/<application>/
 ├── windows/
 │   ├── apply_config.ps1
 │   ├── unapply_config.ps1
@@ -37,7 +30,9 @@ operations/
     └── uninstall.sh
 ```
 
-Shared configuration-deployment runtime code should implement common semantics so these remain thin adapters.
+Not every application or platform needs every operation.
+
+Shared configuration-deployment runtime code under `accumulated-instruments/configuration-deployment/` implements common semantics so these annexation adapters stay thin.
 
 ## 2. Required versus optional operations
 
