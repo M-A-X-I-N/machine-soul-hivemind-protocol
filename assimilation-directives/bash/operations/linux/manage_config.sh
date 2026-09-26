@@ -5,4 +5,4 @@ root="${MACHINE_SOUL:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd -
 host="${MACHINE_SOUL_HOST:-$(hostname -s | tr '[:upper:]' '[:lower:]')}"
 source_rel="assimilation-directives/bash/config/hosts/$host/common/.bashrc"
 destination="${MACHINE_SOUL_CONFIG_DESTINATION:-$HOME/.bashrc}"
-exec "$root/accumulated-instruments/framework/linux/app_config.sh" "$action" bash "$source_rel" "$destination" "${1:-prompt}"
+exec bash "$root/accumulated-instruments/framework/linux/app_config.sh" "$action" bash "$source_rel" "$destination" "${1:-prompt}"
