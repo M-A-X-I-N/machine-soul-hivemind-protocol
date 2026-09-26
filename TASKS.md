@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-31 — Implement Apply / Unapply / Check for initial applications**
+**V2-40 — Establish stable experimental v2 baseline**
 
 ## Roadmap
 
@@ -144,45 +144,45 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Explicit OMP configuration for both `m-a-x-i-n` and `root` on `workhorse` and `runar`.
   - Shared theme/config where sensible; account-specific distinction where useful.
 
-- [ ] **V2-31 — Implement Apply / Unapply / Check for initial applications**
+- [x] **V2-31 — Implement Apply / Unapply / Check for initial applications**
   - Required config operations for all initial integrations.
   - Validate idempotency with: Check → Apply → Check → Apply again → Unapply → Check → Unapply again.
 
-- [ ] **V2-32 — Add conflict/destructive-path tests**
+- [x] **V2-32 — Add conflict/destructive-path tests**
   - Test declined/accepted replacement, wrong/broken symlinks, missing source, manually replaced managed destination, partial failure, rollback, and restoration.
   - No tested path may silently destroy unknown state.
 
-- [ ] **V2-33 — Add installation lifecycle progressively**
+- [x] **V2-33 — Add installation lifecycle progressively**
   - Implement Install/Uninstall where sensible according to V2-20.
   - Installation remains independent of configuration application.
   - Demonstrate complete lifecycle on at least one Windows and one Linux integration.
 
-- [ ] **V2-34 — Validate privilege/elevation behavior**
+- [x] **V2-34 — Validate privilege/elevation behavior**
   - Test admin/root boundaries explicitly.
   - Avoid running whole workflows elevated merely because one step needs privilege.
 
-- [ ] **V2-35 — Validate SSH / sudo / root semantics**
+- [x] **V2-35 — Validate SSH / sudo / root semantics**
   - Test local → SSH remote shell and normal-user → sudo/root shell scenarios.
   - Validate Fish/Bash/Zsh/OMP and account-specific config resolution.
   - Never assume shell/process/config state crosses SSH or sudo boundaries.
 
-- [ ] **V2-36 — Validate repo relocation**
+- [x] **V2-36 — Validate repo relocation**
   - Move or simulate moving `$MACHINE_SOUL`.
   - Check must detect stale link targets; Apply must safely repair them.
   - No hidden hard-coded checkout paths.
 
-- [ ] **V2-37 — Validate fresh-clone/bootstrap experience**
+- [x] **V2-37 — Validate fresh-clone/bootstrap experience**
   - From a clean environment or faithful simulation: clone repo, establish `$MACHINE_SOUL`, inspect status, apply configs, and recover/unapply.
   - Detect hidden prerequisites.
 
-- [ ] **V2-38 — End-to-end host matrix validation**
+- [x] **V2-38 — End-to-end host matrix validation**
   - Validate apps × hosts × accounts × operations across spaceship/workhorse/runar.
   - Maintain pass / unsupported / pending results and resolve failures before baseline completion.
 
-- [ ] **V2-39 — Document architecture and extension workflow**
+- [x] **V2-39 — Document architecture and extension workflow**
   - Document repo layout, config resolution, scratch, secrets, `$MACHINE_SOUL`, operation contract, symlink lifecycle, backup/restore, host/account model, SSH/sudo implications, and how to add apps/hosts/users.
 
-- [ ] **V2-40 — Establish stable experimental v2 baseline**
+- [~] **V2-40 — Establish stable experimental v2 baseline**
   - Clean up proven scaffolding, validate Git/CI/state, update `TASKS.md` and `.agents/`, and record the first stable `experimental/v2` checkpoint.
   - Do not promote/merge to `main` without separate authorization.
 
