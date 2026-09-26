@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-41 — Split assimilation directives from annexation procedures**
+**V2-43 — Validate post-baseline structural refactor**
 
 ## Roadmap
 
@@ -112,7 +112,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 - [x] **V2-22 — Define capability/support declarations**
   - Every app/platform operation explicitly resolves to supported, unsupported, or not-yet-implemented.
 
-- [x] **V2-23 — Build shared runtime/framework**
+- [x] **V2-23 — Build shared configuration-deployment runtime**
   - Implement shared host/OS/user detection, `$MACHINE_SOUL`, scratch/state paths, privilege detection, reporting, prompting, errors, and common operation plumbing.
 
 - [x] **V2-24 — Implement safe symlink primitive**
@@ -189,16 +189,16 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Post-baseline structural adjustments
 
-- [~] **V2-41 — Split assimilation directives from annexation procedures**
+- [x] **V2-41 — Split assimilation directives from annexation procedures**
   - Make `assimilation-directives/` the canonical configuration-content tree itself, removing the redundant per-application `config/` layer.
   - Move per-application Apply / Unapply / Check / Install / Uninstall machinery to matching paths under `annexation-procedures/`, removing the redundant per-application `operations/` layer.
   - Update every runtime, test, documentation, and agent-memory reference.
 
-- [ ] **V2-42 — Rename shared configuration framework**
+- [x] **V2-42 — Rename shared configuration deployment tooling**
   - Rename `accumulated-instruments/framework/` to the more specific `accumulated-instruments/configuration-deployment/`.
   - Update all callers and documentation while preserving the broader purpose of `accumulated-instruments/` for unrelated future system-management tools.
 
-- [ ] **V2-43 — Validate post-baseline structural refactor**
+- [~] **V2-43 — Validate post-baseline structural refactor**
   - Verify no stale old-layout references remain, executable modes are preserved, fresh-clone/runtime tests pass on Windows and Linux, and the support/documentation model reflects the new taxonomy.
   - Restore the roadmap to an explicit completed/awaiting-next-direction state when green.
 
