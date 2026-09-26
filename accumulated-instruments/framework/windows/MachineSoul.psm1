@@ -13,7 +13,7 @@ function Get-MachineSoulRoot {
         throw "MACHINE_SOUL points to '$candidate', but TASKS.md was not found there."
     }
 
-    $cursor = [System.IO.DirectoryInfo]::new([System.IO.Path]::GetFullPath($StartPath))
+    $cursor = [System.IO.DirectoryInfo][System.IO.Path]::GetFullPath($StartPath)
     while ($null -ne $cursor) {
         if ((Test-Path -LiteralPath (Join-Path $cursor.FullName 'TASKS.md') -PathType Leaf) -and
             (Test-Path -LiteralPath (Join-Path $cursor.FullName 'AGENTS.md') -PathType Leaf)) {
@@ -69,8 +69,13 @@ function Get-MachineSoulScratchPath {
 function Get-MachineSoulPathHash {
     param([Parameter(Mandatory)][string]$Path)
     $bytes = [System.Text.Encoding]::UTF8.GetBytes([System.IO.Path]::GetFullPath($Path))
-    $hash = [System.Security.Cryptography.SHA256]::HashData($bytes)
-    return ([Convert]::ToHexString($hash)).ToLowerInvariant()
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = $sha.ComputeHash($bytes)
+    } finally {
+        $sha.Dispose()
+    }
+    return (($hash | ForEach-Object { $_.ToString('x2') }) -join '')
 }
 
 function Resolve-MachineSoulLinkTarget {
@@ -174,7 +179,9 @@ function Save-MachineSoulState {
     $parent = Split-Path -Parent $Path
     New-Item -ItemType Directory -Force -Path $parent | Out-Null
     $temp = "$Path.tmp-$PID"
-    $State | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $temp -Encoding utf8NoBOM
+    $json = $State | ConvertTo-Json -Depth 5
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($temp, $json, $utf8NoBom)
     Move-Item -LiteralPath $temp -Destination $Path -Force
 }
 
@@ -279,7 +286,11 @@ function Invoke-MachineSoulApplyFile {
         application = $Application
         host = Get-MachineSoulHost
         account = Get-MachineSoulAccount
-        source_relative = [System.IO.Path]::GetRelativePath($root, $sourcePath)
+        source_relative = if ($sourcePath.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $sourcePath.Substring($root.Length).TrimStart([char[]]@('\', '/'))
+        } else {
+            $sourcePath
+        }
         destination = $destPath
         prior_type = $priorType
         backup = $backupPath
