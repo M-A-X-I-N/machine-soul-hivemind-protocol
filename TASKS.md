@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-23 — Build shared runtime/framework**
+**V2-31 — Implement Apply / Unapply / Check for initial applications**
 
 ## Roadmap
 
@@ -112,35 +112,35 @@ This file is the authoritative source of truth for v2 progress and next actions.
 - [x] **V2-22 — Define capability/support declarations**
   - Every app/platform operation explicitly resolves to supported, unsupported, or not-yet-implemented.
 
-- [ ] **V2-23 — Build shared runtime/framework**
+- [x] **V2-23 — Build shared runtime/framework**
   - Implement shared host/OS/user detection, `$MACHINE_SOUL`, scratch/state paths, privilege detection, reporting, prompting, errors, and common operation plumbing.
 
-- [ ] **V2-24 — Implement safe symlink primitive**
+- [x] **V2-24 — Implement safe symlink primitive**
   - Cross-platform file-symlink creation, verification, repair, and removal on Windows and Linux.
   - Correctly classify correct/wrong/broken/unmanaged destination state.
 
-- [ ] **V2-25 — Implement backup/restore primitive**
+- [x] **V2-25 — Implement backup/restore primitive**
   - Centralize conflict preservation, metadata, backup layout, rollback, and restoration.
   - Application integrations should not hand-roll backup logic except for genuine exceptions.
 
-- [ ] **V2-26 — Establish host/account inventory**
+- [x] **V2-26 — Establish host/account inventory**
   - Initial hosts:
     - `spaceship`: Windows workstation.
     - `workhorse`: Ubuntu/Linux server.
     - `runar`: Ubuntu-like server.
   - Relevant accounts include `m-a-x-i-n` and `root` where applicable.
 
-- [ ] **V2-27 — Create Windows config skeletons**
+- [x] **V2-27 — Create Windows config skeletons**
   - Initial tracked configs for Windows Terminal, PowerShell, and CMD on `spaceship`.
 
-- [ ] **V2-28 — Create shell/application config skeletons**
+- [x] **V2-28 — Create shell/application config skeletons**
   - Initial configs for Fish, Bash, Zsh, Oh My Posh, Contour, and useful v1 carryovers across relevant hosts.
 
-- [ ] **V2-29 — Implement user/account overlays**
+- [x] **V2-29 — Implement user/account overlays**
   - Support account-specific state where needed, especially `m-a-x-i-n` vs `root`.
   - Share common material cleanly and avoid unnecessary duplication.
 
-- [ ] **V2-30 — Configure OMP across server accounts**
+- [x] **V2-30 — Configure OMP across server accounts**
   - Explicit OMP configuration for both `m-a-x-i-n` and `root` on `workhorse` and `runar`.
   - Shared theme/config where sensible; account-specific distinction where useful.
 
