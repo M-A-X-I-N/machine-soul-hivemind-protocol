@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**Baseline complete — await a new authorized roadmap or explicit promotion/merge instruction.**
+**V2-41 — Split assimilation directives from annexation procedures**
 
 ## Roadmap
 
@@ -185,6 +185,22 @@ This file is the authoritative source of truth for v2 progress and next actions.
 - [x] **V2-40 — Establish stable experimental v2 baseline**
   - Clean up proven scaffolding, validate Git/CI/state, update `TASKS.md` and `.agents/`, and record the first stable `experimental/v2` checkpoint.
   - Do not promote/merge to `main` without separate authorization.
+
+
+## Post-baseline structural adjustments
+
+- [~] **V2-41 — Split assimilation directives from annexation procedures**
+  - Make `assimilation-directives/` the canonical configuration-content tree itself, removing the redundant per-application `config/` layer.
+  - Move per-application Apply / Unapply / Check / Install / Uninstall machinery to matching paths under `annexation-procedures/`, removing the redundant per-application `operations/` layer.
+  - Update every runtime, test, documentation, and agent-memory reference.
+
+- [ ] **V2-42 — Rename shared configuration framework**
+  - Rename `accumulated-instruments/framework/` to the more specific `accumulated-instruments/configuration-deployment/`.
+  - Update all callers and documentation while preserving the broader purpose of `accumulated-instruments/` for unrelated future system-management tools.
+
+- [ ] **V2-43 — Validate post-baseline structural refactor**
+  - Verify no stale old-layout references remain, executable modes are preserved, fresh-clone/runtime tests pass on Windows and Linux, and the support/documentation model reflects the new taxonomy.
+  - Restore the roadmap to an explicit completed/awaiting-next-direction state when green.
 
 ## Project laws accepted before implementation
 
