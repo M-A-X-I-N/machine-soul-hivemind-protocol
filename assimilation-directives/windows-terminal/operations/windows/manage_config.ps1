@@ -7,5 +7,5 @@ $hostName = if ($env:MACHINE_SOUL_HOST) { $env:MACHINE_SOUL_HOST.ToLowerInvarian
 $sourceRel = "assimilation-directives\windows-terminal\config\hosts\$hostName\common\settings.json"
 $packaged = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'
 $unpackaged = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\settings.json'
-$destination = if (Test-Path -LiteralPath (Split-Path -Parent $packaged) -PathType Container) { $packaged } else { $unpackaged }
+$destination = if ($env:MACHINE_SOUL_CONFIG_DESTINATION) { $env:MACHINE_SOUL_CONFIG_DESTINATION } else { if (Test-Path -LiteralPath (Split-Path -Parent $packaged) -PathType Container) { $packaged } else { $unpackaged } }
 & "$root\accumulated-instruments\framework\windows\Invoke-AppConfig.ps1" -Action $Action -Application windows-terminal -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy
