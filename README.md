@@ -1,0 +1,71 @@
+# Machine-Soul Hivemind Protocol
+
+A cross-host configuration repository for keeping canonical tracked configuration files while safely linking them into the native locations expected by applications.
+
+The active redesign lives on **experimental/v2**.
+
+- experimental/v1 preserves the original repository.
+- main is intentionally clean and is not the active v2 branch.
+- experimental/v2 is the current implementation branch.
+- TASKS.md is the authoritative progress and next-task ledger.
+
+## Core model
+
+Native application config paths are **file-level symbolic links** to canonical tracked files in this repository. Normal config application does not copy canonical config into a second drifting file.
+
+MACHINE_SOUL identifies the absolute path of the active checkout. Repository-internal paths are derived from it.
+
+Machine-local mutable state lives under the Git-ignored scratch/ tree, including backups, deployment state, local env/secrets, temporary files, logs, and caches where needed.
+
+## Safety behavior
+
+Apply follows: resolve → validate → classify destination → preserve existing unmanaged state → create file symlink → verify → record.
+
+If a native config already exists, interactive Apply defaults to No. If replacement is accepted, the prior object is preserved under scratch/.
+
+Unapply verifies that the current destination is still the object Machine-Soul expects before removing it. If a human or another tool replaced the managed link, Unapply reports a conflict instead of overwriting that new state. When safe, it restores the exact pre-Machine-Soul config that Apply displaced.
+
+## Configuration resolution
+
+Application configuration lives under assimilation-directives/<application>/config/.
+
+Current final-file precedence is:
+
+1. host + account
+2. host common
+3. default + account
+4. default common
+
+Shared fragments may exist, but deployment resolves to one concrete tracked file; the framework does not merge config content at deployment time.
+
+Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux server), and runar (Ubuntu-like server). See docs/CONFIGURATION_MODEL.md.
+
+## Operations
+
+Application modules expose operation entry points under assimilation-directives/<application>/operations/.
+
+Configured targets normally provide Apply config, Unapply config, and Check config. Installation support may additionally provide Install and Uninstall.
+
+Installing an application is deliberately separate from applying its configuration. A pre-existing software installation is not silently claimed as Machine-Soul-owned merely because its executable exists.
+
+See docs/APPLICATION_CONTRACT.md and docs/INSTALLATION_ARCHITECTURE.md.
+
+## Oh My Posh and accounts
+
+workhorse and runar have independent tracked OMP configurations for m-a-x-i-n and root. Each shell process initializes its own prompt environment; SSH and sudo do not transport a local shell's OMP state into the new process.
+
+See docs/SESSION_BOUNDARIES.md.
+
+## Current support
+
+See docs/SUPPORT_MATRIX.md.
+
+Windows Fish/Bash/Zsh config files exist, but their PowerShell-side deployment adapters intentionally remain NOT_IMPLEMENTED until the Windows Unix-compatibility runtime/path/symlink model is selected explicitly.
+
+## Persistent project memory
+
+- AGENTS.md defines stable agent rules.
+- .agents/ is living agent memory.
+- TASKS.md owns current progress.
+
+Agents are explicitly encouraged to preserve expensive-to-rediscover project knowledge under .agents/.
