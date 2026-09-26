@@ -29,7 +29,7 @@ Unapply verifies that the current destination is still the object Machine-Soul e
 
 ## Configuration resolution
 
-Application configuration lives under assimilation-directives/<application>/config/.
+Application configuration lives under assimilation-directives/<application>/.
 
 Current final-file precedence is:
 
@@ -44,7 +44,7 @@ Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux serve
 
 ## Operations
 
-Application modules expose operation entry points under assimilation-directives/<application>/operations/.
+Application modules expose operation entry points under annexation-procedures/<application>/.
 
 Configured targets normally provide Apply config, Unapply config, and Check config. Installation support may additionally provide Install and Uninstall.
 
