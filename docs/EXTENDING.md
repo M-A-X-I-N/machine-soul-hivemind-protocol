@@ -12,7 +12,7 @@ Keep host facts declarative instead of scattering raw hostname checks through sh
 
 ## Add an application
 
-Create assimilation-directives/<application>/ with config/ and only the platform operation directories it actually needs.
+Create the canonical configuration under `assimilation-directives/<application>/` and the matching operational entry points under `annexation-procedures/<application>/`.
 
 ### Define canonical config
 
@@ -34,7 +34,7 @@ Do not hand-roll backup behavior unless the application genuinely has extra non-
 
 ### Expose operations
 
-Configured targets normally provide apply_config, unapply_config, and check_config. Safe installation support may additionally provide install and uninstall.
+Configured targets normally provide `apply_config`, `unapply_config`, and `check_config` under `annexation-procedures/<application>/<platform>/`. Safe installation support may additionally provide install and uninstall.
 
 Unsupported or unfinished operations should say so explicitly.
 
@@ -54,7 +54,7 @@ Choose an explicit platform/upstream-supported install mechanism. Never make con
 
 ## Add an account override
 
-Add only the final file that differs under config/hosts/<host>/users/<account>/.
+Add only the final file that differs under `assimilation-directives/<application>/hosts/<host>/users/<account>/`.
 
 OMP root configs are the initial example.
 
