@@ -217,6 +217,57 @@ function Invoke-MachineSoulApplyFile {
         return [pscustomobject]@{ Status = 'APPLIED'; Changed = $false }
     }
 
+    # A moved MACHINE_SOUL checkout changes the concrete symlink target.
+    # If state proves this stale link is the one we created, repair it while
+    # preserving the original pre-managed restore lineage.
+    if (($info.Status -eq 'WRONG_TARGET' -or $info.Status -eq 'BROKEN') -and $info.ActualTarget) {
+        $relocationStatePath = Get-MachineSoulStatePath -Application $Application -Destination $destPath
+        $relocationState = Read-MachineSoulState -Path $relocationStatePath
+        if ($null -ne $relocationState -and $relocationState.applied_target -and $relocationState.source_relative) {
+            $root = Get-MachineSoulRoot
+            $relocatedSource = [System.IO.Path]::GetFullPath((Join-Path $root $relocationState.source_relative))
+            $ownedOldTarget = [System.StringComparer]::OrdinalIgnoreCase.Equals(
+                [System.IO.Path]::GetFullPath([string]$relocationState.applied_target),
+                [System.IO.Path]::GetFullPath([string]$info.ActualTarget)
+            )
+            $sameLogicalSource = [System.StringComparer]::OrdinalIgnoreCase.Equals($relocatedSource, $sourcePath)
+
+            if ($ownedOldTarget -and $sameLogicalSource) {
+                $item = Get-Item -LiteralPath $destPath -Force -ErrorAction Stop
+                $rawOldTarget = if ($item.Target -is [array]) { [string]$item.Target[0] } else { [string]$item.Target }
+
+                Remove-Item -LiteralPath $destPath -Force
+                try {
+                    New-Item -ItemType SymbolicLink -Path $destPath -Target $sourcePath | Out-Null
+                    $verifyRelocation = Get-MachineSoulLinkInfo -Source $sourcePath -Destination $destPath
+                    if ($verifyRelocation.Status -ne 'APPLIED') {
+                        throw "Relocated symlink repair verification failed with state $($verifyRelocation.Status)."
+                    }
+                } catch {
+                    Remove-Item -LiteralPath $destPath -Force -ErrorAction SilentlyContinue
+                    New-Item -ItemType SymbolicLink -Path $destPath -Target $rawOldTarget | Out-Null
+                    throw
+                }
+
+                Save-MachineSoulState -Path $relocationStatePath -State @{
+                    schema = 1
+                    application = [string]$relocationState.application
+                    host = [string]$relocationState.host
+                    account = [string]$relocationState.account
+                    source_relative = [string]$relocationState.source_relative
+                    destination = [string]$relocationState.destination
+                    prior_type = [string]$relocationState.prior_type
+                    backup = [string]$relocationState.backup
+                    prior_target = [string]$relocationState.prior_target
+                    applied_target = $sourcePath
+                    applied_utc = [DateTime]::UtcNow.ToString('o')
+                }
+
+                return [pscustomobject]@{ Status = 'APPLIED'; Changed = $true }
+            }
+        }
+    }
+
     $priorType = 'absent'
     $priorTarget = $null
     $backupPath = $null
