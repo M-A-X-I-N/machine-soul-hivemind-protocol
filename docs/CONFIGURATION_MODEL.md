@@ -17,43 +17,37 @@ The variable value differs by host; the meaning does not.
 
 Moving the checkout therefore changes only the host's `$MACHINE_SOUL` binding. Existing symlinks may then become stale and must be detectable/repairable by Check/Apply.
 
-## 2. Application modules
+## 2. Paired taxonomy
 
-Active configuration is organized per application under:
-
-```text
-assimilation-directives/<application>/
-```
-
-An application module may contain:
+Canonical configuration and the machinery that applies it are deliberately separated:
 
 ```text
-<application>/
-├── README.md
-├── config/
-│   ├── shared/
-│   ├── default/
-│   │   ├── common/
-│   │   └── users/
-│   │       └── <account>/
-│   └── hosts/
-│       └── <hostname>/
-│           ├── common/
-│           └── users/
-│               └── <account>/
-└── operations/
-    ├── apply.*
-    ├── unapply.*
-    ├── check.*
-    ├── install.*
-    └── uninstall.*
+assimilation-directives/
+└── <application>/
+    ├── shared/
+    ├── default/
+    │   ├── common/
+    │   └── users/
+    │       └── <account>/
+    └── hosts/
+        └── <hostname>/
+            ├── common/
+            └── users/
+                └── <account>/
+
+annexation-procedures/
+└── <application>/
+    ├── windows/
+    └── linux/
 ```
 
-Not every module needs every directory or operation.
+`assimilation-directives/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
 
-The app-local `operations/` entry points are ergonomic front doors. Shared implementation should live in common framework code rather than being duplicated per application.
+`annexation-procedures/` is the operational tree: the equivalent of a conventional top-level `operations/` tree.
 
-Although Install/Uninstall are conceptually annexation operations, keeping the user-facing entry points alongside the application is intentional: operational discoverability wins over taxonomy purity.
+The two are intrinsically paired by application name, but neither is nested inside the other.
+
+Shared symlink/backup/state/dispatch implementation belongs under `accumulated-instruments/configuration-deployment/` rather than being duplicated in each annexation procedure.
 
 ## 3. Configuration identity dimensions
 
@@ -80,10 +74,10 @@ Initial Linux account identities include `m-a-x-i-n` and `root` where relevant.
 For a requested application file, resolution uses the most specific complete tracked file available:
 
 ```text
-1. config/hosts/<host>/users/<account>/<file>
-2. config/hosts/<host>/common/<file>
-3. config/default/users/<account>/<file>
-4. config/default/common/<file>
+1. hosts/<host>/users/<account>/<file>
+2. hosts/<host>/common/<file>
+3. default/users/<account>/<file>
+4. default/common/<file>
 ```
 
 If no complete tracked file resolves, the configuration is unsupported/not configured for that target.
@@ -170,7 +164,7 @@ Application-specific sub-status may be added, but these names form the shared co
 
 Host/platform/account facts should be declared centrally rather than spread as string comparisons through application scripts.
 
-Application modules consume that identity data and resolve the appropriate complete config file.
+Annexation procedures consume that identity data and resolve the appropriate complete assimilation directive.
 
 The intended direction is:
 
