@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-05 — Survey agent conventions**
+**V2-09 — Define configuration identity model**
 
 ## Roadmap
 
@@ -33,20 +33,20 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Create this file and maintain it as work progresses.
   - Update task status and the explicit Next task marker whenever work advances.
 
-- [ ] **V2-05 — Survey agent conventions**
+- [x] **V2-05 — Survey agent conventions**
   - Inspect `AGENTS.md`, `.agents/`, and equivalent instruction/knowledge stores from all accessible repositories.
   - Extract reusable general conventions; exclude project-specific baggage.
 
-- [ ] **V2-06 — Establish `AGENTS.md` and `.agents/`**
+- [x] **V2-06 — Establish `AGENTS.md` and `.agents/`**
   - Create repo-level agent instructions and living knowledge storage.
   - Include Git/history safety, bounded progression, validation-before-mutation, config safety, roadmap maintenance, secrets policy, and knowledge retention.
 
-- [ ] **V2-07 — Establish agent knowledge-retention policy**
+- [x] **V2-07 — Establish agent knowledge-retention policy**
   - Agents are explicitly encouraged to freely persist useful durable discoveries into `.agents/` without asking first.
   - If rediscovery would waste meaningful effort/tokens, preserve it.
   - Record uncertainty honestly; never store secrets there.
 
-- [ ] **V2-08 — Define `.agents/` organization**
+- [x] **V2-08 — Define `.agents/` organization**
   - Establish lightweight structure/conventions for durable knowledge such as applications, hosts, platforms, architecture, investigations, and decisions.
   - Avoid duplicate or contradictory notes; update existing knowledge when appropriate.
 
