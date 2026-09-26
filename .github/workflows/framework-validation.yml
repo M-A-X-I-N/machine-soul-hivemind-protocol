@@ -24,6 +24,9 @@ jobs:
       - name: Test Linux checkout relocation
         shell: bash
         run: bash tests/relocation/test_linux_relocation.sh
+      - name: Test Linux session/account boundaries
+        shell: bash
+        run: bash tests/session/test_linux_account_boundaries.sh
 
   windows-framework:
     runs-on: windows-latest
