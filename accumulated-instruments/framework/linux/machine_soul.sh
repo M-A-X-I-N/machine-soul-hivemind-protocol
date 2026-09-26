@@ -157,18 +157,23 @@ ms_write_state() {
     local prior_type="$5"
     local backup="$6"
     local prior_target="$7"
-    local root temp
+    local root temp backup_relative
     root="$(ms_root)" || return $?
-    temp="$path.tmp-$$"
+    temp="$path.tmp-$"
+    backup_relative=""
+    if [[ -n "$backup" && "$backup" == "$root/"* ]]; then
+        backup_relative="${backup#"$root"/}"
+    fi
 
     {
-        printf 'schema=1\n'
+        printf 'schema=2\n'
         printf 'application_b64=%s\n' "$(ms_b64_encode "$application")"
         printf 'host_b64=%s\n' "$(ms_b64_encode "$(ms_host)")"
         printf 'account_b64=%s\n' "$(ms_b64_encode "$(ms_account)")"
         printf 'source_relative_b64=%s\n' "$(ms_b64_encode "${source#"$root"/}")"
         printf 'destination_b64=%s\n' "$(ms_b64_encode "$destination")"
         printf 'prior_type=%s\n' "$prior_type"
+        printf 'backup_relative_b64=%s\n' "$(ms_b64_encode "$backup_relative")"
         printf 'backup_b64=%s\n' "$(ms_b64_encode "$backup")"
         printf 'prior_target_b64=%s\n' "$(ms_b64_encode "$prior_target")"
         printf 'applied_target_b64=%s\n' "$(ms_b64_encode "$source")"
@@ -218,7 +223,7 @@ ms_apply_file() {
     # created, repair it in place while preserving the original pre-managed state.
     if [[ ( "$status" == "WRONG_TARGET" || "$status" == "BROKEN" ) && -L "$destination" ]]; then
         local relocation_state old_target_b64 old_target source_rel_b64 source_rel
-        local saved_prior_type saved_backup_b64 saved_backup saved_prior_target_b64 saved_prior_target
+        local saved_prior_type saved_backup_relative_b64 saved_backup_relative saved_backup_b64 saved_backup saved_prior_target_b64 saved_prior_target
         relocation_state="$(ms_state_path "$application" "$destination")" || return $?
         if [[ -f "$relocation_state" ]]; then
             old_target_b64="$(ms_read_state_field "$relocation_state" applied_target_b64 2>/dev/null || true)"
@@ -235,11 +240,18 @@ ms_apply_file() {
 
             if [[ -n "$old_target" && "$current_target" == "$old_target" && "$current_root/$source_rel" == "$source" ]]; then
                 saved_prior_type="$(ms_read_state_field "$relocation_state" prior_type 2>/dev/null || true)"
+                saved_backup_relative_b64="$(ms_read_state_field "$relocation_state" backup_relative_b64 2>/dev/null || true)"
                 saved_backup_b64="$(ms_read_state_field "$relocation_state" backup_b64 2>/dev/null || true)"
                 saved_prior_target_b64="$(ms_read_state_field "$relocation_state" prior_target_b64 2>/dev/null || true)"
+                saved_backup_relative=""
                 saved_backup=""
                 saved_prior_target=""
-                [[ -n "$saved_backup_b64" ]] && saved_backup="$(ms_b64_decode "$saved_backup_b64")"
+                [[ -n "$saved_backup_relative_b64" ]] && saved_backup_relative="$(ms_b64_decode "$saved_backup_relative_b64")"
+                if [[ -n "$saved_backup_relative" ]]; then
+                    saved_backup="$current_root/$saved_backup_relative"
+                elif [[ -n "$saved_backup_b64" ]]; then
+                    saved_backup="$(ms_b64_decode "$saved_backup_b64")"
+                fi
                 [[ -n "$saved_prior_target_b64" ]] && saved_prior_target="$(ms_b64_decode "$saved_prior_target_b64")"
 
                 rm -- "$destination" || return 3
@@ -362,14 +374,22 @@ ms_unapply_file() {
         return 1
     fi
 
-    local state_path prior_type backup_b64 prior_target_b64 backup prior_target
+    local state_path prior_type backup_relative_b64 backup_relative backup_b64 prior_target_b64 backup prior_target root
     state_path="$(ms_state_path "$application" "$destination")" || return $?
     prior_type="$(ms_read_state_field "$state_path" prior_type 2>/dev/null || true)"
+    backup_relative_b64="$(ms_read_state_field "$state_path" backup_relative_b64 2>/dev/null || true)"
     backup_b64="$(ms_read_state_field "$state_path" backup_b64 2>/dev/null || true)"
     prior_target_b64="$(ms_read_state_field "$state_path" prior_target_b64 2>/dev/null || true)"
+    backup_relative=""
     backup=""
     prior_target=""
-    [[ -n "$backup_b64" ]] && backup="$(ms_b64_decode "$backup_b64")"
+    root="$(ms_root)" || return $?
+    [[ -n "$backup_relative_b64" ]] && backup_relative="$(ms_b64_decode "$backup_relative_b64")"
+    if [[ -n "$backup_relative" ]]; then
+        backup="$root/$backup_relative"
+    elif [[ -n "$backup_b64" ]]; then
+        backup="$(ms_b64_decode "$backup_b64")"
+    fi
     [[ -n "$prior_target_b64" ]] && prior_target="$(ms_b64_decode "$prior_target_b64")"
 
     rm -- "$destination" || return 3
