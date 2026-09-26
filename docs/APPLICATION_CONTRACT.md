@@ -37,7 +37,7 @@ operations/
     └── uninstall.sh
 ```
 
-Shared framework code should implement common semantics so these remain thin adapters.
+Shared configuration-deployment runtime code should implement common semantics so these remain thin adapters.
 
 ## 2. Required versus optional operations
 
