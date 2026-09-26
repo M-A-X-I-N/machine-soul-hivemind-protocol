@@ -12,11 +12,11 @@ $ErrorActionPreference = 'Stop'
 $root = if ($env:MACHINE_SOUL) {
     $env:MACHINE_SOUL
 } else {
-    [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\..'))
+    [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
 }
 $env:MACHINE_SOUL = $root
 
-Import-Module "$root\accumulated-instruments\framework\windows\MachineSoul.psm1" -Force
+Import-Module "$root\accumulated-instruments\configuration-deployment\windows\MachineSoul.psm1" -Force
 
 $hostName = if ($env:MACHINE_SOUL_HOST) {
     $env:MACHINE_SOUL_HOST.ToLowerInvariant()
@@ -26,7 +26,7 @@ $hostName = if ($env:MACHINE_SOUL_HOST) {
     'spaceship'
 }
 
-$sourceRel = "assimilation-directives\cmd\config\hosts\$hostName\common\cmdrc.cmd"
+$sourceRel = "assimilation-directives\cmd\hosts\$hostName\common\cmdrc.cmd"
 $source = Join-Path $root $sourceRel
 
 $destination = if ($env:MACHINE_SOUL_CONFIG_DESTINATION) {
