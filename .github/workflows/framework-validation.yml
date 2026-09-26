@@ -27,6 +27,9 @@ jobs:
       - name: Test Linux session/account boundaries
         shell: bash
         run: bash tests/session/test_linux_account_boundaries.sh
+      - name: Test Linux host/account matrix
+        shell: bash
+        run: bash tests/matrix/test_linux_host_matrix.sh
 
   windows-framework:
     runs-on: windows-latest
