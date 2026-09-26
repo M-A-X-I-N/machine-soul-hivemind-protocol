@@ -30,6 +30,9 @@ if ($DryRun) {
 
 & winget uninstall --id JanDeDobbeleer.OhMyPosh --source winget --exact --disable-interactivity
 if ($LASTEXITCODE -ne 0) { throw "winget uninstall failed with exit code $LASTEXITCODE" }
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    throw 'WinGet reported success, but oh-my-posh remains visible; refusing to erase installation provenance.'
+}
 
 Remove-Item -LiteralPath $state -Force
 'NOT_INSTALLED'
