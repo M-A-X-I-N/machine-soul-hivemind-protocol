@@ -27,6 +27,9 @@ if ($DryRun) {
 
 & winget install --id JanDeDobbeleer.OhMyPosh --source winget --exact --accept-package-agreements --accept-source-agreements --disable-interactivity
 if ($LASTEXITCODE -ne 0) { throw "winget install failed with exit code $LASTEXITCODE" }
+if (-not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
+    throw 'WinGet reported success, but oh-my-posh is not visible in the current command path.'
+}
 
 @{
     schema = 1
