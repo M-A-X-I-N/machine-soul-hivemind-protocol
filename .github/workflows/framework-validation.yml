@@ -41,6 +41,9 @@ jobs:
       - name: Test Windows application operations
         shell: powershell
         run: .\tests\applications\test_windows_operations.ps1
+      - name: Test Windows POSIX-shell operations
+        shell: bash
+        run: bash tests/applications/test_windows_posix_operations.sh
       - name: Test Windows install dry-run ownership
         shell: powershell
         run: .\tests\install\test_windows_install_dry_run.ps1
