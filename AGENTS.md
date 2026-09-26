@@ -80,7 +80,7 @@ When this ChatGPT lineage wholly authors the substantive change, use an `Agent-a
 ## Working style
 
 - Prefer native platform/application mechanisms over unnecessary bespoke machinery.
-- Keep shared framework behavior separate from application-specific adapters.
+- Keep shared configuration-deployment runtime behavior separate from application-specific adapters.
 - Keep host/account/platform special cases declarative where practical.
 - Do not invent ceremonial validation merely to claim a task was tested.
 - A fresh clone should eventually reconstruct behavior from repository state plus intentionally machine-local `scratch/` data.
