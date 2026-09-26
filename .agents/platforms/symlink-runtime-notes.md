@@ -6,7 +6,7 @@ Verified in CI on Ubuntu 24.04.
 
 A managed config destination must be normalized **without following its final path component**.
 
-The first Linux runtime implementation used:
+The first Linux configuration-deployment runtime implementation used:
 
 ```bash
 realpath -m "$destination"
@@ -30,4 +30,4 @@ Avoid PowerShell 7/.NET Core-only conveniences in baseline runtime code. Already
 - `utf8NoBOM` encoding shorthand;
 - constructor syntax relying on newer conveniences.
 
-CI explicitly runs the Windows framework under the `powershell` shell to keep this compatibility visible.
+CI explicitly runs the Windows configuration-deployment runtime under the `powershell` shell to keep this compatibility visible.
