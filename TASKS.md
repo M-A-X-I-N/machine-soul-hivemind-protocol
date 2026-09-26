@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-40 — Establish stable experimental v2 baseline**
+**Baseline complete — await a new authorized roadmap or explicit promotion/merge instruction.**
 
 ## Roadmap
 
@@ -182,7 +182,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 - [x] **V2-39 — Document architecture and extension workflow**
   - Document repo layout, config resolution, scratch, secrets, `$MACHINE_SOUL`, operation contract, symlink lifecycle, backup/restore, host/account model, SSH/sudo implications, and how to add apps/hosts/users.
 
-- [~] **V2-40 — Establish stable experimental v2 baseline**
+- [x] **V2-40 — Establish stable experimental v2 baseline**
   - Clean up proven scaffolding, validate Git/CI/state, update `TASKS.md` and `.agents/`, and record the first stable `experimental/v2` checkpoint.
   - Do not promote/merge to `main` without separate authorization.
 

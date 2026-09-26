@@ -4,6 +4,8 @@ A cross-host configuration repository for keeping canonical tracked configuratio
 
 The active redesign lives on **experimental/v2**.
 
+The first stable experimental v2 baseline is established on that branch. Promotion or merge to `main` requires separate authorization.
+
 - experimental/v1 preserves the original repository.
 - main is intentionally clean and is not the active v2 branch.
 - experimental/v2 is the current implementation branch.
