@@ -60,7 +60,7 @@ See docs/SESSION_BOUNDARIES.md.
 
 See docs/SUPPORT_MATRIX.md.
 
-Windows Fish/Bash/Zsh config files exist, but their PowerShell-side deployment adapters intentionally remain NOT_IMPLEMENTED until the Windows Unix-compatibility runtime/path/symlink model is selected explicitly.
+Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the .sh operation entry points. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
 
 ## Persistent project memory
 
