@@ -2,8 +2,8 @@
 set -euo pipefail
 
 actual_repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-# shellcheck source=../../accumulated-instruments/framework/linux/machine_soul.sh
-source "$actual_repo/accumulated-instruments/framework/linux/machine_soul.sh"
+# shellcheck source=../../accumulated-instruments/configuration-deployment/linux/machine_soul.sh
+source "$actual_repo/accumulated-instruments/configuration-deployment/linux/machine_soul.sh"
 
 tmp="$(mktemp -d)"
 old_root="$tmp/old-soul"
