@@ -2,8 +2,8 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-# shellcheck source=../../accumulated-instruments/framework/linux/machine_soul.sh
-source "$repo_root/accumulated-instruments/framework/linux/machine_soul.sh"
+# shellcheck source=../../accumulated-instruments/configuration-deployment/linux/machine_soul.sh
+source "$repo_root/accumulated-instruments/configuration-deployment/linux/machine_soul.sh"
 
 export MACHINE_SOUL="$repo_root"
 export MACHINE_SOUL_HOST="ci-linux"
