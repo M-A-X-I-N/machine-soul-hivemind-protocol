@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux-framework:
+  linux-configuration-deployment:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: bash tests/matrix/test_linux_host_matrix.sh
 
-  windows-framework:
+  windows-configuration-deployment:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
