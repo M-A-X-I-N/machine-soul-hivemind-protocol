@@ -257,7 +257,12 @@ function Invoke-MachineSoulApplyFile {
                     source_relative = [string]$relocationState.source_relative
                     destination = [string]$relocationState.destination
                     prior_type = [string]$relocationState.prior_type
-                    backup = [string]$relocationState.backup
+                    backup_relative = [string]$relocationState.backup_relative
+                    backup = if ($relocationState.backup_relative) {
+                        Join-Path $root ([string]$relocationState.backup_relative)
+                    } else {
+                        [string]$relocationState.backup
+                    }
                     prior_target = [string]$relocationState.prior_target
                     applied_target = $sourcePath
                     applied_utc = [DateTime]::UtcNow.ToString('o')
@@ -332,8 +337,13 @@ function Invoke-MachineSoulApplyFile {
 
     $root = Get-MachineSoulRoot
     $statePath = Get-MachineSoulStatePath -Application $Application -Destination $destPath
+    $backupRelative = $null
+    if ($backupPath -and $backupPath.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $backupRelative = $backupPath.Substring($root.Length).TrimStart([char[]]@('\', '/'))
+    }
+
     Save-MachineSoulState -Path $statePath -State @{
-        schema = 1
+        schema = 2
         application = $Application
         host = Get-MachineSoulHost
         account = Get-MachineSoulAccount
@@ -344,6 +354,7 @@ function Invoke-MachineSoulApplyFile {
         }
         destination = $destPath
         prior_type = $priorType
+        backup_relative = $backupRelative
         backup = $backupPath
         prior_target = $priorTarget
         applied_target = $sourcePath
@@ -379,11 +390,17 @@ function Invoke-MachineSoulUnapplyFile {
     Remove-Item -LiteralPath $destPath -Force
 
     if ($null -ne $state) {
-        if ($state.prior_type -eq 'file' -and $state.backup) {
-            if (Test-Path -LiteralPath $state.backup -PathType Leaf) {
-                Move-Item -LiteralPath $state.backup -Destination $destPath
+        if ($state.prior_type -eq 'file') {
+            $resolvedBackup = if ($state.backup_relative) {
+                Join-Path (Get-MachineSoulRoot) ([string]$state.backup_relative)
             } else {
-                throw "Managed link was removed, but recorded backup is missing: $($state.backup)"
+                [string]$state.backup
+            }
+
+            if ($resolvedBackup -and (Test-Path -LiteralPath $resolvedBackup -PathType Leaf)) {
+                Move-Item -LiteralPath $resolvedBackup -Destination $destPath
+            } else {
+                throw "Managed link was removed, but recorded backup is missing: $resolvedBackup"
             }
         } elseif ($state.prior_type -eq 'symlink' -and $state.prior_target) {
             New-Item -ItemType SymbolicLink -Path $destPath -Target $state.prior_target | Out-Null
