@@ -61,4 +61,29 @@ assert_eq "WRONG_TARGET" "$(ms_config_state "$source_file" "$destination")" "wro
 rm -f -- "$wrong_target"
 assert_eq "BROKEN" "$(ms_config_state "$source_file" "$destination")" "broken target state"
 
+
+# Interactive decline must preserve unmanaged content.
+rm -f -- "$destination"
+printf 'decline-me\n' > "$destination"
+set +e
+decline_output="$(printf 'n\n' | ms_apply_file test-app "$source_file" "$destination" prompt)"
+decline_code=$?
+set -e
+assert_eq "1" "$decline_code" "prompt decline exit code"
+assert_eq "CONFLICT" "$decline_output" "prompt decline status"
+assert_eq "decline-me" "$(cat "$destination")" "prompt decline preserves original"
+
+# If a human replaces our managed link, Unapply must refuse to overwrite it.
+assert_eq "APPLIED" "$(ms_apply_file test-app "$source_file" "$destination" backup-and-replace)" "apply before external mutation"
+rm -f -- "$destination"
+printf 'human-new-state\n' > "$destination"
+set +e
+external_output="$(ms_unapply_file test-app "$source_file" "$destination")"
+external_code=$?
+set -e
+assert_eq "1" "$external_code" "external mutation conflict exit"
+assert_eq "CONFLICT" "$external_output" "external mutation conflict status"
+assert_eq "human-new-state" "$(cat "$destination")" "external mutation is preserved"
+rm -f -- "$destination"
+
 printf 'Linux framework tests passed.\n'
