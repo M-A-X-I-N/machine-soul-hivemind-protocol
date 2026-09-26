@@ -13,7 +13,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-normal_ops="$repo_root/assimilation-directives/oh-my-posh/operations/linux"
+normal_ops="$repo_root/annexation-procedures/oh-my-posh/linux"
 
 # SSH-like boundary: a fresh non-login process receives only the remote machine's
 # own MACHINE_SOUL/host/account context; it does not inherit a local shell prompt.
@@ -22,7 +22,7 @@ normal_output="$(
 )"
 [[ "$normal_output" == "APPLIED" ]]
 normal_target="$(readlink -- "$normal_dest")"
-[[ "$normal_target" == *"/assimilation-directives/oh-my-posh/config/hosts/workhorse/users/m-a-x-i-n/theme.omp.json" ]] || {
+[[ "$normal_target" == *"/assimilation-directives/oh-my-posh/hosts/workhorse/users/m-a-x-i-n/theme.omp.json" ]] || {
     printf 'Normal account resolved wrong OMP target: %s\n' "$normal_target" >&2
     exit 1
 }
@@ -33,7 +33,7 @@ sudo env     MACHINE_SOUL="$repo_root"     MACHINE_SOUL_HOST="workhorse"     MAC
 
 [[ "$(cat /tmp/machine-soul-root-apply.out)" == "APPLIED" ]]
 root_target="$(readlink -- "$root_dest")"
-[[ "$root_target" == *"/assimilation-directives/oh-my-posh/config/hosts/workhorse/users/root/theme.omp.json" ]] || {
+[[ "$root_target" == *"/assimilation-directives/oh-my-posh/hosts/workhorse/users/root/theme.omp.json" ]] || {
     printf 'Root account resolved wrong OMP target: %s\n' "$root_target" >&2
     exit 1
 }
