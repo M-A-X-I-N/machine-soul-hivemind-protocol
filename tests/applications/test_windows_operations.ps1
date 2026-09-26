@@ -30,7 +30,20 @@ try {
         Assert-Equal 'NOT_APPLIED' (& (Join-Path $ops 'check_config.ps1')) "$app final check"
     }
 
-    foreach ($app in @('fish','bash','zsh','cmd')) {
+    $env:MACHINE_SOUL_CONFIG_DESTINATION = Join-Path $tempRoot 'cmd\cmdrc.cmd'
+    $testRegistryKey = 'HKCU:\Software\MachineSoulTests\' + [Guid]::NewGuid().ToString('N')
+    $env:MACHINE_SOUL_CMD_REGISTRY_KEY = $testRegistryKey
+    New-Item -ItemType Directory -Force -Path $testRegistryKey | Out-Null
+    Set-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun -Value 'echo original' -Type String
+
+    $cmdOps = Join-Path $repoRoot 'assimilation-directives\cmd\operations\windows'
+    Assert-Equal 'CONFLICT' (& (Join-Path $cmdOps 'check_config.ps1')) 'cmd initial conflict'
+    Assert-Equal 'APPLIED' (& (Join-Path $cmdOps 'apply_config.ps1') -ConflictPolicy 'backup-and-replace') 'cmd apply'
+    Assert-Equal 'APPLIED' (& (Join-Path $cmdOps 'check_config.ps1')) 'cmd check applied'
+    Assert-Equal 'NOT_APPLIED' (& (Join-Path $cmdOps 'unapply_config.ps1')) 'cmd unapply'
+    Assert-Equal 'echo original' ((Get-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun).AutoRun) 'cmd restores prior AutoRun'
+
+    foreach ($app in @('fish','bash','zsh')) {
         $ops = Join-Path $repoRoot "assimilation-directives\$app\operations\windows"
         $output = & (Join-Path $ops 'check_config.ps1')
         Assert-Equal 'NOT_IMPLEMENTED' $output[0] "$app explicit capability gap"
@@ -41,6 +54,10 @@ try {
     Write-Host 'Windows application operation tests passed.'
 }
 finally {
+    if ($env:MACHINE_SOUL_CMD_REGISTRY_KEY) {
+        Remove-Item -LiteralPath $env:MACHINE_SOUL_CMD_REGISTRY_KEY -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Remove-Item Env:MACHINE_SOUL_CMD_REGISTRY_KEY -ErrorAction SilentlyContinue
     Remove-Item Env:MACHINE_SOUL_CONFIG_DESTINATION -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath (Join-Path $repoRoot 'scratch\state\config\spaceship') -Recurse -Force -ErrorAction SilentlyContinue
