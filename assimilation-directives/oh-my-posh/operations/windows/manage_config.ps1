@@ -8,5 +8,5 @@ $account = if ($env:MACHINE_SOUL_ACCOUNT) { $env:MACHINE_SOUL_ACCOUNT } elseif (
 $userRel = "assimilation-directives\oh-my-posh\config\hosts\$hostName\users\$account\theme.omp.json"
 $commonRel = "assimilation-directives\oh-my-posh\config\hosts\$hostName\common\theme.omp.json"
 $sourceRel = if (Test-Path -LiteralPath (Join-Path $root $userRel) -PathType Leaf) { $userRel } else { $commonRel }
-$destination = Join-Path $env:LOCALAPPDATA 'oh-my-posh\theme.omp.json'
+$destination = if ($env:MACHINE_SOUL_CONFIG_DESTINATION) { $env:MACHINE_SOUL_CONFIG_DESTINATION } else { Join-Path $env:LOCALAPPDATA 'oh-my-posh\theme.omp.json' }
 & "$root\accumulated-instruments\framework\windows\Invoke-AppConfig.ps1" -Action $Action -Application oh-my-posh -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy
