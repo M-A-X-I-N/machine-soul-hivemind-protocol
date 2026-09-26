@@ -8,7 +8,7 @@
 4. Extend matrix validation where practical.
 5. Update docs/SUPPORT_MATRIX.md.
 
-Keep host facts declarative instead of scattering raw hostname checks through shared framework code.
+Keep host facts declarative instead of scattering raw hostname checks through shared configuration-deployment runtime code.
 
 ## Add an application
 
@@ -26,7 +26,7 @@ Document where the application expects each file. If the path or symlink semanti
 
 ### Reuse shared deployment primitives
 
-Linux shared runtime lives under accumulated-instruments/framework/linux/. Windows shared runtime lives under accumulated-instruments/framework/windows/.
+Linux shared runtime lives under accumulated-instruments/configuration-deployment/linux/. Windows shared runtime lives under accumulated-instruments/configuration-deployment/windows/.
 
 Application adapters should resolve application identity, tracked source, and native destination, then delegate symlink/backup/state behavior to the shared runtime.
 
