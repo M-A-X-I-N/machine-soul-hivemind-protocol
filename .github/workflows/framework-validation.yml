@@ -21,6 +21,9 @@ jobs:
       - name: Test Linux install dry-run ownership
         shell: bash
         run: bash tests/install/test_linux_install_dry_run.sh
+      - name: Test Linux checkout relocation
+        shell: bash
+        run: bash tests/relocation/test_linux_relocation.sh
 
   windows-framework:
     runs-on: windows-latest
@@ -35,3 +38,6 @@ jobs:
       - name: Test Windows install dry-run ownership
         shell: powershell
         run: .\tests\install\test_windows_install_dry_run.ps1
+      - name: Test Windows checkout relocation
+        shell: powershell
+        run: .\tests\relocation\test_windows_relocation.ps1
