@@ -36,7 +36,7 @@ fi
 
 root_win="$(cygpath -w "$root_unix")"
 destination_win="$(cygpath -w "$destination_unix")"
-dispatcher_win="$(cygpath -w "$root_unix/accumulated-instruments/framework/windows/Invoke-AppConfig.ps1")"
+dispatcher_win="$(cygpath -w "$root_unix/accumulated-instruments/configuration-deployment/windows/Invoke-AppConfig.ps1")"
 
 export MACHINE_SOUL="$root_win"
 export MACHINE_SOUL_HOST="${MACHINE_SOUL_HOST:-$(hostname -s | tr '[:upper:]' '[:lower:]')}"
