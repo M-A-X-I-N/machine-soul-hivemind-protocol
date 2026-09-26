@@ -1,0 +1,5 @@
+# Machine-Soul Contour configuration.
+default_profile: default
+
+profiles:
+  default: {}
