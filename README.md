@@ -38,15 +38,17 @@ Current final-file precedence is:
 3. default + account
 4. default common
 
-Shared fragments may exist, but deployment resolves to one concrete tracked file; the framework does not merge config content at deployment time.
+Shared fragments may exist, but deployment resolves to one concrete tracked file; the configuration-deployment runtime does not merge config content at deployment time.
 
 Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux server), and runar (Ubuntu-like server). See docs/CONFIGURATION_MODEL.md.
 
-## Operations
+## Paired configuration and operation trees
 
-Application modules expose operation entry points under annexation-procedures/<application>/.
+Canonical application configuration lives under `assimilation-directives/<application>/...`.
 
-Configured targets normally provide Apply config, Unapply config, and Check config. Installation support may additionally provide Install and Uninstall.
+The matching operational machinery lives under `annexation-procedures/<application>/...`.
+
+Configured targets normally provide Apply config, Unapply config, and Check config from the annexation tree. Installation support may additionally provide Install and Uninstall there.
 
 Installing an application is deliberately separate from applying its configuration. A pre-existing software installation is not silently claimed as Machine-Soul-owned merely because its executable exists.
 
@@ -62,7 +64,7 @@ See docs/SESSION_BOUNDARIES.md.
 
 See docs/SUPPORT_MATRIX.md.
 
-Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the .sh operation entry points. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
+Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation-procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
 
 ## Persistent project memory
 
