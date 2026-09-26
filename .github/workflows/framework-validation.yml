@@ -1,0 +1,25 @@
+name: Framework validation
+
+on:
+  push:
+    branches:
+      - experimental/v2
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux-framework:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test Linux framework
+        shell: bash
+        run: bash tests/framework/test_linux.sh
+
+  windows-framework:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test Windows framework in Windows PowerShell 5.1
+        shell: powershell
+        run: .\tests\framework\test_windows.ps1
