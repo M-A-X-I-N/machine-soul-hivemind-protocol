@@ -1,4 +1,4 @@
-name: Framework validation
+name: Configuration deployment validation
 
 on:
   push:
@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test Linux framework
+      - name: Test Linux configuration deployment
         shell: bash
-        run: bash tests/framework/test_linux.sh
+        run: bash tests/configuration-deployment/test_linux.sh
       - name: Test Linux application operations
         shell: bash
         run: bash tests/applications/test_linux_operations.sh
@@ -35,9 +35,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test Windows framework in Windows PowerShell 5.1
+      - name: Test Windows configuration deployment in Windows PowerShell 5.1
         shell: powershell
-        run: .\tests\framework\test_windows.ps1
+        run: .\tests\configuration-deployment\test_windows.ps1
       - name: Test Windows application operations
         shell: powershell
         run: .\tests\applications\test_windows_operations.ps1
