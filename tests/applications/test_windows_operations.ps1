@@ -37,6 +37,7 @@ try {
         Assert-Equal 2 $LASTEXITCODE "$app not-implemented exit code"
     }
 
+    $global:LASTEXITCODE = 0
     Write-Host 'Windows application operation tests passed.'
 }
 finally {
