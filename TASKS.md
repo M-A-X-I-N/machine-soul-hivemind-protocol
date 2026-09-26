@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-43 — Validate post-baseline structural refactor**
+**Post-baseline structural adjustments complete — await review or new authorized work.**
 
 ## Roadmap
 
@@ -198,7 +198,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Rename `accumulated-instruments/framework/` to the more specific `accumulated-instruments/configuration-deployment/`.
   - Update all callers and documentation while preserving the broader purpose of `accumulated-instruments/` for unrelated future system-management tools.
 
-- [~] **V2-43 — Validate post-baseline structural refactor**
+- [x] **V2-43 — Validate post-baseline structural refactor**
   - Verify no stale old-layout references remain, executable modes are preserved, fresh-clone/runtime tests pass on Windows and Linux, and the support/documentation model reflects the new taxonomy.
   - Restore the roadmap to an explicit completed/awaiting-next-direction state when green.
 
