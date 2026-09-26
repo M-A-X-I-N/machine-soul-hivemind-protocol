@@ -12,7 +12,7 @@ cleanup() {
 trap cleanup EXIT
 
 state="$repo_root/scratch/state/install/ci-install-linux/ci-user/fish.state"
-output="$("$repo_root/assimilation-directives/fish/operations/linux/install.sh" --dry-run)"
+output="$("$repo_root/annexation-procedures/fish/linux/install.sh" --dry-run)"
 
 if command -v fish >/dev/null 2>&1; then
     [[ "$output" == "INSTALLED_UNMANAGED" ]] || {
