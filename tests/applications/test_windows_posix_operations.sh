@@ -18,7 +18,7 @@ export MACHINE_SOUL_ACCOUNT="ci-posix"
 for app in fish bash zsh; do
     export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/$app/config.file"
     mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
-    ops="$repo_root/assimilation-directives/$app/operations/windows"
+    ops="$repo_root/annexation-procedures/$app/windows"
 
     [[ "$("$ops/check_config.sh")" == "NOT_APPLIED" ]]
     [[ "$("$ops/apply_config.sh" abort)" == "APPLIED" ]]
