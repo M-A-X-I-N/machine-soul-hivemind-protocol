@@ -14,7 +14,7 @@ For Machine-Soul, the important inputs after SSH are the remote host/account and
 
 sudo creates another process/account boundary. Root's config is independently resolved.
 
-This is why workhorse and runar can resolve separate OMP files for m-a-x-i-n and root while reusing the same deployment framework.
+This is why workhorse and runar can resolve separate OMP files for m-a-x-i-n and root while reusing the same configuration-deployment runtime.
 
 ## Validation boundary
 
