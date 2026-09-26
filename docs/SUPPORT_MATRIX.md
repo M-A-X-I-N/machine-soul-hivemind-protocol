@@ -15,19 +15,21 @@ Legend:
 | Windows Terminal | Supported | Not applicable | Not applicable |
 | PowerShell | Supported | Not applicable | Not applicable |
 | CMD | Supported | Not applicable | Not applicable |
-| Fish | Not implemented | Supported | Supported |
-| Bash | Not implemented | Supported | Supported |
-| Zsh | Not implemented | Supported | Supported |
+| Fish | Supported via POSIX-shell adapter | Supported | Supported |
+| Bash | Supported via POSIX-shell adapter | Supported | Supported |
+| Zsh | Supported via POSIX-shell adapter | Supported | Supported |
 | Oh My Posh | Supported | Supported | Supported |
 | Contour | Supported | Supported | Supported |
 
-### Windows Fish/Bash/Zsh gap
+### Windows Fish/Bash/Zsh adapter
 
-Tracked `spaceship` configs exist, but Apply/Unapply/Check intentionally return `NOT_IMPLEMENTED` from the PowerShell-side adapter.
+The supported entry points are the `.sh` operations under each application's `operations/windows/` directory.
 
-Reason: on Windows these shells normally live inside a compatibility/runtime environment such as MSYS2 or Cygwin, and their effective `$HOME`, path translation, and symlink semantics are environment-specific. Selecting one silently would risk managing the wrong config file or creating something that is not a native file symlink.
+They run inside an MSYS2/Cygwin-compatible POSIX environment, use that environment's real `$HOME`, translate paths with `cygpath`, then delegate actual link creation and deployment state to the tested Windows PowerShell runtime.
 
-The eventual adapter should explicitly model the chosen runtime(s) rather than guessing.
+This avoids relying on compatibility-layer symlink emulation while still respecting the shell environment's native config location.
+
+The pure-PowerShell `.ps1` stubs remain intentionally `NOT_IMPLEMENTED` without that compatibility-shell context.
 
 ## Account-specific OMP
 
