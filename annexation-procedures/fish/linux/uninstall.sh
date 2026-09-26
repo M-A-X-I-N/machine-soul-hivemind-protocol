@@ -4,10 +4,10 @@ set -euo pipefail
 dry_run=false
 [[ "${1:-}" == "--dry-run" ]] && dry_run=true
 
-root="${MACHINE_SOUL:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd -P)}"
+root="${MACHINE_SOUL:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)}"
 export MACHINE_SOUL="$root"
-# shellcheck source=../../../../accumulated-instruments/framework/linux/machine_soul.sh
-source "$root/accumulated-instruments/framework/linux/machine_soul.sh"
+# shellcheck source=../../../accumulated-instruments/configuration-deployment/linux/machine_soul.sh
+source "$root/accumulated-instruments/configuration-deployment/linux/machine_soul.sh"
 
 host="$(ms_host)"
 account="$(ms_account)"
