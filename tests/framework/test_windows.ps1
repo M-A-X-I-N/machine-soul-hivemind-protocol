@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
-Import-Module (Join-Path $repoRoot 'accumulated-instruments\framework\windows\MachineSoul.psm1') -Force
+Import-Module (Join-Path $repoRoot 'accumulated-instruments\configuration-deployment\windows\MachineSoul.psm1') -Force
 
 $env:MACHINE_SOUL = $repoRoot
 $env:MACHINE_SOUL_HOST = 'ci-windows'
