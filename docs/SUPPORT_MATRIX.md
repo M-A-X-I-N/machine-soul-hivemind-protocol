@@ -23,7 +23,7 @@ Legend:
 
 ### Windows Fish/Bash/Zsh adapter
 
-The supported entry points are the `.sh` operations under each application's `operations/windows/` directory.
+The supported entry points are the `.sh` procedures under `annexation-procedures/<application>/windows/`.
 
 They run inside an MSYS2/Cygwin-compatible POSIX environment, use that environment's real `$HOME`, translate paths with `cygpath`, then delegate actual link creation and deployment state to the tested Windows PowerShell runtime.
 
@@ -60,7 +60,7 @@ A pre-existing installation is reported as unmanaged and is never silently claim
 
 CI currently exercises:
 
-- shared Linux and Windows symlink lifecycle;
+- shared Linux and Windows configuration-deployment lifecycle;
 - preservation/restoration of existing config files;
 - wrong and broken symlink classification;
 - prompt-decline safety;
