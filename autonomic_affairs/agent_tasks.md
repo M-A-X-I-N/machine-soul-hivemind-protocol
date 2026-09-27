@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. `V2-58`
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -25,7 +25,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`V2-54`](agent_tasks/legacy_v2.md#v2-54) | COMPLETE | `V2-52` | Define operation-result model | Define one structured semantic result usable by wrappers, orchestration, tests, automation, and native-process normalization. |
 | [`V2-55`](agent_tasks/legacy_v2.md#v2-55) | COMPLETE | `V2-54` | Define native primitive protocol | Specify the narrow versioned JSON/native-process boundary for justified platform primitives. |
 | [`V2-56`](agent_tasks/legacy_v2.md#v2-56) | COMPLETE | `V2-53`, `V2-54`, `V2-55` | Define interactive orchestration | Define a broad manager that composes atomic operations but owns no application/platform business logic. |
-| [`V2-57`](agent_tasks/legacy_v2.md#v2-57) | IN_PROGRESS | `V2-52`–`V2-56` | Audit legacy implementation | Classify existing Bash/PowerShell behavior into Python policy, declarations, reusable strategies, custom hooks, primitives, or deletion. |
+| [`V2-57`](agent_tasks/legacy_v2.md#v2-57) | COMPLETE | `V2-52`–`V2-56` | Audit legacy implementation | Classify existing Bash/PowerShell behavior into Python policy, declarations, reusable strategies, custom hooks, primitives, or deletion. |
 | [`V2-58`](agent_tasks/legacy_v2.md#v2-58) | QUEUED | `V2-57` | Implement Python core | Build generic discovery, dispatch, config/state/backup/account/install/result/primitive libraries with contract tests. |
 | [`V2-59`](agent_tasks/legacy_v2.md#v2-59) | QUEUED | `V2-58` | Convert application declarations | Represent the current application set with `_application.py` definitions plus minimal justified hooks. |
 | [`V2-60`](agent_tasks/legacy_v2.md#v2-60) | QUEUED | `V2-58`, `V2-59` | Replace operations with wrappers | Replace application operation implementations with tiny Python wrappers around declarations and shared engines. |

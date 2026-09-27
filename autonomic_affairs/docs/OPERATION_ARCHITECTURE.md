@@ -230,6 +230,10 @@ inside generic engines.
 
 Application identity may appear in state keys, source paths, reporting data, and declaration lookup. It must not select hidden bespoke business logic inside shared operation code.
 
+## Legacy migration map
+
+The responsibility-by-responsibility audit of the existing Bash/PowerShell implementation is recorded in [`LEGACY_MIGRATION_MAP.md`](LEGACY_MIGRATION_MAP.md). New Python work must use that map rather than mechanically translating legacy scripts.
+
 ## Intended package ownership
 
 As implementation lands, responsibility should converge approximately to:
