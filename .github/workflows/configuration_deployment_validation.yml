@@ -49,19 +49,19 @@ jobs:
         run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
       - name: Test Windows configuration deployment in Windows PowerShell 5.1
         shell: powershell
-        run: .\collective_affairs\tests\configuration_deployment\test_windows.ps1
+        run: .\autonomic_affairs\tests\configuration_deployment\test_windows.ps1
       - name: Test Windows application operations
         shell: powershell
-        run: .\collective_affairs\tests\applications\test_windows_operations.ps1
+        run: .\autonomic_affairs\tests\applications\test_windows_operations.ps1
       - name: Test Windows POSIX-shell operations
         shell: bash
         run: bash autonomic_affairs/tests/applications/test_windows_posix_operations.sh
       - name: Test Windows install dry-run ownership
         shell: powershell
-        run: .\collective_affairs\tests\install\test_windows_install_dry_run.ps1
+        run: .\autonomic_affairs\tests\install\test_windows_install_dry_run.ps1
       - name: Test Windows checkout relocation
         shell: powershell
-        run: .\collective_affairs\tests\relocation\test_windows_relocation.ps1
+        run: .\autonomic_affairs\tests\relocation\test_windows_relocation.ps1
 
 
   fresh-clone-linux:
@@ -90,4 +90,4 @@ jobs:
         shell: powershell
         run: |
           Set-Location "$env:RUNNER_TEMP\fresh-soul"
-          .\collective_affairs\tests\applications\test_windows_operations.ps1
+          .\autonomic_affairs\tests\applications\test_windows_operations.ps1
