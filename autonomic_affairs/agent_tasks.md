@@ -29,8 +29,8 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`V2-58`](agent_tasks/legacy_v2.md#v2-58) | COMPLETE | `V2-57` | Implement Python core | Build generic discovery, dispatch, config/state/backup/account/install/result/primitive libraries with contract tests. |
 | [`V2-59`](agent_tasks/legacy_v2.md#v2-59) | COMPLETE | `V2-58` | Convert application declarations | Represent the current application set with `_application.py` definitions plus minimal justified hooks. |
 | [`V2-60`](agent_tasks/legacy_v2.md#v2-60) | COMPLETE | `V2-58`, `V2-59` | Replace operations with wrappers | Replace application operation implementations with tiny Python wrappers around declarations and shared engines. |
-| [`V2-61`](agent_tasks/legacy_v2.md#v2-61) | IN_PROGRESS | `V2-58`, `V2-60` | Reduce native scripts | Retain only justified native Bash/PowerShell primitives and retire superseded policy/orchestration code after parity. |
-| [`V2-62`](agent_tasks/legacy_v2.md#v2-62) | QUEUED | `V2-56`, `V2-60`, `V2-61` | Implement orchestrator | Build the interactive manager over the same atomic operations and common results used by direct execution. |
+| [`V2-61`](agent_tasks/legacy_v2.md#v2-61) | COMPLETE | `V2-58`, `V2-60` | Reduce native scripts | Retain only justified native Bash/PowerShell primitives and retire superseded policy/orchestration code after parity. |
+| [`V2-62`](agent_tasks/legacy_v2.md#v2-62) | IN_PROGRESS | `V2-56`, `V2-60`, `V2-61` | Implement orchestrator | Build the interactive manager over the same atomic operations and common results used by direct execution. |
 | [`V2-63`](agent_tasks/legacy_v2.md#v2-63) | QUEUED | `V2-58`–`V2-62` | Validate end to end | Migrate/expand tests, prove Windows/Linux/fresh-clone parity, then remove stale legacy remnants. |
 
 ## Task contract
