@@ -48,12 +48,12 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from accumulated_instruments.machine_soul.applications import load_application
+from accumulated_instruments.machine_soul.model import Operation
 from accumulated_instruments.machine_soul.operations import perform_operation
 from accumulated_instruments.machine_soul.presentation import wrapper_main
 
-from _application import APPLICATION
-from accumulated_instruments.machine_soul.model import Operation
-
+APPLICATION = load_application(Path(__file__).with_name("_application.py"))
 OPERATION = Operation.INSTALL
 
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 ```
 
-The exact import/module names may change when the implementation lands. The responsibilities and single implementation path do not.
+`load_application(Path(__file__).with_name("_application.py"))` is deliberate: it works identically when the wrapper is executed directly by path or imported under another module name, without depending on an ambient `_application` top-level import. The responsibilities and single implementation path are fixed.
 
 ## `run(...)`
 
