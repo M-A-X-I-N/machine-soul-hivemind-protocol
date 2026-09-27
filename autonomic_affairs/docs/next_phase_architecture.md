@@ -271,6 +271,8 @@ The files present in an application's annexation directory should make its avail
 
 ## 8. Interactive orchestration
 
+The concrete orchestration contract is defined in [`INTERACTIVE_ORCHESTRATION.md`](INTERACTIVE_ORCHESTRATION.md).
+
 The future broad/interactive Machine-Soul manager is intentionally the opposite of an operation implementation.
 
 It may:
