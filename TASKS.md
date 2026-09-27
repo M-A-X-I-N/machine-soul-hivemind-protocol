@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-45 — Adopt repository-controlled snake_case naming.**
+**V2-46 — Establish the `collective_affairs/` repository-meta namespace.**
 
 ## Roadmap
 
@@ -211,7 +211,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Put agent-facing detail under `.agents/` where appropriate and promote human-relevant architecture into normal documentation when useful.
   - Checkpoint: later tasks can be executed from repository documentation without reconstructing these rules from chat history.
 
-- [ ] **V2-45 — Adopt repository-controlled snake_case naming**
+- [x] **V2-45 — Adopt repository-controlled snake_case naming**
   - Rename repository-controlled multiword paths from kebab-case to lower_snake_case, including the thematic top-level directories and shared tooling paths.
   - Use snake_case for repository-owned application identifiers such as `oh_my_posh` while preserving externally mandated names such as executables, package IDs, dotfiles, `.github/`, `AGENTS.md`, and application-defined filenames.
   - Update every runtime path, test, workflow, document, and agent-memory reference.
