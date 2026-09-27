@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**MSHP-META-A-010 — Rename the repository-meta namespace to `autonomic_affairs`.**
+**MSHP-META-A-020 — Establish the canonical agent-task index/detail/archive system.**
 
 ## Task history and queue
 
@@ -350,7 +350,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 > These tasks use the new identifier scheme agreed after the legacy V2 roadmap was established. They are temporarily represented in this legacy ledger format until `MSHP-META-A-020` migrates the task system itself. Existing `V2-*` identifiers remain unchanged.
 
-- [ ] **MSHP-META-A-010 — Rename the repository-meta namespace to `autonomic_affairs`**
+- [x] **MSHP-META-A-010 — Rename the repository-meta namespace to `autonomic_affairs`**
   - **Depends on:** none.
   - Rename `collective_affairs/` to `autonomic_affairs/` without changing its role as the repository/project self-management namespace.
   - Update every path/reference in runtime code, CI, tests, documentation, `.agents/`, task navigation, links, and any root-detection or repository-navigation logic affected by the move.

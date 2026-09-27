@@ -17,25 +17,25 @@ jobs:
         run: python3 -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
       - name: Test Python declaration model
         shell: bash
-        run: python3 -m unittest discover -s collective_affairs/tests/python -p 'test_*.py'
+        run: python3 -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
       - name: Test Linux configuration deployment
         shell: bash
-        run: bash collective_affairs/tests/configuration_deployment/test_linux.sh
+        run: bash autonomic_affairs/tests/configuration_deployment/test_linux.sh
       - name: Test Linux application operations
         shell: bash
-        run: bash collective_affairs/tests/applications/test_linux_operations.sh
+        run: bash autonomic_affairs/tests/applications/test_linux_operations.sh
       - name: Test Linux install dry-run ownership
         shell: bash
-        run: bash collective_affairs/tests/install/test_linux_install_dry_run.sh
+        run: bash autonomic_affairs/tests/install/test_linux_install_dry_run.sh
       - name: Test Linux checkout relocation
         shell: bash
-        run: bash collective_affairs/tests/relocation/test_linux_relocation.sh
+        run: bash autonomic_affairs/tests/relocation/test_linux_relocation.sh
       - name: Test Linux session/account boundaries
         shell: bash
-        run: bash collective_affairs/tests/session/test_linux_account_boundaries.sh
+        run: bash autonomic_affairs/tests/session/test_linux_account_boundaries.sh
       - name: Test Linux host/account matrix
         shell: bash
-        run: bash collective_affairs/tests/matrix/test_linux_host_matrix.sh
+        run: bash autonomic_affairs/tests/matrix/test_linux_host_matrix.sh
 
   windows_configuration_deployment:
     runs-on: windows-latest
@@ -46,7 +46,7 @@ jobs:
         run: python -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
       - name: Test Python declaration model
         shell: powershell
-        run: python -m unittest discover -s collective_affairs/tests/python -p 'test_*.py'
+        run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
       - name: Test Windows configuration deployment in Windows PowerShell 5.1
         shell: powershell
         run: .\collective_affairs\tests\configuration_deployment\test_windows.ps1
@@ -55,7 +55,7 @@ jobs:
         run: .\collective_affairs\tests\applications\test_windows_operations.ps1
       - name: Test Windows POSIX-shell operations
         shell: bash
-        run: bash collective_affairs/tests/applications/test_windows_posix_operations.sh
+        run: bash autonomic_affairs/tests/applications/test_windows_posix_operations.sh
       - name: Test Windows install dry-run ownership
         shell: powershell
         run: .\collective_affairs\tests\install\test_windows_install_dry_run.ps1
@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           cd "${RUNNER_TEMP}/fresh-soul"
-          bash collective_affairs/tests/applications/test_linux_operations.sh
+          bash autonomic_affairs/tests/applications/test_linux_operations.sh
 
   fresh-clone-windows:
     runs-on: windows-latest

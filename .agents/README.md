@@ -14,7 +14,7 @@ If meaningful effort was spent learning something and it is likely to matter aga
 
 ## What does not belong here
 
-- the active executable-work ledger — use `../collective_affairs/agent_tasks.md`;
+- the active executable-work ledger — use `../autonomic_affairs/agent_tasks.md`;
 - secrets, tokens, passwords, private keys, or other sensitive machine-local values;
 - generated output or disposable scratch data;
 - machine-local mutable deployment state — use ignored `../scratch/`;
@@ -45,7 +45,7 @@ Prefer updating an existing note over creating a competing note on the same subj
 
 1. `../AGENTS.md`
 2. `WORKFLOW.md`
-3. `../collective_affairs/agent_tasks.md`
+3. `../autonomic_affairs/agent_tasks.md`
 4. relevant notes under this directory
 5. relevant human-facing documentation/configuration
 
