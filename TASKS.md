@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-46 — Establish the `collective_affairs/` repository-meta namespace.**
+**V2-47 — Replace the generic task ledger with `agent_tasks`.**
 
 ## Roadmap
 
@@ -217,7 +217,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Update every runtime path, test, workflow, document, and agent-memory reference.
   - Checkpoint: no stale repository-owned kebab-case path remains except an explicitly documented external/proper identifier.
 
-- [ ] **V2-46 — Establish the `collective_affairs/` repository-meta namespace**
+- [x] **V2-46 — Establish the `collective_affairs/` repository-meta namespace**
   - Create `collective_affairs/` for material about the repository/project itself rather than machine configuration or deployment behavior.
   - Move ordinary repository-administration material such as documentation and tests beneath it where doing so does not break tool-defined conventions.
   - Keep conventional/special root artifacts such as dotfiles, `.github/`, `AGENTS.md`, and `README.md` at the repository root.
