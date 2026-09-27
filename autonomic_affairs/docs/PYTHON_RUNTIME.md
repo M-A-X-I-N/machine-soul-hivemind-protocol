@@ -100,4 +100,34 @@ A future broad interactive entry point may provide a more convenient interface, 
 
 ## Testing
 
-CI smoke-tests that the repository-local package imports and accepts the configured Python baseline on both Linux and Windows. Later tasks add behavioral/unit tests as real Python functionality appears.
+CI smoke-tests the package and runs the Python contract suite on both Linux and Windows.
+
+## Implemented shared core
+
+V2-58 established working library APIs alongside the untouched legacy shell runtime:
+
+- `model.context` — logical target account, operation context, conflict policy;
+- `discovery` — repository-root marker discovery, platform/host/account resolution;
+- `applications` — side-effect-free declaration loading/discovery;
+- `configuration` — shared host/account source precedence and destination resolution;
+- `filesystem` — portable file-symlink classification/creation;
+- `state` — versioned JSON config/install state plus legacy Linux/Windows state readers;
+- `operations.configuration` — safe Check/Apply/Unapply, backup/restore, rollback, relocation repair;
+- `operations.installation` — Apt and WinGet handlers, managed/unmanaged provenance policy, dry-run;
+- `operations.dispatcher` — generic capability/operation dispatch with no application-ID branches;
+- `process` — shell-free subprocess execution;
+- `primitives.invoke` — actual native-process invocation normalized through the versioned protocol.
+
+The legacy Bash/PowerShell implementation remains present until later parity/removal tasks.
+
+### Windows symlink finding
+
+The hosted Windows CI runner successfully creates and manages file symlinks through Python's `os.symlink`. Therefore the old PowerShell symlink implementation is **not** justified as a future native primitive merely for symlink creation.
+
+Windows `os.readlink` may expose the target using the NT substitution-path spelling (for example an extended `\\?\` path) while normal filesystem paths use DOS/UNC spelling. Machine-Soul normalizes those equivalent spellings for identity comparison and keys deployment state by the logical declared destination rather than the alternate canonical representation.
+
+This behavior is covered by the same configuration lifecycle tests on Windows and Linux.
+
+### Legacy-state transition
+
+The Python state layer reads both the new schema and existing legacy formats/hashes so previously recorded ownership/backup lineage is not intentionally stranded during migration. New Python writes use one JSON schema; destructive retirement of legacy readers waits until old state can no longer be required.
