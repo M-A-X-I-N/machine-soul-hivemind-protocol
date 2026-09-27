@@ -296,7 +296,9 @@ def _apply_one(
         host=context.host,
         account=context.target_account.name,
         source_relative=_source_relative(context, target.source),
-        destination=str(destination),
+        # State identity follows the logical declared destination rather than
+        # a platform-specific canonical spelling such as Windows \\?\ paths.
+        destination=str(target.destination),
         prior_type=prior_type,
         backup_relative=_backup_relative(context, backup),
         backup_absolute=(str(backup) if backup is not None else None),
