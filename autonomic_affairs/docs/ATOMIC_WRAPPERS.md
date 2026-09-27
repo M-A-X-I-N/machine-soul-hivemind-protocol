@@ -105,7 +105,7 @@ It delegates common concerns to shared helpers:
 4. render the common result;
 5. map the result to the shared process exit contract.
 
-Exact result/exit semantics are defined by V2-54.
+Result and exit semantics are defined in [`OPERATION_RESULTS.md`](OPERATION_RESULTS.md).
 
 The wrapper itself must not reimplement common argument parsing.
 
@@ -171,7 +171,7 @@ The shared dispatcher reads the current platform declaration and produces the ap
 
 Expected operational states/failures return the common result model.
 
-Wrappers should not catch broad exceptions merely to turn programming/protocol failures into fake successful result objects. The precise distinction between semantic failure and exceptional malfunction is defined in V2-54.
+Wrappers should not catch broad exceptions merely to turn programming/protocol failures into fake successful result objects. The semantic-failure versus exceptional-malfunction distinction is defined in [`OPERATION_RESULTS.md`](OPERATION_RESULTS.md).
 
 ## Orchestrator relationship
 

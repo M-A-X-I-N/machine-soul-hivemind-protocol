@@ -8,6 +8,7 @@ from .application import (
     PlatformDeclaration,
     Support,
 )
+from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
     CustomInstaller,
@@ -24,6 +25,8 @@ __all__ = [
     "Platform",
     "PlatformDeclaration",
     "Support",
+    "OperationResult",
+    "ResultStatus",
     "AptPackage",
     "CustomInstaller",
     "HomeRelativeDestination",

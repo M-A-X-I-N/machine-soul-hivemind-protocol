@@ -200,7 +200,7 @@ The exact process protocol lands in V2-55.
 
 ## Presentation boundary
 
-Operation engines produce semantic results, not human-formatted CLI output.
+Operation engines produce semantic results, not human-formatted CLI output. The concrete model is defined in [`OPERATION_RESULTS.md`](OPERATION_RESULTS.md).
 
 Presentation belongs above the engine:
 
