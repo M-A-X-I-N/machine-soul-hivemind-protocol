@@ -8,6 +8,7 @@ from .application import (
     PlatformDeclaration,
     Support,
 )
+from .context import ConflictPolicy, OperationContext, TargetAccount
 from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
@@ -25,6 +26,9 @@ __all__ = [
     "Platform",
     "PlatformDeclaration",
     "Support",
+    "ConflictPolicy",
+    "OperationContext",
+    "TargetAccount",
     "OperationResult",
     "ResultStatus",
     "AptPackage",
