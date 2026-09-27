@@ -12,7 +12,7 @@ from pathlib import Path
 import tempfile
 from typing import Mapping
 
-from .model import OperationContext
+from .model import OperationContext, Platform
 
 
 CONFIG_STATE_SCHEMA = 3
@@ -52,6 +52,38 @@ def config_state_path(
         / context.target_account.name
         / application
         / f"{destination_hash(destination)}{extension}"
+    )
+
+
+def _legacy_destination_hash(context: OperationContext, path: str | Path) -> str:
+    """Reproduce the legacy platform runtime's destination-hash input."""
+    raw = Path(os.path.abspath(os.fspath(path)))
+    if context.platform is Platform.WINDOWS:
+        text = os.path.normpath(os.fspath(raw))
+        if text.startswith("\\\\?\\UNC\\"):
+            text = "\\\\" + text[8:]
+        elif text.startswith("\\\\?\\"):
+            text = text[4:]
+    else:
+        parent = os.path.realpath(os.fspath(raw.parent))
+        text = os.fspath(Path(parent) / raw.name)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _legacy_config_state_path(
+    context: OperationContext,
+    application: str,
+    destination: str | Path,
+    extension: str,
+) -> Path:
+    return (
+        _scratch(context)
+        / "state"
+        / "config"
+        / context.host
+        / context.target_account.name
+        / application
+        / f"{_legacy_destination_hash(context, destination)}{extension}"
     )
 
 
@@ -220,8 +252,17 @@ def read_config_state(
     destination: str | Path,
 ) -> ConfigState | None:
     """Read new JSON state or the legacy Linux line/base64 format."""
-    json_path = config_state_path(context, application, destination)
-    if json_path.is_file():
+    candidates = [
+        config_state_path(context, application, destination),
+        _legacy_config_state_path(context, application, destination, ".json"),
+    ]
+    seen: set[Path] = set()
+    for json_path in candidates:
+        if json_path in seen:
+            continue
+        seen.add(json_path)
+        if not json_path.is_file():
+            continue
         try:
             payload = json.loads(json_path.read_text(encoding="utf-8-sig"))
         except json.JSONDecodeError as exc:
@@ -230,9 +271,16 @@ def read_config_state(
             raise StateError("Config state JSON must be an object.")
         return _json_config_state(payload)
 
-    legacy_path = config_state_path(context, application, destination, extension=".state")
-    if legacy_path.is_file():
-        return _legacy_line_state(legacy_path)
+    line_candidates = [
+        config_state_path(context, application, destination, extension=".state"),
+        _legacy_config_state_path(context, application, destination, ".state"),
+    ]
+    for legacy_path in line_candidates:
+        if legacy_path in seen:
+            continue
+        seen.add(legacy_path)
+        if legacy_path.is_file():
+            return _legacy_line_state(legacy_path)
     return None
 
 
@@ -241,8 +289,15 @@ def delete_config_state(
     application: str,
     destination: str | Path,
 ) -> None:
-    for extension in (".json", ".state"):
-        path = config_state_path(context, application, destination, extension=extension)
+    paths = {
+        config_state_path(context, application, destination, extension=extension)
+        for extension in (".json", ".state")
+    }
+    paths.update(
+        _legacy_config_state_path(context, application, destination, extension)
+        for extension in (".json", ".state")
+    )
+    for path in paths:
         try:
             path.unlink()
         except FileNotFoundError:

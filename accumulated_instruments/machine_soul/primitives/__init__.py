@@ -1,5 +1,6 @@
 """Native primitive process boundary."""
 
+from .invoke import invoke_primitive
 from .protocol import (
     PROTOCOL_VERSION,
     PrimitiveProcessError,
@@ -10,6 +11,7 @@ from .protocol import (
 )
 
 __all__ = [
+    "invoke_primitive",
     "PROTOCOL_VERSION",
     "PrimitiveProcessError",
     "PrimitiveProtocolError",
