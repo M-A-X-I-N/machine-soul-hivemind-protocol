@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**V2-51 — Define the declarative application model.**
+**V2-52 — Define the library-first operation architecture.**
 
 ## Task history and queue
 
@@ -256,7 +256,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
   - Keep executable entry points thin and keep implementation logic importable/testable.
   - Checkpoint: the intended Python module boundaries and entry-point conventions are concrete enough for implementation.
 
-- [ ] **V2-51 — Define the declarative application model**
+- [x] **V2-51 — Define the declarative application model**
   - Represent each application primarily as data selecting reusable capabilities/strategies instead of custom imperative implementations.
   - Put the per-application declaration beside its wrappers as `_application.py`; importing it is meaningful, executing it directly has no operation or side effect.
   - Let declarations describe supported operations, configuration mappings, platform variants, installation strategies, verification, and exceptional hooks where genuinely necessary.

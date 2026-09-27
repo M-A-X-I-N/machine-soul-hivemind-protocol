@@ -15,6 +15,9 @@ jobs:
       - name: Smoke-test Python runtime package
         shell: bash
         run: python3 -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
+      - name: Test Python declaration model
+        shell: bash
+        run: python3 -m unittest discover -s collective_affairs/tests/python -p 'test_*.py'
       - name: Test Linux configuration deployment
         shell: bash
         run: bash collective_affairs/tests/configuration_deployment/test_linux.sh
@@ -41,6 +44,9 @@ jobs:
       - name: Smoke-test Python runtime package
         shell: powershell
         run: python -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
+      - name: Test Python declaration model
+        shell: powershell
+        run: python -m unittest discover -s collective_affairs/tests/python -p 'test_*.py'
       - name: Test Windows configuration deployment in Windows PowerShell 5.1
         shell: powershell
         run: .\collective_affairs\tests\configuration_deployment\test_windows.ps1
