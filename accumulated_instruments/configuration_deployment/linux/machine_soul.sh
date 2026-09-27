@@ -10,18 +10,18 @@ ms_die() {
 
 ms_root() {
     if [[ -n "${MACHINE_SOUL:-}" ]]; then
-        if [[ -f "$MACHINE_SOUL/TASKS.md" ]]; then
+        if [[ -f "$MACHINE_SOUL/.machine_soul_root" ]]; then
             printf '%s\n' "$(cd "$MACHINE_SOUL" && pwd -P)"
             return 0
         fi
-        ms_die "MACHINE_SOUL points to '$MACHINE_SOUL', but TASKS.md was not found there."
+        ms_die "MACHINE_SOUL points to '$MACHINE_SOUL', but .machine_soul_root was not found there."
         return $?
     fi
 
     local cursor
     cursor="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
     while [[ "$cursor" != "/" ]]; do
-        if [[ -f "$cursor/TASKS.md" && -f "$cursor/AGENTS.md" ]]; then
+        if [[ -f "$cursor/.machine_soul_root" ]]; then
             export MACHINE_SOUL="$cursor"
             printf '%s\n' "$cursor"
             return 0

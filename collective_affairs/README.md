@@ -7,6 +7,6 @@ Current contents:
 - `docs/` — human-facing architecture, contracts, support notes, and extension guidance.
 - `tests/` — repository validation and behavioral test suites.
 
-The authoritative task ledger remains at the repository root as `TASKS.md` until V2-47 moves and renames it to `collective_affairs/agent_tasks.md`.
+`agent_tasks.md` is the authoritative ledger for work that has been specified well enough to be theoretically executable by an agent. It is not a catch-all roadmap: longer-horizon roadmap items, objectives, and reminders are separate concepts and should only gain their own artifacts when useful.
 
 Root artifacts with conventional or tool-defined placement remain at root, including `AGENTS.md`, `README.md`, dotfiles, and `.github/`.

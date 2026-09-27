@@ -17,6 +17,8 @@ The variable value differs by host; the meaning does not.
 
 Moving the checkout therefore changes only the host's `$MACHINE_SOUL` binding. Existing symlinks may then become stale and must be detectable/repairable by Check/Apply.
 
+A tracked root marker, `.machine_soul_root`, provides a stable repository-identity sentinel for runtime root discovery. Operational root detection must not depend on repository-administration artifacts such as the agent task ledger; those may move or evolve independently.
+
 ## 2. Paired taxonomy
 
 Canonical configuration and the machinery that applies it are deliberately separated:

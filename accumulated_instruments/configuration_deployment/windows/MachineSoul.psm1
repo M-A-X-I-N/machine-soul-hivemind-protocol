@@ -7,16 +7,15 @@ function Get-MachineSoulRoot {
 
     if ($env:MACHINE_SOUL) {
         $candidate = [System.IO.Path]::GetFullPath($env:MACHINE_SOUL)
-        if (Test-Path -LiteralPath (Join-Path $candidate 'TASKS.md') -PathType Leaf) {
+        if (Test-Path -LiteralPath (Join-Path $candidate '.machine_soul_root') -PathType Leaf) {
             return $candidate
         }
-        throw "MACHINE_SOUL points to '$candidate', but TASKS.md was not found there."
+        throw "MACHINE_SOUL points to '$candidate', but .machine_soul_root was not found there."
     }
 
     $cursor = [System.IO.DirectoryInfo][System.IO.Path]::GetFullPath($StartPath)
     while ($null -ne $cursor) {
-        if ((Test-Path -LiteralPath (Join-Path $cursor.FullName 'TASKS.md') -PathType Leaf) -and
-            (Test-Path -LiteralPath (Join-Path $cursor.FullName 'AGENTS.md') -PathType Leaf)) {
+        if (Test-Path -LiteralPath (Join-Path $cursor.FullName '.machine_soul_root') -PathType Leaf) {
             $env:MACHINE_SOUL = $cursor.FullName
             return $cursor.FullName
         }

@@ -30,7 +30,7 @@ collective_affairs/
 
 This namespace is for material about the repository itself rather than configuration or machine-management behavior. It will contain ordinary meta material such as documentation, tests, and the agent task ledger where practical.
 
-The task ledger will become:
+The executable-work ledger is:
 
 ```text
 collective_affairs/agent_tasks.md

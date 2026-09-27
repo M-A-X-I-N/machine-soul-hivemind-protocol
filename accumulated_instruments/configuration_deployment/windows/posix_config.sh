@@ -22,7 +22,7 @@ root_unix="${MACHINE_SOUL:-}"
 if [[ -z "$root_unix" ]]; then
     cursor="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
     while [[ "$cursor" != "/" ]]; do
-        if [[ -f "$cursor/TASKS.md" && -f "$cursor/AGENTS.md" ]]; then
+        if [[ -f "$cursor/.machine_soul_root" ]]; then
             root_unix="$cursor"
             break
         fi

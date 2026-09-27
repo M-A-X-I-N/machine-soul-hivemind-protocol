@@ -1,6 +1,8 @@
-# Machine-Soul Hivemind Protocol — Experimental v2 Roadmap
+# Machine-Soul Hivemind Protocol — Experimental v2 Agent Tasks
 
-This file is the authoritative source of truth for v2 progress and next actions.
+This file is the authoritative source of truth for sufficiently specified/executable agent work and the current next action.
+
+It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, objectives, and reminders are separate concepts and should receive their own artifacts only when they become useful.
 
 ## Status legend
 
@@ -11,9 +13,9 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-47 — Replace the generic task ledger with `agent_tasks`.**
+**V2-48 — Remove static host inventory and prefer runtime discovery.**
 
-## Roadmap
+## Task history and queue
 
 - [x] **V2-01 — Inspect existing repository**
   - Inspect branches/history, directory tree, scripts, configs, `$MACHINE_SOUL`, deployment logic, conventions, and reusable ideas.
@@ -30,7 +32,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Checkpoint: v2 skeleton exists on its own branch.
 
 - [x] **V2-04 — Persist authoritative roadmap**
-  - Create this file and maintain it as work progresses.
+  - Create the authoritative executable-work ledger and maintain it as work progresses.
   - Update task status and the explicit Next task marker whenever work advances.
 
 - [x] **V2-05 — Survey agent conventions**
@@ -224,12 +226,12 @@ This file is the authoritative source of truth for v2 progress and next actions.
   - Update navigation and all affected references.
   - Checkpoint: the visible root is intentionally sparse and the meaning of `collective_affairs/` is documented.
 
-- [ ] **V2-47 — Replace the generic task ledger with `agent_tasks`**
-  - Rename/move `TASKS.md` to `collective_affairs/agent_tasks.md` after the meta namespace exists.
+- [x] **V2-47 — Replace the generic task ledger with `agent_tasks`**
+  - Move the former root task ledger to `collective_affairs/agent_tasks.md` after the meta namespace exists.
   - Define agent tasks as work that has been thought through enough to be theoretically executable, rather than a catch-all for every future intention.
   - Reserve distinct future concepts such as roadmap, objectives, and reminders for different timescales/levels of certainty; do not create those files until they are actually useful.
   - Update `AGENTS.md`, `.agents/`, README navigation, recovery instructions, and all task-ledger references.
-  - Checkpoint: there is one authoritative agent-task ledger and no competing `TASKS.md`.
+  - Checkpoint: there is one authoritative agent-task ledger at `collective_affairs/agent_tasks.md` and no competing root task ledger.
 
 - [ ] **V2-48 — Remove static host inventory and prefer runtime discovery**
   - Remove the standalone top-level host inventory and its tracked per-host `.env` records.

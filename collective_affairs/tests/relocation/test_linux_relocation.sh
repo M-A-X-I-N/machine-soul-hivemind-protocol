@@ -16,7 +16,7 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$old_root/config" "$(dirname "$destination")"
-printf '# marker\n' > "$old_root/TASKS.md"
+printf 'Machine-Soul repository root\n' > "$old_root/.machine_soul_root"
 printf 'canonical\n' > "$old_root/config/canonical.conf"
 printf 'original\n' > "$destination"
 

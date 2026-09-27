@@ -19,7 +19,7 @@ function Assert-Equal {
 try {
     New-Item -ItemType Directory -Force -Path (Join-Path $oldRoot 'config') | Out-Null
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destination) | Out-Null
-    [System.IO.File]::WriteAllText((Join-Path $oldRoot 'TASKS.md'), "# marker`n")
+    [System.IO.File]::WriteAllText((Join-Path $oldRoot '.machine_soul_root'), "Machine-Soul repository root`n")
     [System.IO.File]::WriteAllText((Join-Path $oldRoot 'config\canonical.conf'), "canonical`n")
     [System.IO.File]::WriteAllText($destination, "original`n")
 

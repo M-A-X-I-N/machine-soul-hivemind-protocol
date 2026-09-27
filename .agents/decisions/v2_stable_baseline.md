@@ -56,6 +56,6 @@ CI coverage at baseline includes:
 
 ## After this checkpoint
 
-`TASKS.md` has no next v2 implementation task after V2-40. Further work should begin from a newly authorized roadmap or explicit user direction.
+At that baseline, the then-current task ledger had no next v2 implementation task after V2-40. Further work was expected to begin from newly authorized work or explicit user direction.
 
 Do not merge or promote `experimental/v2` to `main` merely because this baseline is stable.
