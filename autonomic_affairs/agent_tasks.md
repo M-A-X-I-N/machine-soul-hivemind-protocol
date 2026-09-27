@@ -20,18 +20,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-META-A-040`](agent_tasks/MSHP-META-A/MSHP-META-A-040.md) | COMPLETE | `MSHP-META-A-010` | Formalize agent provenance | Establish stable-designation registry, accurate official identities, optional honorifics, and conspicuous `UNNAMED` behavior. |
 | [`MSHP-META-A-050`](agent_tasks/MSHP-META-A/MSHP-META-A-050.md) | COMPLETE | `MSHP-META-A-010` | Establish reminders | Create the non-executable reminders register and seed provenance-rewrite, cross-repo agent-baseline, and Skills investigations. |
 | [`MSHP-META-A-060`](agent_tasks/MSHP-META-A/MSHP-META-A-060.md) | COMPLETE | `MSHP-META-A-010` | Codify idiot-maintainer language | Permit optional maintainer-directed idiot-human humor while explicitly excluding end users and formal interfaces. |
-| [`V2-52`](agent_tasks/legacy_v2.md#v2-52) | COMPLETE | `V2-51` | Define library-first operation architecture | Fix the boundaries between declarations, generic engines, wrappers, orchestration, and exceptional/custom behavior. |
-| [`V2-53`](agent_tasks/legacy_v2.md#v2-53) | COMPLETE | `V2-52` | Define atomic wrapper contracts | Specify uniform one-operation wrappers with one importable/executable implementation path and no duplicated business logic. |
-| [`V2-54`](agent_tasks/legacy_v2.md#v2-54) | COMPLETE | `V2-52` | Define operation-result model | Define one structured semantic result usable by wrappers, orchestration, tests, automation, and native-process normalization. |
-| [`V2-55`](agent_tasks/legacy_v2.md#v2-55) | COMPLETE | `V2-54` | Define native primitive protocol | Specify the narrow versioned JSON/native-process boundary for justified platform primitives. |
-| [`V2-56`](agent_tasks/legacy_v2.md#v2-56) | COMPLETE | `V2-53`, `V2-54`, `V2-55` | Define interactive orchestration | Define a broad manager that composes atomic operations but owns no application/platform business logic. |
-| [`V2-57`](agent_tasks/legacy_v2.md#v2-57) | COMPLETE | `V2-52`–`V2-56` | Audit legacy implementation | Classify existing Bash/PowerShell behavior into Python policy, declarations, reusable strategies, custom hooks, primitives, or deletion. |
-| [`V2-58`](agent_tasks/legacy_v2.md#v2-58) | COMPLETE | `V2-57` | Implement Python core | Build generic discovery, dispatch, config/state/backup/account/install/result/primitive libraries with contract tests. |
-| [`V2-59`](agent_tasks/legacy_v2.md#v2-59) | COMPLETE | `V2-58` | Convert application declarations | Represent the current application set with `_application.py` definitions plus minimal justified hooks. |
-| [`V2-60`](agent_tasks/legacy_v2.md#v2-60) | COMPLETE | `V2-58`, `V2-59` | Replace operations with wrappers | Replace application operation implementations with tiny Python wrappers around declarations and shared engines. |
-| [`V2-61`](agent_tasks/legacy_v2.md#v2-61) | COMPLETE | `V2-58`, `V2-60` | Reduce native scripts | Retain only justified native Bash/PowerShell primitives and retire superseded policy/orchestration code after parity. |
-| [`V2-62`](agent_tasks/legacy_v2.md#v2-62) | COMPLETE | `V2-56`, `V2-60`, `V2-61` | Implement orchestrator | Build the interactive manager over the same atomic operations and common results used by direct execution. |
-| [`V2-63`](agent_tasks/legacy_v2.md#v2-63) | IN_PROGRESS | `V2-58`–`V2-62` | Validate end to end | Migrate/expand tests, prove Windows/Linux/fresh-clone parity, then remove stale legacy remnants. |
+
 
 ## Task contract
 
@@ -73,4 +62,4 @@ A dependency is another task whose completed output is structurally required. A 
 
 All incomplete tasks and all tasks in active blocks remain in this index. Keep the two most recently completed **new-style blocks** here as context. When an older completed block cycles out, move only its index entries to [`agent_task_archive.md`](agent_task_archive.md), ordered by block completion time. Never archive an incomplete block, and never relocate/delete detailed task files merely because their index entries archived.
 
-Completed legacy V2 history is preserved in [`agent_tasks/legacy_v2.md`](agent_tasks/legacy_v2.md) and referenced from the archive. While V2 remains incomplete, only V2-52 through V2-63 appear in the active table.
+Completed legacy V2 history is preserved in [`agent_tasks/legacy_v2.md`](agent_tasks/legacy_v2.md) and referenced from the archive. The legacy V2 block is complete and therefore no longer appears in the active scheduling table.
