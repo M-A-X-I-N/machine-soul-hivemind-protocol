@@ -22,7 +22,7 @@ Moving the checkout therefore changes only the host's `$MACHINE_SOUL` binding. E
 Canonical configuration and the machinery that applies it are deliberately separated:
 
 ```text
-assimilation-directives/
+assimilation_directives/
 └── <application>/
     ├── shared/
     ├── default/
@@ -35,19 +35,19 @@ assimilation-directives/
             └── users/
                 └── <account>/
 
-annexation-procedures/
+annexation_procedures/
 └── <application>/
     ├── windows/
     └── linux/
 ```
 
-`assimilation-directives/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
+`assimilation_directives/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
 
-`annexation-procedures/` is the operational tree: the equivalent of a conventional top-level `operations/` tree.
+`annexation_procedures/` is the operational tree: the equivalent of a conventional top-level `operations/` tree.
 
 The two are intrinsically paired by application name, but neither is nested inside the other.
 
-Shared symlink/backup/state/dispatch implementation belongs under `accumulated-instruments/configuration-deployment/` rather than being duplicated in each annexation procedure.
+Shared symlink/backup/state/dispatch implementation belongs under `accumulated_instruments/configuration_deployment/` rather than being duplicated in each annexation procedure.
 
 ## 3. Configuration identity dimensions
 

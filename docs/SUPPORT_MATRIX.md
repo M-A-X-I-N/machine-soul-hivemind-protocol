@@ -23,7 +23,7 @@ Legend:
 
 ### Windows Fish/Bash/Zsh adapter
 
-The supported entry points are the `.sh` procedures under `annexation-procedures/<application>/windows/`.
+The supported entry points are the `.sh` procedures under `annexation_procedures/<application>/windows/`.
 
 They run inside an MSYS2/Cygwin-compatible POSIX environment, use that environment's real `$HOME`, translate paths with `cygpath`, then delegate actual link creation and deployment state to the tested Windows PowerShell runtime.
 

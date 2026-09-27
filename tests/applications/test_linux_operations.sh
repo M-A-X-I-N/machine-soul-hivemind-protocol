@@ -24,7 +24,7 @@ for app in fish bash zsh oh-my-posh contour; do
     export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/$app/config.file"
     mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
 
-    ops="$repo_root/annexation-procedures/$app/linux"
+    ops="$repo_root/annexation_procedures/$app/linux"
     assert_eq "NOT_APPLIED" "$("$ops/check_config.sh")" "$app initial check"
     assert_eq "APPLIED" "$("$ops/apply_config.sh" abort)" "$app apply"
     assert_eq "APPLIED" "$("$ops/check_config.sh")" "$app check applied"

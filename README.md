@@ -29,7 +29,7 @@ Unapply verifies that the current destination is still the object Machine-Soul e
 
 ## Configuration resolution
 
-Application configuration lives under assimilation-directives/<application>/.
+Application configuration lives under assimilation_directives/<application>/.
 
 Current final-file precedence is:
 
@@ -44,9 +44,9 @@ Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux serve
 
 ## Paired configuration and operation trees
 
-Canonical application configuration lives under `assimilation-directives/<application>/...`.
+Canonical application configuration lives under `assimilation_directives/<application>/...`.
 
-The matching operational machinery lives under `annexation-procedures/<application>/...`.
+The matching operational machinery lives under `annexation_procedures/<application>/...`.
 
 Configured targets normally provide Apply config, Unapply config, and Check config from the annexation tree. Installation support may additionally provide Install and Uninstall there.
 
@@ -64,7 +64,7 @@ See docs/SESSION_BOUNDARIES.md.
 
 See docs/SUPPORT_MATRIX.md.
 
-Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation-procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
+Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation_procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
 
 ## Next-phase target architecture
 

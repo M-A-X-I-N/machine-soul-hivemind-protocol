@@ -12,7 +12,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-apps=(fish bash zsh oh-my-posh contour)
+apps=(fish bash zsh oh_my_posh contour)
 hosts=(workhorse runar)
 accounts=(m-a-x-i-n root)
 
@@ -25,14 +25,14 @@ for host in "${hosts[@]}"; do
             export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/$host/$account/$app/config.file"
             mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
 
-            ops="$repo_root/annexation-procedures/$app/linux"
+            ops="$repo_root/annexation_procedures/$app/linux"
             [[ "$("$ops/check_config.sh")" == "NOT_APPLIED" ]]
             [[ "$("$ops/apply_config.sh" abort)" == "APPLIED" ]]
             [[ "$("$ops/check_config.sh")" == "APPLIED" ]]
 
             target="$(readlink -- "$MACHINE_SOUL_CONFIG_DESTINATION")"
-            if [[ "$app" == "oh-my-posh" ]]; then
-                expected="$repo_root/assimilation-directives/oh-my-posh/hosts/$host/users/$account/theme.omp.json"
+            if [[ "$app" == "oh_my_posh" ]]; then
+                expected="$repo_root/assimilation_directives/oh_my_posh/hosts/$host/users/$account/theme.omp.json"
             else
                 case "$app" in
                     fish) leaf="config.fish" ;;
@@ -40,7 +40,7 @@ for host in "${hosts[@]}"; do
                     zsh) leaf=".zshrc" ;;
                     contour) leaf="contour.yml" ;;
                 esac
-                expected="$repo_root/assimilation-directives/$app/hosts/$host/common/$leaf"
+                expected="$repo_root/assimilation_directives/$app/hosts/$host/common/$leaf"
             fi
 
             [[ "$target" == "$expected" ]] || {

@@ -12,7 +12,7 @@ Keep host facts declarative instead of scattering raw hostname checks through sh
 
 ## Add an application
 
-Create the canonical configuration under `assimilation-directives/<application>/` and the matching operational entry points under `annexation-procedures/<application>/`.
+Create the canonical configuration under `assimilation_directives/<application>/` and the matching operational entry points under `annexation_procedures/<application>/`.
 
 ### Define canonical config
 
@@ -26,7 +26,7 @@ Document where the application expects each file. If the path or symlink semanti
 
 ### Reuse shared deployment primitives
 
-Linux shared runtime lives under accumulated-instruments/configuration-deployment/linux/. Windows shared runtime lives under accumulated-instruments/configuration-deployment/windows/.
+Linux shared runtime lives under accumulated_instruments/configuration_deployment/linux/. Windows shared runtime lives under accumulated_instruments/configuration_deployment/windows/.
 
 Application adapters should resolve application identity, tracked source, and native destination, then delegate symlink/backup/state behavior to the shared runtime.
 
@@ -34,7 +34,7 @@ Do not hand-roll backup behavior unless the application genuinely has extra non-
 
 ### Expose operations
 
-Configured targets normally provide `apply_config`, `unapply_config`, and `check_config` under `annexation-procedures/<application>/<platform>/`. Safe installation support may additionally provide install and uninstall.
+Configured targets normally provide `apply_config`, `unapply_config`, and `check_config` under `annexation_procedures/<application>/<platform>/`. Safe installation support may additionally provide install and uninstall.
 
 Unsupported or unfinished operations should say so explicitly.
 
@@ -54,7 +54,7 @@ Choose an explicit platform/upstream-supported install mechanism. Never make con
 
 ## Add an account override
 
-Add only the final file that differs under `assimilation-directives/<application>/hosts/<host>/users/<account>/`.
+Add only the final file that differs under `assimilation_directives/<application>/hosts/<host>/users/<account>/`.
 
 OMP root configs are the initial example.
 

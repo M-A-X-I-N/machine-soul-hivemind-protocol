@@ -190,13 +190,13 @@ This file is the authoritative source of truth for v2 progress and next actions.
 ## Post-baseline structural adjustments
 
 - [x] **V2-41 — Split assimilation directives from annexation procedures**
-  - Make `assimilation-directives/` the canonical configuration-content tree itself, removing the redundant per-application `config/` layer.
-  - Move per-application Apply / Unapply / Check / Install / Uninstall machinery to matching paths under `annexation-procedures/`, removing the redundant per-application `operations/` layer.
+  - Make `assimilation_directives/` the canonical configuration-content tree itself, removing the redundant per-application `config/` layer.
+  - Move per-application Apply / Unapply / Check / Install / Uninstall machinery to matching paths under `annexation_procedures/`, removing the redundant per-application `operations/` layer.
   - Update every runtime, test, documentation, and agent-memory reference.
 
 - [x] **V2-42 — Rename shared configuration deployment tooling**
-  - Rename `accumulated-instruments/framework/` to the more specific `accumulated-instruments/configuration-deployment/`.
-  - Update all callers and documentation while preserving the broader purpose of `accumulated-instruments/` for unrelated future system-management tools.
+  - Rename `accumulated_instruments/framework/` to the more specific `accumulated_instruments/configuration_deployment/`.
+  - Update all callers and documentation while preserving the broader purpose of `accumulated_instruments/` for unrelated future system-management tools.
 
 - [x] **V2-43 — Validate post-baseline structural refactor**
   - Verify no stale old-layout references remain, executable modes are preserved, fresh-clone/runtime tests pass on Windows and Linux, and the support/documentation model reflects the new taxonomy.

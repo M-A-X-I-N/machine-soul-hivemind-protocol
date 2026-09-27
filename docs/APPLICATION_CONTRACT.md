@@ -5,17 +5,17 @@
 Configuration content and operational machinery intentionally live in separate but parallel trees:
 
 ```text
-assimilation-directives/<application>/
+assimilation_directives/<application>/
     # canonical tracked configuration files
 
-annexation-procedures/<application>/
+annexation_procedures/<application>/
     # Apply / Unapply / Check / Install / Uninstall entry points
 ```
 
 An application's operational surface may contain:
 
 ```text
-annexation-procedures/<application>/
+annexation_procedures/<application>/
 ├── windows/
 │   ├── apply_config.ps1
 │   ├── unapply_config.ps1
@@ -32,7 +32,7 @@ annexation-procedures/<application>/
 
 Not every application or platform needs every operation.
 
-Shared configuration-deployment runtime code under `accumulated-instruments/configuration-deployment/` implements common semantics so these annexation adapters stay thin.
+Shared configuration-deployment runtime code under `accumulated_instruments/configuration_deployment/` implements common semantics so these annexation adapters stay thin.
 
 ## 2. Required versus optional operations
 

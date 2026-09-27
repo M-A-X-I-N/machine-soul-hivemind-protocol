@@ -17,10 +17,10 @@ function Assert-Equal {
 }
 
 try {
-    foreach ($app in @('powershell','windows-terminal','oh-my-posh','contour')) {
+    foreach ($app in @('powershell','windows_terminal','oh_my_posh','contour')) {
         $env:MACHINE_SOUL_CONFIG_DESTINATION = Join-Path $tempRoot "$app\config.file"
         New-Item -ItemType Directory -Force -Path (Split-Path -Parent $env:MACHINE_SOUL_CONFIG_DESTINATION) | Out-Null
-        $ops = Join-Path $repoRoot "annexation-procedures\$app\windows"
+        $ops = Join-Path $repoRoot "annexation_procedures\$app\windows"
 
         Assert-Equal 'NOT_APPLIED' (& (Join-Path $ops 'check_config.ps1')) "$app initial check"
         Assert-Equal 'APPLIED' (& (Join-Path $ops 'apply_config.ps1') -ConflictPolicy abort) "$app apply"
@@ -36,7 +36,7 @@ try {
     New-Item -ItemType Directory -Force -Path $testRegistryKey | Out-Null
     Set-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun -Value 'echo original' -Type String
 
-    $cmdOps = Join-Path $repoRoot 'annexation-procedures\cmd\windows'
+    $cmdOps = Join-Path $repoRoot 'annexation_procedures\cmd\windows'
     Assert-Equal 'CONFLICT' (& (Join-Path $cmdOps 'check_config.ps1')) 'cmd initial conflict'
     Assert-Equal 'APPLIED' (& (Join-Path $cmdOps 'apply_config.ps1') -ConflictPolicy 'backup-and-replace') 'cmd apply'
     Assert-Equal 'APPLIED' (& (Join-Path $cmdOps 'check_config.ps1')) 'cmd check applied'
@@ -44,7 +44,7 @@ try {
     Assert-Equal 'echo original' ((Get-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun).AutoRun) 'cmd restores prior AutoRun'
 
     foreach ($app in @('fish','bash','zsh')) {
-        $ops = Join-Path $repoRoot "annexation-procedures\$app\windows"
+        $ops = Join-Path $repoRoot "annexation_procedures\$app\windows"
         $output = & (Join-Path $ops 'check_config.ps1')
         Assert-Equal 'NOT_IMPLEMENTED' $output[0] "$app explicit capability gap"
         Assert-Equal 2 $LASTEXITCODE "$app not-implemented exit code"
