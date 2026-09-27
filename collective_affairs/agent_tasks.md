@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**V2-48 — Remove static host inventory and prefer runtime discovery.**
+**V2-49 — Define explicit account targeting.**
 
 ## Task history and queue
 
@@ -233,7 +233,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
   - Update `AGENTS.md`, `.agents/`, README navigation, recovery instructions, and all task-ledger references.
   - Checkpoint: there is one authoritative agent-task ledger at `collective_affairs/agent_tasks.md` and no competing root task ledger.
 
-- [ ] **V2-48 — Remove static host inventory and prefer runtime discovery**
+- [x] **V2-48 — Remove static host inventory and prefer runtime discovery**
   - Remove the standalone top-level host inventory and its tracked per-host `.env` records.
   - Discover portable facts at runtime where practical: hostname, OS/platform, current account, home/config roots, privilege state, and similar environment facts.
   - Retain explicit overrides only where they are genuinely useful for testing or unusual environments; do not require a tracked host registry for ordinary execution.
