@@ -66,6 +66,12 @@ See docs/SUPPORT_MATRIX.md.
 
 Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation-procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
 
+## Next-phase target architecture
+
+The post-baseline roadmap is migrating toward a Python 3, library-first runtime with declarative per-application definitions, tiny atomic operation wrappers, an orchestration-only interactive manager, runtime environment discovery, and narrowly scoped platform-native primitives.
+
+The current shell/PowerShell implementation remains authoritative for behavior that has not yet been migrated. See [docs/next_phase_architecture.md](docs/next_phase_architecture.md) for the target architecture and transition rules.
+
 ## Persistent project memory
 
 - AGENTS.md defines stable agent rules.

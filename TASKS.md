@@ -11,7 +11,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Next task
 
-**V2-44 — Codify the next-phase architecture rules.**
+**V2-45 — Adopt repository-controlled snake_case naming.**
 
 ## Roadmap
 
@@ -204,7 +204,7 @@ This file is the authoritative source of truth for v2 progress and next actions.
 
 ## Portability, taxonomy, and Python-runtime phase
 
-- [ ] **V2-44 — Codify the next-phase architecture rules**
+- [x] **V2-44 — Codify the next-phase architecture rules**
   - Before changing implementation, write durable repository documentation for the decisions established during the post-baseline review.
   - Cover at minimum: repository-controlled snake_case naming; `collective_affairs/` as repository-meta space; `agent_tasks` semantics; removal of static host/account inventory where facts are discoverable; explicit cross-account targeting; Python 3 as an external prerequisite; library-first implementation; declarative applications; atomic wrappers; orchestration-only interactive management; structured operation results; and the native-primitive boundary.
   - Record `_application.py` as the conventional non-executable per-application declaration file and distinguish declarations, wrappers, shared engines, orchestrators, and native primitives.
