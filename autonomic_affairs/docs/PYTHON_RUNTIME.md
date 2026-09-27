@@ -49,6 +49,8 @@ machine_soul/
 
 Do not create empty directories merely to match this diagram. Add modules when their task supplies real behavior.
 
+See [`ATOMIC_WRAPPERS.md`](ATOMIC_WRAPPERS.md) for the canonical per-application wrapper layout and `run(...)`/`main(...)` responsibilities.
+
 ## Direct wrapper execution
 
 Application wrappers must remain directly executable by path without requiring `pip install -e .` or setting `PYTHONPATH` first.

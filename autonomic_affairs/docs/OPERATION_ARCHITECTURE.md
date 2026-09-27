@@ -165,7 +165,7 @@ A wrapper identifies exactly:
 
 Everything else delegates to shared code.
 
-The wrapper contract itself is finalized in V2-53, but the library architecture requires wrappers to be both importable and executable through one implementation path.
+The wrapper contract is defined in [`ATOMIC_WRAPPERS.md`](ATOMIC_WRAPPERS.md): wrappers are both importable and executable through one implementation path.
 
 The orchestrator consumes those same wrapper interfaces so direct use and orchestration cannot drift into separate implementations.
 
