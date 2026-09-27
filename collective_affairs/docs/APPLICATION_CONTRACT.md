@@ -54,16 +54,18 @@ Absence of a file alone is not the capability contract.
 
 ## 3. Common inputs
 
-Operations should support explicit overrides where useful, while defaulting from environment/current context:
+Operations should support common operation-context inputs while defaulting safely:
 
-- `MACHINE_SOUL`;
-- host identity;
-- account identity;
+- `MACHINE_SOUL` / repository root;
+- discovered host identity;
+- logical target account, defaulting to the current account;
 - non-interactive mode;
 - conflict policy;
 - structured output mode when implemented.
 
-Host/account auto-detection must be inspectable and overridable for testing.
+Cross-account selection is one shared operation input, not a separate application-specific operation. The resolved target account is passed into shared engines and declarations; wrappers do not rediscover or reinterpret it.
+
+Host/account auto-detection must be inspectable and overridable for testing. Legacy environment overrides may remain during migration, but the long-term user-facing account selection is an explicit operation option/context field.
 
 ## 4. Output contract
 

@@ -63,25 +63,58 @@ Secrets and genuinely non-discoverable local values remain untracked machine-loc
 
 Machine-Soul does not maintain an advisory list of accounts it supposedly manages.
 
-The default target of an operation is the current account.
+Every operation has a **logical target account**. This is distinct from the process/execution identity.
 
-Managing another account is an explicit action through a common target-account parameter/model, conceptually:
+The default target is the current account. Another account is selected explicitly through one common operation-context field and, for command-line entry points, one common option conceptually equivalent to:
 
 ```text
-apply config to current account
+apply config
 apply config --account root
 check config --account root
 unapply config --account root
 ```
 
-The exact CLI spelling is an implementation detail, but the semantics are not:
+The exact CLI parser is defined later, but these semantics are fixed:
 
+- no explicit account means the current runtime account;
+- an explicit account names the logical target whose config, destinations, state, and provenance are being inspected or mutated;
 - discovering that an account exists does not make it managed;
 - config files existing for an account do not make it managed;
-- management begins only when an operation explicitly targets that account;
-- target home/config locations are discovered when needed;
+- changing execution identity for elevation must **not** silently change the logical target account;
+- target account metadata such as home/config roots is resolved centrally and supplied through operation context;
+- account resolution may be platform-specific, but application wrappers must not implement their own lookup rules;
+- unsupported/unresolvable cross-account targets fail explicitly rather than falling back to the current account;
 - sudo/elevation is requested only for the narrow action that requires it;
 - SSH, sudo, root, and normal-user process boundaries remain independent.
+
+The shared Python model should expose a resolved target object conceptually containing at least:
+
+```text
+TargetAccount
+    name
+    is_current
+    home
+    platform identity fields when useful
+```
+
+and an operation context conceptually containing:
+
+```text
+OperationContext
+    target_account
+    conflict/output/dry-run options
+    other operation-wide inputs
+```
+
+The exact class names are not sacred. The separation between logical target and execution identity is.
+
+### Platform-resolution expectations
+
+On POSIX/Linux, the standard account database is the preferred source for explicit-account metadata; Python's standard-library account facilities are sufficient for normal local users.
+
+On Windows, current-account discovery is straightforward, but arbitrary other-account profile/home resolution and safe cross-account mutation must be treated as an explicit platform capability. If a reliable strategy is not yet implemented, a non-current target is reported unsupported rather than guessed.
+
+Legacy `MACHINE_SOUL_ACCOUNT` overrides may remain temporarily for tests/migration. They are not the long-term user-facing account-selection interface.
 
 ## 4. Python is the shared runtime
 

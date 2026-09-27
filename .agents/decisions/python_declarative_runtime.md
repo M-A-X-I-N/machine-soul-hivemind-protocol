@@ -10,7 +10,7 @@ The human-facing target architecture is documented in [`../../collective_affairs
 
 - Python 3 is a prerequisite; do not add Python bootstrap installers unless separately authorized later.
 - Discover host/platform/account/environment facts at runtime when practical rather than requiring tracked host inventory.
-- Do not infer account management from account existence or config availability. Cross-account work is explicit.
+- Do not infer account management from account existence or config availability. Cross-account work is explicit, carried as a logical target in operation context, and kept distinct from process/elevation identity.
 - Generic behavior belongs in shared libraries.
 - Each application gets a non-executable declarative `_application.py` beside its wrappers.
 - Atomic wrappers do one named thing, contain essentially no business logic, and share one importable/executable implementation path.
@@ -39,4 +39,4 @@ Haxe was considered as a unified cross-platform implementation language, includi
 
 ## Transition warning
 
-The stable v2 implementation still contains tracked host inventory and substantial Bash/PowerShell orchestration. That does not contradict this decision: V2-45 through V2-63 are the migration plan. Do not delete working behavior before its replacement is proven.
+The stable v2 implementation still contains substantial Bash/PowerShell orchestration. That does not contradict this decision: V2-45 through V2-63 are the migration plan. Do not delete working behavior before its replacement is proven.

@@ -21,3 +21,13 @@ This is why workhorse and runar can resolve separate OMP files for m-a-x-i-n and
 Machine-Soul does not implement SSH transport and does not need to test SSH encryption/authentication itself.
 
 CI validates the behavior Machine-Soul owns: a clean remote-like process with only remote host/account context, an actual Ubuntu sudo root process, independent account-specific config selection and deployment state, root versus normal-user OMP targets, and safe Apply/Unapply across those process/account boundaries.
+
+## Logical target versus execution identity
+
+Future Python operations carry the target account explicitly in operation context.
+
+The account being managed is not inferred again after an elevation/process boundary. For example, an operation started by a normal user with target `root` remains logically targeted at `root` even if only one primitive is executed through `sudo`.
+
+Likewise, an elevated helper must not reinterpret "current user" and accidentally write root-owned state for a configuration operation that logically targets the invoking user.
+
+Target account identity therefore owns configuration selection, destination resolution, and deployment/install provenance. Execution identity owns only the permissions of the process performing a particular action.

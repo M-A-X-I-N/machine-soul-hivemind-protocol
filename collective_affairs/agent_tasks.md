@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**V2-49 — Define explicit account targeting.**
+**V2-50 — Establish Python as the shared Machine-Soul runtime.**
 
 ## Task history and queue
 
@@ -241,7 +241,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
   - Secrets and genuinely non-discoverable local values remain machine-local and untracked.
   - Checkpoint: normal operation no longer depends on `hosts/*.env` or equivalent static machine inventory.
 
-- [ ] **V2-49 — Define explicit account targeting**
+- [x] **V2-49 — Define explicit account targeting**
   - Remove advisory account lists and any implication that discovering an account means Machine-Soul manages it.
   - Default operations to the current account.
   - Provide one common target-account parameter/model for explicit cross-account operations; application wrappers must not duplicate separate implementations for current-user versus other-account behavior.
