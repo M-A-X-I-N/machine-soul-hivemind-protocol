@@ -84,5 +84,6 @@ Wholly agent-authored substantive commits must follow the canonical [agent prove
 - Keep shared configuration-deployment runtime behavior separate from application-specific adapters.
 - Keep host/account/platform special cases declarative where practical.
 - Follow [`autonomic_affairs/docs/DOCUMENTATION_STYLE.md`](autonomic_affairs/docs/DOCUMENTATION_STYLE.md): durable docs use generic machine/account roles unless a concrete identity is materially necessary.
+- That style policy also permits optional maintainer-directed idiot-human humor internally; never apply it to end users or formal/user-facing interfaces.
 - Do not invent ceremonial validation merely to claim a task was tested.
 - A fresh clone should eventually reconstruct behavior from repository state plus intentionally machine-local `scratch/` data.
