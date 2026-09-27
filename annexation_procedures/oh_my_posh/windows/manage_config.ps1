@@ -9,4 +9,4 @@ $userRel = "assimilation_directives\oh_my_posh\hosts\$hostName\users\$account\th
 $commonRel = "assimilation_directives\oh_my_posh\hosts\$hostName\common\theme.omp.json"
 $sourceRel = if (Test-Path -LiteralPath (Join-Path $root $userRel) -PathType Leaf) { $userRel } else { $commonRel }
 $destination = if ($env:MACHINE_SOUL_CONFIG_DESTINATION) { $env:MACHINE_SOUL_CONFIG_DESTINATION } else { Join-Path $env:LOCALAPPDATA 'oh-my-posh\theme.omp.json' }
-& "$root\accumulated_instruments\configuration_deployment\windows\Invoke-AppConfig.ps1" -Action $Action -Application oh_my_posh -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy
+& "$root\accumulated_instruments\configuration_deployment\windows\invoke_app_config.ps1" -Action $Action -Application oh_my_posh -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy

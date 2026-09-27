@@ -8,4 +8,4 @@ $sourceRel = "assimilation_directives\windows_terminal\hosts\$hostName\common\se
 $packaged = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'
 $unpackaged = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\settings.json'
 $destination = if ($env:MACHINE_SOUL_CONFIG_DESTINATION) { $env:MACHINE_SOUL_CONFIG_DESTINATION } else { if (Test-Path -LiteralPath (Split-Path -Parent $packaged) -PathType Container) { $packaged } else { $unpackaged } }
-& "$root\accumulated_instruments\configuration_deployment\windows\Invoke-AppConfig.ps1" -Action $Action -Application windows_terminal -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy
+& "$root\accumulated_instruments\configuration_deployment\windows\invoke_app_config.ps1" -Action $Action -Application windows_terminal -SourceRelative $sourceRel -Destination $destination -ConflictPolicy $ConflictPolicy
