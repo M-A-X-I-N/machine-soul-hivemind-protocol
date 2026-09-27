@@ -96,7 +96,7 @@ python annexation_procedures/fish/install.py
 
 depending on platform/interpreter command.
 
-A future broad interactive entry point may provide a more convenient interface, but atomic wrappers remain usable independently.
+The broad manager is now available at `accumulated_instruments/manage_machine_soul.py`, but atomic wrappers remain usable independently and remain the semantic operation interfaces consumed by orchestration.
 
 ## Testing
 

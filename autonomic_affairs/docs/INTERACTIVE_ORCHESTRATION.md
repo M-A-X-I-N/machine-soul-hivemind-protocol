@@ -179,3 +179,25 @@ Useful contract tests should be able to provide fake wrapper callables returning
 The orchestrator should theoretically be able to operate on a newly added ordinary application without modifying orchestrator business logic.
 
 If adding an application requires teaching the broad manager how that application's config/install behavior works, the abstraction boundary has failed.
+
+
+## Implemented manager surface
+
+The broad manager entry point is:
+
+```text
+python accumulated_instruments/manage_machine_soul.py
+```
+
+With no workflow argument it presents an interactive menu. The initial workflows are deliberately small and generic:
+
+- check configuration for every discovered application;
+- apply configuration to an explicit selected application set;
+- check installation state and apply configuration only to positively detected installed applications;
+- exit without performing any operation.
+
+For automation/testing the same entry point accepts `--workflow list`, `--workflow check-config-all`, `--workflow apply-config`, and `--workflow apply-installed`.
+
+Composition lives in `accumulated_instruments.machine_soul.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
+
+A non-success result with `changed=true` stops later mutation in the same baseline workflow so partial-change risk cannot be silently buried. Mixed ordinary semantic outcomes remain present as individual attempts in the workflow report.

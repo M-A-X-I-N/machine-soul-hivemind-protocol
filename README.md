@@ -72,6 +72,16 @@ The post-baseline roadmap is migrating toward a Python 3, library-first runtime 
 
 The Python operation core and atomic wrappers are now authoritative for migrated operation behavior. See [autonomic_affairs/docs/next_phase_architecture.md](autonomic_affairs/docs/next_phase_architecture.md) for the target architecture and transition rules.
 
+## Broad manager
+
+Atomic wrappers remain independently usable, while the broad manager composes them without duplicating application logic:
+
+```text
+python accumulated_instruments/manage_machine_soul.py
+```
+
+Run it without a workflow for the interactive menu, or use its workflow options for scripted status/application selection. See `autonomic_affairs/docs/INTERACTIVE_ORCHESTRATION.md`.
+
 ## Persistent project memory
 
 - AGENTS.md defines stable agent rules.
