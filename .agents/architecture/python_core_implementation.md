@@ -1,6 +1,6 @@
 # Shared Python core implementation
 
-V2-58 implemented the generic Python runtime alongside the legacy shell runtime.
+V2-58 implemented the generic Python runtime; V2-60/V2-61 subsequently made it authoritative and retired the parallel shell/PowerShell policy runtime.
 
 Important reuse/debugging facts:
 
@@ -12,4 +12,4 @@ Important reuse/debugging facts:
 - A correct-looking expected symlink without ownership state is not enough for Python Unapply; it reports `ownership_unproven` instead of deleting it.
 - Apt and WinGet are shared strategy handlers. Pre-existing installs remain unmanaged and are never silently claimed for uninstall.
 - Native process invocation now exists through the v1 protocol, but no current legacy helper is grandfathered into primitive status.
-- Legacy scripts remain until V2-61/V2-63 parity retirement.
+- V2-61 retired the legacy policy/forwarding scripts after parity. Remaining shell/PowerShell under `autonomic_affairs/tests/` are harnesses, not production runtime.

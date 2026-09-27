@@ -131,3 +131,22 @@ This behavior is covered by the same configuration lifecycle tests on Windows an
 ### Legacy-state transition
 
 The Python state layer reads both the new schema and existing legacy formats/hashes so previously recorded ownership/backup lineage is not intentionally stranded during migration. New Python writes use one JSON schema; destructive retirement of legacy readers waits until old state can no longer be required.
+
+
+## Migration completion
+
+V2-63 completed the transition from the parallel Bash/PowerShell policy runtime to the Python/declarative architecture.
+
+The authoritative execution stack is now:
+
+```text
+atomic Python wrappers
+    ↓
+shared Python dispatcher/engines
+    ↓
+declarative application models + shared strategies
+    ↓
+portable Python helpers / justified external process boundaries
+```
+
+The repository keeps legacy state readers so backups/provenance created by the previous runtime are not stranded. That compatibility is intentional data migration support, not a second active runtime.

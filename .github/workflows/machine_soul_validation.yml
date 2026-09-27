@@ -1,4 +1,4 @@
-name: Configuration deployment validation
+name: Machine-Soul validation
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux_configuration_deployment:
+  linux_validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: bash autonomic_affairs/tests/matrix/test_linux_host_matrix.sh
 
-  windows_configuration_deployment:
+  windows_validation:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

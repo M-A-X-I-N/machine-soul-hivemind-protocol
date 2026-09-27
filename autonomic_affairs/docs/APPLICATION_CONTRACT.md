@@ -12,27 +12,20 @@ annexation_procedures/<application>/
     # Apply / Unapply / Check / Install / Uninstall entry points
 ```
 
-An application's operational surface may contain:
+An application's operational surface is platform-neutral at the wrapper layer:
 
 ```text
 annexation_procedures/<application>/
-├── windows/
-│   ├── apply_config.ps1
-│   ├── unapply_config.ps1
-│   ├── check_config.ps1
-│   ├── install.ps1
-│   └── uninstall.ps1
-└── linux/
-    ├── apply_config.sh
-    ├── unapply_config.sh
-    ├── check_config.sh
-    ├── install.sh
-    └── uninstall.sh
+├── _application.py
+├── apply_config.py
+├── unapply_config.py
+├── check_config.py
+├── install.py
+├── uninstall.py
+└── check_installed.py
 ```
 
-Not every application or platform needs every operation.
-
-Shared configuration-deployment runtime code under `accumulated_instruments/configuration_deployment/` implements common semantics so these annexation adapters stay thin.
+The declaration owns platform capability/strategy differences. Shared Python engines under `accumulated_instruments/machine_soul/` implement common semantics so wrappers remain tiny. File presence is not the capability contract.
 
 ## 2. Required versus optional operations
 
@@ -78,41 +71,33 @@ Human output should be concise and explain:
 - resulting state;
 - action required when blocked.
 
-Machine-readable output should be added when the shared runtime needs it, preferably without requiring external parser dependencies.
+Machine-readable output is available through the shared result/presentation contract without external parser dependencies.
 
-At minimum, Check emits one canonical state token:
-
-```text
-APPLIED
-NOT_APPLIED
-CONFLICT
-WRONG_TARGET
-BROKEN
-UNSUPPORTED
-ERROR
-```
-
-Additional installation-state tokens may include:
+Check uses stable lower_snake_case result codes such as:
 
 ```text
-INSTALLED_MANAGED
-INSTALLED_UNMANAGED
-NOT_INSTALLED
-NOT_IMPLEMENTED
+applied
+not_applied
+conflict
+wrong_target
+broken
+configuration_not_available
 ```
+
+Installation results similarly use stable codes such as `installed_managed`, `installed_unmanaged`, and `not_installed`, with broad `ResultStatus` carrying unsupported/not-implemented/error semantics.
 
 ## 5. Exit semantics
 
 Keep exit codes coarse; exact state belongs in the emitted status token.
 
-Suggested shared contract:
+Shared exit contract:
 
-- `0` — requested operation succeeded / Check is `APPLIED`;
+- `0` — requested operation succeeded;
 - `1` — safe non-success state requiring no crash semantics (for example not applied/conflict/wrong target/broken);
 - `2` — unsupported or not implemented;
 - `3` — unexpected operational error.
 
-Application-specific adapters must not invent incompatible meanings for these codes without documenting why.
+Atomic wrappers do not invent alternate exit-code meanings.
 
 ## 6. Apply contract
 

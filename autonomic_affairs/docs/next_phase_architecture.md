@@ -1,8 +1,8 @@
 # Next-phase architecture
 
-> **Status:** target architecture for the portability/taxonomy/Python phase beginning at V2-44.
+> **Status:** implemented architecture after completion of the V2-44 through V2-63 portability/taxonomy/Python migration.
 >
-> The current implementation still reflects the stable experimental v2 baseline in several places. This document describes the intended architecture to which V2-45 through V2-63 will migrate. Do not mistake a rule here for already-landed runtime behavior until its implementation task is complete.
+> This document now describes the authoritative architecture. Historical migration notes may mention the superseded shell/PowerShell runtime, but new work must follow the Python/declarative boundaries described here.
 
 ## 1. Repository naming and meta structure
 

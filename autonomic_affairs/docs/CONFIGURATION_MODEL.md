@@ -39,8 +39,11 @@ assimilation_directives/
 
 annexation_procedures/
 └── <application>/
-    ├── windows/
-    └── linux/
+    ├── _application.py
+    ├── apply_config.py
+    ├── unapply_config.py
+    ├── check_config.py
+    └── ...
 ```
 
 `assimilation_directives/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
@@ -49,7 +52,7 @@ annexation_procedures/
 
 The two are intrinsically paired by application name, but neither is nested inside the other.
 
-Shared symlink/backup/state/dispatch implementation belongs under `accumulated_instruments/configuration_deployment/` rather than being duplicated in each annexation procedure.
+Shared symlink/backup/state/dispatch implementation belongs under `accumulated_instruments/machine_soul/` rather than being duplicated in each annexation procedure.
 
 ## 3. Configuration identity dimensions
 

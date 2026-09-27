@@ -18,17 +18,17 @@ The matching application name is the relationship between the two trees.
 
 Do not reintroduce per-application `config/` or `operations/` wrapper directories beneath these roots. The root names already provide those semantics.
 
-## Shared deployment machinery
+## Shared operation machinery
 
-Cross-application symlink, backup, state, dispatch, and path-translation code lives under:
+Cross-application discovery, configuration resolution, symlink/backup/state policy, operation dispatch, installation strategies, native-protocol support, and orchestration live in the shared Python package:
 
 ```text
-accumulated_instruments/configuration_deployment/
+accumulated_instruments/machine_soul/
 ```
 
-The name is deliberately specific.
+`accumulated_instruments/` remains the general-purpose repository area for reusable system-management tooling; unrelated future tools may live beside `machine_soul/`.
 
-`accumulated_instruments/` is a general-purpose repository area for reusable system-management tools. Future tooling unrelated to configuration deployment—such as a Windows font-registry manager—may live beside `configuration_deployment/` rather than inside it.
+The former `accumulated_instruments/configuration_deployment/` Bash/PowerShell runtime was transitional and was retired after Python parity.
 
 ## Historical note
 
