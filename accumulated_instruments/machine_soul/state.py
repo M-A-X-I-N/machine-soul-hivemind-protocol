@@ -37,6 +37,43 @@ def _scratch(context: OperationContext) -> Path:
     return context.repository_root / "scratch"
 
 
+def application_state_path(
+    context: OperationContext,
+    application: str,
+    name: str,
+) -> Path:
+    """Return a generic per-application auxiliary state path."""
+    if not name or "/" in name or "\\" in name:
+        raise ValueError("Application state name must be one filename component.")
+    return (
+        _scratch(context)
+        / "state"
+        / "application"
+        / context.host
+        / context.target_account.name
+        / application
+        / f"{name}.json"
+    )
+
+
+def write_json_state(path: Path, payload: Mapping[str, object]) -> None:
+    """Atomically persist generic JSON state."""
+    _write_json_atomic(path, payload)
+
+
+def read_json_state(path: Path) -> dict[str, object] | None:
+    """Read one generic JSON state object."""
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise StateError(f"Malformed JSON state: {path!s}") from exc
+    if not isinstance(payload, dict):
+        raise StateError(f"JSON state must be an object: {path!s}")
+    return payload
+
+
 def config_state_path(
     context: OperationContext,
     application: str,

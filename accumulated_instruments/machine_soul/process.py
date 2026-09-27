@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import subprocess
-from typing import Sequence
+from typing import Mapping, Sequence
 
 
 @dataclass(frozen=True)
@@ -18,6 +18,7 @@ def run_process(
     argv: Sequence[str],
     *,
     timeout: float | None = None,
+    environ: Mapping[str, str] | None = None,
 ) -> ProcessResult:
     """Run argv directly without shell interpolation and capture text streams."""
     if not argv:
@@ -29,5 +30,6 @@ def run_process(
         timeout=timeout,
         shell=False,
         check=False,
+        env=(dict(environ) if environ is not None else None),
     )
     return ProcessResult(completed.returncode, completed.stdout, completed.stderr)

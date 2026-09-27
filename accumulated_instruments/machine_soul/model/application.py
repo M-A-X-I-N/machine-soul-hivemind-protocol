@@ -7,7 +7,7 @@ from enum import Enum
 import re
 from typing import Mapping
 
-from .strategies import DestinationStrategy, InstallationStrategy
+from .strategies import ConfigurationStrategy, DestinationStrategy, InstallationStrategy
 
 
 _APPLICATION_ID = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -56,6 +56,7 @@ class PlatformDeclaration:
     capabilities: Mapping[Operation, Support]
     configurations: tuple[ConfigurationFile, ...] = ()
     install_strategy: InstallationStrategy | None = None
+    configuration_strategy: ConfigurationStrategy | None = None
 
     def __post_init__(self) -> None:
         caps = dict(self.capabilities)

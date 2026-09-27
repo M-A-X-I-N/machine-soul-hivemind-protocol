@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 from ..discovery import build_operation_context
-from ..model import Application, Operation, OperationContext, OperationResult, Support
+from ..model import (
+    Application,
+    CustomConfiguration,
+    Operation,
+    OperationContext,
+    OperationResult,
+    Support,
+)
 from .configuration import apply_config, check_config, unapply_config
 from .installation import check_installed, install_application, uninstall_application
 
@@ -37,11 +44,25 @@ def perform_operation(
             data={"application": application.id, "operation": operation.value},
         )
 
-    if operation is Operation.CHECK_CONFIG:
-        return check_config(application, declaration, resolved)
-    if operation is Operation.APPLY_CONFIG:
-        return apply_config(application, declaration, resolved)
-    if operation is Operation.UNAPPLY_CONFIG:
+    if operation in {
+        Operation.CHECK_CONFIG,
+        Operation.APPLY_CONFIG,
+        Operation.UNAPPLY_CONFIG,
+    }:
+        if isinstance(declaration.configuration_strategy, CustomConfiguration):
+            result = declaration.configuration_strategy.handler(
+                application,
+                declaration,
+                operation,
+                resolved,
+            )
+            if not isinstance(result, OperationResult):
+                raise TypeError("CustomConfiguration handler must return OperationResult.")
+            return result
+        if operation is Operation.CHECK_CONFIG:
+            return check_config(application, declaration, resolved)
+        if operation is Operation.APPLY_CONFIG:
+            return apply_config(application, declaration, resolved)
         return unapply_config(application, declaration, resolved)
     if operation is Operation.CHECK_INSTALLED:
         return check_installed(application, declaration, resolved)

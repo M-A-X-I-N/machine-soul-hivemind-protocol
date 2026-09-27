@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from types import MappingProxyType
+from typing import Mapping
 
 from .application import Platform
 
@@ -44,6 +46,7 @@ class OperationContext:
     target_account: TargetAccount
     dry_run: bool = False
     conflict_policy: ConflictPolicy = ConflictPolicy.ABORT
+    environment: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         root = Path(self.repository_root)
@@ -56,3 +59,4 @@ class OperationContext:
         if not isinstance(self.conflict_policy, ConflictPolicy):
             raise TypeError("conflict_policy must be a ConflictPolicy.")
         object.__setattr__(self, "repository_root", root)
+        object.__setattr__(self, "environment", MappingProxyType(dict(self.environment)))

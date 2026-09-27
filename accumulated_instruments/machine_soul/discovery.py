@@ -177,4 +177,5 @@ def build_operation_context(
         target_account=account,
         dry_run=dry_run,
         conflict_policy=conflict_policy,
+        environment=dict(env),
     )

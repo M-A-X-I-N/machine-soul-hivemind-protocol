@@ -12,10 +12,15 @@ from .context import ConflictPolicy, OperationContext, TargetAccount
 from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
+    CustomConfiguration,
     CustomInstaller,
     HomeRelativeDestination,
+    LocalAppDataRelativeDestination,
+    PowerShellProfileDestination,
     RemoteInstallScript,
     StandaloneBinary,
+    WindowsPosixHomeDestination,
+    WindowsTerminalSettingsDestination,
     WingetPackage,
 )
 
@@ -32,9 +37,14 @@ __all__ = [
     "OperationResult",
     "ResultStatus",
     "AptPackage",
+    "CustomConfiguration",
     "CustomInstaller",
     "HomeRelativeDestination",
+    "LocalAppDataRelativeDestination",
+    "PowerShellProfileDestination",
     "RemoteInstallScript",
     "StandaloneBinary",
+    "WindowsPosixHomeDestination",
+    "WindowsTerminalSettingsDestination",
     "WingetPackage",
 ]
