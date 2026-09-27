@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`V2-52`](agent_tasks/legacy_v2.md#v2-52)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -20,7 +20,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-META-A-040`](agent_tasks/MSHP-META-A/MSHP-META-A-040.md) | COMPLETE | `MSHP-META-A-010` | Formalize agent provenance | Establish stable-designation registry, accurate official identities, optional honorifics, and conspicuous `UNNAMED` behavior. |
 | [`MSHP-META-A-050`](agent_tasks/MSHP-META-A/MSHP-META-A-050.md) | COMPLETE | `MSHP-META-A-010` | Establish reminders | Create the non-executable reminders register and seed provenance-rewrite, cross-repo agent-baseline, and Skills investigations. |
 | [`MSHP-META-A-060`](agent_tasks/MSHP-META-A/MSHP-META-A-060.md) | COMPLETE | `MSHP-META-A-010` | Codify idiot-maintainer language | Permit optional maintainer-directed idiot-human humor while explicitly excluding end users and formal interfaces. |
-| [`V2-52`](agent_tasks/legacy_v2.md#v2-52) | QUEUED | `V2-51` | Define library-first operation architecture | Fix the boundaries between declarations, generic engines, wrappers, orchestration, and exceptional/custom behavior. |
+| [`V2-52`](agent_tasks/legacy_v2.md#v2-52) | IN_PROGRESS | `V2-51` | Define library-first operation architecture | Fix the boundaries between declarations, generic engines, wrappers, orchestration, and exceptional/custom behavior. |
 | [`V2-53`](agent_tasks/legacy_v2.md#v2-53) | QUEUED | `V2-52` | Define atomic wrapper contracts | Specify uniform one-operation wrappers with one importable/executable implementation path and no duplicated business logic. |
 | [`V2-54`](agent_tasks/legacy_v2.md#v2-54) | QUEUED | `V2-52` | Define operation-result model | Define one structured semantic result usable by wrappers, orchestration, tests, automation, and native-process normalization. |
 | [`V2-55`](agent_tasks/legacy_v2.md#v2-55) | QUEUED | `V2-54` | Define native primitive protocol | Specify the narrow versioned JSON/native-process boundary for justified platform primitives. |
