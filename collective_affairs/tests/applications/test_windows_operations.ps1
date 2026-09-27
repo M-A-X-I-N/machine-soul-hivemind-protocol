@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+$repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
 $env:MACHINE_SOUL = $repoRoot
 $env:MACHINE_SOUL_HOST = 'spaceship'
 $env:MACHINE_SOUL_ACCOUNT = 'ci-user'

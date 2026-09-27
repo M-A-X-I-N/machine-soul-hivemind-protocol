@@ -40,7 +40,7 @@ Current final-file precedence is:
 
 Shared fragments may exist, but deployment resolves to one concrete tracked file; the configuration-deployment runtime does not merge config content at deployment time.
 
-Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux server), and runar (Ubuntu-like server). See docs/CONFIGURATION_MODEL.md.
+Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux server), and runar (Ubuntu-like server). See collective_affairs/docs/CONFIGURATION_MODEL.md.
 
 ## Paired configuration and operation trees
 
@@ -52,17 +52,17 @@ Configured targets normally provide Apply config, Unapply config, and Check conf
 
 Installing an application is deliberately separate from applying its configuration. A pre-existing software installation is not silently claimed as Machine-Soul-owned merely because its executable exists.
 
-See docs/APPLICATION_CONTRACT.md and docs/INSTALLATION_ARCHITECTURE.md.
+See collective_affairs/docs/APPLICATION_CONTRACT.md and collective_affairs/docs/INSTALLATION_ARCHITECTURE.md.
 
 ## Oh My Posh and accounts
 
 workhorse and runar have independent tracked OMP configurations for m-a-x-i-n and root. Each shell process initializes its own prompt environment; SSH and sudo do not transport a local shell's OMP state into the new process.
 
-See docs/SESSION_BOUNDARIES.md.
+See collective_affairs/docs/SESSION_BOUNDARIES.md.
 
 ## Current support
 
-See docs/SUPPORT_MATRIX.md.
+See collective_affairs/docs/SUPPORT_MATRIX.md.
 
 Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation_procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
 
@@ -70,7 +70,7 @@ Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell 
 
 The post-baseline roadmap is migrating toward a Python 3, library-first runtime with declarative per-application definitions, tiny atomic operation wrappers, an orchestration-only interactive manager, runtime environment discovery, and narrowly scoped platform-native primitives.
 
-The current shell/PowerShell implementation remains authoritative for behavior that has not yet been migrated. See [docs/next_phase_architecture.md](docs/next_phase_architecture.md) for the target architecture and transition rules.
+The current shell/PowerShell implementation remains authoritative for behavior that has not yet been migrated. See [collective_affairs/docs/next_phase_architecture.md](collective_affairs/docs/next_phase_architecture.md) for the target architecture and transition rules.
 
 ## Persistent project memory
 

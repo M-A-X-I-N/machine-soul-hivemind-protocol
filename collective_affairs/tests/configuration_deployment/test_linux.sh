@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-# shellcheck source=../../accumulated_instruments/configuration_deployment/linux/machine_soul.sh
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
+# shellcheck source=../../../accumulated_instruments/configuration_deployment/linux/machine_soul.sh
 source "$repo_root/accumulated_instruments/configuration_deployment/linux/machine_soul.sh"
 
 export MACHINE_SOUL="$repo_root"

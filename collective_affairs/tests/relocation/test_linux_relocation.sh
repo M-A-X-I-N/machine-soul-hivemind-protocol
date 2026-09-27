@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-actual_repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-# shellcheck source=../../accumulated_instruments/configuration_deployment/linux/machine_soul.sh
+actual_repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
+# shellcheck source=../../../accumulated_instruments/configuration_deployment/linux/machine_soul.sh
 source "$actual_repo/accumulated_instruments/configuration_deployment/linux/machine_soul.sh"
 
 tmp="$(mktemp -d)"

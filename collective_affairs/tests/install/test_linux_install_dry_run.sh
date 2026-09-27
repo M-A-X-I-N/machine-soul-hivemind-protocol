@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
 export MACHINE_SOUL="$repo_root"
 export MACHINE_SOUL_HOST="ci-install-linux"
 export MACHINE_SOUL_ACCOUNT="ci-user"

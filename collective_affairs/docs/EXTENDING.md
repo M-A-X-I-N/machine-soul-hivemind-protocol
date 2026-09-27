@@ -6,7 +6,7 @@
 2. Declare host, platform, OS family, and relevant accounts.
 3. Add only configs that genuinely differ for that host.
 4. Extend matrix validation where practical.
-5. Update docs/SUPPORT_MATRIX.md.
+5. Update collective_affairs/docs/SUPPORT_MATRIX.md.
 
 Keep host facts declarative instead of scattering raw hostname checks through shared configuration-deployment runtime code.
 

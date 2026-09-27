@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$actualRepo = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+$actualRepo = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
 Import-Module (Join-Path $actualRepo 'accumulated_instruments\configuration_deployment\windows\MachineSoul.psm1') -Force
 
 $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ('machine-soul-relocate-' + [Guid]::NewGuid().ToString('N'))
