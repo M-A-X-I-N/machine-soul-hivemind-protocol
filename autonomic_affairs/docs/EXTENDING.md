@@ -26,17 +26,17 @@ Do not duplicate files merely to satisfy a directory pattern.
 
 Document where the application expects each file. If the path or symlink semantics depend on a runtime such as MSYS2 versus Cygwin, model that distinction explicitly instead of guessing.
 
-### Reuse shared deployment primitives
+### Reuse the shared Python operation core
 
-Linux shared runtime lives under accumulated_instruments/configuration_deployment/linux/. Windows shared runtime lives under accumulated_instruments/configuration_deployment/windows/.
+Generic operation behavior lives under `accumulated_instruments/machine_soul/`.
 
-Application adapters should resolve application identity, tracked source, and native destination, then delegate symlink/backup/state behavior to the shared runtime.
+Application declarations select reusable source/destination/install strategies; platform-neutral atomic wrappers call the shared dispatcher. Do not add a per-application Bash/PowerShell policy engine or hand-roll backup/state/account behavior.
 
-Do not hand-roll backup behavior unless the application genuinely has extra non-file native state.
+Use a native process helper only when a demonstrated platform operation is materially safer or clearer outside Python, and make it obey the native-primitive protocol.
 
 ### Expose operations
 
-Configured targets normally provide `apply_config`, `unapply_config`, and `check_config` under `annexation_procedures/<application>/<platform>/`. Safe installation support may additionally provide install and uninstall.
+Applications expose platform-neutral Python wrappers such as `apply_config.py`, `unapply_config.py`, and `check_config.py` directly under `annexation_procedures/<application>/`. The declared capability state, not platform-specific wrapper-file presence, determines support. Installation surfaces may additionally include `install.py`, `uninstall.py`, and `check_installed.py`.
 
 Unsupported or unfinished operations should say so explicitly.
 

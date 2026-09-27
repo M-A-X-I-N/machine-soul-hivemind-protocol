@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
 export MACHINE_SOUL="$repo_root"
 export MACHINE_SOUL_HOST="workhorse"
-export MACHINE_SOUL_ACCOUNT="m-a-x-i-n"
+unset MACHINE_SOUL_ACCOUNT || true
 
 tmp="$(mktemp -d)"
 cleanup() {
@@ -12,6 +12,18 @@ cleanup() {
     rm -rf -- "$repo_root/scratch/state/config/workhorse" "$repo_root/scratch/backups/workhorse"
 }
 trap cleanup EXIT
+
+result_code() {
+    local wrapper="$1"
+    shift
+    local output status
+    set +e
+    output="$(python3 "$wrapper" --json "$@")"
+    status=$?
+    set -e
+    [[ $status -le 3 ]] || return "$status"
+    printf '%s' "$output" | python3 -c 'import json,sys; print(json.load(sys.stdin)["code"])'
+}
 
 assert_eq() {
     [[ "$1" == "$2" ]] || {
@@ -24,13 +36,18 @@ for app in fish bash zsh oh_my_posh contour; do
     export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/$app/config.file"
     mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
 
-    ops="$repo_root/annexation_procedures/$app/linux"
-    assert_eq "NOT_APPLIED" "$("$ops/check_config.sh")" "$app initial check"
-    assert_eq "APPLIED" "$("$ops/apply_config.sh" abort)" "$app apply"
-    assert_eq "APPLIED" "$("$ops/check_config.sh")" "$app check applied"
-    assert_eq "APPLIED" "$("$ops/apply_config.sh" abort)" "$app idempotent apply"
-    assert_eq "NOT_APPLIED" "$("$ops/unapply_config.sh")" "$app unapply"
-    assert_eq "NOT_APPLIED" "$("$ops/check_config.sh")" "$app final check"
+    ops="$repo_root/annexation_procedures/$app"
+    account_args=()
+    if [[ "$app" == "oh_my_posh" ]]; then
+        account_args=(--account root)
+    fi
+
+    assert_eq "not_applied" "$(result_code "$ops/check_config.py" "${account_args[@]}")" "$app initial check"
+    assert_eq "applied" "$(result_code "$ops/apply_config.py" "${account_args[@]}" --conflict-policy abort)" "$app apply"
+    assert_eq "applied" "$(result_code "$ops/check_config.py" "${account_args[@]}")" "$app check applied"
+    assert_eq "applied" "$(result_code "$ops/apply_config.py" "${account_args[@]}" --conflict-policy abort)" "$app idempotent apply"
+    assert_eq "not_applied" "$(result_code "$ops/unapply_config.py" "${account_args[@]}")" "$app unapply"
+    assert_eq "not_applied" "$(result_code "$ops/check_config.py" "${account_args[@]}")" "$app final check"
 done
 
-printf 'Linux application operation tests passed.\n'
+printf 'Linux Python-wrapper application operation tests passed.\n'

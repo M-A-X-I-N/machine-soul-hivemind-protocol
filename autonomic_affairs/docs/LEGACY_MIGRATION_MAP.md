@@ -500,3 +500,12 @@ Do not delete these early. Once replacement behavior is proven, retire:
 V2-58 must not treat this map as a mandate to delete old code while replacing it.
 
 Implement Python core alongside the working legacy path, prove behavior through contract tests, and leave destructive retirement to V2-61/V2-63 checkpoints after parity is demonstrated.
+
+
+## V2-61 retirement checkpoint
+
+The policy-heavy Bash/PowerShell runtimes and per-platform operation forwarding trees were retired after the Python core and atomic wrapper parity checks passed.
+
+No legacy runtime script was retained as a native primitive. The current codebase still supports the **possibility** of future native primitives through the versioned protocol, but such helpers must be justified by a demonstrated platform need rather than historical language choice.
+
+Selected shell/PowerShell files under `autonomic_affairs/tests/` remain test harnesses only; they invoke the canonical Python wrappers and are not runtime implementations.

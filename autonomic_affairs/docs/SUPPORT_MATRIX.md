@@ -15,21 +15,19 @@ Legend:
 | Windows Terminal | Supported | Not applicable | Not applicable |
 | PowerShell | Supported | Not applicable | Not applicable |
 | CMD | Supported | Not applicable | Not applicable |
-| Fish | Supported via POSIX-shell adapter | Supported | Supported |
-| Bash | Supported via POSIX-shell adapter | Supported | Supported |
-| Zsh | Supported via POSIX-shell adapter | Supported | Supported |
+| Fish | Supported via Python wrapper in POSIX compatibility environment | Supported | Supported |
+| Bash | Supported via Python wrapper in POSIX compatibility environment | Supported | Supported |
+| Zsh | Supported via Python wrapper in POSIX compatibility environment | Supported | Supported |
 | Oh My Posh | Supported | Supported | Supported |
 | Contour | Supported | Supported | Supported |
 
-### Windows Fish/Bash/Zsh adapter
+### Windows Fish/Bash/Zsh compatibility environment
 
-The supported entry points are the `.sh` procedures under `annexation_procedures/<application>/windows/`.
+The canonical entry points are the same platform-neutral Python wrappers used everywhere else.
 
-They run inside an MSYS2/Cygwin-compatible POSIX environment, use that environment's real `$HOME`, translate paths with `cygpath`, then delegate actual link creation and deployment state to the tested Windows PowerShell runtime.
+Their Windows declarations select `WindowsPosixHomeDestination`. That shared strategy reads the compatibility environment's real `HOME` and uses `cygpath` only for the platform-specific path translation required to reach the native Windows destination.
 
-This avoids relying on compatibility-layer symlink emulation while still respecting the shell environment's native config location.
-
-The pure-PowerShell `.ps1` stubs remain intentionally `NOT_IMPLEMENTED` without that compatibility-shell context.
+There is no parallel Bash or PowerShell configuration engine. When the required compatibility environment is absent, destination resolution reports the operation unavailable instead of guessing a path.
 
 ## Account-specific OMP
 
@@ -58,7 +56,7 @@ A pre-existing installation is reported as unmanaged and is never silently claim
 
 CI currently exercises:
 
-- shared Linux and Windows configuration-deployment lifecycle;
+- shared Python Linux and Windows configuration lifecycle;
 - preservation/restoration of existing config files;
 - wrong and broken symlink classification;
 - prompt-decline safety;

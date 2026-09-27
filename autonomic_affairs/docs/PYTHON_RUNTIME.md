@@ -104,7 +104,7 @@ CI smoke-tests the package and runs the Python contract suite on both Linux and 
 
 ## Implemented shared core
 
-V2-58 established working library APIs alongside the untouched legacy shell runtime:
+V2-58 established the shared library APIs, and V2-60/V2-61 made the Python wrappers/core the canonical operation path:
 
 - `model.context` — logical target account, operation context, conflict policy;
 - `discovery` — repository-root marker discovery, platform/host/account resolution;
@@ -118,7 +118,7 @@ V2-58 established working library APIs alongside the untouched legacy shell runt
 - `process` — shell-free subprocess execution;
 - `primitives.invoke` — actual native-process invocation normalized through the versioned protocol.
 
-The legacy Bash/PowerShell implementation remains present until later parity/removal tasks.
+The policy-heavy legacy Bash/PowerShell runtimes and platform-specific forwarding trees were retired after wrapper/core parity. Shell/PowerShell may return only for a future operation that genuinely earns a narrow native-primitive boundary.
 
 ### Windows symlink finding
 

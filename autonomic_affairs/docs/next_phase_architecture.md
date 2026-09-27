@@ -376,4 +376,4 @@ Before porting a behavior, classify it as one of:
 5. genuine platform-native primitive;
 6. obsolete behavior that should disappear.
 
-Current implementation documents may continue to describe old runtime mechanics until the corresponding migration task lands. This document owns the target architecture during that transition.
+Historical documents may describe retired runtime mechanics. The Python operation core and platform-neutral wrappers are authoritative where their migration tasks have landed; remaining migration work must continue toward this target rather than resurrecting parallel shell policy engines.

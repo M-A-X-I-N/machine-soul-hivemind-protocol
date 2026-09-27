@@ -64,13 +64,13 @@ See autonomic_affairs/docs/SESSION_BOUNDARIES.md.
 
 See autonomic_affairs/docs/SUPPORT_MATRIX.md.
 
-Windows Fish/Bash/Zsh are supported from an MSYS2/Cygwin-compatible POSIX shell through the `.sh` entry points under `annexation_procedures/`. Those adapters use cygpath for the shell environment's HOME/repository paths and delegate real symbolic-link creation to the Windows PowerShell runtime. Pure-PowerShell stubs remain NOT_IMPLEMENTED when no POSIX compatibility-shell context exists.
+All application operations use platform-neutral Python wrappers directly under `annexation_procedures/<application>/`. Windows Fish/Bash/Zsh configuration remains dependent on an MSYS2/Cygwin-compatible environment because their declared destination strategy intentionally uses that environment's `HOME` and `cygpath`; the operation policy itself is Python.
 
 ## Next-phase target architecture
 
 The post-baseline roadmap is migrating toward a Python 3, library-first runtime with declarative per-application definitions, tiny atomic operation wrappers, an orchestration-only interactive manager, runtime environment discovery, and narrowly scoped platform-native primitives.
 
-The current shell/PowerShell implementation remains authoritative for behavior that has not yet been migrated. See [autonomic_affairs/docs/next_phase_architecture.md](autonomic_affairs/docs/next_phase_architecture.md) for the target architecture and transition rules.
+The Python operation core and atomic wrappers are now authoritative for migrated operation behavior. See [autonomic_affairs/docs/next_phase_architecture.md](autonomic_affairs/docs/next_phase_architecture.md) for the target architecture and transition rules.
 
 ## Persistent project memory
 
