@@ -1,14 +1,16 @@
 # Extending Machine-Soul v2
 
-## Add a host
+## Add a host-specific configuration variant
 
-1. Add hosts/<hostname>.env.
-2. Declare host, platform, OS family, and relevant accounts.
-3. Add only configs that genuinely differ for that host.
+There is no central tracked host inventory.
+
+1. Let Machine-Soul discover ordinary host/platform/account facts at runtime.
+2. Add configuration under `assimilation_directives/<application>/hosts/<hostname>/...` only when that host genuinely needs a different canonical file.
+3. Add account-specific files only for accounts explicitly targeted by a management operation.
 4. Extend matrix validation where practical.
-5. Update collective_affairs/docs/SUPPORT_MATRIX.md.
+5. Update `collective_affairs/docs/SUPPORT_MATRIX.md` when the supported target set changes.
 
-Keep host facts declarative instead of scattering raw hostname checks through shared configuration-deployment runtime code.
+If a machine needs a genuinely non-discoverable local value, keep it in ignored machine-local state under `scratch/` rather than inventing a tracked host registry.
 
 ## Add an application
 

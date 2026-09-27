@@ -61,15 +61,19 @@ A configuration may vary by:
 4. account/user;
 5. optional application-specific variant where a real need appears.
 
-Host and account are first-class dimensions. Platform normally follows from host metadata rather than being repeated in every path.
+Host and account remain useful configuration-selection dimensions, but Machine-Soul does not require a tracked registry of machines or accounts.
 
-Initial host identities:
+Runtime facts are discovered when practical:
 
-- `spaceship` — Windows workstation;
-- `workhorse` — Ubuntu/Linux server;
-- `runar` — Ubuntu-like server.
+- hostname from the operating environment;
+- current account from the operating environment;
+- platform/OS from the running platform or the platform-specific entry point;
+- home/config roots from the target/current account environment;
+- privilege state when an operation needs to know it.
 
-Initial Linux account identities include `m-a-x-i-n` and `root` where relevant.
+Explicit environment overrides such as `MACHINE_SOUL_HOST` and `MACHINE_SOUL_ACCOUNT` remain useful for tests and unusual environments, but ordinary operation must not depend on a tracked host-inventory record.
+
+The currently configured host-specific variants include `spaceship`, `workhorse`, and `runar`. Their presence under `assimilation_directives/<application>/hosts/` describes real configuration variants; it does not constitute a central host inventory.
 
 ## 4. Resolution precedence
 
@@ -162,21 +166,22 @@ Minimum states:
 
 Application-specific sub-status may be added, but these names form the shared contract.
 
-## 9. Declarative host knowledge
+## 9. Runtime discovery and host-specific configuration
 
-Host/platform/account facts should be declared centrally rather than spread as string comparisons through application scripts.
+Portable environmental facts should be discovered centrally by shared runtime/library code rather than repeated as application-specific string comparisons or stored in a tracked machine registry.
 
-Annexation procedures consume that identity data and resolve the appropriate complete assimilation directive.
+Host-specific configuration remains declarative in the configuration tree itself. A host name matters only when it selects genuinely different canonical configuration.
 
 The intended direction is:
 
 ```text
-host inventory
-   + current account
-   + application mapping
+runtime-discovered host/platform/account
+   + application declaration
         ↓
 resolved tracked source
    + native destination
         ↓
-shared deployment primitive
+shared deployment engine
 ```
+
+Do not add a central `hosts/*.env` inventory merely to record facts the runtime can discover. Secrets or genuinely non-discoverable local values belong in ignored machine-local state, not in tracked host records.
