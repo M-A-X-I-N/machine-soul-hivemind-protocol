@@ -91,11 +91,9 @@ def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
     try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="
-") as stream:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
             json.dump(payload, stream, sort_keys=True, separators=(",", ":"), allow_nan=False)
-            stream.write("
-")
+            stream.write("\n")
         os.replace(temporary, path)
     except Exception:
         try:
