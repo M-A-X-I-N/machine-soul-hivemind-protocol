@@ -77,6 +77,37 @@ class OperationResult:
             "data": dict(self.data),
         }
 
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> "OperationResult":
+        """Parse the exact canonical semantic dictionary shape."""
+        expected = {"status", "changed", "code", "message", "data"}
+        if set(payload) != expected:
+            missing = expected - set(payload)
+            extra = set(payload) - expected
+            raise ValueError(
+                f"OperationResult fields mismatch; missing={sorted(missing)}, extra={sorted(extra)}."
+            )
+
+        status_raw = payload["status"]
+        changed = payload["changed"]
+        code = payload["code"]
+        message = payload["message"]
+        data = payload["data"]
+
+        if not isinstance(status_raw, str):
+            raise TypeError("status must be a string.")
+        if not isinstance(changed, bool):
+            raise TypeError("changed must be bool.")
+        if not isinstance(code, str):
+            raise TypeError("code must be a string.")
+        if not isinstance(message, str):
+            raise TypeError("message must be a string.")
+        if not isinstance(data, Mapping):
+            raise TypeError("data must be a mapping.")
+
+        return cls(ResultStatus(status_raw), changed, code, message, data)
+
     @classmethod
     def success(
         cls,

@@ -196,7 +196,7 @@ A native PowerShell/Bash helper exists only when a platform-native operation is 
 
 Python decides what action is requested and validates the returned structured result. Native code performs the narrow action.
 
-The exact process protocol lands in V2-55.
+The process protocol is defined in [`NATIVE_PRIMITIVES.md`](NATIVE_PRIMITIVES.md).
 
 ## Presentation boundary
 

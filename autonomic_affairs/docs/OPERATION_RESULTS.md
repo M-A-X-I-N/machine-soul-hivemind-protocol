@@ -86,7 +86,7 @@ Examples:
 
 Programming errors, broken wrapper contracts, malformed/missing native protocol payloads, and other situations where Machine-Soul cannot trust the semantic response are **not** converted into fake normal results merely to avoid exceptions.
 
-Those remain exceptional/protocol failures. V2-55 defines the native protocol exception boundary.
+Those remain exceptional/protocol failures. The native boundary is defined in [`NATIVE_PRIMITIVES.md`](NATIVE_PRIMITIVES.md).
 
 ## Stable code rules
 
@@ -163,6 +163,6 @@ It may aggregate/display them differently, but does not translate bespoke applic
 
 A valid native/spawned semantic payload is normalized immediately into `OperationResult`.
 
-A malformed protocol response is not an `OperationResult(ERROR, ...)`; it is a protocol malfunction handled by the primitive boundary.
+A malformed protocol response is not an `OperationResult(ERROR, ...)`; it is a protocol malfunction handled by [`NATIVE_PRIMITIVES.md`](NATIVE_PRIMITIVES.md).
 
 This distinction prevents corrupt/untrusted transport output from masquerading as a trustworthy operation result.
