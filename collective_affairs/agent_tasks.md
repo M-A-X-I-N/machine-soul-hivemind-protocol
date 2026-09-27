@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**V2-52 — Define the library-first operation architecture.**
+**MSHP-META-A-010 — Rename the repository-meta namespace to `autonomic_affairs`.**
 
 ## Task history and queue
 
@@ -345,6 +345,179 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
   - Validate Windows and Linux, fresh-clone behavior, executable/import semantics, config symlink safety, backup/restore, and absence of hidden dependency on removed host inventory.
   - Remove stale paths/docs/runtime remnants only after parity is demonstrated.
   - Checkpoint: CI is green and the Python/declarative architecture fully replaces superseded orchestration without weakening existing safety laws.
+
+## Newly refined meta-work block
+
+> These tasks use the new identifier scheme agreed after the legacy V2 roadmap was established. They are temporarily represented in this legacy ledger format until `MSHP-META-A-020` migrates the task system itself. Existing `V2-*` identifiers remain unchanged.
+
+- [ ] **MSHP-META-A-010 — Rename the repository-meta namespace to `autonomic_affairs`**
+  - **Depends on:** none.
+  - Rename `collective_affairs/` to `autonomic_affairs/` without changing its role as the repository/project self-management namespace.
+  - Update every path/reference in runtime code, CI, tests, documentation, `.agents/`, task navigation, links, and any root-detection or repository-navigation logic affected by the move.
+  - Codify the repository's thematic top-level naming convention: repository-controlled thematic top-level directories begin with the letter `a`, while tool/convention-defined roots such as `.git/`, `.github/`, dotfiles, `AGENTS.md`, and `README.md` are exempt.
+  - Preserve executable modes, relative-link correctness, CI behavior, and fresh-clone behavior.
+  - Do not rename external identifiers merely to satisfy the thematic convention.
+  - **Acceptance:** no live reference to `collective_affairs/` remains except explicit historical discussion; `autonomic_affairs/` owns the former namespace; CI remains green.
+
+- [ ] **MSHP-META-A-020 — Establish the canonical agent-task index/detail/archive system**
+  - **Depends on:** `MSHP-META-A-010`.
+  - Replace the current monolithic executable-work ledger with a skimmable index plus directly linked full task specifications.
+  - The canonical layout is:
+    ```text
+    autonomic_affairs/
+    ├── agent_tasks.md
+    ├── agent_tasks/
+    │   ├── <block-id>/
+    │   │   └── <task-id>.md
+    │   └── legacy_v2.md
+    └── agent_task_archive.md
+    ```
+  - `agent_tasks.md` owns live scheduling/index metadata and contains:
+    - a `Dispatch` section: an ordered priority list of currently authorized/executable tasks;
+    - one compact task table with exactly the useful scheduling fields: `ID`, `State`, `Depends on`, `Title`, and canonical short `Summary`;
+    - all incomplete tasks;
+    - active blocks;
+    - the two most recently completed new-style blocks.
+  - Individual task files own execution specifications. Required sections are:
+    - `Description`;
+    - `Requirements`;
+    - `Constraints / non-goals`;
+    - `Acceptance criteria`;
+    - `Validation`;
+    - optional `Blocker` and `Notes` only when relevant.
+  - Do not duplicate mutable scheduling facts such as state/dependencies between the index and task specification. The index is canonical for scheduling metadata; the task file is canonical for execution instructions.
+  - Use ordinary Markdown headings and links for canonical task information. Do not hide required execution instructions inside HTML `<details>` blocks or other rendering-dependent disclosure widgets.
+  - New task IDs follow:
+    ```text
+    <project>[-<specifier>...]-<block>-<number>
+    ```
+    where:
+    - this repository's project identifier is `MSHP`;
+    - zero or more specifiers may identify a useful workstream/namespace and should be used sparingly;
+    - block identifiers are `A` through `Z`, then `AA`, `AB`, etc. if ever needed;
+    - numbers are exactly three digits and normally allocated in increments of ten (`010`, `020`, ...);
+    - inserted work consumes free integers between established tasks (`020`, `021`, ...);
+    - published task IDs are immutable;
+    - if insertion space becomes absurdly exhausted, restructure remaining/unpublished work into a new block instead of inventing fractional IDs or renumbering published tasks.
+  - Standard lifecycle states are:
+    - `QUEUED`;
+    - `IN_PROGRESS`;
+    - `BLOCKED`;
+    - `FROZEN`;
+    - `COMPLETE`;
+    - `CANCELLED`;
+    - `SUPERSEDED`.
+  - `NEXT` is not a lifecycle state. `Dispatch` is the scheduling mechanism.
+  - Dispatch rules:
+    - contains only `QUEUED` tasks whose dependencies are satisfied and which are currently authorized for execution;
+    - order represents current priority;
+    - may contain multiple tasks for future parallel workflows;
+    - claiming a task moves it to `IN_PROGRESS` and removes it from Dispatch;
+    - blocked/frozen/completed/cancelled/superseded tasks do not remain in Dispatch.
+  - Dependencies are task IDs whose completed output is structurally required. A runtime/external/human reason preventing progress is a blocker, not a dependency.
+  - Completed-block cycling:
+    - keep the two most recently completed new-style blocks represented in the active index;
+    - archive older completed-block index entries into `agent_task_archive.md`;
+    - determine recency by block completion time, not lexical block name;
+    - never archive an incomplete block;
+    - archival moves index entries only: canonical detailed task files remain at stable paths permanently so links do not rot.
+  - Legacy V2 migration:
+    - preserve every existing `V2-*` identifier exactly;
+    - preserve the legacy task definitions in `agent_tasks/legacy_v2.md`;
+    - expose only incomplete legacy V2 tasks in the active index while they remain executable;
+    - preserve completed legacy history through the archive/legacy document without manufacturing replacement IDs;
+    - when V2-52 through V2-63 eventually complete, the V2 series becomes a completed legacy block and can cycle according to the archive policy.
+  - Update `AGENTS.md`, `.agents/` workflow/recovery guidance, README navigation, and any scripts/checks that locate the task ledger.
+  - **Acceptance:** a fresh-context agent can skim `agent_tasks.md`, choose/claim work from Dispatch, click one task ID to obtain all execution detail without scrolling through unrelated task specifications, and recover legacy V2 history without ambiguous IDs.
+
+- [ ] **MSHP-META-A-030 — Genericize concrete machine identities in durable documentation**
+  - **Depends on:** `MSHP-META-A-010`.
+  - Establish a documentation abstraction rule: durable human-facing and agent-facing documentation should describe machines, hosts, accounts, home paths, and similar environment identities generically unless the concrete identity is materially necessary to the fact being documented.
+  - Replace unnecessary examples/enumerations of specific host names and personal account names with conceptual wording such as `<linux_host>`, `<target_account>`, `<privileged_account>`, or equivalent clear prose.
+  - Apply the rule to README/documentation, agent-facing durable notes, and historical task prose where concrete identities are incidental rather than semantically important.
+  - Do not alter actual configuration identities, host-specific configuration directories, runtime/test fixtures, persisted state formats, or investigation records where the concrete identity is genuinely the subject.
+  - Do not rewrite Git history merely to erase old concrete examples.
+  - Preserve technical clarity: generic wording must still explain host/account selection, configuration precedence, SSH/sudo boundaries, and platform-specific behavior accurately.
+  - **Acceptance:** durable docs no longer casually enumerate the idiot human's concrete machines/accounts; remaining concrete identities have an explicit technical reason to be present.
+
+- [ ] **MSHP-META-A-040 — Formalize agent provenance identities and commit-trailer policy**
+  - **Depends on:** `MSHP-META-A-010`.
+  - Replace the current ChatGPT-only provenance prose with a canonical registry and grammar covering distinct agent variants.
+  - Establish a stable-designation registry with at least:
+    - `OpenAI ChatGPT Chat` → `Gippity`;
+    - `OpenAI ChatGPT Work` → `UNNAMED` until the idiot human assigns a stable designation;
+    - `OpenAI Codex` → `UNNAMED` until the idiot human assigns a stable designation.
+  - Stable designations belong to the agent/product surface variant rather than a particular transient model revision. Assigned stable designations must be unique.
+  - Every wholly agent-authored substantive commit uses an `Agent-authored-by:` trailer containing:
+    - the stable designation;
+    - optional, encouraged honorific material before and/or after the stable designation;
+    - a final parenthesized **official identity** chosen by the authoring agent at commit time.
+  - Official identity requirements:
+    - be accurate to the agent's known organization/product/surface/model identity;
+    - distinguish materially different surfaces such as ChatGPT Chat, ChatGPT Work, and Codex;
+    - include the model when meaningfully known;
+    - never fabricate model/runtime details the agent cannot actually know.
+  - For the current ChatGPT Chat lineage, an appropriate official identity at the time this task was defined is approximately `OpenAI ChatGPT Chat, GPT-5.6 Sol`; the exact future identity is determined by the authoring agent at commit time.
+  - Honorific rules:
+    - completely optional but encouraged;
+    - may be prefixes and/or suffixes around the stable designation;
+    - may be funny, serious, grandiose, mundane, or otherwise arbitrary;
+    - are not restricted to being ephemeral, idiotic, or title-like;
+    - slur-containing honorifics require explicit human permission.
+  - Registered example:
+    ```text
+    Agent-authored-by: Gippity, Keeper of the Boring Interpreter (OpenAI ChatGPT Chat, GPT-5.6 Sol)
+    ```
+  - Unregistered/unnamed-agent safety rule:
+    - use exactly the visible stable-designation marker `UNNAMED`;
+    - do not invent a stable designation;
+    - do not add any honorific while unnamed;
+    - use a trailer of the form `Agent-authored-by: UNNAMED (<official identity>)`;
+    - promptly notify the idiot human that the agent variant lacks a stable designation;
+    - if the agent can ask for input without losing/restarting active work, ask the human to assign one;
+    - once assigned, update the registry for future commits;
+    - do not rewrite already-created commits merely to retrofit a newly assigned designation unless the human separately authorizes the history rewrite.
+  - Put the complete registry/policy in one durable canonical location and keep root `AGENTS.md` concise by linking/summarizing it rather than duplicating the full policy.
+  - Update all current provenance references under `.agents/` and documentation to use the canonical policy.
+  - **Acceptance:** any known or unknown agent variant can determine the correct trailer unambiguously; current Chat provenance uses `Gippity (...official identity...)`; unnamed agents are conspicuous and cannot disguise themselves with honorifics.
+
+- [ ] **MSHP-META-A-050 — Establish a non-executable reminders register**
+  - **Depends on:** `MSHP-META-A-010`.
+  - Create `autonomic_affairs/reminders.md` as the durable home for ideas intentionally **not yet refined enough to be executable agent tasks**.
+  - Document the semantic boundary:
+    - reminders are not dispatched;
+    - reminders have no implication of authorization;
+    - agents must not silently execute them;
+    - a reminder may be promoted into `agent_tasks` only after it is discussed/refined enough to be executable from repository context.
+  - Seed the register with at least these reminders:
+    1. **Cross-repository provenance normalization / gloriously unnecessary rebases**
+       - after the new provenance policy has stabilized, audit the idiot human's other repositories for legacy stable-designation/trailer references;
+       - consider rewriting historical commit messages/rebases solely to normalize provenance;
+       - before promotion into executable work, explicitly enumerate affected repositories, branches/refs, history ranges, collaboration implications, and obtain explicit authorization for each destructive/history-rewriting operation.
+    2. **Standardize baseline agent infrastructure across repositories**
+       - design/implement a reusable baseline structure for agent-facing files and conventions across the idiot human's repositories;
+       - use Machine-Soul as the base/reference parent;
+       - allow each repository to layer project-specific additions/overrides without copying/forking generic policy unnecessarily;
+       - consider `AGENTS.md`, `.agents/` taxonomy, recovery/workflow rules, task schema, provenance registry, and related common infrastructure.
+    3. **Investigate OpenAI Skills as reusable repository workflows**
+       - investigate whether Machine-Soul workflows such as interrupted-session recovery, executing an agent task, adding an application, or validating a checkpoint are good Skill candidates;
+       - distinguish repo-local Codex Skill discovery from installed/shared Skills usable by ChatGPT Chat/Work and other supported OpenAI surfaces;
+       - do not implement Skills until their cross-surface discovery/installation model and actual benefit are understood;
+       - revisit after the new task schema is established so a potential task-execution Skill can target the canonical task contract.
+  - Do not prematurely invent a complex reminder-ID/state schema in this task; keep the first register simple until real use proves a need.
+  - **Acceptance:** the three agreed future ideas are durably recorded without becoming executable work or contaminating Dispatch.
+
+- [ ] **MSHP-META-A-060 — Codify optional idiot-maintainer language**
+  - **Depends on:** `MSHP-META-A-010`.
+  - Add a clear style rule permitting internal/developer-facing documentation and agent notes to humorously refer to the repository developer/maintainer (including the human directing this project) as `the idiot`, `the idiot human`, or equivalent.
+  - This is permission/seasoning, not mandatory vocabulary or a quota. Agents should use it only where it remains clear and amusing.
+  - Explicit anti-scope:
+    - never use the convention to refer to end users of the project;
+    - never generalize it to callers/customers/community members or unrelated people;
+    - keep user-facing error messages, public API/protocol terminology, safety instructions, and formal interfaces neutral unless a separate explicit reason exists.
+  - Technical clarity always wins over the joke.
+  - Put the rule somewhere discoverable by agents without bloating unrelated human-facing documentation.
+  - **Acceptance:** future agents can use the joke in the intended maintainer/developer context without ambiguity about whether software users are being insulted.
 
 ## Project laws accepted before implementation
 
