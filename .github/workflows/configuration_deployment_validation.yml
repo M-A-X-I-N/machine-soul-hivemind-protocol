@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Smoke-test Python runtime package
+        shell: bash
+        run: python3 -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
       - name: Test Linux configuration deployment
         shell: bash
         run: bash collective_affairs/tests/configuration_deployment/test_linux.sh
@@ -35,6 +38,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Smoke-test Python runtime package
+        shell: powershell
+        run: python -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
       - name: Test Windows configuration deployment in Windows PowerShell 5.1
         shell: powershell
         run: .\collective_affairs\tests\configuration_deployment\test_windows.ps1

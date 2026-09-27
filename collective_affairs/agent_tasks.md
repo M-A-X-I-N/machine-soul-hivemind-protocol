@@ -13,7 +13,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
 
 ## Next task
 
-**V2-50 — Establish Python as the shared Machine-Soul runtime.**
+**V2-51 — Define the declarative application model.**
 
 ## Task history and queue
 
@@ -249,7 +249,7 @@ It is deliberately not a catch-all roadmap. Longer-horizon roadmap items, object
   - Preserve independent shell/process/account semantics across SSH and sudo/root boundaries.
   - Checkpoint: account management begins only through an explicit operation targeting that account.
 
-- [ ] **V2-50 — Establish Python as the shared Machine-Soul runtime**
+- [x] **V2-50 — Establish Python as the shared Machine-Soul runtime**
   - Make Python 3 the common orchestration/runtime language for new shared behavior.
   - Treat Python 3 as an explicit prerequisite; do not add Bash/PowerShell/Python bootstrap installers in this phase.
   - Define a reusable package/library layout under the repository and initially prefer the Python standard library over external dependencies.

@@ -1,1 +1,6 @@
 /scratch/
+
+# Python runtime/build byproducts
+__pycache__/
+*.py[cod]
+.venv/
