@@ -36,10 +36,22 @@ def canonical_target(path: str | Path) -> Path:
     return Path(os.path.realpath(os.fspath(path)))
 
 
+def _comparison_path(path: str | Path) -> str:
+    value = os.path.normpath(os.path.abspath(os.fspath(path)))
+    if os.name == "nt":
+        # Python's os.readlink() intentionally exposes Windows substitution
+        # paths, commonly as \\?\C:\\... or \\?\UNC\\..., while ordinary
+        # filesystem APIs usually produce DOS/UNC form. They name the same
+        # object and must compare equal.
+        if value.startswith("\\\\?\\UNC\\"):
+            value = "\\\\" + value[8:]
+        elif value.startswith("\\\\?\\"):
+            value = value[4:]
+    return os.path.normcase(value)
+
+
 def paths_equal(left: str | Path, right: str | Path) -> bool:
-    return os.path.normcase(os.path.normpath(os.fspath(left))) == os.path.normcase(
-        os.path.normpath(os.fspath(right))
-    )
+    return _comparison_path(left) == _comparison_path(right)
 
 
 def resolve_raw_link_target(destination: str | Path, raw_target: str) -> Path:
