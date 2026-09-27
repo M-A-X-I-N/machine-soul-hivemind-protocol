@@ -29,6 +29,8 @@ External dependencies are allowed only when they provide enough concrete value t
 
 No dependency manager or lockfile is required until a real external dependency exists.
 
+See [`OPERATION_ARCHITECTURE.md`](OPERATION_ARCHITECTURE.md) for the canonical dependency direction, dispatcher/engine responsibilities, strategy handler rules, custom-hook escape hatch, and duplication policy.
+
 ## Intended module boundaries
 
 The exact files may evolve as V2-51 through V2-58 land, but responsibilities are divided conceptually as:

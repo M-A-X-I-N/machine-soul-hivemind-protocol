@@ -143,6 +143,8 @@ Examples include:
 
 ## 5. Library-first implementation
 
+The concrete dependency and extension rules are defined in [`OPERATION_ARCHITECTURE.md`](OPERATION_ARCHITECTURE.md).
+
 Executable scripts are interfaces, not implementations.
 
 Anything that can sensibly be genericized belongs in shared Python libraries/operation engines. Application entry points should not independently implement the same installation, configuration, state, account, package-manager, or reporting behavior.
