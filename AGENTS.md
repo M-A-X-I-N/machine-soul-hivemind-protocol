@@ -8,7 +8,7 @@ Keep this file concise. Detailed agent procedure and persisted context live unde
 
 1. Read this file.
 2. Read [`.agents/README.md`](.agents/README.md) and [`.agents/WORKFLOW.md`](.agents/WORKFLOW.md).
-3. Read [`autonomic_affairs/agent_tasks.md`](autonomic_affairs/agent_tasks.md) and obey its explicit **Next task** unless the human redirects work.
+3. Read [`autonomic_affairs/agent_tasks.md`](autonomic_affairs/agent_tasks.md), inspect **Dispatch**, and open the linked task specification before substantive work unless the human redirects work.
 4. Inspect the current repository/branch state before assuming remembered chat state is current.
 5. Read only the application/host/platform notes relevant to the active task.
 
@@ -16,7 +16,7 @@ Repository state and tracked durable documentation are authoritative over rememb
 
 ## Source-of-truth ownership
 
-- `autonomic_affairs/agent_tasks.md` owns sufficiently specified agent work and what comes next.
+- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; linked files under `autonomic_affairs/agent_tasks/` own full task instructions.
 - Tracked configuration files own canonical desired configuration.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.
@@ -66,7 +66,7 @@ Unless the human explicitly changes these laws:
 - Push meaningful completed checkpoints promptly.
 - Use the smallest validation that genuinely proves the changed surface.
 - If a task exposes a genuine architecture/design ambiguity that prevents safe progress, stop and ask rather than silently choosing for the human.
-- Update `autonomic_affairs/agent_tasks.md` whenever executable work status or sequencing changes.
+- Update `autonomic_affairs/agent_tasks.md` whenever executable-work state, dependencies, summaries, or Dispatch ordering changes.
 - If a task discovers durable reusable knowledge, update `.agents/` in the same checkpoint or immediately after it.
 
 ## Commit messages and provenance

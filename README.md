@@ -9,7 +9,7 @@ The first stable experimental v2 baseline is established on that branch. Promoti
 - experimental/v1 preserves the original repository.
 - main is intentionally clean and is not the active v2 branch.
 - experimental/v2 is the current implementation branch.
-- `autonomic_affairs/agent_tasks.md` is the authoritative ledger for sufficiently specified/executable agent work.
+- `autonomic_affairs/agent_tasks.md` is the compact scheduling/Dispatch index for executable agent work; linked files contain full task specifications.
 
 ## Core model
 
@@ -76,6 +76,6 @@ The current shell/PowerShell implementation remains authoritative for behavior t
 
 - AGENTS.md defines stable agent rules.
 - .agents/ is living agent memory.
-- `autonomic_affairs/agent_tasks.md` owns executable-work progress and the current next task.
+- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling, state, and Dispatch.
 
 Agents are explicitly encouraged to preserve expensive-to-rediscover project knowledge under .agents/.

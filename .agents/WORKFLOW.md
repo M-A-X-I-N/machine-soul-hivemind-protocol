@@ -5,18 +5,19 @@
 For repository-changing work:
 
 1. inspect the active branch/current state;
-2. read `../autonomic_affairs/agent_tasks.md` and confirm the current Next task;
-3. keep each checkpoint narrow enough to explain and revert independently;
-4. run the smallest validation that genuinely proves the changed surface;
-5. commit/push meaningful completed work promptly;
-6. update `../autonomic_affairs/agent_tasks.md` when executable-work status changes;
-7. persist expensive reusable discoveries under `.agents/`.
+2. read `../autonomic_affairs/agent_tasks.md`, inspect Dispatch, and open the linked detailed task specification;
+3. when claiming dispatched work, change its index state to `IN_PROGRESS` and remove it from Dispatch;
+4. keep each checkpoint narrow enough to explain and revert independently;
+5. run the smallest validation that genuinely proves the changed surface;
+6. commit/push meaningful completed work promptly;
+7. when a task completes, set it to `COMPLETE`, then populate Dispatch with the next authorized/eligible work in priority order;
+8. persist expensive reusable discoveries under `.agents/`.
 
 Do not leave substantial completed work only in an ephemeral tool session.
 
 ## Interrupted-session recovery
 
-Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` with actual commits/files, distinguish committed work from orphaned/reasoning-only work, and validate recovered state before continuing.
+Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant linked task specification with actual commits/files, distinguish committed work from orphaned/reasoning-only work, and validate recovered state before continuing.
 
 Prefer recovering already-created correct Git objects over recreating them manually.
 
@@ -26,7 +27,7 @@ When information conflicts, prefer the source that owns the subject:
 
 1. tracked configuration/source for implemented behavior;
 2. human-facing architecture/policy docs for durable design;
-3. `autonomic_affairs/agent_tasks.md` for sufficiently specified work and sequencing;
+3. `autonomic_affairs/agent_tasks.md` for scheduling/state/Dispatch and its linked task files for execution specifications;
 4. root `AGENTS.md` for concise operating rules;
 5. `.agents/` for supporting agent workflow/context/discoveries.
 
