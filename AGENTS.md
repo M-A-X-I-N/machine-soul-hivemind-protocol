@@ -17,6 +17,7 @@ Repository state and tracked durable documentation are authoritative over rememb
 ## Source-of-truth ownership
 
 - `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; linked files under `autonomic_affairs/agent_tasks/` own full task instructions.
+- `autonomic_affairs/reminders.md` owns deliberately non-executable future ideas. Reminders are not authorization and must not be silently executed/promoted.
 - Tracked configuration files own canonical desired configuration.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.
