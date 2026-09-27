@@ -10,7 +10,7 @@ Legend:
 - **Not implemented** — the configuration exists, but a safe native adapter is not yet selected.
 - **Not applicable** — the application is not part of the current host target.
 
-| Application | spaceship / Windows | workhorse / Ubuntu | runar / Ubuntu-like |
+| Application | Windows host variant | Ubuntu/Linux host variant | Ubuntu-like host variant |
 |---|---|---|---|
 | Windows Terminal | Supported | Not applicable | Not applicable |
 | PowerShell | Supported | Not applicable | Not applicable |
@@ -35,11 +35,9 @@ The pure-PowerShell `.ps1` stubs remain intentionally `NOT_IMPLEMENTED` without 
 
 The following tracked OMP targets exist and are covered by CI matrix tests:
 
-- `workhorse / m-a-x-i-n`
-- `workhorse / root`
-- `runar / m-a-x-i-n`
-- `runar / root`
-- `spaceship / common`
+- each current Linux host variant / normal target account;
+- each current Linux host variant / privileged target account;
+- the current Windows host variant / common configuration.
 
 Linux shell configs select the user-specific OMP file first and fall back to host common only when one exists.
 
@@ -70,5 +68,5 @@ CI currently exercises:
 - install dry-run/provenance behavior;
 - `$MACHINE_SOUL` checkout relocation while preserving the original restore lineage;
 - root/normal-account separation including an actual Ubuntu `sudo` process;
-- workhorse/runar × m-a-x-i-n/root config resolution;
+- Linux host variants × normal/privileged target-account config resolution;
 - fresh remote clones on Windows and Ubuntu.

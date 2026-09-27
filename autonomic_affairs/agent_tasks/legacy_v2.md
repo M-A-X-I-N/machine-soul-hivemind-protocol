@@ -41,7 +41,7 @@ Do not manufacture replacement IDs for this series.
 
 - [x] **V2-09 — Define configuration identity model**
   - Formalize dimensions including application, host, platform/environment, user/account, plus optional shared/default layers.
-  - Support cases such as `fish/workhorse/m-a-x-i-n` and `fish/workhorse/root`.
+  - Support cases such as `fish/<linux_host>/<normal_account>` and `fish/<linux_host>/<privileged_account>`.
   - Define deterministic lookup/precedence.
 
 - [x] **V2-10 — Define `$MACHINE_SOUL` semantics**
@@ -113,24 +113,21 @@ Do not manufacture replacement IDs for this series.
   - Application integrations should not hand-roll backup logic except for genuine exceptions.
 
 - [x] **V2-26 — Establish host/account inventory**
-  - Initial hosts:
-    - `spaceship`: Windows workstation.
-    - `workhorse`: Ubuntu/Linux server.
-    - `runar`: Ubuntu-like server.
-  - Relevant accounts include `m-a-x-i-n` and `root` where applicable.
+  - Initial inventory covered one Windows host variant and multiple Linux host variants.
+  - Relevant account roles included normal and privileged target accounts where applicable.
 
 - [x] **V2-27 — Create Windows config skeletons**
-  - Initial tracked configs for Windows Terminal, PowerShell, and CMD on `spaceship`.
+  - Initial tracked configs for Windows Terminal, PowerShell, and CMD on the Windows host variant.
 
 - [x] **V2-28 — Create shell/application config skeletons**
   - Initial configs for Fish, Bash, Zsh, Oh My Posh, Contour, and useful v1 carryovers across relevant hosts.
 
 - [x] **V2-29 — Implement user/account overlays**
-  - Support account-specific state where needed, especially `m-a-x-i-n` vs `root`.
+  - Support account-specific state where needed, especially normal-account versus privileged-account state.
   - Share common material cleanly and avoid unnecessary duplication.
 
 - [x] **V2-30 — Configure OMP across server accounts**
-  - Explicit OMP configuration for both `m-a-x-i-n` and `root` on `workhorse` and `runar`.
+  - Explicit OMP configuration for both normal and privileged target accounts on the configured Linux host variants.
   - Shared theme/config where sensible; account-specific distinction where useful.
 
 - [x] **V2-31 — Implement Apply / Unapply / Check for initial applications**
@@ -165,7 +162,7 @@ Do not manufacture replacement IDs for this series.
   - Detect hidden prerequisites.
 
 - [x] **V2-38 — End-to-end host matrix validation**
-  - Validate apps × hosts × accounts × operations across spaceship/workhorse/runar.
+  - Validate apps × hosts × accounts × operations across the configured host variants.
   - Maintain pass / unsupported / pending results and resolve failures before baseline completion.
 
 - [x] **V2-39 — Document architecture and extension workflow**

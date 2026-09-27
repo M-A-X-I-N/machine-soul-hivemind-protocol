@@ -55,7 +55,7 @@ Facts that can be discovered reliably at execution time should be discovered rat
 
 The current top-level tracked `hosts/*.env` inventory is therefore transitional and will be removed.
 
-This does **not** mean host-specific configuration variants disappear. If `spaceship`, `workhorse`, and `runar` genuinely require different canonical configuration files, that distinction remains meaningful inside the configuration tree. What disappears is the requirement for a tracked registry merely to tell Machine-Soul facts the machine can discover for itself.
+This does **not** mean host-specific configuration variants disappear. If concrete machines genuinely require different canonical configuration files, that host-specific distinction remains meaningful inside the configuration tree. What disappears is the requirement for a tracked registry merely to tell Machine-Soul facts the machine can discover for itself.
 
 Explicit environment overrides may remain for tests or unusual environments, but ordinary execution must not depend on them.
 

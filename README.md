@@ -40,7 +40,7 @@ Current final-file precedence is:
 
 Shared fragments may exist, but deployment resolves to one concrete tracked file; the configuration-deployment runtime does not merge config content at deployment time.
 
-Initial hosts are spaceship (Windows workstation), workhorse (Ubuntu/Linux server), and runar (Ubuntu-like server). See autonomic_affairs/docs/CONFIGURATION_MODEL.md.
+Tracked configuration currently includes one Windows host variant and multiple Linux host variants. See autonomic_affairs/docs/CONFIGURATION_MODEL.md.
 
 ## Paired configuration and operation trees
 
@@ -56,7 +56,7 @@ See autonomic_affairs/docs/APPLICATION_CONTRACT.md and autonomic_affairs/docs/IN
 
 ## Oh My Posh and accounts
 
-workhorse and runar have independent tracked OMP configurations for m-a-x-i-n and root. Each shell process initializes its own prompt environment; SSH and sudo do not transport a local shell's OMP state into the new process.
+Linux host variants may carry independent tracked OMP configurations for normal and privileged target accounts. Each shell process initializes its own prompt environment; SSH and sudo do not transport a local shell's OMP state into the new process.
 
 See autonomic_affairs/docs/SESSION_BOUNDARIES.md.
 

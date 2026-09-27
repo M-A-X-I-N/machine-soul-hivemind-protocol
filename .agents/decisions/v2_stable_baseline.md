@@ -40,7 +40,7 @@ CI coverage at baseline includes:
 - repository relocation with restore-lineage preservation;
 - fresh-clone validation on Windows and Ubuntu;
 - sudo/root and remote-like process boundaries;
-- workhorse/runar × m-a-x-i-n/root configuration resolution;
+- multiple Linux host variants × normal/privileged account configuration resolution;
 - Windows POSIX-shell path translation through `cygpath` plus the Windows PowerShell symlink runtime.
 
 ## Stable design laws

@@ -73,7 +73,7 @@ Runtime facts are discovered when practical:
 
 Explicit environment overrides such as `MACHINE_SOUL_HOST` and `MACHINE_SOUL_ACCOUNT` remain useful for tests and unusual environments, but ordinary operation must not depend on a tracked host-inventory record.
 
-The currently configured host-specific variants include `spaceship`, `workhorse`, and `runar`. Their presence under `assimilation_directives/<application>/hosts/` describes real configuration variants; it does not constitute a central host inventory.
+The configuration tree currently contains multiple concrete host-specific variants. Their identities belong in `assimilation_directives/<application>/hosts/<hostname>/` where they select genuinely different configuration; durable architecture documentation does not need to enumerate those machine names.
 
 ## 4. Resolution precedence
 

@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-META-A-050`](agent_tasks/MSHP-META-A/MSHP-META-A-050.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -16,7 +16,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 |---|---|---|---|---|
 | [`MSHP-META-A-010`](agent_tasks/MSHP-META-A/MSHP-META-A-010.md) | COMPLETE | — | Rename meta namespace | Rename the repository self-management namespace to `autonomic_affairs/` and codify the thematic top-level A convention. |
 | [`MSHP-META-A-020`](agent_tasks/MSHP-META-A/MSHP-META-A-020.md) | COMPLETE | `MSHP-META-A-010` | Establish task system | Replace the monolithic ledger with a compact scheduling index, stable detailed task specs, Dispatch, and archival rules. |
-| [`MSHP-META-A-030`](agent_tasks/MSHP-META-A/MSHP-META-A-030.md) | IN_PROGRESS | `MSHP-META-A-010` | Genericize machine identities | Remove incidental concrete host/account identities from durable documentation while retaining technically necessary identities. |
+| [`MSHP-META-A-030`](agent_tasks/MSHP-META-A/MSHP-META-A-030.md) | COMPLETE | `MSHP-META-A-010` | Genericize machine identities | Remove incidental concrete host/account identities from durable documentation while retaining technically necessary identities. |
 | [`MSHP-META-A-040`](agent_tasks/MSHP-META-A/MSHP-META-A-040.md) | COMPLETE | `MSHP-META-A-010` | Formalize agent provenance | Establish stable-designation registry, accurate official identities, optional honorifics, and conspicuous `UNNAMED` behavior. |
 | [`MSHP-META-A-050`](agent_tasks/MSHP-META-A/MSHP-META-A-050.md) | QUEUED | `MSHP-META-A-010` | Establish reminders | Create the non-executable reminders register and seed provenance-rewrite, cross-repo agent-baseline, and Skills investigations. |
 | [`MSHP-META-A-060`](agent_tasks/MSHP-META-A/MSHP-META-A-060.md) | QUEUED | `MSHP-META-A-010` | Codify idiot-maintainer language | Permit optional maintainer-directed idiot-human humor while explicitly excluding end users and formal interfaces. |

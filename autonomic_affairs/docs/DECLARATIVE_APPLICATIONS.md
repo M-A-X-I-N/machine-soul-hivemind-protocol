@@ -46,7 +46,7 @@ This keeps the capability contract inspectable without looking for wrapper-file 
 
 A `ConfigurationFile` names one canonical leaf such as `config.fish`.
 
-Host/account precedence remains shared configuration-resolution policy. An application declaration does not encode a particular host path such as `hosts/workhorse/...`.
+Host/account precedence remains shared configuration-resolution policy. An application declaration does not encode a particular host path such as `hosts/<hostname>/...`.
 
 Destination selection is represented by reusable destination strategies. The first generic strategy is `HomeRelativeDestination`, which resolves relative to the **logical target account** established by the account-targeting contract.
 
