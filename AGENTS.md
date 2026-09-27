@@ -75,7 +75,7 @@ Use `[Kind][Scope] Imperative summary`. Scope is optional when it adds no useful
 
 Approved kinds: `Feature`, `Fix`, `Research`, `Documentation`, `Test`, `CI`, `Build`, `Refactor`, `Chore`, and human-selected-only `CBA`. Agents must never self-select `CBA`.
 
-When this ChatGPT lineage wholly authors the substantive change, use an `Agent-authored-by:` trailer containing the stable designation `Gippity`. The surrounding humorous title may vary freely; a slur-containing title requires explicit human approval. Keep the complete provenance trailer to at most two physical lines.
+Wholly agent-authored substantive commits must follow the canonical [agent provenance registry and trailer policy](.agents/PROVENANCE.md). Do not invent a stable designation when the authoring agent variant is unregistered or marked `UNNAMED`.
 
 ## Working style
 

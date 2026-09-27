@@ -51,4 +51,4 @@ Use real checks matching the changed surface. Documentation/policy changes may b
 
 ## Provenance
 
-Follow `../AGENTS.md`. Wholly agent-authored substantive commits from this lineage use an `Agent-authored-by:` trailer containing `Gippity`.
+Follow `../AGENTS.md` and [`PROVENANCE.md`](PROVENANCE.md). Resolve the authoring agent variant through the canonical registry before creating a wholly agent-authored substantive commit. If the variant is unnamed/unregistered, follow the `UNNAMED` notification/ask rules rather than inventing a designation.

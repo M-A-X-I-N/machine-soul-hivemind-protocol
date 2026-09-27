@@ -29,6 +29,7 @@ Prefer these categories when useful:
 .agents/
 ├── README.md
 ├── WORKFLOW.md
+├── PROVENANCE.md
 ├── architecture/
 ├── applications/
 ├── hosts/
@@ -45,8 +46,9 @@ Prefer updating an existing note over creating a competing note on the same subj
 
 1. `../AGENTS.md`
 2. `WORKFLOW.md`
-3. `../autonomic_affairs/agent_tasks.md` and the linked specification for the dispatched/claimed task
-4. relevant notes under this directory
-5. relevant human-facing documentation/configuration
+3. `PROVENANCE.md` before authoring commits
+4. `../autonomic_affairs/agent_tasks.md` and the linked specification for the dispatched/claimed task
+5. relevant notes under this directory
+6. relevant human-facing documentation/configuration
 
 Current repository state remains authoritative over remembered conversation context.
