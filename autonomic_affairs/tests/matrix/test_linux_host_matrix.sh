@@ -14,6 +14,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
+mkdir -p "$soul"
 printf 'Machine-Soul repository root\n' > "$soul/.machine_soul_root"
 
 leaf_for() {

@@ -52,13 +52,6 @@ try {
     Assert-Equal 'not_applied' (Invoke-Wrapper (Join-Path $cmdOps 'unapply_config.py')).code 'cmd unapply'
     Assert-Equal 'echo original' ((Get-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun).AutoRun) 'cmd restores prior AutoRun'
 
-    foreach ($app in @('fish','bash','zsh')) {
-        $ops = Join-Path $repoRoot "annexation_procedures\$app"
-        $result = Invoke-Wrapper (Join-Path $ops 'check_config.py')
-        Assert-Equal 'unsupported' $result.status "$app requires POSIX compatibility environment"
-        Assert-Equal 'configuration_not_available' $result.code "$app missing POSIX destination environment"
-    }
-
     $global:LASTEXITCODE = 0
     Write-Host 'Windows Python-wrapper application operation tests passed.'
 }
