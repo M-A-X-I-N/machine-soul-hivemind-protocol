@@ -25,7 +25,7 @@ Current investigation block `MSHP-DEV-A` covers:
 
 ## Known gaps
 
-- no selected VS Code desired settings/profile/extension inventory yet;
+- VS Code installation is technically ready for scoped WinGet promotion, but no selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
 - no selected JetBrains desired settings/plugins/toolbox policy yet;
 - no chosen Lua/Python/Node installation/version-manager backend yet;
 - no generic representation yet for intentionally desired simultaneous runtime versions;
