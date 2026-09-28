@@ -87,7 +87,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                     custom.append((app.id, declaration.platform))
         self.assertEqual([("cmd", Platform.WINDOWS)], custom)
 
-    def test_unmanaged_install_surfaces_are_explicitly_not_implemented(self) -> None:
+    def test_unmanaged_install_mutations_are_explicitly_not_implemented(self) -> None:
         for app in self.apps.values():
             for declaration in app.platforms:
                 if (
@@ -100,7 +100,21 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                     continue
                 self.assertEqual(Support.NOT_IMPLEMENTED, declaration.support_for(Operation.INSTALL))
                 self.assertEqual(Support.NOT_IMPLEMENTED, declaration.support_for(Operation.UNINSTALL))
-                self.assertEqual(Support.NOT_IMPLEMENTED, declaration.support_for(Operation.CHECK_INSTALLED))
+
+    def test_linux_discovery_is_supported_without_requiring_install_mutation(self) -> None:
+        expected = {"bash", "contour", "fish", "oh_my_posh", "zsh"}
+        supported = set()
+        for app_id in expected:
+            declaration = self.apps[app_id].for_platform(Platform.LINUX)
+            assert declaration is not None
+            self.assertEqual(
+                Support.SUPPORTED,
+                declaration.support_for(Operation.CHECK_INSTALLED),
+            )
+            self.assertIsNotNone(declaration.installation_discovery)
+            supported.add(app_id)
+
+        self.assertEqual(expected, supported)
 
 
 if __name__ == "__main__":
