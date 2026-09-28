@@ -15,6 +15,16 @@ For repository-changing work:
 
 Do not leave substantial completed work only in an ephemeral tool session.
 
+## Task granularity default
+
+Unless the human explicitly requests a particular task structure, agents have broad discretion to split work as finely as useful. Prefer very small bounded tasks when that improves recoverability, reviewability, or cross-context survivability; Git/checkpoint overhead is an acceptable limiting factor.
+
+The task system exists primarily to preserve executable intent and intermediate state across context/session boundaries, not to require ceremony for every repository edit.
+
+If a change is isolated from any larger active block and is obviously one natural commit, no task is required. In that case inspect the relevant authority, make the change, validate the changed surface, and commit/push it directly.
+
+Do not use this exception to bypass task state for work that is already part of an active task/block, has meaningful sequencing/dependencies, spans multiple checkpoints, or could plausibly be interrupted between distinct decisions.
+
 ## Interrupted-session recovery
 
 Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/agent_tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.

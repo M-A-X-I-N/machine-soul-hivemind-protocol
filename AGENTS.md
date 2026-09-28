@@ -65,11 +65,12 @@ Unless the human explicitly changes these laws:
 - Preserve Git history and recoverability by default.
 - Prefer additive corrections and revert commits over history rewriting.
 - Do not force-move refs, rebase/drop/squash established history, or destroy unique work without explicit human authorization for the affected history and operation.
-- Keep checkpoints small, coherent, and independently understandable/revertible.
+- Keep checkpoints small, coherent, and independently understandable/revertible. When task structure is left to the agent, prefer aggressively small bounded tasks/checkpoints; there is no lower granularity target beyond remaining coherent and useful for cross-context recovery.
 - Push meaningful completed checkpoints promptly.
 - Use the smallest validation that genuinely proves the changed surface.
 - If a task exposes a genuine architecture/design ambiguity that prevents safe progress, stop and ask rather than silently choosing for the human.
 - Update `autonomic_affairs/agent_tasks.md` whenever executable-work state, dependencies, summaries, or Dispatch ordering changes.
+- Do not manufacture a task for an isolated repository change that is obviously one natural commit and is not part of a larger work block; perform, validate, and commit it directly. Tasks primarily exist to preserve executable intent across context/session boundaries.
 - If a task discovers durable reusable knowledge, update `.agents/` in the same checkpoint or immediately after it.
 
 ## Commit messages and provenance
