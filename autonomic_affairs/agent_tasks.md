@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-DEV-A-070`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-070.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -19,7 +19,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-A-030`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-030.md) | COMPLETE | — | Investigate Lua multiversion annexation | Investigate sane Windows Lua/LuaJIT side-by-side installation, selection, discovery, uninstall, and version-manager options without preselecting an architecture. |
 | [`MSHP-DEV-A-040`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-040.md) | COMPLETE | — | Investigate Python multiversion annexation | Investigate Python side-by-side versions, launchers/version managers, install mechanisms, discovery, defaults, and uninstall semantics with multiversion capability preserved. |
 | [`MSHP-DEV-A-050`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-050.md) | COMPLETE | — | Investigate Node multiversion annexation | Investigate Node.js side-by-side versions and version-manager ecosystems, including npm/Corepack interactions and deterministic version selection. |
-| [`MSHP-DEV-A-060`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-060.md) | IN_PROGRESS | — | Survey additional runtime candidates | Identify other commonly useful runtimes/toolchains worth future annexation research and classify which deserve deeper investigation without prematurely taskifying all of them. |
+| [`MSHP-DEV-A-060`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-060.md) | COMPLETE | — | Survey additional runtime candidates | Identify other commonly useful runtimes/toolchains worth future annexation research and classify which deserve deeper investigation without prematurely taskifying all of them. |
 | [`MSHP-DEV-A-070`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-070.md) | QUEUED | `MSHP-DEV-A-030`, `MSHP-DEV-A-040`, `MSHP-DEV-A-050`, `MSHP-DEV-A-060` | Synthesize runtime/version-management findings | Compare runtime investigations and identify only the reusable multiversion/version-management abstractions actually justified by evidence. |
 | [`MSHP-DEV-A-080`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-080.md) | QUEUED | `MSHP-DEV-A-030` | Investigate LuaRocks annexation | Map LuaRocks installation, Lua-version binding, package trees, scope, package inventory, and coexistence semantics. |
 | [`MSHP-DEV-A-090`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-090.md) | QUEUED | `MSHP-DEV-A-040` | Investigate pip annexation | Map pip interpreter binding, user/global/venv scopes, package inventory, and safe Machine-Soul ownership boundaries. |
