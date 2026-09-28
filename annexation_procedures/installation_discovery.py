@@ -6,7 +6,7 @@ from dataclasses import replace
 import shutil
 from typing import Callable
 
-from ..model import (
+from .model import (
     DiscoveryObservation,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
@@ -20,8 +20,8 @@ from ..model import (
     TriState,
     WingetPackageDiscovery,
 )
-from ..process import ProcessResult, run_process
-from ..state import InstallState, read_install_state
+from .process import ProcessResult, run_process
+from .state import InstallState, read_install_state
 
 
 Runner = Callable[[list[str]], ProcessResult]
