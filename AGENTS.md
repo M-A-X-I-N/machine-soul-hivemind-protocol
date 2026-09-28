@@ -79,7 +79,7 @@ Use `[Kind][Scope] Imperative summary`. Scope is optional when it adds no useful
 
 Approved kinds: `Feature`, `Fix`, `Research`, `Documentation`, `Test`, `CI`, `Build`, `Refactor`, `Chore`, and human-selected-only `CBA`. Agents must never self-select `CBA`.
 
-Wholly agent-authored substantive commits must follow the canonical [agent provenance registry and trailer policy](.agents/PROVENANCE.md). Do not invent a stable designation when the authoring agent variant is unregistered or marked `UNNAMED`.
+Wholly agent-authored substantive commits must follow the canonical [agent provenance registry and trailer policy](.agents/PROVENANCE.md). Keep `Agent-authored-by:` even when Git Author is an agent/bot/service identity; in that case also use `Agent-operated-by:` when required by the provenance policy to identify the accountable human operator. Do not invent a stable designation when the authoring agent variant is unregistered or marked `UNNAMED`.
 
 ## Working style
 

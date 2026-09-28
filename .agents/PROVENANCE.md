@@ -1,6 +1,6 @@
 # Agent authorship provenance
 
-This file is the canonical policy for `Agent-authored-by:` commit trailers in this repository.
+This file is the canonical policy for agent provenance commit trailers in this repository.
 
 The purpose is durable authorship provenance across agent products, surfaces, and model revisions without pretending that a product name and a stable project-local identity are the same thing.
 
@@ -105,9 +105,73 @@ The `UNNAMED` restriction intentionally forbids honorifics so unnamed provenance
 
 ## Scope
 
-This trailer is required when the agent wholly authors the substantive commit.
+`Agent-authored-by:` is required when the agent wholly authors the substantive commit regardless of the Git Author identity used to create the commit.
+
+The Git Author field and the provenance trailer answer different questions:
+
+- Git Author identifies the account/identity recorded by Git.
+- `Agent-authored-by:` identifies the agent variant substantively responsible for producing the change.
+
+An agent, bot, automation, or service Git author therefore does not replace or weaken the normal `Agent-authored-by:` requirement.
 
 Human-authored or genuinely mixed-authorship work may require different provenance treatment when such a convention is later defined; do not falsely label a human-authored substantive change as wholly agent-authored.
+
+## Human operator provenance
+
+When the Git Author identity does not itself identify the accountable human operator, a wholly agent-authored substantive commit must additionally include:
+
+```text
+Agent-operated-by: <accountable human operator identity>
+```
+
+This trailer records human operational accountability. It does not claim code review, approval, or technical authorship.
+
+It means the named human directed or operated the agent run and is accountable for allowing the agent-authored commit to enter this repository.
+
+Do not rename this concept to `Reviewed-by:`, `Approved-by:`, or similar unless a separate real review/approval convention is later defined. Ordinary prompting, supervision, skimming, or saying "go next" is not formal review.
+
+### When the trailer is required
+
+Require `Agent-operated-by:` when all of these are true:
+
+1. the substantive commit is agent-authored and therefore already requires `Agent-authored-by:`;
+2. the Git Author identity is non-human or otherwise fails to identify the accountable human operator;
+3. an accountable human operator is truthfully known.
+
+Do not add the trailer redundantly when the Git Author identity already identifies the accountable human.
+
+If the Git Author is non-human and the accountable human operator cannot be truthfully determined, do not invent one. Resolve that provenance ambiguity before creating the substantive commit when practical.
+
+The Git Committer field, hosting-service actor, or automation account does not substitute for this accountable-human information when the Author identity is non-human.
+
+### Grammar
+
+Use:
+
+```text
+Agent-operated-by: <human identity>
+```
+
+The value may include harmless project-local humor, but the human identity must remain unambiguous.
+
+Example with non-human Git Author:
+
+```text
+Author: agent-service-account
+
+Agent-authored-by: Gippity, Keeper of the Build (OpenAI ChatGPT Chat, GPT-5.6 Sol)
+Agent-operated-by: Human Maintainer
+```
+
+Example when Git Author already identifies the human:
+
+```text
+Author: Human Maintainer
+
+Agent-authored-by: Gippity, Keeper of the Build (OpenAI ChatGPT Chat, GPT-5.6 Sol)
+```
+
+No `Agent-operated-by:` trailer is required in the second case merely because an agent produced the substantive change.
 
 Commit summary format remains:
 
