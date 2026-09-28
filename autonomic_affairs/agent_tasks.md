@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-INST-B-040`](agent_tasks/MSHP-INST-B/MSHP-INST-B-040.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -22,7 +22,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-INST-B-010`](agent_tasks/MSHP-INST-B/MSHP-INST-B-010.md) | COMPLETE | `MSHP-INST-A-040` | Implement scope policy model | Add mutation-side installation scope policy/value types, compatibility semantics, strategy declarations, and cross-account user-scope guards without changing package-manager commands yet. |
 | [`MSHP-INST-B-020`](agent_tasks/MSHP-INST-B/MSHP-INST-B-020.md) | COMPLETE | `MSHP-INST-B-010` | Implement scoped installation provenance | Replace one-account-one-app install provenance with scope-aware user/machine ownership records, schema migration, and safe legacy reconciliation primitives. |
 | [`MSHP-INST-B-030`](agent_tasks/MSHP-INST-B/MSHP-INST-B-030.md) | COMPLETE | `MSHP-INST-B-020` | Make installation ownership candidate-exact | Refactor install/check/uninstall safety around scoped discovery candidates and exact provenance matching, including post-install scope verification and ambiguity refusal. |
-| [`MSHP-INST-B-040`](agent_tasks/MSHP-INST-B/MSHP-INST-B-040.md) | QUEUED | `MSHP-INST-B-030` | Implement scoped WinGet mutation | Add explicit WinGet user/machine install/list/uninstall scope, dual-scope discovery, exact ownership targeting, and Oh My Posh regression coverage. |
+| [`MSHP-INST-B-040`](agent_tasks/MSHP-INST-B/MSHP-INST-B-040.md) | IN_PROGRESS | `MSHP-INST-B-030` | Implement scoped WinGet mutation | Add explicit WinGet user/machine install/list/uninstall scope, dual-scope discovery, exact ownership targeting, and Oh My Posh regression coverage. |
 | [`MSHP-INST-B-050`](agent_tasks/MSHP-INST-B/MSHP-INST-B-050.md) | QUEUED | `MSHP-INST-B-030` | Implement Apt machine scope | Declare Apt as fixed machine scope, use host/machine provenance, and safely reconcile compatible legacy Apt ownership without adding unsupported Linux managers. |
 | [`MSHP-INST-B-060`](agent_tasks/MSHP-INST-B/MSHP-INST-B-060.md) | QUEUED | `MSHP-INST-B-040`, `MSHP-INST-B-050` | Integrate scoped installation lifecycle | Validate scoped install/check/uninstall end to end, update status/docs/initiative coverage, preserve deferred manager gaps, and explicitly clear the Windows config-candidate investigation to resume. |
 | [`MSHP-APPS-A-010`](agent_tasks/MSHP-APPS-A/MSHP-APPS-A-010.md) | QUEUED | — | Investigate Windows config candidates | Inventory Windows-integrated and common Microsoft applications with stable user-manageable configuration surfaces that may deserve Machine-Soul configuration entries. |
