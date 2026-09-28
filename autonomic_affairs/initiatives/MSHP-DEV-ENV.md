@@ -27,8 +27,8 @@ Current investigation block `MSHP-DEV-A` covers:
 
 - VS Code installation is technically ready for scoped WinGet promotion, but no selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
 - JetBrains Toolbox installation is technically ready as scoped USER WinGet support; no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
-- Lua research found no single clean native-Windows manager for PUC Lua 5.1–5.5 + LuaJIT; versioned runtime instances plus separately managed default selection is the leading model. Python has a strong official Windows Python Install Manager. Node has several credible managers, with nvm-windows v2 the leading Windows-specific candidate and fnm a strong cross-platform alternative; final backend strategy awaits comparative synthesis;
-- no generic representation yet for intentionally desired simultaneous runtime versions;
+- Runtime synthesis now establishes a shared model across Lua/Python/Node: exact runtime instances, an intentionally desired installed-version set, separate selected/default state, backend identity, and exact per-instance discovery/uninstall. The backend remains runtime-specific rather than forcing one universal manager;
+- this shared runtime model is not implemented yet; current generic installation provenance assumes package-manager/package identities rather than an explicit many-version runtime subject model;
 - no runtime-bound package-environment/inventory model yet;
 - native Windows C/C++ toolchain lifecycle is a concrete future gap: current maintainer work already depends on MSVC/Visual Studio Build Tools, and supported MSVC toolsets can coexist side-by-side; exact Visual Studio/Build Tools/Windows SDK ownership still needs a dedicated investigation;
 - .NET SDK/runtime, Java/JDK, Rust, and Go are credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence does not justify executable tasks for all of them yet;
@@ -36,8 +36,9 @@ Current investigation block `MSHP-DEV-A` covers:
 
 ## Deliberate boundaries / deferred work
 
-- Preserve multiversion coexistence as a desirable capability where reasonably possible, but do not build custom version-management machinery when a sane maintained ecosystem solution is better.
-- Investigate first; let evidence decide whether Machine-Soul manages versions directly or delegates to a version manager.
+- Preserve multiversion coexistence as a first-class desired capability where reasonably possible. Represent deliberately desired multiple versions explicitly rather than treating duplicate discovery as ambiguity.
+- Keep lifecycle backend-specific behind shared runtime-instance/desired-set/selection concepts: use first-party or ecosystem managers when strong, direct Machine-Soul ownership only when necessary, and do not mandate one cross-runtime manager.
+- Investigate first; let evidence decide whether Machine-Soul manages versions directly or delegates to a version manager. Manager identity and manager-switch migration must remain explicit because changing backends can change prefixes, shims, package state, and ownership.
 - Do not require assimilation directives for install-only/runtime subjects.
 - Do not invent maintainer configuration or package inventories.
 - Do not automatically manage project-local dependency environments.
