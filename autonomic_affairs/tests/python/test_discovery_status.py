@@ -231,6 +231,7 @@ class DiscoveryStatusTests(unittest.TestCase):
                     candidates=[
                         {
                             "native_identity": "example",
+                            "scope": "user",
                             "preferred_match": "yes",
                             "ownership": "unmanaged",
                         }
@@ -258,6 +259,7 @@ class DiscoveryStatusTests(unittest.TestCase):
         )
 
         self.assertIn("installation: present", output)
+        self.assertIn("scopes[user=1]", output)
         self.assertIn("preferred_match[yes=1,no=0,unknown=0]", output)
         self.assertIn("ownership=unmanaged", output)
         self.assertIn("configuration: applied; ownership=managed", output)

@@ -31,9 +31,14 @@ def _installation(result: OperationResult) -> str:
     preferred_yes = 0
     preferred_no = 0
     preferred_unknown = 0
+    scopes: dict[str, int] = {}
     for candidate in candidates:
         if not isinstance(candidate, Mapping):
             continue
+        scope = candidate.get("scope")
+        if isinstance(scope, str):
+            scopes[scope] = scopes.get(scope, 0) + 1
+
         match = candidate.get("preferred_match")
         if match == "yes":
             preferred_yes += 1
@@ -47,8 +52,13 @@ def _installation(result: OperationResult) -> str:
         if candidates
         else "n/a"
     )
+    scope_summary = (
+        ",".join(f"{name}={scopes[name]}" for name in sorted(scopes))
+        if scopes
+        else "n/a"
+    )
     return (
-        f"{presence}; candidates={len(candidates)}; "
+        f"{presence}; candidates={len(candidates)}; scopes[{scope_summary}]; "
         f"preferred_match[{preferred}]; ownership={ownership}"
     )
 
