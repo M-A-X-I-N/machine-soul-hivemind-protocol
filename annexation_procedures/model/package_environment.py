@@ -21,12 +21,16 @@ _SECRET_KEY = re.compile(
 _SECRET_ASSIGNMENT = re.compile(
     r"(?i)\b(password|passwd|token|secret|credential|auth|api[_-]?key)\s*=\s*[^&\s]+"
 )
+_URL_USERINFO = re.compile(
+    r"(?i)([a-z][a-z0-9+.-]*://)[^/@\s:]+(?::[^/@\s]*)?@"
+)
 
 
 def _redact_string(value: str) -> str:
     """Redact obvious credential material while preserving useful diagnostics."""
 
     result = _SECRET_ASSIGNMENT.sub(lambda match: f"{match.group(1)}=<redacted>", value)
+    result = _URL_USERINFO.sub(r"\1<redacted>@", result)
     try:
         parsed = urlsplit(result)
     except ValueError:
@@ -224,6 +228,9 @@ class PackageEnvironmentLocator:
             raise ValueError("Package environment locator values must be non-empty.")
         _assert_secret_safe(copied, field_name="Package environment locator")
         object.__setattr__(self, "values", MappingProxyType(copied))
+
+    def __hash__(self) -> int:
+        return hash((self.kind, tuple(sorted(self.values.items()))))
 
     def to_dict(self) -> dict[str, object]:
         return {"kind": self.kind, "values": dict(self.values)}

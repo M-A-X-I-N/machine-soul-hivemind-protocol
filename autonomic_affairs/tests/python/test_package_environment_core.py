@@ -174,7 +174,7 @@ class FakeRuntimeBackend:
         return tuple(self.instances.values())
 
     def selected_key(self, context):
-        return next(iter(self.instances), None)
+        return None
 
     def install(self, context, spec):
         instance = RuntimeInstance(
