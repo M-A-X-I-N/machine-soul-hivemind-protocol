@@ -17,7 +17,7 @@ Do not leave substantial completed work only in an ephemeral tool session.
 
 ## Task granularity default
 
-Unless the human explicitly requests a particular task structure, agents have broad discretion to split work as finely as useful. Prefer very small bounded tasks when that improves recoverability, reviewability, or cross-context survivability; Git/checkpoint overhead is an acceptable limiting factor.
+Unless the human explicitly requests a particular task structure, agents have broad discretion to choose the task boundaries that function best for the agent actually executing the work. Optimize for coherent implementation, validation, dependency clarity, recoverability, and cross-context survivability. Do not prefer either tiny or large tasks for their own sake; Git/checkpoint overhead is one practical factor among those concerns.
 
 The task system exists primarily to preserve executable intent and intermediate state across context/session boundaries, not to require ceremony for every repository edit.
 
