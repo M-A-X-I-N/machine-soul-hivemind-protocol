@@ -86,6 +86,13 @@ class BuiltInExecutableDiscovery:
 
 
 @dataclass(frozen=True)
+class WindowsPosixPackageDiscovery:
+    package_name: str
+    executable_name: str
+    version_arguments: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class ExecutableDiscovery:
     executable_name: str
     version_arguments: tuple[str, ...] = ()
