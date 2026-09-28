@@ -24,6 +24,12 @@ from .discovery import (
     VerificationObservation,
 )
 from .result import OperationResult, ResultStatus
+from .native_toolchain import (
+    NativeToolchainOwnership,
+    NativeToolchainRequirement,
+    VisualStudioInstance,
+    normalize_native_architecture,
+)
 from .installation_scope import (
     InstallationScopePolicy,
     InstallationScopePolicyMode,
@@ -83,6 +89,10 @@ __all__ = [
     "VerificationObservation",
     "OperationResult",
     "ResultStatus",
+    "NativeToolchainOwnership",
+    "NativeToolchainRequirement",
+    "VisualStudioInstance",
+    "normalize_native_architecture",
     "InstallationScopePolicy",
     "InstallationScopePolicyMode",
     "installation_scope_compatible",
