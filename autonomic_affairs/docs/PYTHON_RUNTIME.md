@@ -19,7 +19,7 @@ accumulated_instruments/
 
 The repository root is the import root. The package is not required to be installed into `site-packages`.
 
-`accumulated_instruments/__init__.py` and `accumulated_instruments/machine_soul/__init__.py` establish the importable namespace. Importing the package must not mutate machine state.
+`accumulated_instruments/__init__.py` and `annexation_procedures/__init__.py` establish the importable namespace. Importing the package must not mutate machine state.
 
 ## Dependency rule
 
@@ -96,7 +96,7 @@ python annexation_procedures/fish/install.py
 
 depending on platform/interpreter command.
 
-The broad manager is now available at `accumulated_instruments/manage_machine_soul.py`, but atomic wrappers remain usable independently and remain the semantic operation interfaces consumed by orchestration.
+The broad manager is now available at `annexation_procedures/manage_machine_soul.py`, but atomic wrappers remain usable independently and remain the semantic operation interfaces consumed by orchestration.
 
 ## Testing
 

@@ -239,7 +239,7 @@ The responsibility-by-responsibility audit of the existing Bash/PowerShell imple
 As implementation lands, responsibility should converge approximately to:
 
 ```text
-accumulated_instruments/machine_soul/
+annexation_procedures/
 ├── model/               immutable declarations and shared value objects
 ├── operations/          generic dispatcher + operation engines + strategy handlers
 ├── discovery/           environment/platform/account resolution

@@ -186,7 +186,7 @@ If adding an application requires teaching the broad manager how that applicatio
 The broad manager entry point is:
 
 ```text
-python accumulated_instruments/manage_machine_soul.py
+python annexation_procedures/manage_machine_soul.py
 ```
 
 With no workflow argument it presents an interactive menu. The initial workflows are deliberately small and generic:
@@ -198,6 +198,6 @@ With no workflow argument it presents an interactive menu. The initial workflows
 
 For automation/testing the same entry point accepts `--workflow list`, `--workflow check-config-all`, `--workflow apply-config`, and `--workflow apply-installed`.
 
-Composition lives in `accumulated_instruments.machine_soul.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
+Composition lives in `annexation_procedures.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
 
 A non-success result with `changed=true` stops later mutation in the same baseline workflow so partial-change risk cannot be silently buried. Mixed ordinary semantic outcomes remain present as individual attempts in the workflow report.
