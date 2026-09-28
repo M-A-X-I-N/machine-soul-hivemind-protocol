@@ -2,7 +2,7 @@
 
 Effective configuration verification is separate from structural deployment checking.
 
-`check_config` answers whether Machine-Soul has structurally applied the expected configuration at the expected native destination. The future `verify_config` operation answers how strongly Machine-Soul can establish that the application actually selects, reads, or reflects that configuration.
+`check_config` answers whether Machine-Soul has structurally applied the expected configuration at the expected native destination. `verify_config` answers how strongly Machine-Soul can establish that the application actually selects, reads, or reflects that configuration.
 
 See [`DISCOVERY_SEMANTICS.md`](DISCOVERY_SEMANTICS.md) for the common discovery/assessment model.
 

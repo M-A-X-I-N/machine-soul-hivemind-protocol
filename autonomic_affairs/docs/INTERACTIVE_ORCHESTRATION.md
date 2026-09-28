@@ -194,9 +194,14 @@ With no workflow argument it presents an interactive menu. The initial workflows
 - check configuration for every discovered application;
 - apply configuration to an explicit selected application set;
 - check installation state and apply configuration only to positively detected installed applications;
+- show installation / structural configuration / effective-configuration status without mutation;
 - exit without performing any operation.
 
-For automation/testing the same entry point accepts `--workflow list`, `--workflow check-config-all`, `--workflow apply-config`, and `--workflow apply-installed`.
+For automation/testing the same entry point accepts `--workflow list`, `--workflow status`, `--workflow check-config-all`, `--workflow apply-config`, and `--workflow apply-installed`.
+
+The `status` workflow invokes the existing `check_installed`, `check_config`, and `verify_config` wrappers for each application and groups those untouched results for presentation. Unsupported and not-implemented dimensions remain visible instead of disappearing. Ordinary semantic failures do not make the status workflow itself fail; genuine operation errors still produce an error exit code.
+
+Human status output summarizes installation presence/candidate preference/ownership, structural configuration state/ownership, and effective conclusion/evidence. `--json` preserves the complete atomic result payloads for all three dimensions.
 
 Composition lives in `annexation_procedures.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
 

@@ -76,6 +76,7 @@ Operation-specific engines own generic policy for concepts such as:
 
 - apply/check/unapply configuration;
 - install/check-installed/uninstall;
+- effective configuration verification;
 - source/destination resolution;
 - state/provenance/backup rules;
 - dry-run semantics;
@@ -261,3 +262,19 @@ A normal new application should usually require:
 3. uniform tiny operation wrappers.
 
 If adding an ordinary application requires editing the core engine to mention the application by name, the architecture has failed this contract.
+
+
+## Integrated discovery status composition
+
+The read-only broad status surface is intentionally orchestration, not a new semantic engine.
+
+```text
+status workflow
+    ├── check_installed wrapper
+    ├── check_config wrapper
+    └── verify_config wrapper
+```
+
+The orchestrator groups the three existing `OperationResult` values by application and the presentation layer summarizes them. It does not derive an overall health verdict, rewrite result statuses, or infer one dimension from another.
+
+Machine output preserves each original result payload. This is also the parity boundary: direct wrapper use and broad status orchestration must expose the same underlying semantics.
