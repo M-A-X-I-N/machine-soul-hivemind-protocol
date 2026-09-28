@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-DISC-A-050`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-050.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -26,7 +26,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DISC-A-010`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-010.md) | COMPLETE | `MSHP-META-A-070` | Define discovery semantics | Separate installation, applied-configuration, and effective-configuration discovery into explicit concepts with shared result semantics and extension boundaries. |
 | [`MSHP-DISC-A-020`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-020.md) | COMPLETE | `MSHP-DISC-A-010` | Investigate installation discovery | Determine how granular installation existence, mechanism, provenance, location, version, scope, ownership, and ambiguity can be discovered across supported platforms. |
 | [`MSHP-DISC-A-030`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-030.md) | COMPLETE | `MSHP-DISC-A-010` | Investigate effective configuration | Determine how each current application can prove, infer, or fail to verify that the intended configuration is actually being consumed. |
-| [`MSHP-DISC-A-040`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-040.md) | IN_PROGRESS | `MSHP-DISC-A-010` | Normalize applied configuration checks | Make `check_config` rigorously report structural deployment state without conflating it with runtime effectiveness. |
+| [`MSHP-DISC-A-040`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-040.md) | COMPLETE | `MSHP-DISC-A-010` | Normalize applied configuration checks | Make `check_config` rigorously report structural deployment state without conflating it with runtime effectiveness. |
 | [`MSHP-DISC-A-050`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-050.md) | QUEUED | `MSHP-DISC-A-020`, `MSHP-DISC-A-030`, `MSHP-DISC-A-040` | Synthesize discovery roadmap | Distill investigation results, preserve durable findings, and create the executable implementation tasks justified by the discovered architecture. |
 
 
