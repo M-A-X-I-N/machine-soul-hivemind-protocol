@@ -55,6 +55,7 @@ class WingetPackageDiscovery:
     preferred: bool = False
     executable_name: str | None = None
     version_arguments: tuple[str, ...] = ()
+    package_family_name: str | None = None
 
 
 @dataclass(frozen=True)
