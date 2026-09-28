@@ -5,6 +5,8 @@ import unittest
 from annexation_procedures.model import (
     Application,
     AptPackage,
+    DpkgPackageDiscovery,
+    InstallationDiscoveryPlan,
     ConfigurationFile,
     HomeRelativeDestination,
     Operation,
@@ -35,6 +37,9 @@ class ApplicationModelTests(unittest.TestCase):
                         ),
                     ),
                     install_strategy=AptPackage("fish"),
+                    installation_discovery=InstallationDiscoveryPlan(
+                        (DpkgPackageDiscovery("fish", preferred=True),)
+                    ),
                 ),
             ),
         )
@@ -55,6 +60,24 @@ class ApplicationModelTests(unittest.TestCase):
                 platform=Platform.LINUX,
                 capabilities={Operation.INSTALL: Support.SUPPORTED},
             )
+
+    def test_supported_check_installed_requires_discovery_plan(self) -> None:
+        with self.assertRaises(ValueError):
+            PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={Operation.CHECK_INSTALLED: Support.SUPPORTED},
+            )
+
+    def test_discovery_plan_does_not_require_install_strategy(self) -> None:
+        declaration = PlatformDeclaration(
+            platform=Platform.LINUX,
+            capabilities={Operation.CHECK_INSTALLED: Support.SUPPORTED},
+            installation_discovery=InstallationDiscoveryPlan(
+                (DpkgPackageDiscovery("example"),)
+            ),
+        )
+        self.assertIsNone(declaration.install_strategy)
+        self.assertIsNotNone(declaration.installation_discovery)
 
     def test_duplicate_platform_declaration_is_rejected(self) -> None:
         linux = PlatformDeclaration(platform=Platform.LINUX, capabilities={})

@@ -7,11 +7,15 @@ import unittest
 from annexation_procedures.model import (
     Application,
     AptPackage,
+    DpkgPackageDiscovery,
+    ExecutableDiscovery,
+    InstallationDiscoveryPlan,
     OperationContext,
     Platform,
     PlatformDeclaration,
     TargetAccount,
     WingetPackage,
+    WingetPackageDiscovery,
 )
 from annexation_procedures.operations.installation import (
     check_installed,
@@ -81,6 +85,9 @@ class InstallationOperationTests(unittest.TestCase):
                 platform=Platform.LINUX,
                 capabilities={},
                 install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
             )
             app = Application(id="fish", display_name="Fish", platforms=(declaration,))
             context = self._context(root, Platform.LINUX)
@@ -97,7 +104,16 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertEqual("installed_managed", installed.code)
             self.assertTrue(installed.changed)
             self.assertIsNotNone(read_install_state(context, "fish"))
-            self.assertEqual("installed_managed", check_installed(app, declaration, context, runner=fake).code)
+            self.assertEqual(
+                "installed_managed",
+                check_installed(
+                    app,
+                    declaration,
+                    context,
+                    runner=fake,
+                    which=lambda command: f"/usr/bin/{command}",
+                ).code,
+            )
 
             removed = uninstall_application(
                 app,
@@ -119,6 +135,9 @@ class InstallationOperationTests(unittest.TestCase):
                 platform=Platform.LINUX,
                 capabilities={},
                 install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
             )
             app = Application(id="fish", display_name="Fish", platforms=(declaration,))
             context = self._context(root, Platform.LINUX)
@@ -136,6 +155,88 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertEqual("installed_unmanaged", uninstall_result.code)
             self.assertTrue(fake.installed)
 
+    def test_check_installed_can_work_without_install_strategy(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                installation_discovery=InstallationDiscoveryPlan(
+                    (ExecutableDiscovery("example"),)
+                ),
+            )
+            app = Application(id="example", display_name="Example", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+
+            result = check_installed(
+                app,
+                declaration,
+                context,
+                which=lambda command: "/opt/example/bin/example" if command == "example" else None,
+            )
+
+            self.assertEqual("installed_unmanaged", result.code)
+            self.assertEqual("present", result.data["assessment"]["presence"])
+            self.assertEqual(
+                "/opt/example/bin/example",
+                result.data["assessment"]["candidates"][0]["paths"][0],
+            )
+
+    def test_check_installed_reports_unknown_when_backend_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("example"),)
+                ),
+            )
+            app = Application(id="example", display_name="Example", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+
+            result = check_installed(
+                app,
+                declaration,
+                context,
+                runner=lambda argv: (_ for _ in ()).throw(AssertionError("runner should not run")),
+                which=lambda command: None,
+            )
+
+            self.assertEqual("installation_unknown", result.code)
+            self.assertEqual("unknown", result.data["assessment"]["presence"])
+
+    def test_check_installed_retains_multiple_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                installation_discovery=InstallationDiscoveryPlan(
+                    (
+                        ExecutableDiscovery("example"),
+                        ExecutableDiscovery("example-alt"),
+                    )
+                ),
+            )
+            app = Application(id="example", display_name="Example", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+            paths = {
+                "example": "/usr/bin/example",
+                "example-alt": "/opt/example/bin/example",
+            }
+
+            result = check_installed(
+                app,
+                declaration,
+                context,
+                which=lambda command: paths.get(command),
+            )
+
+            self.assertEqual("installed_ambiguous", result.code)
+            self.assertEqual("ambiguous", result.data["assessment"]["presence"])
+            self.assertEqual(2, len(result.data["assessment"]["candidates"]))
+
     def test_dry_run_does_not_install_or_record_state(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -144,6 +245,9 @@ class InstallationOperationTests(unittest.TestCase):
                 platform=Platform.LINUX,
                 capabilities={},
                 install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
             )
             app = Application(id="fish", display_name="Fish", platforms=(declaration,))
             context = self._context(root, Platform.LINUX, dry_run=True)
@@ -169,6 +273,9 @@ class InstallationOperationTests(unittest.TestCase):
                 platform=Platform.WINDOWS,
                 capabilities={},
                 install_strategy=WingetPackage("Vendor.Example"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (WingetPackageDiscovery("Vendor.Example", preferred=True),)
+                ),
             )
             app = Application(id="example", display_name="Example", platforms=(declaration,))
             context = self._context(root, Platform.WINDOWS)
