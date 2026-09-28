@@ -33,7 +33,7 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 - pip research reinforces explicit runtime-bound package environments: deterministic mutation must target an exact interpreter/environment, virtual environments are identities rather than generic scope, externally-managed base interpreters must be respected, and declared desired roots must remain distinct from observed/transitive packages;
 - npm research confirms that global package state is prefix/backend/runtime state rather than a universal user or machine scope. Project-local package manifests/locks remain project-owned, while explicitly selected global CLI inventories may be annexable when bound to an exact Node/backend/global-prefix identity;
 - package-environment implementation is planned in `MSHP-DEV-B-070..090`: shared exact environment/desired-root ownership semantics, combined pip/npm backends, and a LuaRocks backend.
-- native Windows C/C++ toolchain lifecycle is promoted to `MSHP-DEV-B-020` for dedicated Visual Studio/Build Tools/MSVC/Windows SDK investigation before implementation taskification;
+- Windows native toolchain research is complete: Visual Studio/Build Tools setup instances, MSVC toolsets, and Windows SDKs are distinct identities; exact component discovery/mutation is safe enough for conservative explicit-instance ownership and is promoted to `MSHP-DEV-B-025`, while whole-instance provisioning remains blocked on maintainer-selected product/channel/path policy;
 - .NET SDK/runtime, Java/JDK, Rust, and Go remain credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence still does not justify executable tasks for them;
 - Ruby and PHP remain plausible ecosystem-specific future subjects but are lower priority without a concrete workload; Perl is intentionally cold unless a real dependency appears.
 
@@ -51,14 +51,14 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 - Do not treat npm `-g` as a machine-global scope. Resolve and preserve the exact Node/backend/global prefix before owning global package inventory, and keep registry credentials/tokens outside tracked desired state.
 - Runtime removal/migration must account for owned package environments bound to that runtime before deleting or reassigning the runtime. Never transfer environment ownership merely because observed package names match.
 - Do not promote every common language/toolchain into executable work merely because it exists.
-- Treat MSVC/Windows native toolchains as the leading additional near-term investigation candidate; keep .NET/JDK/Rust/Go as structured initiative gaps until concrete demand or roadmap synthesis promotes them.
+- Treat Visual Studio/Build Tools instance identity, exact MSVC/SDK component identity, and derived build-session selection as separate layers. Machine-Soul may own exact components only in an explicitly adopted instance and must preserve unowned components. Keep .NET/JDK/Rust/Go as structured initiative gaps until concrete demand promotes them.
 - Keep Ruby/PHP/Perl deferred unless a real workload makes their lifecycle worth owning.
 - VS Code extensions and JetBrains plugins justify a future host-bound add-on inventory concept, but do not implement it until desired add-ons/host/profile ownership are selected.
 - Coordinate configuration-specific findings with `MSHP-WIN-CONFIG` instead of duplicating desired-state ownership.
 
 ## Related executable tasks
 
-`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` form the planned implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
+`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the planned implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
 
 ## Promotion / closure criteria
 
