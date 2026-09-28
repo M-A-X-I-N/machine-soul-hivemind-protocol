@@ -75,6 +75,23 @@ class RealApplicationDeclarationTests(unittest.TestCase):
 
         self.assertEqual(expected, supported)
 
+    def test_native_verification_capabilities_are_wired(self) -> None:
+        expected = {
+            ("cmd", Platform.WINDOWS),
+            ("powershell", Platform.WINDOWS),
+            ("windows_terminal", Platform.WINDOWS),
+            ("contour", Platform.LINUX),
+            ("contour", Platform.WINDOWS),
+        }
+        for app_id, platform in expected:
+            declaration = self.apps[app_id].for_platform(platform)
+            assert declaration is not None
+            self.assertEqual(
+                Support.SUPPORTED,
+                declaration.support_for(Operation.VERIFY_CONFIG),
+            )
+            self.assertIsNotNone(declaration.configuration_verification)
+
     def test_windows_destination_strategies_are_declarative(self) -> None:
         for app_id in ("bash", "fish", "zsh"):
             declaration = self.apps[app_id].for_platform(Platform.WINDOWS)
