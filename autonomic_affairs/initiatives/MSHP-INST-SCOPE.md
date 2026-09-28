@@ -51,12 +51,21 @@ Current known future areas include:
 
 ## Related executable tasks
 
-Current investigation work:
+Completed investigation work:
 
-- `MSHP-INST-A-010` — define core installation-scope semantics;
-- `MSHP-INST-A-020` — investigate Windows scope behavior;
-- `MSHP-INST-A-030` — investigate Linux extensibility;
-- `MSHP-INST-A-040` — synthesize the implementation roadmap.
+- `MSHP-INST-A-010` — core installation-scope semantics;
+- `MSHP-INST-A-020` — Windows scope behavior;
+- `MSHP-INST-A-030` — Linux extensibility stress-test;
+- `MSHP-INST-A-040` — implementation-roadmap synthesis.
+
+Current implementation roadmap:
+
+- `MSHP-INST-B-010` — scope policy model;
+- `MSHP-INST-B-020` — scoped installation provenance;
+- `MSHP-INST-B-030` — candidate-exact installation ownership;
+- `MSHP-INST-B-040` — scoped WinGet mutation/discovery;
+- `MSHP-INST-B-050` — Apt fixed machine scope;
+- `MSHP-INST-B-060` — integrated validation/current-coverage closure.
 
 Task state, dependencies, and Dispatch remain authoritative in [`../agent_tasks.md`](../agent_tasks.md); this list is contextual only.
 

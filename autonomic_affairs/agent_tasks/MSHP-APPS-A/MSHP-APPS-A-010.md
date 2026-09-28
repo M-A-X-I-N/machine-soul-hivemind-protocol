@@ -70,3 +70,8 @@ Windows Terminal is already managed and should be used as a reference/baseline r
 - Review candidate storage for sensitive/generated state before recommending repository tracking.
 - Validate that proposed Apply/Check/Verify approaches respect the existing Machine-Soul safety and evidence contracts.
 - Confirm the final task ledger/workspace/durable-memory updates are internally consistent.
+
+
+## Notes
+
+Scheduling note from `MSHP-INST-A-040`: this task remains structurally independent, but should resume only after the current `MSHP-INST-B` implementation block completes. WinGet client settings are a seeded candidate here, and pre-scope MSHP WinGet mutation omitted explicit scope; implementing deterministic scope first prevents managed WinGet settings from silently changing Machine-Soul installation behavior.
