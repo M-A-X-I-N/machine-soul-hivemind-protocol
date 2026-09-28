@@ -30,7 +30,9 @@ Current investigation block `MSHP-DEV-A` covers:
 - Lua research found no single clean native-Windows manager for PUC Lua 5.1–5.5 + LuaJIT; versioned runtime instances plus separately managed default selection is the leading model. Python has a strong official Windows Python Install Manager. Node has several credible managers, with nvm-windows v2 the leading Windows-specific candidate and fnm a strong cross-platform alternative; final backend strategy awaits comparative synthesis;
 - no generic representation yet for intentionally desired simultaneous runtime versions;
 - no runtime-bound package-environment/inventory model yet;
-- many possible future runtimes/toolchains/package managers remain intentionally uninvestigated.
+- native Windows C/C++ toolchain lifecycle is a concrete future gap: current maintainer work already depends on MSVC/Visual Studio Build Tools, and supported MSVC toolsets can coexist side-by-side; exact Visual Studio/Build Tools/Windows SDK ownership still needs a dedicated investigation;
+- .NET SDK/runtime, Java/JDK, Rust, and Go are credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence does not justify executable tasks for all of them yet;
+- Ruby and PHP remain plausible ecosystem-specific future subjects but are lower priority without a concrete workload; Perl is intentionally cold unless a real dependency appears.
 
 ## Deliberate boundaries / deferred work
 
@@ -40,6 +42,8 @@ Current investigation block `MSHP-DEV-A` covers:
 - Do not invent maintainer configuration or package inventories.
 - Do not automatically manage project-local dependency environments.
 - Do not promote every common language/toolchain into executable work merely because it exists.
+- Treat MSVC/Windows native toolchains as the leading additional near-term investigation candidate; keep .NET/JDK/Rust/Go as structured initiative gaps until concrete demand or roadmap synthesis promotes them.
+- Keep Ruby/PHP/Perl deferred unless a real workload makes their lifecycle worth owning.
 - Coordinate configuration-specific findings with `MSHP-WIN-CONFIG` instead of duplicating desired-state ownership.
 
 ## Related executable tasks
