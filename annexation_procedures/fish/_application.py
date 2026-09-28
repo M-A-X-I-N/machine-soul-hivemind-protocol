@@ -11,6 +11,7 @@ from annexation_procedures.model import (
     InstallationDiscoveryPlan,
     HomeRelativeDestination,
     WindowsPosixHomeDestination,
+    WindowsPosixPackageDiscovery,
 )
 
 APPLICATION = Application(
@@ -54,7 +55,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -62,6 +63,15 @@ APPLICATION = Application(
                     source_leaf="config.fish",
                     destination=WindowsPosixHomeDestination(".config/fish/config.fish"),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    WindowsPosixPackageDiscovery(
+                        "fish",
+                        "fish",
+                        ("--version",),
+                    ),
+                )
             ),
         ),
     ),
