@@ -256,6 +256,20 @@ class PythonInstallManagerBackend:
         return tuple(instances)
 
     def selected_key(self, context: OperationContext) -> str | None:
+        # An implicit manager fallback is not durable desired state. Require an
+        # explicit native default_tag, then verify that the manager resolves it
+        # to one exact managed runtime.
+        path = self._user_config_path(context)
+        try:
+            payload = read_json_state(path) or {}
+        except Exception as exc:
+            raise PythonInstallManagerError(
+                f"Python Install Manager user configuration cannot be read safely: {exc}"
+            ) from exc
+        default_tag = payload.get("default_tag")
+        if not isinstance(default_tag, str) or not default_tag.strip():
+            return None
+
         managed_rows = self._list_rows(context, only_managed=True)
         managed_ids = frozenset(
             str(item["id"])
@@ -266,7 +280,14 @@ class PythonInstallManagerBackend:
         if not rows:
             return None
         instance = self._instance_from_row(rows[0], managed_ids=managed_ids)
-        return instance.backend_key if instance is not None else None
+        if instance is None or instance.backend != self.name:
+            return None
+
+        selection_tag = instance.metadata.get("selection_tag")
+        raw_tag = instance.metadata.get("tag")
+        if default_tag not in {selection_tag, raw_tag}:
+            return None
+        return instance.backend_key
 
     def install(self, context: OperationContext, spec: RuntimeSpec) -> OperationResult:
         if spec.subject != self.subject or spec.backend != self.name:
