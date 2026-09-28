@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-DISC-B-020`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-020.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -29,7 +29,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DISC-A-040`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-040.md) | COMPLETE | `MSHP-DISC-A-010` | Normalize applied configuration checks | Make `check_config` rigorously report structural deployment state without conflating it with runtime effectiveness. |
 | [`MSHP-DISC-A-050`](agent_tasks/MSHP-DISC-A/MSHP-DISC-A-050.md) | COMPLETE | `MSHP-DISC-A-020`, `MSHP-DISC-A-030`, `MSHP-DISC-A-040` | Synthesize discovery roadmap | Distill investigation results, preserve durable findings, and create the executable implementation tasks justified by the discovered architecture. |
 | [`MSHP-DISC-B-010`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-010.md) | COMPLETE | `MSHP-DISC-A-050` | Implement discovery assessment model | Add typed observations, evidence strength, installation candidates/assessments, and configuration-verification assessments beneath OperationResult. |
-| [`MSHP-DISC-B-020`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-020.md) | QUEUED | `MSHP-DISC-B-010` | Decouple installation discovery | Give applications explicit installation-discovery plans independent from install/uninstall strategies and route check_installed through a shared assessment engine. |
+| [`MSHP-DISC-B-020`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-020.md) | IN_PROGRESS | `MSHP-DISC-B-010` | Decouple installation discovery | Give applications explicit installation-discovery plans independent from install/uninstall strategies and route check_installed through a shared assessment engine. |
 | [`MSHP-DISC-B-030`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-030.md) | QUEUED | `MSHP-DISC-B-020` | Implement Linux installation discovery | Add rich Linux package/executable discovery and wire current Linux applications to granular candidate assessments. |
 | [`MSHP-DISC-B-040`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-040.md) | QUEUED | `MSHP-DISC-B-020` | Implement native Windows installation discovery | Add WinGet correlation, ARP/MSI, MSIX/AppX, executable/version, and built-in capability discovery for current native Windows applications. |
 | [`MSHP-DISC-B-050`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-050.md) | QUEUED | `MSHP-DISC-B-020` | Implement Windows POSIX installation discovery | Discover Bash/Zsh/Fish inside the same MSYS2/Cygwin-style compatibility environment targeted by their Windows configuration. |
