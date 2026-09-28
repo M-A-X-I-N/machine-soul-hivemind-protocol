@@ -161,3 +161,17 @@ The core scope model also survives representative Linux package-manager patterns
 These examples reinforce the boundary: the core owns coarse scope policy/compatibility/provenance semantics; each backend owns native selectors, exact installation identity, roots/prefixes, and scope verification.
 
 Unsupported managers remain gaps in `MSHP-INST-SCOPE`, not permanently incomplete tasks.
+
+## Concrete scope policy model
+
+The mutation-side contract is implemented by `InstallationScopePolicy` and `InstallationScopePolicyMode` under `annexation_procedures.model.installation_scope`.
+
+Current policy modes are:
+
+- `FIXED` — the backend inherently targets one declared USER or MACHINE scope;
+- `REQUIRED` — Machine-Soul requires one declared USER or MACHINE scope;
+- `DELEGATED` — the backend is intentionally allowed to determine scope.
+
+`installation_scope_compatible()` compares policy with observed `InstallationScope`; current-target `PACKAGE_USER` evidence is compatible with requested USER scope. `installation_scope_target_error()` rejects non-current user/delegated mutation until a backend has a proven target-user mechanism.
+
+`AptPackage` now declares fixed MACHINE scope. `WingetPackage` requires an explicit policy; the current Oh My Posh declaration requests USER scope. Package-manager command behavior is implemented in later INST-B tasks.
