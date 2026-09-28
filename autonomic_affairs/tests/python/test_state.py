@@ -165,7 +165,7 @@ class StateTests(unittest.TestCase):
             self.assertIn(context.target_account.name, user_path.parts)
             self.assertIn("machine", machine_path.parts)
             self.assertNotEqual(user_path, machine_path)
-            self.assertEqual({user, machine}, set(read_install_states(context, "example")))
+            self.assertEqual((machine, user), read_install_states(context, "example"))
 
             delete_scoped_install_state(context, user)
             self.assertEqual((machine,), read_install_states(context, "example"))
