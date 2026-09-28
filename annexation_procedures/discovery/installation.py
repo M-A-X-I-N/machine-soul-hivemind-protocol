@@ -199,14 +199,16 @@ def discover_installation(
             ),
             None,
         )
-        if match_index is None:
-            state_relation = InstallationOwnership.STALE
-        else:
+        if match_index is not None:
             state_relation = InstallationOwnership.MANAGED
             candidates[match_index] = replace(
                 candidates[match_index],
                 ownership=InstallationOwnership.MANAGED,
             )
+        elif errors and not candidates:
+            state_relation = InstallationOwnership.UNKNOWN
+        else:
+            state_relation = InstallationOwnership.STALE
     elif candidates:
         state_relation = InstallationOwnership.UNMANAGED
 
