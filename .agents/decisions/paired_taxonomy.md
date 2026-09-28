@@ -25,6 +25,22 @@ When the same subject exists in both trees, the matching subject name relates it
 
 Do not create fake configuration content merely to make an annexation subject appear "complete".
 
+## Runtime/version-management investigation default
+
+When investigating runtimes, interpreted languages, engines, or version managers, treat **multi-version coexistence as a desirable capability to preserve when reasonably possible**, even if the maintainer may ultimately use only one version.
+
+Do not assume the answer is to implement multi-version machinery inside Machine-Soul. The investigation should first determine the sane current ecosystem solution:
+
+- native side-by-side installations;
+- an upstream/reputable version manager;
+- package-manager-managed versions;
+- explicit executable/path selection;
+- or, only when justified, new reusable Machine-Soul version-management machinery.
+
+Lua on Windows is an intentionally useful adversarial example, but the same investigation mindset applies to Python, Node.js, and future runtime/version-manager subjects.
+
+The purpose is to avoid prematurely choosing a convenient single-version installation path that makes later coexistence unnecessarily difficult.
+
 Do not reintroduce per-subject `config/` or `operations/` wrapper directories beneath these roots. The root names already provide those semantics.
 
 ## Shared operation machinery
