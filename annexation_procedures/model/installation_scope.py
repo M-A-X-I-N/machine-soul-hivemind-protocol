@@ -8,9 +8,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from .context import TargetAccount
 from .discovery import InstallationScope
+
+if TYPE_CHECKING:
+    from .context import TargetAccount
 
 
 class InstallationScopePolicyMode(str, Enum):
@@ -83,11 +86,13 @@ def installation_scope_compatible(
 
 def installation_scope_target_error(
     policy: InstallationScopePolicy,
-    target: TargetAccount,
+    target: "TargetAccount",
 ) -> str | None:
     """Return a safety error before mutation for unsupported target/scope pairs."""
     if not isinstance(policy, InstallationScopePolicy):
         raise TypeError("policy must be an InstallationScopePolicy.")
+    from .context import TargetAccount
+
     if not isinstance(target, TargetAccount):
         raise TypeError("target must be a TargetAccount.")
 
