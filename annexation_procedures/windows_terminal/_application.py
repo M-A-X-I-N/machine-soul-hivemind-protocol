@@ -1,9 +1,11 @@
 from annexation_procedures.model import (
     Application,
+    ConfigurationVerificationPlan,
     ConfigurationFile,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
     Operation,
+    ResolvedPathVerification,
     Platform,
     PlatformDeclaration,
     Support,
@@ -22,7 +24,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -47,6 +49,9 @@ APPLICATION = Application(
                     ),
                     ExecutableDiscovery("wt.exe"),
                 )
+            ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ResolvedPathVerification("settings", "wt.exe"),)
             ),
         ),
     ),

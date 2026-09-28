@@ -1,5 +1,7 @@
 from annexation_procedures.model import (
     Application,
+    ApplicationConfigProbe,
+    ConfigurationVerificationPlan,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
     ConfigurationFile,
@@ -22,7 +24,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -37,6 +39,9 @@ APPLICATION = Application(
             installation_discovery=InstallationDiscoveryPlan(
                 (ExecutableDiscovery("contour", ("--version",)),)
             ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ApplicationConfigProbe("contour", ("info", "config"), "main"),)
+            ),
         ),
         PlatformDeclaration(
             platform=Platform.WINDOWS,
@@ -44,7 +49,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -61,6 +66,9 @@ APPLICATION = Application(
                     WindowsArpDiscovery(executable_name="contour.exe"),
                     ExecutableDiscovery("contour.exe", ("--version",)),
                 )
+            ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ApplicationConfigProbe("contour.exe", ("info", "config"), "main"),)
             ),
         ),
     ),

@@ -1,5 +1,6 @@
 from annexation_procedures.model import (
     Application,
+    ConfigurationVerificationPlan,
     BuiltInExecutableDiscovery,
     ConfigurationFile,
     ExecutableDiscovery,
@@ -9,6 +10,7 @@ from annexation_procedures.model import (
     PlatformDeclaration,
     Support,
     PowerShellProfileDestination,
+    ResolvedPathVerification,
     WindowsAppxDiscovery,
     WindowsArpDiscovery,
     WingetPackageDiscovery,
@@ -24,7 +26,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -71,6 +73,9 @@ APPLICATION = Application(
                         ),
                     ),
                 )
+            ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ResolvedPathVerification("profile"),)
             ),
         ),
     ),
