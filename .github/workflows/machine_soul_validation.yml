@@ -3,7 +3,7 @@ name: Machine-Soul validation
 on:
   push:
     branches:
-      - experimental/v2
+      - main
   pull_request:
   workflow_dispatch:
 

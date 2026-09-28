@@ -1,6 +1,6 @@
 # Support matrix
 
-This document describes the current `experimental/v2` Python/declarative implementation state. It is intentionally explicit about capability gaps.
+This document describes the current `main` Python/declarative implementation state. It is intentionally explicit about capability gaps.
 
 ## Configuration operations
 

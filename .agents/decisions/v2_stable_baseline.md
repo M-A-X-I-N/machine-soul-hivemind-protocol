@@ -1,5 +1,8 @@
 # Stable experimental v2 baseline
 
+> **Historical checkpoint:** `MSHP-META-A-075` later explicitly authorized promotion of the completed/current v2 lineage to `main`. The non-promotion instruction recorded below describes the boundary at this earlier checkpoint and is no longer current branch policy.
+
+
 ## Status
 
 The first stable `experimental/v2` baseline has been established.

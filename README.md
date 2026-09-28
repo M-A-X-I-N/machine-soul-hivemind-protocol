@@ -2,14 +2,13 @@
 
 A cross-host configuration repository for keeping canonical tracked configuration files while safely linking them into the native locations expected by applications.
 
-The active redesign lives on **experimental/v2**.
+The active development/experimental iteration lives on **main**.
 
-The first stable experimental v2 baseline is established on that branch. Promotion or merge to `main` requires separate authorization.
+The former `experimental/v2` line produced the current Python/declarative architecture and is being promoted into `main` as the ordinary working branch. A future large redesign may split the then-current iteration back onto versioned branches if there is an actual reason to do so.
 
-- experimental/v1 preserves the original repository.
-- main is intentionally clean and is not the active v2 branch.
-- experimental/v2 is the current implementation branch.
-- `autonomic_affairs/agent_tasks.md` is the compact scheduling/Dispatch index for executable agent work; linked files contain full task specifications.
+- `experimental/v1` preserves the original repository iteration.
+- `main` is the current implementation/development branch.
+- `autonomic_affairs/agent_tasks.md` is the compact scheduling/Dispatch index for executable agent work; `autonomic_affairs/agent_tasks/` contains active specifications, temporary workspaces, and structured archived task history.
 
 ## Core model
 
