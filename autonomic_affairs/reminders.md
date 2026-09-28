@@ -94,3 +94,21 @@ Before promotion to executable work, decide:
 - how to avoid turning the audit itself into routine context/token bloat.
 
 This reminder authorizes no recurring audit or unrelated cleanup by itself.
+
+## Installation takeover
+
+Investigate and eventually design an explicit mechanism for Machine-Soul to take over or normalize pre-existing application installations without conflating discovery with ownership.
+
+Potential cases range from simple adoption of an installation already using the preferred package mechanism to migration between mechanisms, for example replacing an MSI-installed application with the preferred WinGet package while preserving user/application data.
+
+Any future takeover design must treat destructive migration as a separate safety-sensitive operation. Before promotion to executable work, determine at least:
+
+- how installation identity/equivalence is proven across mechanisms;
+- what application data/configuration must survive removal/reinstallation;
+- how uninstall behavior, install scope, services, associations, plugins, and other machine state are discovered;
+- when an existing installation may be adopted without reinstalling;
+- when migration is safe, unsafe, ambiguous, or unsupported;
+- rollback/recovery behavior for partial takeover;
+- how Machine-Soul ownership changes are recorded.
+
+The installation-discovery workstream should preserve enough provenance/identity information to keep this future feature possible, but must not implement takeover merely because this reminder exists.
