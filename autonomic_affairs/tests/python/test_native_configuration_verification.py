@@ -177,10 +177,11 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
                 return_value=expected,
             ):
                 result = verify_config(app, declaration, context)
+            after = destination.read_text(encoding="utf-8")
 
         self.assertEqual("config_effective", result.code)
         self.assertEqual("resolution", result.data["assessment"]["strongest_evidence"])
-        self.assertEqual(original, destination.read_text(encoding="utf-8"))
+        self.assertEqual(original, after)
 
     def test_cmd_autorun_mismatch_is_not_effective(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
