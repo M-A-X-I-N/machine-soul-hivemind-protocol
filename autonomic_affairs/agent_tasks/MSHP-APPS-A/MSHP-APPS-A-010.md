@@ -74,4 +74,4 @@ Windows Terminal is already managed and should be used as a reference/baseline r
 
 ## Notes
 
-Scheduling note from `MSHP-INST-A-040`: this task remains structurally independent, but should resume only after the current `MSHP-INST-B` implementation block completes. WinGet client settings are a seeded candidate here, and pre-scope MSHP WinGet mutation omitted explicit scope; implementing deterministic scope first prevents managed WinGet settings from silently changing Machine-Soul installation behavior.
+Scheduling note from `MSHP-INST-A-040`: this task remains structurally independent. The scoped installation implementation is now complete enough for this investigation to resume: Machine-Soul-controlled WinGet mutations use explicit scope, so managing WinGet client scope preferences cannot silently change managed installation scope. The investigation must still distinguish WinGet client settings from administrator settings, sources, and WinGet Configuration/DSC.

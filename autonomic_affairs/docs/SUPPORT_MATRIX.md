@@ -45,12 +45,14 @@ Current managed installation examples:
 
 | Application | Platform | Install | Uninstall | Ownership model |
 |---|---|---|---|---|
-| Fish | Ubuntu/Linux | Supported via `apt` | Supported via `apt` | state under `scratch/state/install` |
-| Oh My Posh | Windows | Supported via exact-ID WinGet | Supported via exact-ID WinGet | state under `scratch/state/install` |
+| Fish | Ubuntu/Linux | Supported via fixed-machine `apt` | Supported via fixed-machine `apt` | host/machine-scoped exact provenance |
+| Oh My Posh | Windows | Supported via exact-ID WinGet with explicit user scope | Supported via exact-ID WinGet with explicit owned scope | scoped user/package-user exact provenance |
 
 Other application install/uninstall operations remain `NOT_IMPLEMENTED` until a safe platform strategy is added.
 
 A pre-existing installation is reported as unmanaged and is never silently claimed for later uninstall.
+
+Managed installation scope is explicit. WinGet mutation does not inherit ambient `settings.json` scope preferences, and Apt is modeled as fixed machine scope. User- and machine-scoped instances may coexist; uninstall requires exact scoped ownership/candidate matching. Legacy scope-less provenance is treated as unreconciled until a backend can prove one safe migration.
 
 ## Validation coverage
 

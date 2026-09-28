@@ -240,3 +240,34 @@ Sources:
 - https://learn.microsoft.com/en-us/powershell/module/appx/get-appxpackage
 - https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows
 - https://contour-terminal.org/install/
+
+
+## Scoped mutation and ownership
+
+Machine-Soul now implements the scope model documented in [`INSTALLATION_SCOPE.md`](INSTALLATION_SCOPE.md).
+
+Mutation-side `InstallationScopePolicy` is separate from discovery-side observed `InstallationScope`.
+
+Current managed backends:
+
+- `AptPackage`: fixed `MACHINE` scope.
+- `WingetPackage`: explicit required scope. Current Oh My Posh management requires user scope.
+
+The generic installation lifecycle uses discovery candidates rather than one unscoped installed boolean:
+
+1. apply the strategy scope guard;
+2. discover all current candidates;
+3. select candidates compatible with the strategy policy;
+4. match exact scoped Machine-Soul provenance;
+5. refuse unmanaged/ambiguous intended-scope ownership;
+6. perform the backend mutation;
+7. rediscover and verify exactly one compatible candidate;
+8. write or remove exact scoped provenance.
+
+User/package-user and machine ownership records can coexist for the same application. Machine-scoped state is stored under a host-level machine namespace; user/package-user state is stored beneath the relevant host/user namespace.
+
+Scope-less legacy records remain readable but are not authoritative scoped ownership. Apt can safely reconcile one matching legacy record because its scope is inherently fixed machine scope. Conflicting or ambiguous legacy evidence is refused.
+
+WinGet commands now carry explicit `--scope user|machine` for managed install/uninstall and WinGet discovery checks user and machine scopes independently. Ambient WinGet scope preferences therefore cannot silently change Machine-Soul mutation intent.
+
+Cross-account user-scoped mutation remains unsupported unless a future backend supplies a proven target-user execution mechanism.

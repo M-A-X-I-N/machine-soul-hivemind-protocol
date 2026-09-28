@@ -17,15 +17,20 @@ Package-manager defaults or user configuration must not silently redefine semant
 
 ## Current state / coverage
 
-- Installation discovery already records observed candidate scope as user, machine, package-user, or unknown.
-- Mutating `AptPackage` and `WingetPackage` strategies do not yet carry explicit scope policy.
-- `InstallState` provenance does not yet record installation scope.
-- Apt mutation is effectively machine/system scoped but provenance is currently stored beneath a target-account namespace.
-- WinGet mutation currently omits `--scope`, so WinGet/package defaults can influence actual scope.
-- `MSHP-INST-A-010` has now defined the core semantic contract: observed scope is separate from mutation scope policy; managed mutation must be fixed-scope, explicitly required-scope, or intentionally delegated; unknown legacy scope cannot authorize ambiguous uninstall.
-- `MSHP-INST-A-020` confirms the Windows-first shape: WinGet must use explicit required scope; discovery/list and uninstall must be scope-filtered; current-user/package-user and machine candidates stay distinct; cross-account user mutation is initially unsupported.
-- `MSHP-INST-A-030` confirms the core model remains extensible: Apt is fixed machine scope; Flatpak/pipx fit user-versus-machine with backend-specific installation/root identity; Homebrew demonstrates that prefix + owning account can matter more than a simple package scope flag.
-- The synthesis task now turns the current Windows/core/Apt findings into bounded implementation work while leaving unsupported managers here as intentional gaps.
+Current core and supported-backend scope semantics are implemented:
+
+- mutation-side scope policy is first-class and separate from observed discovery scope;
+- `AptPackage` is fixed MACHINE scope;
+- `WingetPackage` carries an explicit required scope; current Oh My Posh management requires USER;
+- WinGet managed mutation uses explicit `--scope`, and discovery checks user/machine scopes independently;
+- scoped provenance supports simultaneous host/machine and host/user ownership records;
+- install/uninstall ownership matching is candidate-exact and refuses intended-scope ambiguity;
+- post-install verification must prove a compatible actual scope before ownership is recorded;
+- scope-less legacy records are unreconciled by default; Apt can reconcile one exact compatible fixed-machine record;
+- non-current target user mutation remains unsupported without a proven backend target-user execution mechanism;
+- broad status preserves exact JSON candidate data and summarizes candidate scopes in human output.
+
+The current INST-B implementation block covers the scope behavior of the package managers Machine-Soul actually mutates today. This initiative remains OPEN for deliberately deferred mechanisms and account/inventory capabilities.
 
 ## Known gaps
 
@@ -58,7 +63,7 @@ Completed investigation work:
 - `MSHP-INST-A-030` — Linux extensibility stress-test;
 - `MSHP-INST-A-040` — implementation-roadmap synthesis.
 
-Current implementation roadmap:
+Current implementation block:
 
 - `MSHP-INST-B-010` — scope policy model;
 - `MSHP-INST-B-020` — scoped installation provenance;
@@ -66,6 +71,8 @@ Current implementation roadmap:
 - `MSHP-INST-B-040` — scoped WinGet mutation/discovery;
 - `MSHP-INST-B-050` — Apt fixed machine scope;
 - `MSHP-INST-B-060` — integrated validation/current-coverage closure.
+
+The first five are implemented; B-060 records integration closure and the handoff back to application-config research.
 
 Task state, dependencies, and Dispatch remain authoritative in [`../agent_tasks.md`](../agent_tasks.md); this list is contextual only.
 

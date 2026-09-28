@@ -175,3 +175,20 @@ Current policy modes are:
 `installation_scope_compatible()` compares policy with observed `InstallationScope`; current-target `PACKAGE_USER` evidence is compatible with requested USER scope. `installation_scope_target_error()` rejects non-current user/delegated mutation until a backend has a proven target-user mechanism.
 
 `AptPackage` now declares fixed MACHINE scope. `WingetPackage` requires an explicit policy; the current Oh My Posh declaration requests USER scope. Package-manager command behavior is implemented in later INST-B tasks.
+
+
+## Implemented current coverage
+
+The current core implementation now realizes the design above:
+
+- mutation-side `InstallationScopePolicyMode`: `FIXED`, `REQUIRED`, and explicit `DELEGATED`;
+- target-account guard for user/delegated mutation when the target is not current;
+- schema-v3 scoped install provenance with separate host/machine and host/user namespaces;
+- simultaneous user and machine ownership records for one application;
+- exact provenance/candidate matching using manager/package identity, observed scope, subject, and native identity where available;
+- post-install rediscovery before ownership is recorded;
+- exact scoped uninstall with ambiguity refusal;
+- explicit WinGet `--scope` mutation and dual-scope discovery;
+- Apt fixed-machine ownership and safe one-record legacy reconciliation.
+
+The current supported backend surface is intentionally narrower than the initiative. Flatpak, Homebrew/Linuxbrew, pipx, other package managers, all-user Windows inventory, and cross-account user mutation remain structured gaps rather than incomplete implementation tasks.
