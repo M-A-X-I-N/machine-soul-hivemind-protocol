@@ -7,6 +7,7 @@ import shutil
 from typing import Callable
 
 from .model import (
+    BuiltInExecutableDiscovery,
     DiscoveryObservation,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
@@ -20,10 +21,17 @@ from .model import (
     Platform,
     PlatformDeclaration,
     TriState,
+    WindowsAppxDiscovery,
+    WindowsArpDiscovery,
     WingetPackageDiscovery,
 )
 from .process import ProcessResult, run_process
 from .state import InstallState, read_install_state
+from .windows_installation_discovery import (
+    appx_candidates,
+    arp_candidates,
+    builtin_candidate,
+)
 
 
 Runner = Callable[[list[str]], ProcessResult]
@@ -161,18 +169,62 @@ def _winget_candidate(
     if result.returncode != 0:
         return None, None
 
-    observation = DiscoveryObservation(
-        "catalog_correlation",
-        "winget",
-        ObservationAuthority.CORRELATED,
-        {"package_id": strategy.package_id, "source": strategy.source},
-    )
+    data: dict[str, object] = {
+        "package_id": strategy.package_id,
+        "source": strategy.source,
+    }
+    if strategy.package_family_name:
+        data["package_family_name"] = strategy.package_family_name
+
+    observations = [
+        DiscoveryObservation(
+            "catalog_correlation",
+            "winget",
+            ObservationAuthority.CORRELATED,
+            data,
+        )
+    ]
+    paths: tuple[str, ...] = ()
+    version = None
+
+    if strategy.executable_name:
+        path = which(strategy.executable_name)
+        if path is not None:
+            paths = (path,)
+            observations.append(
+                DiscoveryObservation(
+                    "executable_path",
+                    "winget",
+                    ObservationAuthority.CORRELATED,
+                    {
+                        "executable": strategy.executable_name,
+                        "path": path,
+                    },
+                )
+            )
+            if strategy.version_arguments:
+                version_result = runner([path, *strategy.version_arguments])
+                if version_result.returncode == 0:
+                    raw = version_result.stdout.strip() or version_result.stderr.strip()
+                    if raw:
+                        version = raw.splitlines()[0].strip()
+                        observations.append(
+                            DiscoveryObservation(
+                                "version_probe",
+                                strategy.executable_name,
+                                ObservationAuthority.CORRELATED,
+                                {"version_output": version},
+                            )
+                        )
+
     return InstallationCandidate(
         native_identity=strategy.package_id,
+        version=version,
+        paths=paths,
         registration_kind="winget_correlation",
         preferred_match=_preferred(strategy.preferred),
         manageable_by_preferred_strategy=_preferred(strategy.preferred),
-        observations=(observation,),
+        observations=tuple(observations),
     ), None
 
 
@@ -244,6 +296,25 @@ def _executable_candidate(
     ), None
 
 
+def _candidate_identities(candidate: InstallationCandidate) -> set[str]:
+    identities = {candidate.native_identity.casefold()}
+    for observation in candidate.observations:
+        for key in ("package_id", "package_family_name", "product_code"):
+            value = observation.data.get(key)
+            if isinstance(value, str) and value:
+                identities.add(value.casefold())
+    return identities
+
+
+def _candidate_executable_names(candidate: InstallationCandidate) -> set[str]:
+    names: set[str] = set()
+    for observation in candidate.observations:
+        value = observation.data.get("executable")
+        if isinstance(value, str) and value:
+            names.add(value.casefold())
+    return names
+
+
 def _merge_pair(
     left: InstallationCandidate,
     right: InstallationCandidate,
@@ -252,9 +323,22 @@ def _merge_pair(
     right_paths = set(right.paths)
     same_registration = (
         left.registration_kind == right.registration_kind
-        and left.native_identity == right.native_identity
+        and left.native_identity.casefold() == right.native_identity.casefold()
     )
-    if not (left_paths & right_paths or same_registration):
+    correlated_identity = bool(_candidate_identities(left) & _candidate_identities(right))
+    correlated_executable = bool(
+        _candidate_executable_names(left)
+        & _candidate_executable_names(right)
+    ) and (
+        left.registration_kind == "winget_correlation"
+        or right.registration_kind == "winget_correlation"
+    )
+    if not (
+        left_paths & right_paths
+        or same_registration
+        or correlated_identity
+        or correlated_executable
+    ):
         return None
 
     preferred = (
@@ -356,10 +440,17 @@ def discover_installation(
     errors: list[str] = []
 
     for strategy in plan.strategies:
+        found: list[InstallationCandidate] = []
+        error: str | None = None
+
         if isinstance(strategy, DpkgPackageDiscovery):
             candidate, error = _dpkg_candidate(strategy, runner, which)
+            if candidate is not None:
+                found.append(candidate)
         elif isinstance(strategy, WingetPackageDiscovery):
             candidate, error = _winget_candidate(strategy, runner, which)
+            if candidate is not None:
+                found.append(candidate)
         elif isinstance(strategy, ExecutableDiscovery):
             candidate, error = _executable_candidate(
                 strategy,
@@ -367,13 +458,20 @@ def discover_installation(
                 runner,
                 which,
             )
+            if candidate is not None:
+                found.append(candidate)
+        elif isinstance(strategy, WindowsArpDiscovery):
+            found, error = arp_candidates(strategy, which)
+        elif isinstance(strategy, WindowsAppxDiscovery):
+            found, error = appx_candidates(strategy, runner, which)
+        elif isinstance(strategy, BuiltInExecutableDiscovery):
+            candidate, error = builtin_candidate(strategy, runner, which)
+            if candidate is not None:
+                found.append(candidate)
         else:
-            candidate, error = None, (
-                f"Unsupported discovery strategy: {type(strategy).__name__}."
-            )
+            error = f"Unsupported discovery strategy: {type(strategy).__name__}."
 
-        if candidate is not None:
-            candidates.append(candidate)
+        candidates.extend(found)
         if error is not None:
             errors.append(error)
 
