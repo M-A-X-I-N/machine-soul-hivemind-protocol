@@ -1,8 +1,10 @@
 from annexation_procedures.model import (
     Application,
+    ConfigurationVerificationPlan,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
+    ShellStartupVerification,
     ConfigurationFile,
     Operation,
     Platform,
@@ -23,7 +25,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -41,6 +43,9 @@ APPLICATION = Application(
                     ExecutableDiscovery("zsh", ("--version",)),
                 )
             ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ShellStartupVerification("zsh", "zsh", "main"),)
+            ),
         ),
         PlatformDeclaration(
             platform=Platform.WINDOWS,
@@ -48,7 +53,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -68,6 +73,9 @@ APPLICATION = Application(
                         ("--version",),
                     ),
                 )
+            ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (ShellStartupVerification("zsh", "zsh", "main"),)
             ),
         ),
     ),
