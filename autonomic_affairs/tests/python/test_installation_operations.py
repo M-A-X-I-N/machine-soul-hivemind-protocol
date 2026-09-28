@@ -171,7 +171,7 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertEqual("installed_unmanaged", uninstall_result.code)
             self.assertTrue(fake.installed)
 
-    def test_legacy_provenance_blocks_install_mutation(self) -> None:
+    def test_stale_single_apt_legacy_provenance_is_cleared_before_install(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             fake = FakeApt()
@@ -205,8 +205,51 @@ class InstallationOperationTests(unittest.TestCase):
                 geteuid=lambda: 0,
             )
 
-            self.assertEqual("installation_provenance_unreconciled", result.code)
-            self.assertFalse(any("apt-get" in call for call in fake.calls))
+            self.assertEqual("installed_managed", result.code)
+            self.assertTrue(any(call and call[0] == "apt-get" for call in fake.calls))
+            state = read_install_state(context, "fish")
+            self.assertIsNotNone(state)
+            assert state is not None
+            self.assertEqual(InstallationScope.MACHINE, state.actual_scope)
+
+    def test_dry_run_does_not_clear_stale_apt_legacy_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt()
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX, dry_run=True)
+            write_install_state(
+                context,
+                InstallState(
+                    application="fish",
+                    host=context.host,
+                    account=context.target_account.name,
+                    manager="apt",
+                    identity="fish",
+                ),
+            )
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+
+            self.assertEqual("would_clear_stale_provenance", result.code)
+            self.assertFalse(result.changed)
+            self.assertIsNotNone(read_install_state(context, "fish"))
+            self.assertFalse(any(call and call[0] == "apt-get" for call in fake.calls))
 
     def test_uninstall_clears_exact_stale_scoped_provenance(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
