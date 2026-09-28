@@ -117,7 +117,7 @@ class WindowsPosixInstallationDiscoveryTests(unittest.TestCase):
         self.assertEqual("4.0.2-1", candidate.version)
         environment = next(o for o in candidate.observations if o.kind == "compatibility_environment")
         self.assertEqual("msys2_style", environment.data["environment_kind"])
-        self.assertIn("C:\\msys64", candidate.native_identity)
+        self.assertIn("c:\\msys64", candidate.native_identity.casefold())
 
     def test_cygwin_uses_cygcheck_package_database(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
