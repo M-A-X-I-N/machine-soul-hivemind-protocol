@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Protocol, runtime_checkable
 
 from .discovery import InstallationScope
-from .installation_scope import InstallationScopePolicy
+from .installation_scope import InstallationScopePolicy, InstallationScopePolicyMode
 
 
 @runtime_checkable
@@ -184,6 +184,12 @@ class WingetPackage:
     package_id: str
     scope_policy: InstallationScopePolicy
     source: str = "winget"
+
+    def __post_init__(self) -> None:
+        if self.scope_policy.mode is not InstallationScopePolicyMode.REQUIRED:
+            raise ValueError("WingetPackage requires an explicit REQUIRED scope policy.")
+        if self.scope_policy.scope not in {InstallationScope.USER, InstallationScope.MACHINE}:
+            raise ValueError("WingetPackage scope must be USER or MACHINE.")
 
 
 @dataclass(frozen=True)

@@ -53,7 +53,19 @@ def _apt_installed(strategy: AptPackage, runner: Runner) -> bool:
     return result.returncode == 0 and "install ok installed" in result.stdout
 
 
-def _winget_installed(strategy: WingetPackage, runner: Runner) -> bool:
+def _winget_scope_name(scope: InstallationScope) -> str:
+    if scope in {InstallationScope.USER, InstallationScope.PACKAGE_USER}:
+        return "user"
+    if scope is InstallationScope.MACHINE:
+        return "machine"
+    raise ValueError("WinGet mutation requires a known user or machine scope.")
+
+
+def _winget_installed(
+    strategy: WingetPackage,
+    runner: Runner,
+    scope: InstallationScope,
+) -> bool:
     result = runner(
         [
             "winget",
@@ -63,6 +75,8 @@ def _winget_installed(strategy: WingetPackage, runner: Runner) -> bool:
             "--source",
             strategy.source,
             "--exact",
+            "--scope",
+            _winget_scope_name(scope),
             "--disable-interactivity",
         ]
     )
@@ -332,10 +346,27 @@ def _perform_winget(
     context: OperationContext,
     runner: Runner,
     which: Which,
+    ownership_state: InstallState | None = None,
 ) -> OperationResult:
     if which("winget") is None:
         return OperationResult.unsupported("winget_unavailable", "WinGet is not available.")
 
+    if uninstall:
+        if ownership_state is None:
+            return OperationResult.error(
+                "winget_ownership_state_missing",
+                "Scoped WinGet uninstall requires exact ownership state.",
+            )
+        actual_scope = ownership_state.actual_scope
+    else:
+        if strategy.scope_policy.scope is None:
+            return OperationResult.error(
+                "winget_scope_missing",
+                "WinGet install requires an explicit user or machine scope.",
+            )
+        actual_scope = strategy.scope_policy.scope
+
+    scope_name = _winget_scope_name(actual_scope)
     if uninstall:
         argv = [
             "winget",
@@ -345,6 +376,8 @@ def _perform_winget(
             "--source",
             strategy.source,
             "--exact",
+            "--scope",
+            scope_name,
             "--disable-interactivity",
         ]
     else:
@@ -356,6 +389,8 @@ def _perform_winget(
             "--source",
             strategy.source,
             "--exact",
+            "--scope",
+            scope_name,
             "--accept-package-agreements",
             "--accept-source-agreements",
             "--disable-interactivity",
@@ -364,8 +399,8 @@ def _perform_winget(
     if context.dry_run:
         return OperationResult.success(
             "would_uninstall" if uninstall else "would_install",
-            f"WinGet package {strategy.package_id!r} would be {'removed' if uninstall else 'installed'}.",
-            data={"argv": argv},
+            f"WinGet package {strategy.package_id!r} would be {'removed' if uninstall else 'installed'} at {scope_name} scope.",
+            data={"argv": argv, "winget_scope": scope_name},
         )
 
     result = runner(argv)
@@ -373,27 +408,30 @@ def _perform_winget(
         return OperationResult.error(
             "package_manager_failed",
             f"WinGet {'uninstall' if uninstall else 'install'} failed with exit code {result.returncode}.",
-            data={"stderr": result.stderr[-2000:]},
+            data={"stderr": result.stderr[-2000:], "winget_scope": scope_name},
         )
 
-    installed_after = _winget_installed(strategy, runner)
+    installed_after = _winget_installed(strategy, runner, actual_scope)
     if uninstall and installed_after:
         return OperationResult.error(
             "verification_failed",
-            "WinGet removal returned success but the package still reports installed.",
+            "WinGet removal returned success but the package still reports installed in the owned scope.",
             changed=True,
+            data={"winget_scope": scope_name},
         )
     if not uninstall and not installed_after:
         return OperationResult.error(
             "verification_failed",
-            "WinGet installation returned success but the package does not report installed.",
+            "WinGet installation returned success but the package does not report installed in the requested scope.",
             changed=True,
+            data={"winget_scope": scope_name},
         )
 
     return OperationResult.success(
         "not_installed" if uninstall else "installed_managed",
         "WinGet package was removed." if uninstall else "WinGet package was installed.",
         changed=True,
+        data={"winget_scope": scope_name},
     )
 
 
@@ -406,6 +444,7 @@ def _perform_strategy(
     runner: Runner,
     which: Which,
     geteuid: GetEuid,
+    ownership_state: InstallState | None = None,
 ) -> OperationResult:
     if isinstance(strategy, AptPackage):
         return _perform_apt(
@@ -423,6 +462,7 @@ def _perform_strategy(
             context=context,
             runner=runner,
             which=which,
+            ownership_state=ownership_state,
         )
     if isinstance(strategy, CustomInstaller):
         if uninstall:
@@ -744,6 +784,7 @@ def uninstall_application(
         runner=runner,
         which=which,
         geteuid=geteuid,
+        ownership_state=state,
     )
     if result.status.value != "success" or context.dry_run:
         return _scoped_result(result, policy, candidate=candidate)

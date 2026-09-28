@@ -149,60 +149,27 @@ def _dpkg_candidate(
         observations=tuple(observations),
     ), None
 
-def _winget_candidate(
+def _winget_candidates(
     strategy: WingetPackageDiscovery,
     runner: Runner,
     which: Which,
-) -> tuple[InstallationCandidate | None, str | None]:
+) -> tuple[list[InstallationCandidate], str | None]:
     if which("winget") is None:
-        return None, "winget is unavailable."
+        return [], "winget is unavailable."
 
-    result = runner(
-        [
-            "winget",
-            "list",
-            "--id",
-            strategy.package_id,
-            "--source",
-            strategy.source,
-            "--exact",
-            "--disable-interactivity",
-        ]
-    )
-    if result.returncode != 0:
-        return None, None
-
-    data: dict[str, object] = {
-        "package_id": strategy.package_id,
-        "source": strategy.source,
-    }
-    if strategy.package_family_name:
-        data["package_family_name"] = strategy.package_family_name
-
-    observations = [
-        DiscoveryObservation(
-            "catalog_correlation",
-            "winget",
-            ObservationAuthority.CORRELATED,
-            data,
-        )
-    ]
     paths: tuple[str, ...] = ()
     version = None
-
+    executable_observations: list[DiscoveryObservation] = []
     if strategy.executable_name:
         path = which(strategy.executable_name)
         if path is not None:
             paths = (path,)
-            observations.append(
+            executable_observations.append(
                 DiscoveryObservation(
                     "executable_path",
                     "winget",
                     ObservationAuthority.CORRELATED,
-                    {
-                        "executable": strategy.executable_name,
-                        "path": path,
-                    },
+                    {"executable": strategy.executable_name, "path": path},
                 )
             )
             if strategy.version_arguments:
@@ -211,7 +178,7 @@ def _winget_candidate(
                     raw = version_result.stdout.strip() or version_result.stderr.strip()
                     if raw:
                         version = raw.splitlines()[0].strip()
-                        observations.append(
+                        executable_observations.append(
                             DiscoveryObservation(
                                 "version_probe",
                                 strategy.executable_name,
@@ -220,15 +187,58 @@ def _winget_candidate(
                             )
                         )
 
-    return InstallationCandidate(
-        native_identity=strategy.package_id,
-        version=version,
-        paths=paths,
-        registration_kind="winget_correlation",
-        preferred_match=_preferred(strategy.preferred),
-        manageable_by_preferred_strategy=_preferred(strategy.preferred),
-        observations=tuple(observations),
-    ), None
+    candidates: list[InstallationCandidate] = []
+    for scope_name, scope in (
+        ("user", InstallationScope.USER),
+        ("machine", InstallationScope.MACHINE),
+    ):
+        result = runner(
+            [
+                "winget",
+                "list",
+                "--id",
+                strategy.package_id,
+                "--source",
+                strategy.source,
+                "--exact",
+                "--scope",
+                scope_name,
+                "--disable-interactivity",
+            ]
+        )
+        if result.returncode != 0:
+            continue
+
+        data: dict[str, object] = {
+            "package_id": strategy.package_id,
+            "source": strategy.source,
+            "scope": scope_name,
+        }
+        if strategy.package_family_name:
+            data["package_family_name"] = strategy.package_family_name
+
+        candidates.append(
+            InstallationCandidate(
+                native_identity=strategy.package_id,
+                version=version,
+                paths=paths,
+                scope=scope,
+                registration_kind="winget_correlation",
+                preferred_match=_preferred(strategy.preferred),
+                manageable_by_preferred_strategy=_preferred(strategy.preferred),
+                observations=(
+                    DiscoveryObservation(
+                        "catalog_correlation",
+                        "winget",
+                        ObservationAuthority.CORRELATED,
+                        data,
+                    ),
+                    *executable_observations,
+                ),
+            )
+        )
+
+    return candidates, None
 
 
 def _executable_candidate(
@@ -481,9 +491,7 @@ def discover_installation(
             if candidate is not None:
                 found.append(candidate)
         elif isinstance(strategy, WingetPackageDiscovery):
-            candidate, error = _winget_candidate(strategy, runner, which)
-            if candidate is not None:
-                found.append(candidate)
+            found, error = _winget_candidates(strategy, runner, which)
         elif isinstance(strategy, ExecutableDiscovery):
             candidate, error = _executable_candidate(
                 strategy,
