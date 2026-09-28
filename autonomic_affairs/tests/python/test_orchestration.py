@@ -209,7 +209,7 @@ class RealOrchestratorSurfaceTests(unittest.TestCase):
         spec.loader.exec_module(module)
 
         output = StringIO()
-        with patch("builtins.input", return_value="4"), redirect_stdout(output):
+        with patch("builtins.input", return_value="5"), redirect_stdout(output):
             code = module.main([])
 
         self.assertEqual(0, code)
