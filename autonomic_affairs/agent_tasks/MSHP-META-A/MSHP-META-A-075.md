@@ -47,3 +47,17 @@ The repository does not need a permanently separate experimental branch merely b
 - Verify the remote branch list contains `main` and preserved `experimental/v1` but not `experimental/v2`.
 - Search current documentation, agent instructions, workflows, and task/recovery guidance for stale active-branch references to `experimental/v2`; classify remaining matches as intentionally historical.
 - Confirm no unique pre-promotion `main` work was lost.
+
+
+## Blocker
+
+Promotion itself is complete:
+
+- `main` was fast-forwarded to the complete former `experimental/v2` head `094a779853099257d97230419bf00bde1493a94b`;
+- the promoted `main` head passed Machine-Soul validation in GitHub Actions run `36364547996`;
+- `experimental/v1` remains preserved;
+- current branch-facing documentation and CI now target `main`.
+
+The only remaining acceptance criterion is deleting the remote `experimental/v2` ref. The connected GitHub tool surface available to the current ChatGPT Chat session can create/move refs but exposes no branch/ref deletion action, and the local execution container cannot reach GitHub.
+
+Delete the remote branch through an authenticated Git client (for example `git push origin --delete experimental/v2`) or GitHub's branch UI. After the ref is gone, re-verify the branch list, mark this task `COMPLETE`, and leave Dispatch empty unless new work has been authorized.
