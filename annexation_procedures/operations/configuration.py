@@ -141,13 +141,34 @@ def _check_one(
             else "Configuration is structurally applied; Machine-Soul ownership is not proven."
         )
         return OperationResult.success("applied", message, data=data)
+    ownership = data["ownership_state"]
     if info.status is LinkStatus.NOT_APPLIED:
-        return OperationResult.failure("not_applied", "Configuration is not structurally applied.", data=data)
+        message = (
+            "Configuration is not structurally applied; stale Machine-Soul deployment state remains."
+            if ownership in {"stale_state", "state_conflict"}
+            else "Configuration is not structurally applied."
+        )
+        return OperationResult.failure("not_applied", message, data=data)
     if info.status is LinkStatus.CONFLICT:
-        return OperationResult.failure("conflict", "Destination contains unmanaged structural state.", data=data)
+        message = (
+            "Destination contains unmanaged structural state; recorded Machine-Soul deployment state no longer describes it."
+            if ownership in {"stale_state", "state_conflict"}
+            else "Destination contains unmanaged structural state."
+        )
+        return OperationResult.failure("conflict", message, data=data)
     if info.status is LinkStatus.WRONG_TARGET:
-        return OperationResult.failure("wrong_target", "Destination symlink targets another object.", data=data)
-    return OperationResult.failure("broken", "Destination symlink target does not exist.", data=data)
+        message = (
+            "Destination symlink points at the recorded previous Machine-Soul target; Apply may safely assess relocation repair."
+            if ownership == "managed_stale_link"
+            else "Destination symlink targets another object."
+        )
+        return OperationResult.failure("wrong_target", message, data=data)
+    message = (
+        "Destination symlink points at the recorded previous Machine-Soul target, which is now missing; Apply may safely assess relocation repair."
+        if ownership == "managed_stale_link"
+        else "Destination symlink target does not exist."
+    )
+    return OperationResult.failure("broken", message, data=data)
 
 
 def _restore_prior(

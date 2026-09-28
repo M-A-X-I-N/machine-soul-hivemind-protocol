@@ -145,6 +145,59 @@ class ConfigurationOperationTests(unittest.TestCase):
             self.assertTrue(destination.is_symlink())
             self.assertEqual(raw_target, os.readlink(destination))
 
+    def test_check_preserves_structural_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            app, declaration, context = self._build(root)
+            destination = root / "home/.config/example/config.txt"
+            destination.parent.mkdir(parents=True)
+            destination.write_text("external", encoding="utf-8")
+
+            checked = check_config(app, declaration, context)
+
+            self.assertEqual("conflict", checked.code)
+            self.assertEqual("conflict", checked.data["structural_state"])
+            self.assertEqual("unrecorded", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertEqual("external", destination.read_text(encoding="utf-8"))
+
+    def test_check_preserves_wrong_target_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            app, declaration, context = self._build(root)
+            destination = root / "home/.config/example/config.txt"
+            other = root / "other.txt"
+            other.write_text("other", encoding="utf-8")
+            destination.parent.mkdir(parents=True)
+            os.symlink(other, destination)
+            raw_target = os.readlink(destination)
+
+            checked = check_config(app, declaration, context)
+
+            self.assertEqual("wrong_target", checked.code)
+            self.assertEqual("wrong_target", checked.data["structural_state"])
+            self.assertEqual("unrecorded", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertEqual(raw_target, os.readlink(destination))
+
+    def test_check_preserves_broken_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            app, declaration, context = self._build(root)
+            destination = root / "home/.config/example/config.txt"
+            missing = root / "missing.txt"
+            destination.parent.mkdir(parents=True)
+            os.symlink(missing, destination)
+            raw_target = os.readlink(destination)
+
+            checked = check_config(app, declaration, context)
+
+            self.assertEqual("broken", checked.code)
+            self.assertEqual("broken", checked.data["structural_state"])
+            self.assertEqual("unrecorded", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertEqual(raw_target, os.readlink(destination))
+
     def test_existing_file_is_backed_up_and_restored(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
