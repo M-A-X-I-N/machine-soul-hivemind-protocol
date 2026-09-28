@@ -30,6 +30,7 @@ class FakeWindowsDiscovery:
     def __init__(self) -> None:
         self.paths = {}
         self.winget_ids = set()
+        self.winget_machine_ids = set()
         self.versions = {}
         self.appx_payload = []
 
@@ -39,9 +40,15 @@ class FakeWindowsDiscovery:
     def run(self, argv: list[str]) -> ProcessResult:
         if argv[:2] == ["winget", "list"]:
             package_id = argv[argv.index("--id") + 1]
+            scope = argv[argv.index("--scope") + 1]
+            matches = (
+                package_id in self.winget_ids
+                if scope == "user"
+                else package_id in self.winget_machine_ids
+            )
             return ProcessResult(
-                0 if package_id in self.winget_ids else 1,
-                "matched" if package_id in self.winget_ids else "",
+                0 if matches else 1,
+                "matched" if matches else "",
                 "",
             )
 
@@ -145,7 +152,64 @@ class WindowsInstallationDiscoveryTests(unittest.TestCase):
         self.assertEqual(InstallationPresence.PRESENT, assessment.presence)
         self.assertEqual(1, len(assessment.candidates))
         self.assertEqual("winget_correlation", assessment.candidates[0].registration_kind)
+        self.assertEqual(InstallationScope.USER, assessment.candidates[0].scope)
+        self.assertEqual("fixture_user", assessment.candidates[0].scope_subject)
         self.assertEqual(TriState.YES, assessment.candidates[0].preferred_match)
+
+    def test_omp_winget_user_scope_merges_with_appx_package_user(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeWindowsDiscovery()
+            fake.paths["winget"] = "C:/Users/fixture/AppData/Local/Microsoft/WindowsApps/winget.exe"
+            fake.paths["powershell.exe"] = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+            fake.paths["oh-my-posh.exe"] = (
+                "C:/Program Files/WindowsApps/ohmyposh.cli_31.3.0.0_x64__96v55e8n804z4/oh-my-posh.exe"
+            )
+            fake.winget_ids.add("JanDeDobbeleer.OhMyPosh")
+            fake.versions["oh-my-posh.exe"] = "31.3.0"
+            fake.appx_payload = {
+                "Name": "ohmyposh.cli",
+                "PackageFullName": "ohmyposh.cli_31.3.0.0_x64__96v55e8n804z4",
+                "PackageFamilyName": "ohmyposh.cli_96v55e8n804z4",
+                "Version": "31.3.0.0",
+                "InstallLocation": "C:/Program Files/WindowsApps/ohmyposh.cli_31.3.0.0_x64__96v55e8n804z4",
+                "PublisherId": "96v55e8n804z4",
+            }
+            declaration = PlatformDeclaration(
+                platform=Platform.WINDOWS,
+                capabilities={},
+                installation_discovery=InstallationDiscoveryPlan((
+                    WingetPackageDiscovery(
+                        "JanDeDobbeleer.OhMyPosh",
+                        preferred=True,
+                        executable_name="oh-my-posh.exe",
+                        version_arguments=("version",),
+                        package_family_name="ohmyposh.cli_96v55e8n804z4",
+                    ),
+                    WindowsAppxDiscovery(
+                        "ohmyposh.cli_96v55e8n804z4",
+                        executable_name="oh-my-posh.exe",
+                    ),
+                )),
+            )
+            assessment = discover_installation(
+                "oh_my_posh",
+                declaration,
+                self._context(root),
+                runner=fake.run,
+                which=fake.which,
+            )
+
+        self.assertEqual(InstallationPresence.PRESENT, assessment.presence)
+        self.assertEqual(1, len(assessment.candidates))
+        candidate = assessment.candidates[0]
+        self.assertEqual("winget_correlation", candidate.registration_kind)
+        self.assertEqual(InstallationScope.PACKAGE_USER, candidate.scope)
+        self.assertEqual("fixture_user", candidate.scope_subject)
+        self.assertEqual(
+            "ohmyposh.cli_31.3.0.0_x64__96v55e8n804z4",
+            candidate.uninstall_identity,
+        )
 
     def test_unavailable_winget_does_not_hide_executable(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

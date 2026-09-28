@@ -13,6 +13,7 @@ from annexation_procedures.model import (
     InstallationScopePolicy,
     LocalAppDataRelativeDestination,
     OhMyPoshVerification,
+    WindowsAppxDiscovery,
     WingetPackage,
     WingetPackageDiscovery,
 )
@@ -81,6 +82,11 @@ APPLICATION = Application(
                         preferred=True,
                         executable_name="oh-my-posh.exe",
                         version_arguments=("version",),
+                        package_family_name="ohmyposh.cli_96v55e8n804z4",
+                    ),
+                    WindowsAppxDiscovery(
+                        "ohmyposh.cli_96v55e8n804z4",
+                        executable_name="oh-my-posh.exe",
                     ),
                     ExecutableDiscovery(
                         "oh-my-posh.exe",

@@ -123,6 +123,18 @@ class InstallationScopePolicyTests(unittest.TestCase):
             )
         )
 
+    def test_winget_requires_explicit_required_scope(self) -> None:
+        with self.assertRaises(ValueError):
+            WingetPackage(
+                "Vendor.Example",
+                InstallationScopePolicy.delegated(),
+            )
+        with self.assertRaises(ValueError):
+            WingetPackage(
+                "Vendor.Example",
+                InstallationScopePolicy.fixed(InstallationScope.MACHINE),
+            )
+
     def test_current_strategy_declarations_are_explicit(self) -> None:
         apt = AptPackage("fish")
         winget = WingetPackage(

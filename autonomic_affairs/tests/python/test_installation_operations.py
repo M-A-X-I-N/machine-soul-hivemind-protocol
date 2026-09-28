@@ -57,19 +57,28 @@ class FakeApt:
 
 
 class FakeWinget:
-    def __init__(self, installed: bool = False) -> None:
-        self.installed = installed
+    def __init__(self, installed: bool = False, *, scopes: set[str] | None = None) -> None:
+        self.installed_scopes = set(scopes or ())
+        if installed:
+            self.installed_scopes.add("user")
         self.calls: list[list[str]] = []
+
+    @property
+    def installed(self) -> bool:
+        return bool(self.installed_scopes)
 
     def __call__(self, argv: list[str]) -> ProcessResult:
         self.calls.append(list(argv))
+        scope = argv[argv.index("--scope") + 1] if "--scope" in argv else None
         if argv[:2] == ["winget", "list"]:
-            return ProcessResult(0 if self.installed else 1, "", "")
+            return ProcessResult(0 if scope in self.installed_scopes else 1, "", "")
         if argv[:2] == ["winget", "install"]:
-            self.installed = True
+            assert scope is not None
+            self.installed_scopes.add(scope)
             return ProcessResult(0, "", "")
         if argv[:2] == ["winget", "uninstall"]:
-            self.installed = False
+            assert scope is not None
+            self.installed_scopes.discard(scope)
             return ProcessResult(0, "", "")
         raise AssertionError(f"Unexpected WinGet command: {argv!r}")
 
@@ -351,6 +360,44 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertFalse(fake.installed)
             self.assertIsNone(read_install_state(context, "fish"))
 
+    def test_winget_other_scope_does_not_block_exact_owned_scope(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeWinget(scopes={"machine"})
+            declaration = PlatformDeclaration(
+                platform=Platform.WINDOWS,
+                capabilities={},
+                install_strategy=WingetPackage(
+                    "Vendor.Example",
+                    InstallationScopePolicy.required(InstallationScope.USER),
+                ),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (WingetPackageDiscovery("Vendor.Example", preferred=True),)
+                ),
+            )
+            app = Application(id="example", display_name="Example", platforms=(declaration,))
+            context = self._context(root, Platform.WINDOWS)
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: "winget.exe" if command == "winget" else None,
+            )
+            self.assertEqual("installed_managed", result.code)
+            self.assertEqual({"user", "machine"}, fake.installed_scopes)
+
+            removed = uninstall_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: "winget.exe" if command == "winget" else None,
+            )
+            self.assertEqual("not_installed", removed.code)
+            self.assertEqual({"machine"}, fake.installed_scopes)
+
     def test_noncurrent_user_scope_is_refused_before_winget_runs(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -385,7 +432,7 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertEqual("installation_scope_target_unsupported", result.code)
             self.assertEqual([], fake.calls)
 
-    def test_winget_scope_must_be_verified_before_provenance(self) -> None:
+    def test_winget_user_scope_is_explicit_and_owned(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             fake = FakeWinget()
@@ -410,10 +457,27 @@ class InstallationOperationTests(unittest.TestCase):
                 runner=fake,
                 which=lambda command: "winget.exe" if command == "winget" else None,
             )
-            self.assertEqual("installation_scope_unverified", result.code)
-            self.assertTrue(result.changed)
-            self.assertTrue(fake.installed)
-            self.assertEqual((), read_install_states(context, "example"))
+            self.assertEqual("installed_managed", result.code)
+            self.assertEqual({"user"}, fake.installed_scopes)
+            state = read_install_state(context, "example")
+            self.assertIsNotNone(state)
+            assert state is not None
+            self.assertEqual(InstallationScope.USER, state.actual_scope)
+
+            install_call = next(call for call in fake.calls if call[:2] == ["winget", "install"])
+            self.assertEqual("user", install_call[install_call.index("--scope") + 1])
+
+            removed = uninstall_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: "winget.exe" if command == "winget" else None,
+            )
+            self.assertEqual("not_installed", removed.code)
+            self.assertEqual(set(), fake.installed_scopes)
+            uninstall_call = next(call for call in fake.calls if call[:2] == ["winget", "uninstall"])
+            self.assertEqual("user", uninstall_call[uninstall_call.index("--scope") + 1])
 
 
 if __name__ == "__main__":
