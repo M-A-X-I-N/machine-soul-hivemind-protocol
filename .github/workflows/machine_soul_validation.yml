@@ -6,16 +6,55 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      sets:
+        description: 'Validation sets: all, none, or a comma-separated registered subset'
+        required: false
+        default: all
+        type: string
 
 jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      linux: ${{ steps.selector.outputs.linux }}
+      windows: ${{ steps.selector.outputs.windows }}
+      fresh-linux: ${{ steps.selector.outputs.fresh-linux }}
+      fresh-windows: ${{ steps.selector.outputs.fresh-windows }}
+      valid: ${{ steps.selector.outputs.valid }}
+      selection: ${{ steps.selector.outputs.selection }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve validation selection
+        id: selector
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TIP_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          MANUAL_SELECTOR: ${{ inputs.sets }}
+        run: |
+          python autonomic_affairs/ci_validation_selector.py \
+            --event "$EVENT_NAME" \
+            --commit-message "$TIP_COMMIT_MESSAGE" \
+            --manual-selector "$MANUAL_SELECTOR" \
+            --github-output "$GITHUB_OUTPUT"
+
   linux:
+    needs: select
+    if: ${{ always() && needs.select.outputs.linux == 'true' }}
     uses: ./.github/workflows/machine_soul_validation_linux.yml
 
   windows:
+    needs: select
+    if: ${{ always() && needs.select.outputs.windows == 'true' }}
     uses: ./.github/workflows/machine_soul_validation_windows.yml
 
   fresh-linux:
+    needs: select
+    if: ${{ always() && needs.select.outputs.fresh-linux == 'true' }}
     uses: ./.github/workflows/machine_soul_validation_fresh_linux.yml
 
   fresh-windows:
+    needs: select
+    if: ${{ always() && needs.select.outputs.fresh-windows == 'true' }}
     uses: ./.github/workflows/machine_soul_validation_fresh_windows.yml

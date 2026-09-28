@@ -65,7 +65,7 @@ CI: none
 CI: shared,windows
 ```
 
-The dispatcher owns the exact registered set names. Whitespace may be normalized; unknown or malformed selectors must fail safe and must never silently reduce validation.
+The dispatcher owns the exact registered set names. Whitespace is normalized and duplicate set names are harmless. Unknown or malformed selectors fail safe: the selector control job reports failure while all registered validation sets still run, so a typo can never silently reduce validation.
 
 When multiple commits arrive in one push, the pushed `main` tip controls that integration event.
 
@@ -75,7 +75,7 @@ For a commit that should instantiate no normal checked-in push workflow at all, 
 skip-checks: true
 ```
 
-This is especially suitable for pure coordination/bookkeeping. It is a hard bypass, distinct from the dispatcher-level `CI:` selector.
+This is especially suitable for pure coordination/bookkeeping. It is a hard bypass, distinct from the dispatcher-level `CI:` selector. `CI: none` still runs the small selector/control job so GitHub records the intentional decision; use `skip-checks: true` when even that control-plane run would be wasteful.
 
 ## Non-main development
 
