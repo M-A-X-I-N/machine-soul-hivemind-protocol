@@ -12,10 +12,12 @@ from .model import (
     OperationContext,
     OperationResult,
     PlatformDeclaration,
+    ShellStartupVerification,
     VerificationAssessment,
     VerificationConclusion,
     VerificationObservation,
 )
+from .shell_verification import verify_shell_startup
 
 
 def _normalize_observations(value: object) -> tuple[VerificationObservation, ...]:
@@ -83,6 +85,23 @@ def verify_config(
     observations: list[VerificationObservation] = []
     errors: list[str] = []
     for strategy in plan.strategies:
+        if isinstance(strategy, ShellStartupVerification):
+            try:
+                observations.append(
+                    verify_shell_startup(
+                        application,
+                        declaration,
+                        context,
+                        strategy,
+                    )
+                )
+            except Exception as exc:
+                return OperationResult.error(
+                    "verification_probe_failed",
+                    f"Shell startup verification failed: {exc}",
+                    data={"application": application.id},
+                )
+            continue
         if isinstance(strategy, CustomVerification):
             try:
                 observations.extend(

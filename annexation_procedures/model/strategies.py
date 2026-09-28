@@ -47,6 +47,19 @@ class ConfigurationVerificationPlan:
 
 
 @dataclass(frozen=True)
+class ShellStartupVerification:
+    """Verify ordinary shell startup against one declared configuration."""
+
+    shell: str
+    executable_name: str
+    configuration_name: str = "main"
+
+    def __post_init__(self) -> None:
+        if self.shell not in {"bash", "zsh", "fish"}:
+            raise ValueError("ShellStartupVerification supports bash, zsh, or fish.")
+
+
+@dataclass(frozen=True)
 class CustomVerification:
     """Narrow escape hatch for a reusable or genuinely application-specific probe."""
 
