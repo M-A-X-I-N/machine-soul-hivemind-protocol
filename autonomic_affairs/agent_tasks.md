@@ -37,7 +37,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DISC-B-070`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-070.md) | COMPLETE | `MSHP-DISC-B-050`, `MSHP-DISC-B-060` | Implement shell startup verification | Add reusable controlled startup-trace verification for Bash, Zsh, and Fish on Linux and supported Windows POSIX environments. |
 | [`MSHP-DISC-B-080`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-080.md) | COMPLETE | `MSHP-DISC-B-040`, `MSHP-DISC-B-060` | Implement native config verification | Add honest resolution/application-native verification for PowerShell, CMD, Windows Terminal, and Contour. |
 | [`MSHP-DISC-B-090`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-090.md) | COMPLETE | `MSHP-DISC-B-070`, `MSHP-DISC-B-080` | Implement Oh My Posh verification | Verify OMP theme usability and actual consumer-shell selection using application and runtime evidence without conflating the two. |
-| [`MSHP-DISC-B-100`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-100.md) | IN_PROGRESS | `MSHP-DISC-B-030`, `MSHP-DISC-B-040`, `MSHP-DISC-B-050`, `MSHP-DISC-B-070`, `MSHP-DISC-B-080`, `MSHP-DISC-B-090` | Integrate discovery status | Present installation, structural configuration, and effective configuration together in orchestration/machine output and validate the full discovery architecture end to end. |
+| [`MSHP-DISC-B-100`](agent_tasks/MSHP-DISC-B/MSHP-DISC-B-100.md) | COMPLETE | `MSHP-DISC-B-030`, `MSHP-DISC-B-040`, `MSHP-DISC-B-050`, `MSHP-DISC-B-070`, `MSHP-DISC-B-080`, `MSHP-DISC-B-090` | Integrate discovery status | Present installation, structural configuration, and effective configuration together in orchestration/machine output and validate the full discovery architecture end to end. |
 
 
 ## Task contract

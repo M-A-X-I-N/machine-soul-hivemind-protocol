@@ -44,3 +44,12 @@ Keep the underlying atomic operations independent even though the human view pre
 - Add orchestrator tests for mixed result statuses/capabilities and representative three-dimension scenarios.
 - Validate direct wrapper versus orchestrated result parity.
 - Run Linux, Windows, Windows POSIX, installation, configuration, fresh-clone, and full CI.
+
+
+## Notes
+
+Completed with the read-only broad-manager `status` workflow, grouped human and JSON presentation, representative mixed-state contract tests, and durable documentation/memory closure for the DISC-A/DISC-B architecture.
+
+The implementation preserves direct-wrapper parity: `check_installed`, `check_config`, and `verify_config` remain independent atomic operations and their original `OperationResult` payloads are retained by status orchestration.
+
+Installation takeover remains a separate non-executable reminder.
