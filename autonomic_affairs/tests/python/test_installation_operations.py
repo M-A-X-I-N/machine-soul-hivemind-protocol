@@ -10,6 +10,8 @@ from annexation_procedures.model import (
     DpkgPackageDiscovery,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
+    InstallationScope,
+    InstallationScopePolicy,
     OperationContext,
     Platform,
     PlatformDeclaration,
@@ -265,6 +267,40 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertFalse(fake.installed)
             self.assertIsNone(read_install_state(context, "fish"))
 
+    def test_noncurrent_user_scope_is_refused_before_winget_runs(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeWinget()
+            declaration = PlatformDeclaration(
+                platform=Platform.WINDOWS,
+                capabilities={},
+                install_strategy=WingetPackage(
+                    "Vendor.Example",
+                    InstallationScopePolicy.required(InstallationScope.USER),
+                ),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (WingetPackageDiscovery("Vendor.Example", preferred=True),)
+                ),
+            )
+            app = Application(id="example", display_name="Example", platforms=(declaration,))
+            context = OperationContext(
+                repository_root=root,
+                platform=Platform.WINDOWS,
+                host="fixture_host",
+                target_account=TargetAccount("other_user", root / "other", False),
+            )
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: "winget.exe" if command == "winget" else None,
+            )
+
+            self.assertEqual("installation_scope_target_unsupported", result.code)
+            self.assertEqual([], fake.calls)
+
     def test_winget_strategy_uses_shared_handler(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -272,7 +308,10 @@ class InstallationOperationTests(unittest.TestCase):
             declaration = PlatformDeclaration(
                 platform=Platform.WINDOWS,
                 capabilities={},
-                install_strategy=WingetPackage("Vendor.Example"),
+                install_strategy=WingetPackage(
+                    "Vendor.Example",
+                    InstallationScopePolicy.required(InstallationScope.USER),
+                ),
                 installation_discovery=InstallationDiscoveryPlan(
                     (WingetPackageDiscovery("Vendor.Example", preferred=True),)
                 ),

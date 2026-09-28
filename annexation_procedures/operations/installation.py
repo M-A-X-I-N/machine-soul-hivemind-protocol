@@ -19,6 +19,7 @@ from ..model import (
     RemoteInstallScript,
     StandaloneBinary,
     WingetPackage,
+    installation_scope_target_error,
 )
 from ..process import ProcessResult, run_process
 from ..state import (
@@ -334,6 +335,40 @@ def install_application(
             "installation_strategy_missing",
             "No installation strategy is declared for this platform.",
         )
+
+    scope_policy = getattr(strategy, "scope_policy", None)
+    if scope_policy is not None:
+        scope_error = installation_scope_target_error(
+            scope_policy,
+            context.target_account,
+        )
+        if scope_error is not None:
+            return OperationResult.unsupported(
+                "installation_scope_target_unsupported",
+                scope_error,
+                data={
+                    "scope_policy": scope_policy.mode.value,
+                    "scope": scope_policy.scope.value if scope_policy.scope else None,
+                    "target_account": context.target_account.name,
+                },
+            )
+
+    scope_policy = getattr(strategy, "scope_policy", None)
+    if scope_policy is not None:
+        scope_error = installation_scope_target_error(
+            scope_policy,
+            context.target_account,
+        )
+        if scope_error is not None:
+            return OperationResult.unsupported(
+                "installation_scope_target_unsupported",
+                scope_error,
+                data={
+                    "scope_policy": scope_policy.mode.value,
+                    "scope": scope_policy.scope.value if scope_policy.scope else None,
+                    "target_account": context.target_account.name,
+                },
+            )
 
     installed = _is_installed(strategy, runner)
     if installed is True:
