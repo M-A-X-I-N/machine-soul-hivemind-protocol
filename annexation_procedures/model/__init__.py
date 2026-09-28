@@ -30,6 +30,13 @@ from .native_toolchain import (
     VisualStudioInstance,
     normalize_native_architecture,
 )
+from .runtime import (
+    RuntimeBackend,
+    RuntimeDesiredState,
+    RuntimeInstance,
+    RuntimeOwnership,
+    RuntimeSpec,
+)
 from .installation_scope import (
     InstallationScopePolicy,
     InstallationScopePolicyMode,
@@ -93,6 +100,11 @@ __all__ = [
     "NativeToolchainRequirement",
     "VisualStudioInstance",
     "normalize_native_architecture",
+    "RuntimeBackend",
+    "RuntimeDesiredState",
+    "RuntimeInstance",
+    "RuntimeOwnership",
+    "RuntimeSpec",
     "InstallationScopePolicy",
     "InstallationScopePolicyMode",
     "installation_scope_compatible",
