@@ -23,7 +23,7 @@ Do not reintroduce per-application `config/` or `operations/` wrapper directorie
 Cross-application discovery, configuration resolution, symlink/backup/state policy, operation dispatch, installation strategies, native-protocol support, and orchestration live in the shared Python package:
 
 ```text
-accumulated_instruments/machine_soul/
+annexation_procedures/
 ```
 
 `accumulated_instruments/` remains the general-purpose repository area for reusable system-management tooling; unrelated future tools may live beside `machine_soul/`.
