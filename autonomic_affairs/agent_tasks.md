@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-DEV-A-110`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-110.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -24,7 +24,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-A-080`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-080.md) | COMPLETE | `MSHP-DEV-A-030` | Investigate LuaRocks annexation | Map LuaRocks installation, Lua-version binding, package trees, scope, package inventory, and coexistence semantics. |
 | [`MSHP-DEV-A-090`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-090.md) | COMPLETE | `MSHP-DEV-A-040` | Investigate pip annexation | Map pip interpreter binding, user/global/venv scopes, package inventory, and safe Machine-Soul ownership boundaries. |
 | [`MSHP-DEV-A-100`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-100.md) | COMPLETE | `MSHP-DEV-A-050` | Investigate npm annexation | Map npm installation, Node-version binding, global package scope/prefix, package inventory, and version-manager interactions. |
-| [`MSHP-DEV-A-110`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-110.md) | QUEUED | `MSHP-DEV-A-070`, `MSHP-DEV-A-080`, `MSHP-DEV-A-090`, `MSHP-DEV-A-100` | Synthesize runtime package-manager findings | Compare LuaRocks, pip, and npm and identify reusable package-environment/inventory concepts without prematurely implementing unsupported ecosystems. |
+| [`MSHP-DEV-A-110`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-110.md) | IN_PROGRESS | `MSHP-DEV-A-070`, `MSHP-DEV-A-080`, `MSHP-DEV-A-090`, `MSHP-DEV-A-100` | Synthesize runtime package-manager findings | Compare LuaRocks, pip, and npm and identify reusable package-environment/inventory concepts without prematurely implementing unsupported ecosystems. |
 | [`MSHP-DEV-A-120`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-120.md) | QUEUED | `MSHP-DEV-A-010`, `MSHP-DEV-A-020`, `MSHP-DEV-A-070`, `MSHP-DEV-A-110` | Synthesize developer annexation roadmap | Produce evidence-based implementation tasks and structured initiative gaps for editors, IDEs, runtimes, version managers, and runtime package ecosystems. |
 | [`MSHP-INST-B-010`](agent_tasks/MSHP-INST-B/MSHP-INST-B-010.md) | COMPLETE | `MSHP-INST-A-040` | Implement scope policy model | Add mutation-side installation scope policy/value types, compatibility semantics, strategy declarations, and cross-account user-scope guards without changing package-manager commands yet. |
 | [`MSHP-INST-B-020`](agent_tasks/MSHP-INST-B/MSHP-INST-B-020.md) | COMPLETE | `MSHP-INST-B-010` | Implement scoped installation provenance | Replace one-account-one-app install provenance with scope-aware user/machine ownership records, schema migration, and safe legacy reconciliation primitives. |
