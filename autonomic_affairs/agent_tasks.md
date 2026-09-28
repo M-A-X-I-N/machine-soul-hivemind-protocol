@@ -6,7 +6,9 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-DEV-B-010`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-010.md)
+2. [`MSHP-DEV-B-020`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-020.md)
+3. [`MSHP-DEV-B-030`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-030.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -25,7 +27,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-A-090`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-090.md) | COMPLETE | `MSHP-DEV-A-040` | Investigate pip annexation | Map pip interpreter binding, user/global/venv scopes, package inventory, and safe Machine-Soul ownership boundaries. |
 | [`MSHP-DEV-A-100`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-100.md) | COMPLETE | `MSHP-DEV-A-050` | Investigate npm annexation | Map npm installation, Node-version binding, global package scope/prefix, package inventory, and version-manager interactions. |
 | [`MSHP-DEV-A-110`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-110.md) | COMPLETE | `MSHP-DEV-A-070`, `MSHP-DEV-A-080`, `MSHP-DEV-A-090`, `MSHP-DEV-A-100` | Synthesize runtime package-manager findings | Compare LuaRocks, pip, and npm and identify reusable package-environment/inventory concepts without prematurely implementing unsupported ecosystems. |
-| [`MSHP-DEV-A-120`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-120.md) | IN_PROGRESS | `MSHP-DEV-A-010`, `MSHP-DEV-A-020`, `MSHP-DEV-A-070`, `MSHP-DEV-A-110` | Synthesize developer annexation roadmap | Produce evidence-based implementation tasks and structured initiative gaps for editors, IDEs, runtimes, version managers, and runtime package ecosystems. |
+| [`MSHP-DEV-A-120`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-120.md) | COMPLETE | `MSHP-DEV-A-010`, `MSHP-DEV-A-020`, `MSHP-DEV-A-070`, `MSHP-DEV-A-110` | Synthesize developer annexation roadmap | Produce evidence-based implementation tasks and structured initiative gaps for editors, IDEs, runtimes, version managers, and runtime package ecosystems. |
 | [`MSHP-DEV-B-010`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-010.md) | QUEUED | `MSHP-DEV-A-120` | Promote install-only developer editor annexation | Add USER-scoped VS Code and JetBrains Toolbox installation lifecycle without inventing editor configuration or plugin state. |
 | [`MSHP-DEV-B-020`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-020.md) | QUEUED | `MSHP-DEV-A-120` | Investigate Windows native toolchain annexation | Map Visual Studio/Build Tools, MSVC toolsets, Windows SDKs, components, coexistence, discovery, and safe automation before implementation taskification. |
 | [`MSHP-DEV-B-030`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-030.md) | QUEUED | `MSHP-DEV-A-120` | Implement runtime annexation core | Add exact runtime-instance sets, selected/default state, backend identity, provenance, and backend lifecycle contracts without forcing one version manager. |
@@ -36,12 +38,6 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-B-080`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-080.md) | QUEUED | `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-070` | Implement pip and npm package backends | Prove the package-environment model across exact Python environments and Node/backend npm global prefixes. |
 | [`MSHP-DEV-B-090`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-090.md) | QUEUED | `MSHP-DEV-B-060`, `MSHP-DEV-B-070` | Implement LuaRocks package backend | Bind desired rock inventories to exact Lua runtime + tree environments with native prerequisite safety. |
 | [`MSHP-DEV-B-100`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-100.md) | QUEUED | `MSHP-DEV-B-010`, `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-060`, `MSHP-DEV-B-080`, `MSHP-DEV-B-090` | Integrate developer runtime and package lifecycle | Validate editor install-only, multiversion runtimes, runtime-bound package environments, lifecycle ordering, docs, and initiative coverage end to end. |
-| [`MSHP-INST-B-010`](agent_tasks/MSHP-INST-B/MSHP-INST-B-010.md) | COMPLETE | `MSHP-INST-A-040` | Implement scope policy model | Add mutation-side installation scope policy/value types, compatibility semantics, strategy declarations, and cross-account user-scope guards without changing package-manager commands yet. |
-| [`MSHP-INST-B-020`](agent_tasks/MSHP-INST-B/MSHP-INST-B-020.md) | COMPLETE | `MSHP-INST-B-010` | Implement scoped installation provenance | Replace one-account-one-app install provenance with scope-aware user/machine ownership records, schema migration, and safe legacy reconciliation primitives. |
-| [`MSHP-INST-B-030`](agent_tasks/MSHP-INST-B/MSHP-INST-B-030.md) | COMPLETE | `MSHP-INST-B-020` | Make installation ownership candidate-exact | Refactor install/check/uninstall safety around scoped discovery candidates and exact provenance matching, including post-install scope verification and ambiguity refusal. |
-| [`MSHP-INST-B-040`](agent_tasks/MSHP-INST-B/MSHP-INST-B-040.md) | COMPLETE | `MSHP-INST-B-030` | Implement scoped WinGet mutation | Add explicit WinGet user/machine install/list/uninstall scope, dual-scope discovery, exact ownership targeting, and Oh My Posh regression coverage. |
-| [`MSHP-INST-B-050`](agent_tasks/MSHP-INST-B/MSHP-INST-B-050.md) | COMPLETE | `MSHP-INST-B-030` | Implement Apt machine scope | Declare Apt as fixed machine scope, use host/machine provenance, and safely reconcile compatible legacy Apt ownership without adding unsupported Linux managers. |
-| [`MSHP-INST-B-060`](agent_tasks/MSHP-INST-B/MSHP-INST-B-060.md) | COMPLETE | `MSHP-INST-B-040`, `MSHP-INST-B-050` | Integrate scoped installation lifecycle | Validate scoped install/check/uninstall end to end, update status/docs/initiative coverage, preserve deferred manager gaps, and explicitly clear the Windows config-candidate investigation to resume. |
 | [`MSHP-APPS-A-010`](agent_tasks/MSHP-APPS-A/MSHP-APPS-A-010.md) | COMPLETE | — | Investigate Windows config candidates | Inventory Windows-integrated and common Microsoft applications with stable user-manageable configuration surfaces that may deserve Machine-Soul configuration entries. |
 
 
