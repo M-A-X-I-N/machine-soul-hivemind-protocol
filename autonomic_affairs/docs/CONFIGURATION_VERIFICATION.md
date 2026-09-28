@@ -173,3 +173,36 @@ Contour release notes document `contour info config` as a CLI command that inspe
 https://contour-terminal.org/release-notes/
 
 A successful probe with the resolved config path present is **application** evidence. A missing config path is not-effective at resolution strength. A nonzero probe is **indeterminate** at application strength rather than automatically meaning the config is broken, because CLI/version failures can also produce nonzero status.
+
+
+## Oh My Posh two-layer verification
+
+Oh My Posh verification deliberately keeps two different observations separate.
+
+### Theme usability
+
+Machine-Soul resolves the canonical tracked OMP theme source through normal host/account precedence and invokes the OMP print-primary command with the canonical theme and the universal shell renderer.
+
+A successful render is **application** evidence that OMP can consume the intended theme. It does not prove any shell selected that theme.
+
+A clearly reported configuration/parse failure is not_effective at application strength. An otherwise unexplained nonzero CLI result is indeterminate, because CLI/version failure is not proof that the theme itself is invalid.
+
+### Consumer-shell selection
+
+For the current target account only, Machine-Soul may start controlled ordinary consumer shells and inspect the POSH_THEME runtime state produced by OMP initialization.
+
+Supported consumer probes are Bash, Zsh, Fish, and Windows PowerShell where applicable. The probe:
+
+- does not source a startup file manually;
+- sets Machine-Soul host/account/repository context for the child process;
+- reads a unique marker containing POSH_THEME;
+- compares the selected theme with the **canonical resolved tracked source**, not the deployed OMP theme symlink;
+- reports matching or mismatching selection as **runtime** evidence.
+
+This canonical-source comparison is intentional because the tracked Machine-Soul shell profiles initialize OMP with paths under MACHINE_SOUL/assimilation_directives/oh_my_posh.
+
+If no supported consumer is installed, a successful theme render remains the strongest application evidence. If a consumer starts but exposes no POSH_THEME, that produces weaker indeterminate resolution evidence and does not erase a stronger successful application probe.
+
+If one consumer selects the intended theme and another selects a different theme, the equal-strength runtime evidence conflicts and the overall verification result is indeterminate; the individual observations remain available.
+
+Non-current target accounts are not impersonated for runtime probing. Theme usability may still be assessed against the target account's canonical configuration, but consumer startup is skipped.
