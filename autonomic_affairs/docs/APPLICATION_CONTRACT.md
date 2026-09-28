@@ -20,6 +20,7 @@ annexation_procedures/<application>/
 ├── apply_config.py
 ├── unapply_config.py
 ├── check_config.py
+├── verify_config.py
 ├── install.py
 ├── uninstall.py
 └── check_installed.py
@@ -35,7 +36,7 @@ For a configured application/platform pair:
 - `unapply_config` — required;
 - `check_config` — required.
 
-`verify_config` is a distinct optional effective-configuration verification operation; it must not be folded into structural `check_config`. Install/Uninstall are likewise optional until a safe strategy is implemented.
+`verify_config` is a distinct first-class effective-configuration verification operation; it must not be folded into structural `check_config`. Its capability may remain `NOT_IMPLEMENTED` until a platform has a trustworthy verification plan. Install/Uninstall are likewise optional until a safe strategy is implemented.
 
 Every missing operation must be classified explicitly as:
 
@@ -187,3 +188,21 @@ PlatformDeclaration
 If `CHECK_INSTALLED` is `SUPPORTED`, a discovery plan is required. The plan may exist without any install strategy.
 
 This distinction allows Machine-Soul to discover built-in, manually installed, or externally managed applications without pretending it knows how to install/remove them or owns their installation.
+
+
+## Configuration verification declaration
+
+Effective configuration verification is declared separately from structural configuration deployment.
+
+```text
+PlatformDeclaration
+├── configurations               structural deployment destinations
+├── configuration_strategy       optional structural lifecycle override
+└── configuration_verification   optional read-only verification plan
+```
+
+If `VERIFY_CONFIG` is `SUPPORTED`, a non-empty verification plan is required.
+
+The shared verification engine collects typed `VerificationObservation` values, chooses the strongest evidence level, and returns a serialized `VerificationAssessment` through the common `OperationResult` contract. `effective`, `not_effective`, and `indeterminate` remain semantic conclusions independent from evidence strength.
+
+`NOT_IMPLEMENTED` is capability metadata and is distinct from a supported verification plan returning `verification_indeterminate`.

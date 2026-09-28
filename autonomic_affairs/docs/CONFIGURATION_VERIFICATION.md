@@ -88,3 +88,24 @@ A structurally correct deployment may still be ineffective because of environmen
 - a long-running application not yet reloading changed configuration.
 
 That separation is the reason `verify_config` exists as a distinct future operation.
+
+
+## First-class operation surface
+
+`verify_config` is now a first-class atomic operation with the same direct/imported wrapper shape as every other Machine-Soul operation.
+
+Every application exposes a `verify_config.py` wrapper. Platform capability remains explicit:
+
+- `SUPPORTED` requires a declared `ConfigurationVerificationPlan`;
+- `NOT_IMPLEMENTED` means verification is desired but no trustworthy plan exists yet;
+- `UNSUPPORTED` means verification is intentionally inapplicable.
+
+A supported plan may still produce an `indeterminate` assessment. That is an observed semantic result, not the same thing as missing implementation.
+
+The shared engine maps assessments to stable operation codes:
+
+- `config_effective`;
+- `config_not_effective`;
+- `verification_indeterminate`.
+
+Structured evidence remains under `OperationResult.data["assessment"]`.
