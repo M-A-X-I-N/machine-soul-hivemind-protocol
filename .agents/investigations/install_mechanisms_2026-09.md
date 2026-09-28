@@ -89,3 +89,16 @@ The later installation-discovery investigation established two durable correctio
 2. **Preferred-strategy match is not historical acquisition provenance.** WinGet lists/correlates applications installed by other means, and dpkg package registration does not prove whether apt or direct dpkg installation performed the original install. Record what the platform can prove and keep Machine-Soul ownership separate.
 
 Detailed candidate/evidence design lives temporarily in `autonomic_affairs/agent_tasks/MSHP-DISC-A/workspace/installation_discovery.md`.
+
+
+## Implemented Linux discovery — MSHP-DISC-B-030
+
+Linux discovery now correlates exact dpkg registrations with package-owned executable paths and retains manual executable candidates independently.
+
+Important maintenance details:
+
+- `DpkgPackageDiscovery` may declare an executable name; the backend queries exact package status/details and uses `dpkg-query -S` to prove file ownership.
+- `ExecutableDiscovery` opportunistically asks dpkg for the resolved path owner on Linux. If owned, it becomes a dpkg candidate and can merge with exact package registration; otherwise it remains an executable/manual candidate.
+- Candidate merging occurs only when paths overlap or native registration identity matches. A package registration plus a different unowned PATH executable must remain separate/ambiguous.
+- Bash, Zsh, Fish, Oh My Posh, and Contour now support Linux `CHECK_INSTALLED` even though only Fish currently supports Machine-Soul Install/Uninstall.
+- Do not add a Contour Flatpak descriptor from the current install page alone: it confirms Flathub availability but does not expose the exact application ID there. Verify the ID from an authoritative source before adding that backend.

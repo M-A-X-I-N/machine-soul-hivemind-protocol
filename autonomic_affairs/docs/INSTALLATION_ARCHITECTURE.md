@@ -160,3 +160,28 @@ The shared discovery engine consumes ordered reusable descriptors such as exact 
 The current `check_installed` operation serializes a typed `InstallationAssessment` beneath `OperationResult.data["assessment"]`. Presence may be `present`, `absent`, `ambiguous`, or `unknown`; backend unavailability must not become false absence.
 
 Install/Uninstall continue to use `install_strategy` and Machine-Soul provenance for mutation safety. Discovery does not claim/adopt ownership.
+
+
+## 13. Linux discovery implementation
+
+Current Linux discovery combines exact dpkg registration where Machine-Soul has a verified package identity with executable/path/version observations.
+
+For exact dpkg packages, discovery records package registration, version/architecture when available, and verifies whether the resolved executable is owned by that package. A package registration and its package-owned PATH executable are merged into one installation candidate.
+
+A separately resolved executable that is not owned by the registered package remains a distinct candidate. This intentionally surfaces cases such as a distro Fish package plus a manually installed Fish earlier on PATH as ambiguous rather than silently choosing one.
+
+Current declarations:
+
+- Bash: exact Debian-family `bash` package plus executable fallback.
+- Zsh: exact Debian-family `zsh` package plus executable fallback.
+- Fish: exact `fish` package is preferred-strategy compatible, plus executable fallback for manual/source installs.
+- Oh My Posh: executable/version discovery, matching upstream's user-local install-script model.
+- Contour: executable/version discovery with opportunistic dpkg-owner enrichment. Upstream documents Ubuntu `.deb`, multiple distro packages, Flatpak, and source installs; no Flatpak ID is guessed without a verified identity.
+
+Missing optional dpkg tooling does not erase an executable candidate. It remains a present installation with weaker/partial evidence and an explanatory backend error.
+
+Current upstream references used for the Linux declaration choices:
+
+- https://fishshell.com/
+- https://ohmyposh.dev/docs/installation/linux
+- https://contour-terminal.org/install/
