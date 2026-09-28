@@ -112,3 +112,26 @@ Any future takeover design must treat destructive migration as a separate safety
 - how Machine-Soul ownership changes are recorded.
 
 The installation-discovery workstream should preserve enough provenance/identity information to keep this future feature possible, but must not implement takeover merely because this reminder exists.
+
+
+## Windhawk configuration / mod-state management
+
+Investigate whether Windhawk should become a Machine-Soul-managed application/state domain.
+
+Windhawk is intentionally outside the current "standard Windows applications" investigation because its interesting state is broader and more security-sensitive than one ordinary config file: installed mods, each mod's settings/configuration, global application settings, enablement state, process inclusion/exclusion rules, and potentially embedded mod source.
+
+Current Windhawk 2.0 prerelease work includes an official Backup & Restore flow and CLI commands such as `data export`, `data inspect`, and `data import`, making a native export/import integration potentially much cleaner than copying ProgramData and registry internals.
+
+Before promotion to executable work, investigate at least:
+
+- stable versus prerelease Windhawk capabilities and the version boundary for official export/import;
+- what the backup archive contains and whether it is deterministic/reviewable enough for Git;
+- whether Machine-Soul should track a Windhawk export artifact, a declarative mod manifest/settings model, or both;
+- global app settings versus per-mod settings/configuration and enablement;
+- local mods and whether source should be embedded/tracked separately;
+- trust/security implications of restoring archives that install and execute mods;
+- installation scope, service/engine state, elevation requirements, and restart/reload behavior;
+- how Install/Check/Verify semantics would work without treating arbitrary registry/ProgramData copies as the primary contract;
+- whether official CLI export/import makes a reusable Machine-Soul export/import deployment strategy worthwhile.
+
+Do not implement Windhawk or import a backup merely because this reminder exists.
