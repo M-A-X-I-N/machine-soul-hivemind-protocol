@@ -13,6 +13,7 @@ from ..model import (
 )
 from .configuration import apply_config, check_config, unapply_config
 from .installation import check_installed, install_application, uninstall_application
+from ..configuration_verification import verify_config
 
 
 def perform_operation(
@@ -64,6 +65,8 @@ def perform_operation(
         if operation is Operation.APPLY_CONFIG:
             return apply_config(application, declaration, resolved)
         return unapply_config(application, declaration, resolved)
+    if operation is Operation.VERIFY_CONFIG:
+        return verify_config(application, declaration, resolved)
     if operation is Operation.CHECK_INSTALLED:
         return check_installed(application, declaration, resolved)
     if operation is Operation.INSTALL:

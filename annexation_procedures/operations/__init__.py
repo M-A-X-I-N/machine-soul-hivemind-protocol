@@ -3,12 +3,14 @@
 from .configuration import apply_config, check_config, unapply_config
 from .dispatcher import perform_operation
 from .installation import check_installed, install_application, uninstall_application
+from ..configuration_verification import verify_config
 
 __all__ = [
     "perform_operation",
     "apply_config",
     "check_config",
     "unapply_config",
+    "verify_config",
     "check_installed",
     "install_application",
     "uninstall_application",

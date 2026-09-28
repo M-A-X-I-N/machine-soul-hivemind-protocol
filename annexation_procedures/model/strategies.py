@@ -30,6 +30,29 @@ class ConfigurationStrategy(Protocol):
     """Marker protocol for declared whole-configuration strategies."""
 
 
+@runtime_checkable
+class ConfigurationVerificationStrategy(Protocol):
+    """Marker protocol for declared read-only config verification strategies."""
+
+
+@dataclass(frozen=True)
+class ConfigurationVerificationPlan:
+    """Ordered read-only probes used to verify effective configuration."""
+
+    strategies: tuple[ConfigurationVerificationStrategy, ...]
+
+    def __post_init__(self) -> None:
+        if not self.strategies:
+            raise ValueError("Configuration verification plan requires at least one strategy.")
+
+
+@dataclass(frozen=True)
+class CustomVerification:
+    """Narrow escape hatch for a reusable or genuinely application-specific probe."""
+
+    handler: Callable[..., object]
+
+
 @dataclass(frozen=True)
 class InstallationDiscoveryPlan:
     """Ordered read-only probes used to assess existing installations."""

@@ -9,6 +9,7 @@ from typing import Mapping
 
 from .strategies import (
     ConfigurationStrategy,
+    ConfigurationVerificationPlan,
     DestinationStrategy,
     InstallationDiscoveryPlan,
     InstallationStrategy,
@@ -27,6 +28,7 @@ class Operation(str, Enum):
     APPLY_CONFIG = "apply_config"
     UNAPPLY_CONFIG = "unapply_config"
     CHECK_CONFIG = "check_config"
+    VERIFY_CONFIG = "verify_config"
     INSTALL = "install"
     UNINSTALL = "uninstall"
     CHECK_INSTALLED = "check_installed"
@@ -63,6 +65,7 @@ class PlatformDeclaration:
     install_strategy: InstallationStrategy | None = None
     installation_discovery: InstallationDiscoveryPlan | None = None
     configuration_strategy: ConfigurationStrategy | None = None
+    configuration_verification: ConfigurationVerificationPlan | None = None
 
     def __post_init__(self) -> None:
         caps = dict(self.capabilities)
@@ -75,6 +78,11 @@ class PlatformDeclaration:
             and self.installation_discovery is None
         ):
             raise ValueError("Supported check_installed operation requires a discovery plan.")
+        if (
+            caps.get(Operation.VERIFY_CONFIG) is Support.SUPPORTED
+            and self.configuration_verification is None
+        ):
+            raise ValueError("Supported verify_config operation requires a verification plan.")
 
         names = [config.name for config in self.configurations]
         if len(names) != len(set(names)):
