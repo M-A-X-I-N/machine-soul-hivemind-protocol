@@ -26,7 +26,7 @@ Cross-application discovery, configuration resolution, symlink/backup/state poli
 annexation_procedures/
 ```
 
-`accumulated_instruments/` remains the general-purpose repository area for reusable system-management tooling; unrelated future tools may live beside `machine_soul/`.
+`accumulated_instruments/` is the general-purpose tracked toolbox for useful programs/scripts that are not intrinsically part of the assimilation/annexation system. The Machine-Soul runtime itself does not live there.
 
 The former `accumulated_instruments/configuration_deployment/` Bash/PowerShell runtime was transitional and was retired after Python parity.
 

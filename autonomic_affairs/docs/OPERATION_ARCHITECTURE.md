@@ -105,7 +105,7 @@ Application wrappers and custom hooks receive the already-resolved context. They
 
 ## Strategy descriptors versus handlers
 
-Declarative strategy **descriptors** are immutable data. Current examples live under `machine_soul.model.strategies`:
+Declarative strategy **descriptors** are immutable data. Current examples live under `annexation_procedures.model.strategies`:
 
 ```text
 AptPackage("fish")

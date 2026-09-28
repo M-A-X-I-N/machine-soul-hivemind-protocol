@@ -17,6 +17,17 @@ class RepositoryParityTests(unittest.TestCase):
             (self.root / "accumulated_instruments" / "configuration_deployment").exists()
         )
 
+    def test_shared_runtime_lives_in_annexation_tree(self) -> None:
+        annexation = self.root / "annexation_procedures"
+        self.assertTrue((annexation / "__init__.py").is_file())
+        self.assertTrue((annexation / "model").is_dir())
+        self.assertTrue((annexation / "operations").is_dir())
+        self.assertTrue((annexation / "manage_machine_soul.py").is_file())
+        self.assertFalse((self.root / "accumulated_instruments" / "machine_soul").exists())
+        self.assertFalse(
+            (self.root / "accumulated_instruments" / "manage_machine_soul.py").exists()
+        )
+
     def test_annexation_runtime_is_platform_neutral_python(self) -> None:
         annexation = self.root / "annexation_procedures"
         applications = [

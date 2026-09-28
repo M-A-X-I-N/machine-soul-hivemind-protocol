@@ -46,9 +46,11 @@ Tracked configuration currently includes one Windows host variant and multiple L
 
 Canonical application configuration lives under `assimilation_directives/<application>/...`.
 
-The matching operational machinery lives under `annexation_procedures/<application>/...`.
+The matching per-application operational machinery lives under `annexation_procedures/<application>/...`. The shared Python runtime and broad manager also live directly under `annexation_procedures/`; the tree is the operational Machine-Soul system, not merely a collection of application adapters.
 
 Configured targets normally provide Apply config, Unapply config, and Check config from the annexation tree. Installation support may additionally provide Install and Uninstall there.
+
+`accumulated_instruments/` is reserved for tracked tools/programs/scripts that are useful enough to keep with the repository but are not intrinsically part of the assimilation/annexation system.
 
 Installing an application is deliberately separate from applying its configuration. A pre-existing software installation is not silently claimed as Machine-Soul-owned merely because its executable exists.
 

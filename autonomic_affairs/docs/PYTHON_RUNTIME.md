@@ -10,16 +10,23 @@ Python is a prerequisite. This phase does not install Python, bootstrap Python, 
 
 ## Repository-local package
 
-Shared Python behavior lives under:
+Shared Python behavior lives directly in the operational tree:
 
 ```text
-accumulated_instruments/
-└── machine_soul/
+annexation_procedures/
+├── __init__.py
+├── model/
+├── operations/
+├── primitives/
+├── applications.py
+├── discovery.py
+├── orchestration.py
+└── manage_machine_soul.py
 ```
 
-The repository root is the import root. The package is not required to be installed into `site-packages`.
+The repository root is the import root, so the shared runtime imports as `annexation_procedures`. The package is not required to be installed into `site-packages`.
 
-`accumulated_instruments/__init__.py` and `annexation_procedures/__init__.py` establish the importable namespace. Importing the package must not mutate machine state.
+`annexation_procedures/__init__.py` establishes the importable namespace. Importing the package must not mutate machine state. Application declaration/wrapper directories live beside the shared modules but are discovered by convention rather than forming separate runtime packages.
 
 ## Dependency rule
 
@@ -36,7 +43,7 @@ See [`OPERATION_ARCHITECTURE.md`](OPERATION_ARCHITECTURE.md) for the canonical d
 The exact files may evolve as V2-51 through V2-58 land, but responsibilities are divided conceptually as:
 
 ```text
-machine_soul/
+annexation_procedures/
 ├── model/          shared declarations, context, result/value objects
 ├── operations/     generic install/config/check/unapply engines
 ├── strategies/     reusable declared strategies such as package installers
