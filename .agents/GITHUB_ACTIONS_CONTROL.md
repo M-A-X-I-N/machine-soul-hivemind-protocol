@@ -13,6 +13,7 @@ The checked-in dispatcher uses one small selector job, then conditionally calls 
 - Refactor checkpoint `f870856`: an ordinary agent-branch push produced no workflow run; moving the same commit onto `main` launched all four extracted reusable validation sets successfully.
 - Dispatcher checkpoint `02417a5`: an ordinary agent-branch push produced no workflow run; main integration selected all four sets through `source=main-default`, and all four passed.
 - Subset checkpoint `97b1d4d`: main integration read `CI: linux`, ran only `linux`, and marked `windows`, `fresh-linux`, and `fresh-windows` skipped; the selected Linux set passed.
+- None checkpoint `24b32d7`: main integration read `CI: none`; the selector passed and all four validation-set jobs were skipped without provisioning their runners.
 - Dynamic GitHub-managed CodeQL/default code scanning is independent of the checked-in skip mechanism: it still started on a main commit whose message used `[skip ci]`. Treat its trigger/control semantics separately from the repository dispatcher.
 
 ## Tool-surface limitation
