@@ -47,6 +47,23 @@ class ConfigurationVerificationPlan:
 
 
 @dataclass(frozen=True)
+class OhMyPoshVerification:
+    """Verify OMP theme usability and consumer-shell theme selection."""
+
+    executable_name: str
+    consumers: tuple[str, ...]
+    configuration_name: str = "theme"
+
+    def __post_init__(self) -> None:
+        supported = {"bash", "zsh", "fish", "powershell"}
+        unknown = set(self.consumers) - supported
+        if unknown:
+            raise ValueError(
+                f"Unsupported Oh My Posh verification consumers: {sorted(unknown)!r}."
+            )
+
+
+@dataclass(frozen=True)
 class ResolvedPathVerification:
     """Verify that an application resolves to an existing declared config path."""
 

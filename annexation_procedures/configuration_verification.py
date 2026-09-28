@@ -11,6 +11,7 @@ from .model import (
     ConfigurationVerificationPlan,
     CustomVerification,
     EvidenceStrength,
+    OhMyPoshVerification,
     OperationContext,
     OperationResult,
     PlatformDeclaration,
@@ -20,6 +21,7 @@ from .model import (
     VerificationConclusion,
     VerificationObservation,
 )
+from .oh_my_posh_verification import verify_oh_my_posh
 from .native_configuration_verification import (
     verify_application_config_probe,
     verify_cmd_autorun,
@@ -93,6 +95,16 @@ def verify_config(
     observations: list[VerificationObservation] = []
     errors: list[str] = []
     for strategy in plan.strategies:
+        if isinstance(strategy, OhMyPoshVerification):
+            observations.extend(
+                verify_oh_my_posh(
+                    application,
+                    declaration,
+                    context,
+                    strategy,
+                )
+            )
+            continue
         if isinstance(strategy, ResolvedPathVerification):
             observations.append(
                 verify_resolved_path(application, declaration, context, strategy)
