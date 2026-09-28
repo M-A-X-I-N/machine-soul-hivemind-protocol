@@ -44,6 +44,7 @@ class InstallationDiscoveryPlan:
 @dataclass(frozen=True)
 class DpkgPackageDiscovery:
     package_name: str
+    executable_name: str | None = None
     preferred: bool = False
 
 
