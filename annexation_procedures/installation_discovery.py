@@ -285,11 +285,17 @@ def _merge_pair(
         else right.native_identity
     )
 
+    paths = tuple(dict.fromkeys((*left.paths, *right.paths)))
+    observations: list[DiscoveryObservation] = []
+    for observation in (*left.observations, *right.observations):
+        if observation not in observations:
+            observations.append(observation)
+
     return InstallationCandidate(
         native_identity=native_identity,
         display_identity=left.display_identity or right.display_identity,
         version=left.version or right.version,
-        paths=tuple(dict.fromkeys((*left.paths, *right.paths))),
+        paths=paths,
         scope=(
             left.scope
             if left.scope is not InstallationScope.UNKNOWN
@@ -302,7 +308,7 @@ def _merge_pair(
         manageable_by_preferred_strategy=manageable,
         ownership=left.ownership,
         uninstall_identity=left.uninstall_identity or right.uninstall_identity,
-        observations=tuple(dict.fromkeys((*left.observations, *right.observations))),
+        observations=tuple(observations),
     )
 
 
