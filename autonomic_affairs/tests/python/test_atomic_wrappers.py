@@ -35,8 +35,10 @@ EXPECTED_APPLICATIONS = {
     "cmd",
     "contour",
     "fish",
+    "jetbrains_toolbox",
     "oh_my_posh",
     "powershell",
+    "visual_studio_code",
     "windows_terminal",
     "zsh",
 }
