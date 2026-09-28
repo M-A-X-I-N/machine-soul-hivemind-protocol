@@ -250,6 +250,130 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertTrue(result.changed)
             self.assertEqual((), read_install_states(context, "fish"))
 
+    def test_apt_machine_ownership_is_shared_across_target_accounts(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt()
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            first = self._context(root, Platform.LINUX)
+
+            installed = install_application(
+                app,
+                declaration,
+                first,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+            self.assertEqual("installed_managed", installed.code)
+
+            second = OperationContext(
+                repository_root=root,
+                platform=Platform.LINUX,
+                host=first.host,
+                target_account=TargetAccount("second_user", root / "second-home", True),
+            )
+            checked = check_installed(
+                app,
+                declaration,
+                second,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+            )
+            self.assertEqual("installed_managed", checked.code)
+            self.assertEqual(1, len(read_install_states(second, "fish")))
+            self.assertEqual(
+                InstallationScope.MACHINE,
+                read_install_states(second, "fish")[0].actual_scope,
+            )
+
+    def test_apt_single_legacy_record_reconciles_without_reinstall(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt(installed=True)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+            write_install_state(
+                context,
+                InstallState(
+                    application="fish",
+                    host=context.host,
+                    account=context.target_account.name,
+                    manager="apt",
+                    identity="fish",
+                ),
+            )
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+
+            self.assertEqual("installed_managed", result.code)
+            self.assertFalse(any(call and call[0] == "apt-get" for call in fake.calls))
+            state = read_install_state(context, "fish")
+            self.assertIsNotNone(state)
+            assert state is not None
+            self.assertEqual(InstallationScope.MACHINE, state.actual_scope)
+
+    def test_apt_duplicate_legacy_records_refuse_reconciliation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt(installed=True)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+            for account in ("fixture_user", "other_user"):
+                write_install_state(
+                    context,
+                    InstallState(
+                        application="fish",
+                        host=context.host,
+                        account=account,
+                        manager="apt",
+                        identity="fish",
+                    ),
+                )
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+
+            self.assertEqual("installation_provenance_ambiguous", result.code)
+            self.assertFalse(any(call and call[0] == "apt-get" for call in fake.calls))
+
     def test_check_installed_can_work_without_install_strategy(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

@@ -32,9 +32,12 @@ from ..installation_ownership import (
 from ..process import ProcessResult, run_process
 from ..state import (
     InstallState,
+    delete_legacy_install_state,
     delete_scoped_install_state,
     read_install_states,
     read_legacy_install_state,
+    read_legacy_install_states,
+    reconcile_legacy_install_state,
     write_install_state,
 )
 
@@ -213,6 +216,119 @@ def _scoped_result(
         result.message,
         data,
     )
+
+
+def _prepare_apt_legacy_provenance(
+    application: Application,
+    strategy: object,
+    policy: InstallationScopePolicy,
+    context: OperationContext,
+    assessment: object,
+) -> tuple[bool, OperationResult | None]:
+    """Safely reconcile one old Apt record when exact machine state proves it."""
+    if not isinstance(strategy, AptPackage):
+        return False, None
+
+    legacy_states = read_legacy_install_states(context, application.id)
+    if not legacy_states:
+        return False, None
+
+    data = {
+        **_scope_result_data(policy),
+        "assessment": assessment.to_dict(),
+        "legacy_records": [
+            {
+                "account": state.account,
+                "manager": state.manager,
+                "identity": state.identity,
+            }
+            for state in legacy_states
+        ],
+    }
+
+    if len(legacy_states) != 1:
+        return False, OperationResult.failure(
+            "installation_provenance_ambiguous",
+            "Multiple legacy installation ownership records exist; refusing automatic Apt reconciliation.",
+            data=data,
+        )
+
+    legacy = legacy_states[0]
+    if legacy.manager != "apt" or legacy.identity != strategy.package_name:
+        return False, OperationResult.failure(
+            "installation_provenance_unreconciled",
+            "Legacy installation provenance does not exactly match the declared Apt package.",
+            data=data,
+        )
+
+    candidates = [
+        candidate
+        for candidate in assessment.candidates
+        if candidate.registration_kind == "dpkg"
+        and candidate.scope is InstallationScope.MACHINE
+        and candidate.native_identity == strategy.package_name
+    ]
+
+    if not candidates and assessment.presence is InstallationPresence.ABSENT:
+        if context.dry_run:
+            return False, OperationResult.success(
+                "would_clear_stale_provenance",
+                "The legacy Apt ownership record is stale and would be removed before mutation.",
+                data=data,
+            )
+        delete_legacy_install_state(
+            context,
+            application.id,
+            account=legacy.account or context.target_account.name,
+        )
+        return True, None
+
+    if len(candidates) != 1:
+        return False, OperationResult.failure(
+            "installation_provenance_unreconciled",
+            "Legacy Apt provenance cannot be reconciled to exactly one current machine-scoped dpkg candidate.",
+            data=data,
+        )
+
+    candidate = candidates[0]
+    replacement = _state_from_candidate(
+        application,
+        strategy,
+        policy,
+        candidate,
+        context,
+    )
+    replacement = InstallState(
+        application=replacement.application,
+        host=replacement.host,
+        account=legacy.account or replacement.account,
+        manager=replacement.manager,
+        identity=replacement.identity,
+        requested_scope_mode=replacement.requested_scope_mode,
+        requested_scope=replacement.requested_scope,
+        actual_scope=replacement.actual_scope,
+        scope_subject=replacement.scope_subject,
+        native_identity=replacement.native_identity,
+        uninstall_identity=replacement.uninstall_identity,
+        metadata=replacement.metadata,
+    )
+
+    if context.dry_run:
+        return False, OperationResult.success(
+            "would_reconcile_legacy_provenance",
+            "Legacy Apt provenance would be promoted to host-level machine ownership.",
+            data={**data, "candidate": candidate.to_dict()},
+        )
+
+    try:
+        reconcile_legacy_install_state(context, legacy, replacement)
+    except Exception as exc:
+        return False, OperationResult.error(
+            "provenance_reconciliation_failed",
+            f"Legacy Apt provenance could not be reconciled safely: {exc}",
+            data=data,
+        )
+    return True, None
 
 
 def check_installed(
@@ -506,8 +622,23 @@ def install_application(
         return guard
     assert policy is not None
 
-    legacy_state = read_legacy_install_state(context, application.id)
-    if legacy_state is not None:
+    assessment = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    reconciled, legacy_result = _prepare_apt_legacy_provenance(
+        application,
+        strategy,
+        policy,
+        context,
+        assessment,
+    )
+    if legacy_result is not None:
+        return legacy_result
+    if reconciled:
         assessment = discover_installation(
             application.id,
             declaration,
@@ -515,6 +646,9 @@ def install_application(
             runner=runner,
             which=which,
         )
+
+    legacy_state = read_legacy_install_state(context, application.id)
+    if legacy_state is not None:
         return OperationResult.failure(
             "installation_provenance_unreconciled",
             "Scope-unknown legacy installation provenance must be reconciled before mutation.",
@@ -525,14 +659,6 @@ def install_application(
                 "legacy_identity": legacy_state.identity,
             },
         )
-
-    assessment = discover_installation(
-        application.id,
-        declaration,
-        context,
-        runner=runner,
-        which=which,
-    )
     intended = _intended_candidates(assessment.candidates, policy, context)
     relevant_states = _intended_states(
         read_install_states(context, application.id),
@@ -681,8 +807,23 @@ def uninstall_application(
         return guard
     assert policy is not None
 
-    legacy_state = read_legacy_install_state(context, application.id)
-    if legacy_state is not None:
+    assessment = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    reconciled, legacy_result = _prepare_apt_legacy_provenance(
+        application,
+        strategy,
+        policy,
+        context,
+        assessment,
+    )
+    if legacy_result is not None:
+        return legacy_result
+    if reconciled:
         assessment = discover_installation(
             application.id,
             declaration,
@@ -690,6 +831,9 @@ def uninstall_application(
             runner=runner,
             which=which,
         )
+
+    legacy_state = read_legacy_install_state(context, application.id)
+    if legacy_state is not None:
         return OperationResult.failure(
             "installation_provenance_unreconciled",
             "Scope-unknown legacy installation provenance cannot authorize uninstall.",
@@ -705,13 +849,6 @@ def uninstall_application(
         read_install_states(context, application.id),
         policy,
         context,
-    )
-    assessment = discover_installation(
-        application.id,
-        declaration,
-        context,
-        runner=runner,
-        which=which,
     )
     intended = _intended_candidates(assessment.candidates, policy, context)
 
