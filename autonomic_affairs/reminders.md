@@ -67,3 +67,30 @@ The investigation should distinguish:
 Do not implement Skills merely because the mechanism exists.
 
 Revisit this after the canonical task schema is established so any task-execution Skill can target the real `agent_tasks.md` contract rather than a transitional format.
+
+## Agent-facing repository memory hygiene
+
+Design a lightweight process that periodically prompts agents to inventory the repository's agent-facing memory, task/context infrastructure, and related contents for issues that are difficult for the human maintainer to notice directly.
+
+Candidate problems include:
+
+- stale, contradictory, superseded, or duplicated agent memory;
+- important discoveries that exist only in transient locations and should be promoted;
+- permanent memory that has outlived its usefulness;
+- navigation/discoverability problems visible mainly from an agent's reading path;
+- task/workspace structures that cause unnecessary context or token load;
+- instructions whose practical effect differs from their apparent intent;
+- obsolete assumptions, dead links, or misleading source-of-truth claims;
+- repository conventions that repeatedly cost agents investigation effort;
+- other agent-specific friction that a human reviewing files normally would not be positioned to detect.
+
+The eventual process should encourage agents to surface findings proactively at appropriate checkpoints even when the maintainer did not know to ask about them.
+
+Before promotion to executable work, decide:
+
+- appropriate triggers/cadence (for example lifecycle boundaries, occasional explicit audits, or both);
+- what should be reported immediately versus silently corrected when safe;
+- when findings should become tasks, reminders, documentation changes, or `.agents/` updates;
+- how to avoid turning the audit itself into routine context/token bloat.
+
+This reminder authorizes no recurring audit or unrelated cleanup by itself.
