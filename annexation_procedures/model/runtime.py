@@ -205,6 +205,20 @@ class RuntimeOwnership:
 
 
 @runtime_checkable
+class RuntimeRemovalGuard(Protocol):
+    """Optional cross-layer guard called before an exact runtime is removed."""
+
+    def __call__(
+        self,
+        context: OperationContext,
+        instance: RuntimeInstance,
+        scope_subject: str | None = None,
+    ) -> OperationResult:
+        """Return success when removing the exact runtime is safe."""
+        ...
+
+
+@runtime_checkable
 class RuntimeBackend(Protocol):
     """Concrete runtime lifecycle contract consumed by the shared reconciler."""
 

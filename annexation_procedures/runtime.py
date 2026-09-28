@@ -14,6 +14,7 @@ from .model import (
     RuntimeDesiredState,
     RuntimeInstance,
     RuntimeOwnership,
+    RuntimeRemovalGuard,
 )
 from .state import read_json_state, write_json_state
 
@@ -393,6 +394,8 @@ def reconcile_runtime(
     context: OperationContext,
     backend: RuntimeBackend,
     desired: RuntimeDesiredState,
+    *,
+    removal_guard: RuntimeRemovalGuard | None = None,
 ) -> OperationResult:
     """Reconcile exact owned runtime instances and selected/default state."""
     invalid = _validate_backend_identity(backend, desired)
@@ -465,6 +468,33 @@ def reconcile_runtime(
             },
         )
 
+    guard_results: list[dict[str, object]] = []
+    if removal_guard is not None:
+        for key in sorted(removal_keys):
+            instance = managed_observed.get(key)
+            if instance is None:
+                continue
+            try:
+                guard_result = removal_guard(context, instance, scope_subject)
+            except Exception as exc:
+                return OperationResult.error(
+                    "runtime_removal_guard_failed",
+                    f"Runtime removal guard failed unexpectedly: {exc}",
+                    data={"backend_key": key},
+                )
+            guard_results.append(
+                {"backend_key": key, "result": guard_result.to_dict()}
+            )
+            if guard_result.status is not ResultStatus.SUCCESS:
+                return OperationResult.failure(
+                    "runtime_removal_blocked",
+                    "Runtime removal was blocked by a dependency guard.",
+                    data={
+                        "backend_key": key,
+                        "guard_result": guard_result.to_dict(),
+                    },
+                )
+
     if context.dry_run:
         return OperationResult.success(
             "would_reconcile_runtime",
@@ -481,6 +511,7 @@ def reconcile_runtime(
                 ),
                 "owned_keys": sorted(ownership_by_key),
                 "observed_instances": [item.to_dict() for item in instances],
+                "removal_guard_results": guard_results,
             },
         )
 
