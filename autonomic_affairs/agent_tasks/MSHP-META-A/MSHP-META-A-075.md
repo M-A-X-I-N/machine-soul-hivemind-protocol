@@ -48,16 +48,22 @@ The repository does not need a permanently separate experimental branch merely b
 - Search current documentation, agent instructions, workflows, and task/recovery guidance for stale active-branch references to `experimental/v2`; classify remaining matches as intentionally historical.
 - Confirm no unique pre-promotion `main` work was lost.
 
+## Completion note
 
-## Blocker
+The human subsequently removed deletion of the `experimental/v2` ref from this task's required outcome.
 
-Promotion itself is complete:
+The branch may remain indefinitely as an obsolete retained ref. It has no operational significance:
 
-- `main` was fast-forwarded to the complete former `experimental/v2` head `094a779853099257d97230419bf00bde1493a94b`;
-- the promoted `main` head passed Machine-Soul validation in GitHub Actions run `36364547996`;
+- `main` is the active development/experimental branch;
+- current documentation, task execution, recovery flow, and CI must ignore `experimental/v2`;
+- no future work should treat the retained v2 ref as current merely because it still exists;
+- deletion can happen later if it becomes useful, but is not required for this task.
+
+Promotion itself completed successfully:
+
+- `main` was fast-forwarded from the full v2 lineage with no lost unique work;
+- branch-facing documentation and CI were updated to `main`;
 - `experimental/v1` remains preserved;
-- current branch-facing documentation and CI now target `main`.
+- the promoted `main` head passed Machine-Soul validation in GitHub Actions run `36364547996`.
 
-The only remaining acceptance criterion is deleting the remote `experimental/v2` ref. The connected GitHub tool surface available to the current ChatGPT Chat session can create/move refs but exposes no branch/ref deletion action, and the local execution container cannot reach GitHub.
-
-Delete the remote branch through an authenticated Git client (for example `git push origin --delete experimental/v2`) or GitHub's branch UI. After the ref is gone, re-verify the branch list, mark this task `COMPLETE`, and leave Dispatch empty unless new work has been authorized.
+The task is therefore complete with `experimental/v2` intentionally retained and ignored.
