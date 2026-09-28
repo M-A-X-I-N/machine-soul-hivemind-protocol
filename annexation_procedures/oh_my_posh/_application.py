@@ -1,5 +1,6 @@
 from annexation_procedures.model import (
     Application,
+    ExecutableDiscovery,
     ConfigurationFile,
     Operation,
     Platform,
@@ -24,7 +25,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -32,6 +33,9 @@ APPLICATION = Application(
                     source_leaf="theme.omp.json",
                     destination=HomeRelativeDestination(".config/oh-my-posh/theme.omp.json"),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (ExecutableDiscovery("oh-my-posh", ("version",)),)
             ),
         ),
         PlatformDeclaration(

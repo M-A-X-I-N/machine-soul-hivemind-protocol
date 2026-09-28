@@ -1,5 +1,8 @@
 from annexation_procedures.model import (
     Application,
+    DpkgPackageDiscovery,
+    ExecutableDiscovery,
+    InstallationDiscoveryPlan,
     ConfigurationFile,
     Operation,
     Platform,
@@ -21,7 +24,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -29,6 +32,12 @@ APPLICATION = Application(
                     source_leaf=".zshrc",
                     destination=HomeRelativeDestination(".zshrc"),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    DpkgPackageDiscovery("zsh", executable_name="zsh"),
+                    ExecutableDiscovery("zsh", ("--version",)),
+                )
             ),
         ),
         PlatformDeclaration(

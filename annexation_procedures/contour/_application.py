@@ -1,5 +1,7 @@
 from annexation_procedures.model import (
     Application,
+    ExecutableDiscovery,
+    InstallationDiscoveryPlan,
     ConfigurationFile,
     Operation,
     Platform,
@@ -21,7 +23,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -29,6 +31,9 @@ APPLICATION = Application(
                     source_leaf="contour.yml",
                     destination=HomeRelativeDestination(".config/contour/contour.yml"),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (ExecutableDiscovery("contour", ("--version",)),)
             ),
         ),
         PlatformDeclaration(
