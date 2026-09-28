@@ -125,3 +125,25 @@ Removing an application does not automatically delete backups or canonical track
 If native package uninstall leaves application configuration behind, that behavior should be understood and reported rather than “cleaned up” by guessing.
 
 The user may separately Unapply configuration if desired.
+
+
+## 11. Discovery is independent from installation strategy
+
+Installation discovery is a separate capability from Install/Uninstall.
+
+An application may expose rich `check_installed` discovery even when Machine-Soul has no safe installation strategy for it. Built-in components, externally installed tools, and applications with many supported upstream installation methods are all examples.
+
+The preferred install strategy remains one input to discovery: it defines what Machine-Soul considers a preferred or compatible package identity. It is not the discovery implementation itself.
+
+Discovery should gather candidate facts from declared reusable discovery strategies/hints, then assess:
+
+- application presence;
+- candidate identities, versions, paths, and scopes;
+- native/package registration;
+- preferred-strategy match and manageability;
+- Machine-Soul ownership;
+- ambiguity or unknown state.
+
+Package/catalog correlation must not be presented as historical installer provenance unless the platform exposes evidence that actually proves it. WinGet can correlate/manage software installed by other means, and a dpkg package does not prove whether apt or direct dpkg installation originally acquired it.
+
+See [`DISCOVERY_SEMANTICS.md`](DISCOVERY_SEMANTICS.md) and the DISC-A installation-discovery workspace for the detailed evidence map.

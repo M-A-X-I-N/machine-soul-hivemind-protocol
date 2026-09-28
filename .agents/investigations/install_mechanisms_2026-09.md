@@ -79,3 +79,13 @@ Source:
 3. Installation scripts must use baseline platform runtimes, not the target shell.
 4. Record installation provenance so Uninstall does not remove software merely because it exists.
 5. Keep Install/Uninstall semantically separate from Apply/Unapply/Check.
+
+
+## Discovery-specific follow-up (MSHP-DISC-A-020)
+
+The later installation-discovery investigation established two durable corrections:
+
+1. **Discovery must not depend on Install being implemented.** Declarations need discovery identities/strategies separate from `install_strategy`; applications such as CMD, Windows Terminal, PowerShell, Contour, Bash/Zsh, and Windows POSIX-environment shells can be discoverable without Machine-Soul installation support.
+2. **Preferred-strategy match is not historical acquisition provenance.** WinGet lists/correlates applications installed by other means, and dpkg package registration does not prove whether apt or direct dpkg installation performed the original install. Record what the platform can prove and keep Machine-Soul ownership separate.
+
+Detailed candidate/evidence design lives temporarily in `autonomic_affairs/agent_tasks/MSHP-DISC-A/workspace/installation_discovery.md`.
