@@ -22,6 +22,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-META-A-060`](agent_tasks/MSHP-META-A/MSHP-META-A-060.md) | COMPLETE | `MSHP-META-A-010` | Codify idiot-maintainer language | Permit optional maintainer-directed idiot-human humor while explicitly excluding end users and formal interfaces. |
 | [`MSHP-META-A-065`](agent_tasks/MSHP-META-A/MSHP-META-A-065.md) | QUEUED | `MSHP-META-A-020` | Restructure task lifecycle storage | Replace the blob-style archive with structured task/block archival and add flexible tracked workspaces for temporary cross-task knowledge. |
 | [`MSHP-META-A-070`](agent_tasks/MSHP-META-A/MSHP-META-A-070.md) | QUEUED | `V2-63` | Rehome assimilation runtime | Move the core Machine-Soul Python runtime and orchestrator out of `accumulated_instruments/` and into the operational `annexation_procedures/` system without redesigning behavior. |
+| [`MSHP-META-A-075`](agent_tasks/MSHP-META-A/MSHP-META-A-075.md) | QUEUED | — | Promote active iteration to main | Promote the current `experimental/v2` iteration to `main`, update active-branch assumptions, and retire the redundant `experimental/v2` branch. |
 
 
 ## Task contract
