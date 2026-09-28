@@ -4,8 +4,8 @@ import json
 import sys
 import unittest
 
-from accumulated_instruments.machine_soul.model import OperationResult
-from accumulated_instruments.machine_soul.primitives import (
+from annexation_procedures.model import OperationResult
+from annexation_procedures.primitives import (
     PrimitiveProcessError,
     PrimitiveProtocolError,
     build_primitive_envelope,

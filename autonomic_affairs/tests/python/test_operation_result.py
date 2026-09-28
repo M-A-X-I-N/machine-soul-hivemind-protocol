@@ -4,8 +4,8 @@ import json
 import math
 import unittest
 
-from accumulated_instruments.machine_soul.model import OperationResult, ResultStatus
-from accumulated_instruments.machine_soul.presentation import render_human, render_json
+from annexation_procedures.model import OperationResult, ResultStatus
+from annexation_procedures.presentation import render_human, render_json
 
 
 class OperationResultTests(unittest.TestCase):

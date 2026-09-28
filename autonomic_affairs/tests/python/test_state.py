@@ -5,8 +5,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from accumulated_instruments.machine_soul.model import OperationContext, Platform, TargetAccount
-from accumulated_instruments.machine_soul.state import (
+from annexation_procedures.model import OperationContext, Platform, TargetAccount
+from annexation_procedures.state import (
     ConfigState,
     InstallState,
     config_state_path,

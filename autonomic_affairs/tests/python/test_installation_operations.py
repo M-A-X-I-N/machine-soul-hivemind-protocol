@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     AptPackage,
     OperationContext,
@@ -13,13 +13,13 @@ from accumulated_instruments.machine_soul.model import (
     TargetAccount,
     WingetPackage,
 )
-from accumulated_instruments.machine_soul.operations.installation import (
+from annexation_procedures.operations.installation import (
     check_installed,
     install_application,
     uninstall_application,
 )
-from accumulated_instruments.machine_soul.process import ProcessResult
-from accumulated_instruments.machine_soul.state import read_install_state
+from annexation_procedures.process import ProcessResult
+from annexation_procedures.state import read_install_state
 
 
 class FakeApt:

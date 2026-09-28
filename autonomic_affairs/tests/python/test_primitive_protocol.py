@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import unittest
 
-from accumulated_instruments.machine_soul.model import OperationResult, ResultStatus
-from accumulated_instruments.machine_soul.primitives import (
+from annexation_procedures.model import OperationResult, ResultStatus
+from annexation_procedures.primitives import (
     PROTOCOL_VERSION,
     PrimitiveProcessError,
     PrimitiveProtocolError,
