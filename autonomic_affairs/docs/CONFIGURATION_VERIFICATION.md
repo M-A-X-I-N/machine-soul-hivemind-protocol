@@ -141,3 +141,35 @@ This is an intentional evidence ceiling, not an unfinished boolean check.
 Bash/Zsh trace matching translates the native Windows configuration destination back into the active compatibility environment's POSIX path with `cygpath -u`. The shell executable and translation tool are resolved from the same context PATH used by Windows POSIX discovery/configuration resolution.
 
 Verification does not scan arbitrary native Windows shells and does not mutate shell config/history. POSIX runs direct history output to the null device where applicable.
+
+
+## Native application verification implementation
+
+### PowerShell
+
+PowerShell verification uses the exact `PowerShellProfileDestination` resolver declared by the application. The resolver launches that declared host with `-NoProfile` and reads `$PROFILE.CurrentUserCurrentHost`; verification then reports whether that resolved profile path exists.
+
+This is **resolution** evidence. It intentionally does not claim the profile executed. Oh My Posh runtime state may strengthen this in the separate OMP verification layer.
+
+The current declaration uses `powershell.exe`; `pwsh.exe` discovery does not silently change which profile Machine-Soul configures or verifies.
+
+### CMD
+
+CMD verification compares the declared command-file destination to the current HKCU Command Processor `AutoRun` value and requires the command-file path to exist.
+
+This is resolution evidence grounded in CMD's documented startup contract. Verification does not invoke `cmd.exe` with a temporary marker and does not mutate AutoRun.
+
+### Windows Terminal
+
+Windows Terminal verification uses the same `WindowsTerminalSettingsDestination` resolver as structural configuration. It distinguishes the packaged stable settings location when that package directory exists from the unpackaged settings location otherwise, and requires `wt.exe` to be discoverable before claiming a positive resolution result.
+
+No GUI automation or headless-effective-settings fiction is used; the evidence ceiling remains **resolution**.
+
+### Contour
+
+Contour uses the application-native `contour info config` command against its ordinary resolved config environment.
+
+Contour release notes document `contour info config` as a CLI command that inspects the config file and lists missing entries:
+https://contour-terminal.org/release-notes/
+
+A successful probe with the resolved config path present is **application** evidence. A missing config path is not-effective at resolution strength. A nonzero probe is **indeterminate** at application strength rather than automatically meaning the config is broken, because CLI/version failures can also produce nonzero status.

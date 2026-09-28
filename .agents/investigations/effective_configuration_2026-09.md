@@ -47,3 +47,22 @@ Durable evidence rules:
 - On Windows, translate the declared native destination back into the active POSIX path before trace matching and resolve all tools from the same compatibility-environment PATH.
 - Missing executable, non-current target account, translation failure, or failed trace produces indeterminate/resolution evidence rather than a false not-effective result.
 - Do not replace normal startup with explicit `source`/manual config execution in future tests.
+
+
+## Implemented native verification — MSHP-DISC-B-080
+
+Reusable strategies now cover:
+
+- `ResolvedPathVerification` — deterministic application/native destination resolution plus path presence;
+- `CmdAutoRunVerification` — HKCU Command Processor AutoRun contract without mutation;
+- `ApplicationConfigProbe` — read-only application-native config inspection commands.
+
+Current evidence ceilings:
+
+- PowerShell: resolution, using the exact declared `PowerShellProfileDestination` host. Do not substitute pwsh merely because installation discovery found it.
+- CMD: resolution from exact expected AutoRun plus command-file existence.
+- Windows Terminal: resolution only; packaged-stable versus unpackaged path selection stays in the shared destination resolver. Do not add GUI automation for stronger evidence.
+- Contour: application evidence only when `contour info config` succeeds with the ordinary config path present. Nonzero probe is indeterminate, not automatically not-effective.
+
+Contour's CLI command is documented in upstream release notes (0.5.0 and later):
+https://contour-terminal.org/release-notes/
