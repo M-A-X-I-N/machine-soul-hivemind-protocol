@@ -25,7 +25,7 @@ annexation_procedures/<application>/
 └── check_installed.py
 ```
 
-The declaration owns platform capability/strategy differences. Shared Python engines under `accumulated_instruments/machine_soul/` implement common semantics so wrappers remain tiny. File presence is not the capability contract.
+The declaration owns platform capability/strategy differences. Shared Python engines under `annexation_procedures/` implement common semantics so wrappers remain tiny. File presence is not the capability contract.
 
 ## 2. Required versus optional operations
 

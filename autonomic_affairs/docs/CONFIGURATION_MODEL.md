@@ -52,7 +52,7 @@ annexation_procedures/
 
 The two are intrinsically paired by application name, but neither is nested inside the other.
 
-Shared symlink/backup/state/dispatch implementation belongs under `accumulated_instruments/machine_soul/` rather than being duplicated in each annexation procedure.
+Shared symlink/backup/state/dispatch implementation belongs under `annexation_procedures/` rather than being duplicated in each annexation procedure.
 
 ## 3. Configuration identity dimensions
 

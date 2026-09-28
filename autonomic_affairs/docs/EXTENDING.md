@@ -28,7 +28,7 @@ Document where the application expects each file. If the path or symlink semanti
 
 ### Reuse the shared Python operation core
 
-Generic operation behavior lives under `accumulated_instruments/machine_soul/`.
+Generic operation behavior lives under `annexation_procedures/`.
 
 Application declarations select reusable source/destination/install strategies; platform-neutral atomic wrappers call the shared dispatcher. Do not add a per-application Bash/PowerShell policy engine or hand-roll backup/state/account behavior.
 

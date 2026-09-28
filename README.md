@@ -77,7 +77,7 @@ The Python operation core and atomic wrappers are now authoritative for migrated
 Atomic wrappers remain independently usable, while the broad manager composes them without duplicating application logic:
 
 ```text
-python accumulated_instruments/manage_machine_soul.py
+python annexation_procedures/manage_machine_soul.py
 ```
 
 Run it without a workflow for the interactive menu, or use its workflow options for scripted status/application selection. See `autonomic_affairs/docs/INTERACTIVE_ORCHESTRATION.md`.

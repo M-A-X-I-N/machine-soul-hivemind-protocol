@@ -20,7 +20,7 @@ Importing the module is meaningful. Executing it directly performs no action and
 
 ## Core value objects
 
-The shared model lives under `accumulated_instruments.machine_soul.model`.
+The shared model lives under `annexation_procedures.model`.
 
 The initial schema provides:
 
