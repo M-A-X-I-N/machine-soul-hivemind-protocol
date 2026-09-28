@@ -26,6 +26,9 @@ from .discovery import (
 from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
+    DpkgPackageDiscovery,
+    ExecutableDiscovery,
+    InstallationDiscoveryPlan,
     CustomConfiguration,
     CustomInstaller,
     HomeRelativeDestination,
@@ -36,6 +39,7 @@ from .strategies import (
     WindowsPosixHomeDestination,
     WindowsTerminalSettingsDestination,
     WingetPackage,
+    WingetPackageDiscovery,
 )
 
 __all__ = [
@@ -63,6 +67,9 @@ __all__ = [
     "OperationResult",
     "ResultStatus",
     "AptPackage",
+    "DpkgPackageDiscovery",
+    "ExecutableDiscovery",
+    "InstallationDiscoveryPlan",
     "CustomConfiguration",
     "CustomInstaller",
     "HomeRelativeDestination",
@@ -73,4 +80,5 @@ __all__ = [
     "WindowsPosixHomeDestination",
     "WindowsTerminalSettingsDestination",
     "WingetPackage",
+    "WingetPackageDiscovery",
 ]

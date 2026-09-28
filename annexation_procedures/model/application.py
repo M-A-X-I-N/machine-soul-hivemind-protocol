@@ -7,7 +7,12 @@ from enum import Enum
 import re
 from typing import Mapping
 
-from .strategies import ConfigurationStrategy, DestinationStrategy, InstallationStrategy
+from .strategies import (
+    ConfigurationStrategy,
+    DestinationStrategy,
+    InstallationDiscoveryPlan,
+    InstallationStrategy,
+)
 
 
 _APPLICATION_ID = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -56,6 +61,7 @@ class PlatformDeclaration:
     capabilities: Mapping[Operation, Support]
     configurations: tuple[ConfigurationFile, ...] = ()
     install_strategy: InstallationStrategy | None = None
+    installation_discovery: InstallationDiscoveryPlan | None = None
     configuration_strategy: ConfigurationStrategy | None = None
 
     def __post_init__(self) -> None:
@@ -64,6 +70,11 @@ class PlatformDeclaration:
 
         if caps.get(Operation.INSTALL) is Support.SUPPORTED and self.install_strategy is None:
             raise ValueError("Supported install operation requires an install strategy.")
+        if (
+            caps.get(Operation.CHECK_INSTALLED) is Support.SUPPORTED
+            and self.installation_discovery is None
+        ):
+            raise ValueError("Supported check_installed operation requires a discovery plan.")
 
         names = [config.name for config in self.configurations]
         if len(names) != len(set(names)):

@@ -16,6 +16,11 @@ class InstallationStrategy(Protocol):
 
 
 @runtime_checkable
+class InstallationDiscoveryStrategy(Protocol):
+    """Marker protocol for declared read-only installation discovery strategies."""
+
+
+@runtime_checkable
 class DestinationStrategy(Protocol):
     """Marker protocol for declared configuration destination strategies."""
 
@@ -23,6 +28,37 @@ class DestinationStrategy(Protocol):
 @runtime_checkable
 class ConfigurationStrategy(Protocol):
     """Marker protocol for declared whole-configuration strategies."""
+
+
+@dataclass(frozen=True)
+class InstallationDiscoveryPlan:
+    """Ordered read-only probes used to assess existing installations."""
+
+    strategies: tuple[InstallationDiscoveryStrategy, ...]
+
+    def __post_init__(self) -> None:
+        if not self.strategies:
+            raise ValueError("Installation discovery plan requires at least one strategy.")
+
+
+@dataclass(frozen=True)
+class DpkgPackageDiscovery:
+    package_name: str
+    preferred: bool = False
+
+
+@dataclass(frozen=True)
+class WingetPackageDiscovery:
+    package_id: str
+    source: str = "winget"
+    preferred: bool = False
+
+
+@dataclass(frozen=True)
+class ExecutableDiscovery:
+    executable_name: str
+    version_arguments: tuple[str, ...] = ()
+    preferred: bool = False
 
 
 @dataclass(frozen=True)
