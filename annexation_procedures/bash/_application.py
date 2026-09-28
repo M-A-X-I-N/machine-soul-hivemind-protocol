@@ -1,4 +1,4 @@
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     ConfigurationFile,
     Operation,

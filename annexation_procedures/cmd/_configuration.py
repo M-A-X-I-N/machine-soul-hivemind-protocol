@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     ConflictPolicy,
     Operation,
@@ -12,12 +12,12 @@ from accumulated_instruments.machine_soul.model import (
     OperationResult,
     PlatformDeclaration,
 )
-from accumulated_instruments.machine_soul.operations.configuration import (
+from annexation_procedures.operations.configuration import (
     apply_config,
     check_config,
     unapply_config,
 )
-from accumulated_instruments.machine_soul.state import (
+from annexation_procedures.state import (
     application_state_path,
     read_json_state,
     write_json_state,
