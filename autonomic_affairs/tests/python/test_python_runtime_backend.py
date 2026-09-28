@@ -171,7 +171,7 @@ class PythonInstallManagerBackendTests(unittest.TestCase):
             )
             states = read_runtime_ownerships(context, "python")
 
-        self.assertEqual("runtime_reconciled", result.code)
+        self.assertEqual("runtime_reconciled", result.code, result.to_dict())
         self.assertEqual(
             {"pythoncore-3.13-64", "pythoncore-3.14-64"},
             set(fake.managed),
@@ -205,7 +205,7 @@ class PythonInstallManagerBackendTests(unittest.TestCase):
                 self._desired(selected="pythoncore-3.14-64"),
             )
 
-        self.assertEqual("runtime_reconciled", result.code)
+        self.assertEqual("runtime_reconciled", result.code, result.to_dict())
         self.assertFalse(
             any(call[1] in {"install", "uninstall"} for call in fake.calls)
         )
