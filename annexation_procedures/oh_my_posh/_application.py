@@ -1,5 +1,6 @@
 from annexation_procedures.model import (
     Application,
+    ConfigurationVerificationPlan,
     ExecutableDiscovery,
     ConfigurationFile,
     Operation,
@@ -9,6 +10,7 @@ from annexation_procedures.model import (
     HomeRelativeDestination,
     InstallationDiscoveryPlan,
     LocalAppDataRelativeDestination,
+    OhMyPoshVerification,
     WingetPackage,
     WingetPackageDiscovery,
 )
@@ -23,7 +25,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -38,6 +40,14 @@ APPLICATION = Application(
             installation_discovery=InstallationDiscoveryPlan(
                 (ExecutableDiscovery("oh-my-posh", ("version",)),)
             ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (
+                    OhMyPoshVerification(
+                        "oh-my-posh",
+                        ("bash", "zsh", "fish"),
+                    ),
+                )
+            ),
         ),
         PlatformDeclaration(
             platform=Platform.WINDOWS,
@@ -45,7 +55,7 @@ APPLICATION = Application(
             Operation.APPLY_CONFIG: Support.SUPPORTED,
             Operation.UNAPPLY_CONFIG: Support.SUPPORTED,
             Operation.CHECK_CONFIG: Support.SUPPORTED,
-            Operation.VERIFY_CONFIG: Support.NOT_IMPLEMENTED,
+            Operation.VERIFY_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.SUPPORTED,
             Operation.UNINSTALL: Support.SUPPORTED,
             Operation.CHECK_INSTALLED: Support.SUPPORTED,
@@ -70,6 +80,14 @@ APPLICATION = Application(
                     ExecutableDiscovery(
                         "oh-my-posh.exe",
                         ("version",),
+                    ),
+                )
+            ),
+            configuration_verification=ConfigurationVerificationPlan(
+                (
+                    OhMyPoshVerification(
+                        "oh-my-posh.exe",
+                        ("bash", "zsh", "fish", "powershell"),
                     ),
                 )
             ),
