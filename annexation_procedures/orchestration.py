@@ -61,6 +61,56 @@ class WorkflowReport:
         }
 
 
+@dataclass(frozen=True)
+class DiscoveryStatusEntry:
+    """Three independent read-only discovery dimensions for one application."""
+
+    application_id: str
+    display_name: str
+    installation: OperationAttempt
+    configuration: OperationAttempt
+    effective: OperationAttempt
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "application": self.application_id,
+            "display_name": self.display_name,
+            "installation": self.installation.result.to_dict(),
+            "configuration": self.configuration.result.to_dict(),
+            "effective": self.effective.result.to_dict(),
+        }
+
+    @property
+    def attempts(self) -> tuple[OperationAttempt, ...]:
+        return (
+            self.installation,
+            self.configuration,
+            self.effective,
+        )
+
+
+@dataclass(frozen=True)
+class DiscoveryStatusReport:
+    """Grouped status without collapsing dimensions into one health value."""
+
+    applications: tuple[DiscoveryStatusEntry, ...]
+
+    @property
+    def exit_code(self) -> int:
+        errors = (
+            attempt.result.exit_code
+            for entry in self.applications
+            for attempt in entry.attempts
+            if attempt.result.status is ResultStatus.ERROR
+        )
+        return max(errors, default=0)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "applications": [entry.to_dict() for entry in self.applications],
+        }
+
+
 def _wrapper_module_name(path: Path) -> str:
     digest = hashlib.sha256(str(path.absolute()).encode("utf-8")).hexdigest()[:16]
     return f"_machine_soul_wrapper_{digest}"
@@ -254,3 +304,60 @@ def apply_installed_configurations(
             break
 
     return WorkflowReport(tuple(attempts))
+
+
+_STATUS_OPERATIONS = (
+    Operation.CHECK_INSTALLED,
+    Operation.CHECK_CONFIG,
+    Operation.VERIFY_CONFIG,
+)
+
+
+def discovery_status(
+    bindings: Iterable[WrapperBinding],
+    context: OperationContext,
+) -> DiscoveryStatusReport:
+    """Run all three read-only discovery dimensions through atomic wrappers."""
+    values = tuple(bindings)
+    indexed = {
+        (binding.application_id, binding.operation): binding
+        for binding in values
+        if binding.operation in _STATUS_OPERATIONS
+    }
+    names = {
+        binding.application_id: binding.display_name
+        for binding in values
+    }
+
+    entries: list[DiscoveryStatusEntry] = []
+    for application_id in sorted(names):
+        attempts: dict[Operation, OperationAttempt] = {}
+        for operation in _STATUS_OPERATIONS:
+            binding = indexed.get((application_id, operation))
+            if binding is None:
+                attempts[operation] = OperationAttempt(
+                    application_id,
+                    operation,
+                    OperationResult.not_implemented(
+                        "operation_wrapper_missing",
+                        f"Atomic wrapper {operation.value!r} is missing.",
+                        data={
+                            "application": application_id,
+                            "operation": operation.value,
+                        },
+                    ),
+                )
+                continue
+            attempts[operation] = execute_binding(binding, context)
+
+        entries.append(
+            DiscoveryStatusEntry(
+                application_id=application_id,
+                display_name=names[application_id],
+                installation=attempts[Operation.CHECK_INSTALLED],
+                configuration=attempts[Operation.CHECK_CONFIG],
+                effective=attempts[Operation.VERIFY_CONFIG],
+            )
+        )
+
+    return DiscoveryStatusReport(tuple(entries))
