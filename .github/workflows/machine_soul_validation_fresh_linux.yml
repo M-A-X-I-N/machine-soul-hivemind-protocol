@@ -1,0 +1,19 @@
+name: Machine-Soul validation set — fresh-linux
+
+on:
+  workflow_call:
+
+jobs:
+  fresh-clone-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository from remote
+        shell: bash
+        run: |
+          git clone "https://github.com/${GITHUB_REPOSITORY}.git" "${RUNNER_TEMP}/fresh-soul"
+          git -C "${RUNNER_TEMP}/fresh-soul" checkout "${GITHUB_SHA}"
+      - name: Validate from fresh clone
+        shell: bash
+        run: |
+          cd "${RUNNER_TEMP}/fresh-soul"
+          bash autonomic_affairs/tests/applications/test_linux_operations.sh

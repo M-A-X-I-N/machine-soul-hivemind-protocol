@@ -1,0 +1,28 @@
+name: Machine-Soul validation set — linux
+
+on:
+  workflow_call:
+
+jobs:
+  linux_validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke-test Python runtime package
+        shell: bash
+        run: python3 -c "import annexation_procedures as ms; ms.require_supported_python()"
+      - name: Test Python declaration model
+        shell: bash
+        run: python3 -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
+      - name: Test Linux application operations
+        shell: bash
+        run: bash autonomic_affairs/tests/applications/test_linux_operations.sh
+      - name: Test Linux install dry-run ownership
+        shell: bash
+        run: bash autonomic_affairs/tests/install/test_linux_install_dry_run.sh
+      - name: Test Linux session/account boundaries
+        shell: bash
+        run: bash autonomic_affairs/tests/session/test_linux_account_boundaries.sh
+      - name: Test Linux host/account matrix
+        shell: bash
+        run: bash autonomic_affairs/tests/matrix/test_linux_host_matrix.sh

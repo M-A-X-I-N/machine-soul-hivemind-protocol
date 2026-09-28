@@ -42,6 +42,17 @@ The goal is to reduce **wasted CI**, not CI usage. Run validation whenever it ha
 
 Selection is explicit. Changed paths are not an authority and must not route CI.
 
+## Registered blocking validation sets
+
+The initial registered blocking validation sets are:
+
+- `linux` — Linux Python/model and Linux application/install/session/matrix validation.
+- `windows` — Windows Python/model and Windows application/POSIX/install validation.
+- `fresh-linux` — Linux fresh-clone application validation.
+- `fresh-windows` — Windows fresh-clone application validation.
+
+`all` means all registered blocking sets; it is an alias, not a fifth set.
+
 ## Main integration
 
 A push to `main` runs all registered blocking validation sets by default.

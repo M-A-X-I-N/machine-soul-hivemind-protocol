@@ -8,74 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux_validation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Smoke-test Python runtime package
-        shell: bash
-        run: python3 -c "import annexation_procedures as ms; ms.require_supported_python()"
-      - name: Test Python declaration model
-        shell: bash
-        run: python3 -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
-      - name: Test Linux application operations
-        shell: bash
-        run: bash autonomic_affairs/tests/applications/test_linux_operations.sh
-      - name: Test Linux install dry-run ownership
-        shell: bash
-        run: bash autonomic_affairs/tests/install/test_linux_install_dry_run.sh
-      - name: Test Linux session/account boundaries
-        shell: bash
-        run: bash autonomic_affairs/tests/session/test_linux_account_boundaries.sh
-      - name: Test Linux host/account matrix
-        shell: bash
-        run: bash autonomic_affairs/tests/matrix/test_linux_host_matrix.sh
+  linux:
+    uses: ./.github/workflows/machine_soul_validation_linux.yml
 
-  windows_validation:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Smoke-test Python runtime package
-        shell: powershell
-        run: python -c "import annexation_procedures as ms; ms.require_supported_python()"
-      - name: Test Python declaration model
-        shell: powershell
-        run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
-      - name: Test Windows application operations
-        shell: powershell
-        run: .\autonomic_affairs\tests\applications\test_windows_operations.ps1
-      - name: Test Windows POSIX-shell operations
-        shell: bash
-        run: bash autonomic_affairs/tests/applications/test_windows_posix_operations.sh
-      - name: Test Windows install dry-run ownership
-        shell: powershell
-        run: .\autonomic_affairs\tests\install\test_windows_install_dry_run.ps1
+  windows:
+    uses: ./.github/workflows/machine_soul_validation_windows.yml
 
+  fresh-linux:
+    uses: ./.github/workflows/machine_soul_validation_fresh_linux.yml
 
-  fresh-clone-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repository from remote
-        shell: bash
-        run: |
-          git clone "https://github.com/${GITHUB_REPOSITORY}.git" "${RUNNER_TEMP}/fresh-soul"
-          git -C "${RUNNER_TEMP}/fresh-soul" checkout "${GITHUB_SHA}"
-      - name: Validate from fresh clone
-        shell: bash
-        run: |
-          cd "${RUNNER_TEMP}/fresh-soul"
-          bash autonomic_affairs/tests/applications/test_linux_operations.sh
-
-  fresh-clone-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Clone repository from remote
-        shell: powershell
-        run: |
-          git clone "https://github.com/$env:GITHUB_REPOSITORY.git" "$env:RUNNER_TEMP\fresh-soul"
-          git -C "$env:RUNNER_TEMP\fresh-soul" checkout "$env:GITHUB_SHA"
-      - name: Validate from fresh clone
-        shell: powershell
-        run: |
-          Set-Location "$env:RUNNER_TEMP\fresh-soul"
-          .\autonomic_affairs\tests\applications\test_windows_operations.ps1
+  fresh-windows:
+    uses: ./.github/workflows/machine_soul_validation_fresh_windows.yml

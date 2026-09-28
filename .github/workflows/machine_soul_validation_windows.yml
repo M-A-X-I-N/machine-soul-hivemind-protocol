@@ -1,0 +1,25 @@
+name: Machine-Soul validation set — windows
+
+on:
+  workflow_call:
+
+jobs:
+  windows_validation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke-test Python runtime package
+        shell: powershell
+        run: python -c "import annexation_procedures as ms; ms.require_supported_python()"
+      - name: Test Python declaration model
+        shell: powershell
+        run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
+      - name: Test Windows application operations
+        shell: powershell
+        run: .\autonomic_affairs\tests\applications\test_windows_operations.ps1
+      - name: Test Windows POSIX-shell operations
+        shell: bash
+        run: bash autonomic_affairs/tests/applications/test_windows_posix_operations.sh
+      - name: Test Windows install dry-run ownership
+        shell: powershell
+        run: .\autonomic_affairs\tests\install\test_windows_install_dry_run.ps1
