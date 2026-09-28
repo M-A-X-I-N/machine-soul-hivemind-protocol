@@ -297,7 +297,8 @@ def _executable_candidate(
 
 
 def _candidate_identities(candidate: InstallationCandidate) -> set[str]:
-    identities = {candidate.native_identity.casefold()}
+    """Return only explicit cross-backend correlation identifiers."""
+    identities: set[str] = set()
     for observation in candidate.observations:
         for key in ("package_id", "package_family_name", "product_code"):
             value = observation.data.get(key)
