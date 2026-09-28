@@ -1,0 +1,24 @@
+name: DEV-B branch validation probe
+
+on:
+  push:
+    branches:
+      - agent/lyra_260928-230718/manual-dispatch-probe
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch Linux and Windows validation against Lyra main
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run machine_soul_validation.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref agent/lyra_260928-230718/main \
+            -f sets=linux,windows
