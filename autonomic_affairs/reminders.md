@@ -135,3 +135,34 @@ Before promotion to executable work, investigate at least:
 - whether official CLI export/import makes a reusable Machine-Soul export/import deployment strategy worthwhile.
 
 Do not implement Windhawk or import a backup merely because this reminder exists.
+
+
+## Human review of agent instruction Markdown
+
+At an appropriate future checkpoint, have the human maintainer actually read the repository's agent-facing instruction Markdown as a human document rather than relying only on agents to validate it.
+
+The concern is epistemic rather than merely stylistic: an agent evaluating the instructions that define its own behavior is constrained by those same instructions and may systematically fail to notice misleading wording, unintended authority, circular assumptions, or requirements whose practical effect differs from the maintainer's intent.
+
+The review should cover at least:
+
+- root `AGENTS.md`;
+- `.agents/WORKFLOW.md`;
+- `.agents/PROVENANCE.md`;
+- task/initiative/reminder lifecycle instructions;
+- source-of-truth and authority ordering;
+- any other Markdown that materially governs agent behavior.
+
+The purpose is not to make the human verify every implementation detail. It is to sanity-check whether the written instructions actually mean what the maintainer thinks they mean when read without the agent's own interpretive machinery.
+
+Do not treat agent self-review as a substitute for this reminder.
+
+
+## Git history attitude and commit-history cleanup
+
+Revisit the repository's long-term attitude toward Git history and whether any commit-history cleanup, normalization, consolidation, or related maintenance is desirable.
+
+This reminder is intentionally underspecified and is not prompted by a current defect or by work completed so far.
+
+Before promotion to executable work, decide what problem—if any—is actually being solved, what history/ref ranges would be affected, and whether the value justifies any disruption.
+
+This reminder authorizes no rebase, squash, reset, force-push, history rewrite, commit-message rewrite, or ref movement.
