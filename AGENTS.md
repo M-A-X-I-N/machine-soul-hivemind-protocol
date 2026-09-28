@@ -16,11 +16,12 @@ Repository state and tracked durable documentation are authoritative over rememb
 
 ## Source-of-truth ownership
 
-- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; linked files under `autonomic_affairs/agent_tasks/` own full task instructions.
+- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; `autonomic_affairs/agent_tasks/` owns active task specifications, temporary task workspaces, and structured archived task material. Task IDs remain stable even when completed blocks move into `agent_tasks/archive/`.
 - `autonomic_affairs/reminders.md` owns deliberately non-executable future ideas. Reminders are not authorization and must not be silently executed/promoted.
 - Tracked configuration files own canonical desired configuration.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.
+- Task workspaces under `autonomic_affairs/agent_tasks/` own tracked temporary/intermediate knowledge needed across task or context boundaries; they are not permanent agent memory and are not mandatory reading unless relevant.
 - `scratch/` is machine-local mutable state and is Git-ignored.
 
 Do not create competing task ledgers.

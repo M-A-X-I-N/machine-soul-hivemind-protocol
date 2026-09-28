@@ -42,3 +42,10 @@ Replace the monolithic task ledger with a compact scheduling index plus stable p
 - Verify every Dispatch ID exists in the table and is `QUEUED` with satisfied dependencies.
 - Verify no root/agent instruction still expects the old monolithic/Next-task workflow.
 - Verify legacy V2-52 through V2-63 remain discoverable under their original IDs.
+
+
+## Historical storage note
+
+This completed task established the first new-style index/detail/archive contract. Its requirements that detailed task files remain forever at one pathname and that archived index entries collect in a single archive document were superseded by `MSHP-META-A-065`.
+
+The durable invariant is the published task ID. Current lookup, workspace, and archive behavior is defined by `autonomic_affairs/agent_tasks.md` and `autonomic_affairs/agent_tasks/README.md`.

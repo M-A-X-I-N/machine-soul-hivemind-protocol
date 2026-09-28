@@ -17,7 +17,7 @@ Do not leave substantial completed work only in an ephemeral tool session.
 
 ## Interrupted-session recovery
 
-Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant linked task specification with actual commits/files, distinguish committed work from orphaned/reasoning-only work, and validate recovered state before continuing.
+Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/agent_tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.
 
 Prefer recovering already-created correct Git objects over recreating them manually.
 
@@ -27,7 +27,7 @@ When information conflicts, prefer the source that owns the subject:
 
 1. tracked configuration/source for implemented behavior;
 2. human-facing architecture/policy docs for durable design;
-3. `autonomic_affairs/agent_tasks.md` for scheduling/state/Dispatch and its linked task files for execution specifications;
+3. `autonomic_affairs/agent_tasks.md` for scheduling/state/Dispatch and `autonomic_affairs/agent_tasks/` for active/archived execution specifications plus temporary task workspaces;
 4. root `AGENTS.md` for concise operating rules;
 5. `.agents/` for supporting agent workflow/context/discoveries.
 
@@ -38,6 +38,8 @@ Agents do not need permission to add useful knowledge to `.agents/`.
 Capture it when rediscovery would be wasteful. Include what was learned, whether it is verified or inferred, enough context to reuse it, useful reproduction/validation commands, and failed approaches when they would otherwise be tempting to repeat.
 
 Do not hide human-relevant architecture exclusively in agent notes; promote it to human-facing docs too.
+
+Tracked task workspaces are deliberately less permanent than `.agents/`. Put intermediate cross-task/context knowledge at the narrowest convenient shared task scope, read only workspace material relevant to the active task, and promote durable conclusions before its temporary scope is archived or retired. Consolidate or prune active workspace material when its size itself becomes a context burden.
 
 ## Git history preservation
 

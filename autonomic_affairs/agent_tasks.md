@@ -1,6 +1,6 @@
 # Machine-Soul Hivemind Protocol — Agent Tasks
 
-This is the authoritative **scheduling index** for sufficiently specified executable agent work. Full new-style task instructions live in stable linked task files; older completed index entries cycle to [`agent_task_archive.md`](agent_task_archive.md).
+This is the authoritative **scheduling index** for sufficiently specified executable agent work. Full active task instructions and temporary task workspaces live under [`agent_tasks/`](agent_tasks/); completed task material cycles into its structured [`archive/`](agent_tasks/archive/) without changing task IDs.
 
 Reminders, objectives, and speculative roadmap ideas are not executable work and do not belong in Dispatch.
 
@@ -61,8 +61,12 @@ A dependency is another task whose completed output is structurally required. A 
 - Do not duplicate mutable scheduling facts inside detailed task files.
 - Required task instructions use ordinary Markdown headings and links; do not hide them inside rendering-dependent disclosure widgets.
 
-### Archival
+### Storage, workspaces, and archival
 
-All incomplete tasks and all tasks in active blocks remain in this index. Keep the two most recently completed **new-style blocks** here as context. When an older completed block cycles out, move only its index entries to [`agent_task_archive.md`](agent_task_archive.md), ordered by block completion time. Never archive an incomplete block, and never relocate/delete detailed task files merely because their index entries archived.
+Task IDs are permanent identities; their storage location may change as their lifecycle changes. Resolve active tasks under [`agent_tasks/`](agent_tasks/) and archived tasks under [`agent_tasks/archive/`](agent_tasks/archive/). See [`agent_tasks/README.md`](agent_tasks/README.md) for lookup and workspace conventions.
 
-Completed legacy V2 history is preserved in [`agent_tasks/legacy_v2.md`](agent_tasks/legacy_v2.md) and referenced from the archive. The legacy V2 block is complete and therefore no longer appears in the active scheduling table.
+All incomplete tasks and all tasks in active blocks remain in this index. Keep the two most recently completed **new-style blocks** here as context. When an older completed block cycles out, move its block directory intact into `agent_tasks/archive/<block-id>/`, including block/task-scoped workspace material, and remove its rows from this active index. Never archive an incomplete block.
+
+Temporary tracked task knowledge may live in task-, block-, or broader workstream-scoped workspaces. Workspace existence does not make it mandatory startup context; task specifications should point to the pieces they require. Broader workstream workspace material remains active while later blocks still need it.
+
+Completed legacy V2 history is preserved in [`agent_tasks/archive/V2/legacy_v2.md`](agent_tasks/archive/V2/legacy_v2.md). The legacy V2 series is complete and therefore does not appear in the active scheduling table.
