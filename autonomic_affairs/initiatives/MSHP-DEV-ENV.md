@@ -10,9 +10,9 @@ Annexation is broader than configuration management. A subject may be useful to 
 
 ## Current state / coverage
 
-Machine-Soul already has generic installation discovery/provenance/scope machinery and independent configuration capabilities. The next work investigates developer-environment subjects before choosing new abstractions.
+Machine-Soul already has generic installation discovery/provenance/scope machinery and independent configuration capabilities. DEV-A has now established the runtime and package-environment architecture; DEV-B is the planned implementation phase.
 
-Current investigation block `MSHP-DEV-A` covers:
+Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
 - VS Code;
 - JetBrains Toolbox and IDE ecosystem;
@@ -21,20 +21,20 @@ Current investigation block `MSHP-DEV-A` covers:
 - Node.js multiversion Windows lifecycle;
 - a bounded survey of additional runtimes/toolchains;
 - LuaRocks, pip, and npm runtime-bound package ecosystems;
-- comparative synthesis before implementation taskification.
+- comparative synthesis and implementation taskification.
 
 ## Known gaps
 
-- VS Code installation is technically ready for scoped WinGet promotion, but no selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
-- JetBrains Toolbox installation is technically ready as scoped USER WinGet support; no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
-- Runtime synthesis now establishes a shared model across Lua/Python/Node: exact runtime instances, an intentionally desired installed-version set, separate selected/default state, backend identity, and exact per-instance discovery/uninstall. The backend remains runtime-specific rather than forcing one universal manager;
-- this shared runtime model is not implemented yet; current generic installation provenance assumes package-manager/package identities rather than an explicit many-version runtime subject model;
+- VS Code and JetBrains Toolbox installation are planned together in `MSHP-DEV-B-010` as USER-scoped install-only annexation. No selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
+- no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
+- runtime implementation is planned in `MSHP-DEV-B-030..060`: shared exact runtime-instance/desired-set/default/backend semantics, then Python Install Manager, nvm-windows v2, and Lua/LuaJIT versioned-prefix backends;
+- current generic installation provenance still lacks explicit many-version runtime subject state until the DEV-B runtime tasks land;
 - LuaRocks research confirms runtime-bound package state needs an explicit environment identity: Lua runtime/version + rocks tree + package inventory. LuaRocks tool installation is separate from any tree inventory; native rocks additionally depend on Lua ABI/header/library and compiler/toolchain compatibility;
 - pip research reinforces explicit runtime-bound package environments: deterministic mutation must target an exact interpreter/environment, virtual environments are identities rather than generic scope, externally-managed base interpreters must be respected, and declared desired roots must remain distinct from observed/transitive packages;
 - npm research confirms that global package state is prefix/backend/runtime state rather than a universal user or machine scope. Project-local package manifests/locks remain project-owned, while explicitly selected global CLI inventories may be annexable when bound to an exact Node/backend/global-prefix identity;
-- Package-environment synthesis now establishes a shared model across LuaRocks, pip, and npm: exact environment identity, explicit runtime/backend binding where relevant, declared desired root packages, observed/transitive dependency closure, environment ownership/adoption state, and manager-native mutation. Package inventories are an optional first-class capability of explicitly managed environments, not a machine-global catalog.
-- native Windows C/C++ toolchain lifecycle is a concrete future gap: current maintainer work already depends on MSVC/Visual Studio Build Tools, and supported MSVC toolsets can coexist side-by-side; exact Visual Studio/Build Tools/Windows SDK ownership still needs a dedicated investigation;
-- .NET SDK/runtime, Java/JDK, Rust, and Go are credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence does not justify executable tasks for all of them yet;
+- package-environment implementation is planned in `MSHP-DEV-B-070..090`: shared exact environment/desired-root ownership semantics, combined pip/npm backends, and a LuaRocks backend.
+- native Windows C/C++ toolchain lifecycle is promoted to `MSHP-DEV-B-020` for dedicated Visual Studio/Build Tools/MSVC/Windows SDK investigation before implementation taskification;
+- .NET SDK/runtime, Java/JDK, Rust, and Go remain credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence still does not justify executable tasks for them;
 - Ruby and PHP remain plausible ecosystem-specific future subjects but are lower priority without a concrete workload; Perl is intentionally cold unless a real dependency appears.
 
 ## Deliberate boundaries / deferred work
@@ -53,11 +53,12 @@ Current investigation block `MSHP-DEV-A` covers:
 - Do not promote every common language/toolchain into executable work merely because it exists.
 - Treat MSVC/Windows native toolchains as the leading additional near-term investigation candidate; keep .NET/JDK/Rust/Go as structured initiative gaps until concrete demand or roadmap synthesis promotes them.
 - Keep Ruby/PHP/Perl deferred unless a real workload makes their lifecycle worth owning.
+- VS Code extensions and JetBrains plugins justify a future host-bound add-on inventory concept, but do not implement it until desired add-ons/host/profile ownership are selected.
 - Coordinate configuration-specific findings with `MSHP-WIN-CONFIG` instead of duplicating desired-state ownership.
 
 ## Related executable tasks
 
-`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the current investigation/synthesis block. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
+`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` form the planned implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
 
 ## Promotion / closure criteria
 
