@@ -36,6 +36,7 @@ EXPECTED_APPLICATIONS = {
     "contour",
     "fish",
     "jetbrains_toolbox",
+    "nvm_windows",
     "oh_my_posh",
     "powershell",
     "python_install_manager",

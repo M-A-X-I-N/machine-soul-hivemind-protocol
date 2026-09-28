@@ -179,8 +179,8 @@ class RealOrchestratorSurfaceTests(unittest.TestCase):
 
     def test_discovery_finds_every_current_atomic_wrapper(self) -> None:
         bindings = discover_wrappers(self.root)
-        self.assertEqual(77, len(bindings))
-        self.assertEqual(11, len({binding.application_id for binding in bindings}))
+        self.assertEqual(84, len(bindings))
+        self.assertEqual(12, len({binding.application_id for binding in bindings}))
         for application_id in {binding.application_id for binding in bindings}:
             self.assertEqual(
                 set(Operation),

@@ -33,6 +33,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                 "contour",
                 "fish",
                 "jetbrains_toolbox",
+                "nvm_windows",
                 "oh_my_posh",
                 "powershell",
                 "python_install_manager",
@@ -44,7 +45,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         )
 
     def test_config_capabilities_are_declared_supported_on_present_platforms(self) -> None:
-        install_only = {"jetbrains_toolbox", "python_install_manager", "visual_studio_code"}
+        install_only = {"jetbrains_toolbox", "nvm_windows", "python_install_manager", "visual_studio_code"}
         for app in self.apps.values():
             for declaration in app.platforms:
                 expected = Support.UNSUPPORTED if app.id in install_only else Support.SUPPORTED
@@ -86,6 +87,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
             "cmd",
             "contour",
             "jetbrains_toolbox",
+            "nvm_windows",
             "oh_my_posh",
             "powershell",
             "python_install_manager",

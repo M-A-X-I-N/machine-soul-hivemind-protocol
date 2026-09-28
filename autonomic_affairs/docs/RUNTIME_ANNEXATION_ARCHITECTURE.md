@@ -102,6 +102,25 @@ A backend may report relevant runtime instances that it does not own, such as le
 
 Those instances remain visible but cannot be mutated through the active backend and never become Machine-Soul-owned merely because their version resembles desired state.
 
+## Concrete Windows backends
+
+### Python Install Manager
+
+The Python backend is per-user and uses the official `pymanager` command. Exact manager IDs are lifecycle keys; unmanaged/legacy Python installations remain visible but unowned. Desired default selection is persisted through the manager's native `default_tag` configuration rather than relying on implicit fallback order.
+
+### nvm-windows v2
+
+The Node backend targets stable nvm-windows 2.0.0+ semantics:
+
+- per-user runtime ownership;
+- `nvm env --json` for manager/root/mode context;
+- `nvm list --json` for exact installed versions and bundled npm observations;
+- direct version/architecture probes against each versioned `node.exe`;
+- `nvm default --json` for selected/default state;
+- exact `install`, `uninstall`, and `use <version> --no-install` mutations.
+
+Global npm module copying, project pins, Corepack, and alternate manager migration remain separate concerns.
+
 ## Package-environment extension
 
 Runtime ownership intentionally exposes stable exact runtime-instance identity for the later package-environment layer.
@@ -110,6 +129,6 @@ This task does not manage pip/npm/LuaRocks inventories. Package environments wil
 
 ## Current implementation boundary
 
-The shared runtime core is implemented and supports backend-defined host/user ownership scope. Concrete Python, Node, and Lua/LuaJIT lifecycle backends remain separate concerns.
+The shared runtime core supports backend-defined host/user ownership scope. Python Install Manager and nvm-windows v2 concrete backends are implemented; Lua/LuaJIT remains separate work.
 
-Machine-Soul therefore has runtime lifecycle semantics before it has ecosystem-specific commands—a deliberate layering boundary.
+Manager installation remains a separate application/tool concern from runtime instances. Machine-Soul may discover a runtime manager without claiming its installation lifecycle.
