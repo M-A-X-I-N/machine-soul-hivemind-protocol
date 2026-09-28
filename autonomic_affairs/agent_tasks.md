@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-OPS-A-010`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-010.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -37,7 +37,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-B-080`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-080.md) | FROZEN | `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-070` | Implement pip and npm package backends | Prove the package-environment model across exact Python environments and Node/backend npm global prefixes. |
 | [`MSHP-DEV-B-090`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-090.md) | FROZEN | `MSHP-DEV-B-060`, `MSHP-DEV-B-070` | Implement LuaRocks package backend | Bind desired rock inventories to exact Lua runtime + tree environments with native prerequisite safety. |
 | [`MSHP-DEV-B-100`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-100.md) | FROZEN | `MSHP-DEV-B-010`, `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-060`, `MSHP-DEV-B-080`, `MSHP-DEV-B-090` | Integrate developer runtime and package lifecycle | Validate editor install-only, multiversion runtimes, runtime-bound package environments, lifecycle ordering, docs, and initiative coverage end to end. |
-| [`MSHP-OPS-A-010`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-010.md) | QUEUED | — | Codify agent-lineage and selective-CI policy | Define recoverable agent identities/branch namespaces, explicit CI-selection semantics, deferred-CI lifecycle state, and freeze/thaw rules before changing automation. |
+| [`MSHP-OPS-A-010`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-010.md) | IN_PROGRESS | — | Codify agent-lineage and selective-CI policy | Define recoverable agent identities/branch namespaces, explicit CI-selection semantics, deferred-CI lifecycle state, and freeze/thaw rules before changing automation. |
 | [`MSHP-OPS-A-020`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-020.md) | QUEUED | `MSHP-OPS-A-010` | Refactor repository validation into reusable sets | Preserve the current validation surface while extracting coherent reusable validation sets with stable names and no path-based routing. |
 | [`MSHP-OPS-A-030`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-030.md) | QUEUED | `MSHP-OPS-A-020` | Implement explicit CI dispatcher and selectors | Make main default to full validation, allow explicit main subsets/none, keep non-main pushes quiet, and permit explicit validation of arbitrary agent refs. |
 | [`MSHP-OPS-A-040`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-040.md) | QUEUED | `MSHP-OPS-A-030` | Validate CI control plane and thaw developer work | Prove the branch/selector/deferred-CI behavior end to end, cut over without duplicate runners, and restore the frozen DEV-B checkpoint. |
