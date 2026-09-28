@@ -6,7 +6,10 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-DEV-B-040`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-040.md)
+2. [`MSHP-DEV-B-050`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-050.md)
+3. [`MSHP-DEV-B-060`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-060.md)
+4. [`MSHP-DEV-B-070`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-070.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -29,7 +32,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-DEV-B-010`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-010.md) | COMPLETE | `MSHP-DEV-A-120` | Promote install-only developer editor annexation | Add USER-scoped VS Code and JetBrains Toolbox installation lifecycle without inventing editor configuration or plugin state. |
 | [`MSHP-DEV-B-020`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-020.md) | COMPLETE | `MSHP-DEV-A-120` | Investigate Windows native toolchain annexation | Map Visual Studio/Build Tools, MSVC toolsets, Windows SDKs, components, coexistence, discovery, and safe automation before implementation taskification. |
 | [`MSHP-DEV-B-025`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-025.md) | COMPLETE | `MSHP-DEV-B-020` | Implement Windows native toolchain discovery and component ownership | Discover exact Visual Studio/Build Tools instances and conservatively reconcile explicitly owned component IDs inside adopted instances without provisioning a product implicitly. |
-| [`MSHP-DEV-B-030`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-030.md) | IN_PROGRESS | `MSHP-DEV-A-120` | Implement runtime annexation core | Add exact runtime-instance sets, selected/default state, backend identity, provenance, and backend lifecycle contracts without forcing one version manager. |
+| [`MSHP-DEV-B-030`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-030.md) | COMPLETE | `MSHP-DEV-A-120` | Implement runtime annexation core | Add exact runtime-instance sets, selected/default state, backend identity, provenance, and backend lifecycle contracts without forcing one version manager. |
 | [`MSHP-DEV-B-040`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-040.md) | QUEUED | `MSHP-DEV-B-030` | Implement Python multiversion backend | Use the official Python Install Manager for exact USER-scoped multi-runtime discovery/install/default/uninstall. |
 | [`MSHP-DEV-B-050`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-050.md) | QUEUED | `MSHP-DEV-B-030` | Implement Node multiversion backend | Use current nvm-windows v2 semantics for exact multi-version Node lifecycle while preserving backend replaceability. |
 | [`MSHP-DEV-B-060`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-060.md) | QUEUED | `MSHP-DEV-B-025`, `MSHP-DEV-B-030` | Implement Lua and LuaJIT multiversion backend | Own exact versioned PUC Lua/LuaJIT prefixes and selected/default routing without relying on package order or a universal manager. |
