@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-DEV-A-020`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-020.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -14,7 +14,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-DEV-A-010`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-010.md) | IN_PROGRESS | — | Investigate VS Code annexation | Map VS Code installation, configuration, profiles, extensions, sync, and ownership boundaries for Machine-Soul. |
+| [`MSHP-DEV-A-010`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-010.md) | COMPLETE | — | Investigate VS Code annexation | Map VS Code installation, configuration, profiles, extensions, sync, and ownership boundaries for Machine-Soul. |
 | [`MSHP-DEV-A-020`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-020.md) | QUEUED | — | Investigate JetBrains and Toolbox annexation | Map Toolbox, IDE installation/versioning, settings, plugins, and ownership boundaries across the JetBrains ecosystem. |
 | [`MSHP-DEV-A-030`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-030.md) | QUEUED | — | Investigate Lua multiversion annexation | Investigate sane Windows Lua/LuaJIT side-by-side installation, selection, discovery, uninstall, and version-manager options without preselecting an architecture. |
 | [`MSHP-DEV-A-040`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-040.md) | QUEUED | — | Investigate Python multiversion annexation | Investigate Python side-by-side versions, launchers/version managers, install mechanisms, discovery, defaults, and uninstall semantics with multiversion capability preserved. |
