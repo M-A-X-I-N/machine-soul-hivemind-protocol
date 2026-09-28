@@ -62,6 +62,12 @@ APPLICATION = Application(
                         "JanDeDobbeleer.OhMyPosh",
                         source="winget",
                         preferred=True,
+                        executable_name="oh-my-posh.exe",
+                        version_arguments=("version",),
+                    ),
+                    ExecutableDiscovery(
+                        "oh-my-posh.exe",
+                        ("version",),
                     ),
                 )
             ),

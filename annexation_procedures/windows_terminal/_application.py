@@ -1,11 +1,15 @@
 from annexation_procedures.model import (
     Application,
     ConfigurationFile,
+    ExecutableDiscovery,
+    InstallationDiscoveryPlan,
     Operation,
     Platform,
     PlatformDeclaration,
     Support,
+    WindowsAppxDiscovery,
     WindowsTerminalSettingsDestination,
+    WingetPackageDiscovery,
 )
 
 APPLICATION = Application(
@@ -20,7 +24,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -28,6 +32,20 @@ APPLICATION = Application(
                     source_leaf="settings.json",
                     destination=WindowsTerminalSettingsDestination(),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    WingetPackageDiscovery(
+                        "Microsoft.WindowsTerminal",
+                        executable_name="wt.exe",
+                        package_family_name="Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+                    ),
+                    WindowsAppxDiscovery(
+                        "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+                        executable_name="wt.exe",
+                    ),
+                    ExecutableDiscovery("wt.exe"),
+                )
             ),
         ),
     ),

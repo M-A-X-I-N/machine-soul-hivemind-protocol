@@ -1,6 +1,8 @@
 from annexation_procedures.model import (
     Application,
+    BuiltInExecutableDiscovery,
     ConfigurationFile,
+    InstallationDiscoveryPlan,
     Operation,
     Platform,
     PlatformDeclaration,
@@ -22,7 +24,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -32,6 +34,15 @@ APPLICATION = Application(
                 ),
             ),
             configuration_strategy=CustomConfiguration(handle_configuration),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    BuiltInExecutableDiscovery(
+                        "cmd.exe",
+                        "windows_cmd",
+                        ("/d", "/c", "ver"),
+                    ),
+                )
+            ),
         ),
     ),
 )

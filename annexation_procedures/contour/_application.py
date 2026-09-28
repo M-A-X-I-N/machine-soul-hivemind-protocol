@@ -9,6 +9,7 @@ from annexation_procedures.model import (
     Support,
     HomeRelativeDestination,
     LocalAppDataRelativeDestination,
+    WindowsArpDiscovery,
 )
 
 APPLICATION = Application(
@@ -44,7 +45,7 @@ APPLICATION = Application(
             Operation.CHECK_CONFIG: Support.SUPPORTED,
             Operation.INSTALL: Support.NOT_IMPLEMENTED,
             Operation.UNINSTALL: Support.NOT_IMPLEMENTED,
-            Operation.CHECK_INSTALLED: Support.NOT_IMPLEMENTED,
+            Operation.CHECK_INSTALLED: Support.SUPPORTED,
         },
             configurations=(
                 ConfigurationFile(
@@ -52,6 +53,15 @@ APPLICATION = Application(
                     source_leaf="contour.yml",
                     destination=LocalAppDataRelativeDestination("contour/contour.yml"),
                 ),
+            ),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    WindowsArpDiscovery(
+                        display_name="Contour",
+                        executable_name="contour.exe",
+                    ),
+                    ExecutableDiscovery("contour.exe", ("--version",)),
+                )
             ),
         ),
     ),
