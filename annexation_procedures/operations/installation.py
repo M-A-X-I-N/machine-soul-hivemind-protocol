@@ -6,10 +6,13 @@ import os
 import shutil
 from typing import Callable
 
+from ..discovery import discover_installation
 from ..model import (
     Application,
     AptPackage,
     CustomInstaller,
+    InstallationOwnership,
+    InstallationPresence,
     OperationContext,
     OperationResult,
     PlatformDeclaration,
@@ -78,45 +81,52 @@ def check_installed(
     context: OperationContext,
     *,
     runner: Runner = run_process,
+    which: Which = shutil.which,
 ) -> OperationResult:
-    strategy = declaration.install_strategy
-    if strategy is None:
-        return OperationResult.not_implemented(
-            "installation_strategy_missing",
-            "No installation strategy is declared for this platform.",
-            data={"application": application.id},
-        )
+    assessment = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    data = {
+        "application": application.id,
+        "assessment": assessment.to_dict(),
+    }
 
-    installed = _is_installed(strategy, runner)
-    if installed is None:
-        return OperationResult.not_implemented(
-            "installation_strategy_not_implemented",
-            f"No shared installation handler exists for {type(strategy).__name__}.",
-            data={"application": application.id},
-        )
-
-    state = read_install_state(context, application.id)
-    data = {"application": application.id, "strategy": type(strategy).__name__}
-    if installed and state is not None:
-        return OperationResult.success(
-            "installed_managed",
-            "Application is installed with Machine-Soul provenance.",
-            data=data,
-        )
-    if installed:
+    if assessment.presence is InstallationPresence.PRESENT:
+        if assessment.machine_soul_state is InstallationOwnership.MANAGED:
+            return OperationResult.success(
+                "installed_managed",
+                "Application is installed with matching Machine-Soul provenance.",
+                data=data,
+            )
         return OperationResult.failure(
             "installed_unmanaged",
-            "Application is installed but was not installed by Machine-Soul.",
+            "Application is installed but is not owned by Machine-Soul.",
             data=data,
         )
-    if state is not None:
-        data["stale_provenance"] = True
+
+    if assessment.presence is InstallationPresence.AMBIGUOUS:
+        return OperationResult.failure(
+            "installed_ambiguous",
+            "Multiple or conflicting installation candidates were discovered.",
+            data=data,
+        )
+
+    if assessment.presence is InstallationPresence.UNKNOWN:
+        return OperationResult.error(
+            "installation_unknown",
+            "Installation presence could not be determined safely.",
+            data=data,
+        )
+
     return OperationResult.failure(
         "not_installed",
-        "Application is not installed.",
+        "Application is not installed according to the declared discovery plan.",
         data=data,
     )
-
 
 def _apt_prefix(
     *,

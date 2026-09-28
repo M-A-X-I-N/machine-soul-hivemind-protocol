@@ -6,6 +6,8 @@ from annexation_procedures.model import (
     PlatformDeclaration,
     Support,
     AptPackage,
+    DpkgPackageDiscovery,
+    InstallationDiscoveryPlan,
     HomeRelativeDestination,
     WindowsPosixHomeDestination,
 )
@@ -32,6 +34,9 @@ APPLICATION = Application(
                 ),
             ),
             install_strategy=AptPackage("fish"),
+            installation_discovery=InstallationDiscoveryPlan(
+                (DpkgPackageDiscovery("fish", preferred=True),)
+            ),
         ),
         PlatformDeclaration(
             platform=Platform.WINDOWS,

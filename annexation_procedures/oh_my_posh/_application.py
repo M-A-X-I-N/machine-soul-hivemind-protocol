@@ -6,8 +6,10 @@ from annexation_procedures.model import (
     PlatformDeclaration,
     Support,
     HomeRelativeDestination,
+    InstallationDiscoveryPlan,
     LocalAppDataRelativeDestination,
     WingetPackage,
+    WingetPackageDiscovery,
 )
 
 APPLICATION = Application(
@@ -50,6 +52,15 @@ APPLICATION = Application(
                 ),
             ),
             install_strategy=WingetPackage("JanDeDobbeleer.OhMyPosh"),
+            installation_discovery=InstallationDiscoveryPlan(
+                (
+                    WingetPackageDiscovery(
+                        "JanDeDobbeleer.OhMyPosh",
+                        source="winget",
+                        preferred=True,
+                    ),
+                )
+            ),
         ),
     ),
 )
