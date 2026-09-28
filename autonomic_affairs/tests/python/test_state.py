@@ -272,6 +272,50 @@ class StateTests(unittest.TestCase):
             with self.assertRaisesRegex(Exception, "identity mismatch"):
                 reconcile_legacy_install_state(context, legacy, replacement)
 
+    def test_reconcile_legacy_install_state_refuses_conflicting_scoped_ownership(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            context = self._context(root)
+            legacy = InstallState(
+                application="example",
+                host=context.host,
+                account=context.target_account.name,
+                manager="winget",
+                identity="Vendor.Example",
+            )
+            write_install_state(context, legacy)
+            loaded = read_legacy_install_state(context, "example")
+            assert loaded is not None
+
+            existing_user = InstallState(
+                application="example",
+                host=context.host,
+                account=context.target_account.name,
+                manager="winget",
+                identity="Vendor.Example",
+                requested_scope_mode=InstallationScopePolicyMode.REQUIRED,
+                requested_scope=InstallationScope.USER,
+                actual_scope=InstallationScope.USER,
+                scope_subject=context.target_account.name,
+            )
+            write_install_state(context, existing_user)
+
+            machine_replacement = InstallState(
+                application="example",
+                host=context.host,
+                account=context.target_account.name,
+                manager="winget",
+                identity="Vendor.Example",
+                requested_scope_mode=InstallationScopePolicyMode.REQUIRED,
+                requested_scope=InstallationScope.MACHINE,
+                actual_scope=InstallationScope.MACHINE,
+            )
+
+            with self.assertRaisesRegex(Exception, "Conflicting scoped ownership"):
+                reconcile_legacy_install_state(context, loaded, machine_replacement)
+            self.assertIsNotNone(read_legacy_install_state(context, "example"))
+            self.assertEqual((existing_user,), read_install_states(context, "example"))
+
     def test_delete_config_state_removes_new_and_legacy_names(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
