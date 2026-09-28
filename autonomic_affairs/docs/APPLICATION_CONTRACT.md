@@ -35,7 +35,7 @@ For a configured application/platform pair:
 - `unapply_config` — required;
 - `check_config` — required.
 
-Install/Uninstall are optional until a safe strategy is implemented.
+`verify_config` is a distinct optional effective-configuration verification operation; it must not be folded into structural `check_config`. Install/Uninstall are likewise optional until a safe strategy is implemented.
 
 Every missing operation must be classified explicitly as:
 
@@ -124,7 +124,7 @@ Unapply must:
 
 ## 8. Check contract
 
-Check is read-only.
+`check_config` is read-only and structural.
 
 It must not repair or mutate state.
 
@@ -133,7 +133,12 @@ It reports the current relationship between:
 - expected tracked source;
 - native destination;
 - deployment metadata;
-- actual filesystem object.
+- actual filesystem object;
+- application-specific structural coupling where that is genuinely part of deployment state.
+
+It does **not** claim that the application is installed or actually consumes the configuration.
+
+Effective/runtime verification is a separate future atomic operation, `verify_config`. See [`DISCOVERY_SEMANTICS.md`](DISCOVERY_SEMANTICS.md).
 
 ## 9. Install contract
 

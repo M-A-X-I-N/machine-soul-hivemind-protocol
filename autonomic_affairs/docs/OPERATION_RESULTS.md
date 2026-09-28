@@ -166,3 +166,14 @@ A valid native/spawned semantic payload is normalized immediately into `Operatio
 A malformed protocol response is not an `OperationResult(ERROR, ...)`; it is a protocol malfunction handled by [`NATIVE_PRIMITIVES.md`](NATIVE_PRIMITIVES.md).
 
 This distinction prevents corrupt/untrusted transport output from masquerading as a trustworthy operation result.
+
+
+## Discovery assessment data
+
+Installation discovery and effective-configuration verification may require richer typed assessments below the operation layer.
+
+Do not expand `ResultStatus` into a combinatorial discovery-state enum. Raw observations and semantic assessments belong in discovery/verification value objects; an atomic operation then maps the assessment to a stable `OperationResult.code` and serializable `data`.
+
+Evidence strength (runtime/application-native/resolution/convention/none) is structured data describing why an effective-config conclusion is credible. It is independent from `ResultStatus`.
+
+See [`DISCOVERY_SEMANTICS.md`](DISCOVERY_SEMANTICS.md).
