@@ -25,7 +25,7 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
 ## Known gaps
 
-- VS Code and JetBrains Toolbox installation are planned together in `MSHP-DEV-B-010` as USER-scoped install-only annexation. No selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
+- VS Code and JetBrains Toolbox now have USER-scoped install-only annexation through exact WinGet identities. No selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
 - no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
 - runtime implementation is planned in `MSHP-DEV-B-030..060`: shared exact runtime-instance/desired-set/default/backend semantics, then Python Install Manager, nvm-windows v2, and Lua/LuaJIT versioned-prefix backends;
 - current generic installation provenance still lacks explicit many-version runtime subject state until the DEV-B runtime tasks land;

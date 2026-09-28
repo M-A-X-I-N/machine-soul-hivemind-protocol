@@ -226,6 +226,8 @@ Windows platform components such as CMD use `BuiltInExecutableDiscovery`. This e
 ### Current native Windows declarations
 
 - Oh My Posh: preferred exact WinGet correlation plus executable/version fallback.
+- Visual Studio Code: exact `Microsoft.VisualStudioCode` WinGet correlation; managed installation uses explicit USER scope while configuration remains deliberately unmanaged.
+- JetBrains Toolbox: exact `JetBrains.Toolbox` WinGet correlation; managed installation uses explicit USER scope while Toolbox/IDE configuration remains deliberately unmanaged.
 - PowerShell: PowerShell 7 WinGet/MSIX/ARP/executable evidence plus Windows PowerShell as a separate built-in candidate. Side-by-side installations remain visible/ambiguous rather than being collapsed.
 - Windows Terminal: exact stable WinGet package and stable PackageFamilyName plus executable fallback.
 - Contour: ARP registration correlated through `contour.exe` plus executable/version fallback.
@@ -251,7 +253,7 @@ Mutation-side `InstallationScopePolicy` is separate from discovery-side observed
 Current managed backends:
 
 - `AptPackage`: fixed `MACHINE` scope.
-- `WingetPackage`: explicit required scope. Current Oh My Posh management requires user scope.
+- `WingetPackage`: explicit required scope. Current Oh My Posh, Visual Studio Code, and JetBrains Toolbox management require user scope.
 
 The generic installation lifecycle uses discovery candidates rather than one unscoped installed boolean:
 

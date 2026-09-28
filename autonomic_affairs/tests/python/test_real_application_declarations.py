@@ -7,6 +7,7 @@ from annexation_procedures.applications import discover_applications
 from annexation_procedures.model import (
     AptPackage,
     CustomConfiguration,
+    InstallationScope,
     LocalAppDataRelativeDestination,
     Operation,
     Platform,
@@ -31,8 +32,10 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                 "cmd",
                 "contour",
                 "fish",
+                "jetbrains_toolbox",
                 "oh_my_posh",
                 "powershell",
+                "visual_studio_code",
                 "windows_terminal",
                 "zsh",
             },
@@ -40,11 +43,13 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         )
 
     def test_config_capabilities_are_declared_supported_on_present_platforms(self) -> None:
+        install_only = {"jetbrains_toolbox", "visual_studio_code"}
         for app in self.apps.values():
             for declaration in app.platforms:
-                self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.APPLY_CONFIG))
-                self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.UNAPPLY_CONFIG))
-                self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.CHECK_CONFIG))
+                expected = Support.UNSUPPORTED if app.id in install_only else Support.SUPPORTED
+                self.assertEqual(expected, declaration.support_for(Operation.APPLY_CONFIG))
+                self.assertEqual(expected, declaration.support_for(Operation.UNAPPLY_CONFIG))
+                self.assertEqual(expected, declaration.support_for(Operation.CHECK_CONFIG))
 
     def test_install_strategies_match_current_managed_examples(self) -> None:
         fish_linux = self.apps["fish"].for_platform(Platform.LINUX)
@@ -60,8 +65,30 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         assert isinstance(omp_windows.install_strategy, WingetPackage)
         self.assertEqual("JanDeDobbeleer.OhMyPosh", omp_windows.install_strategy.package_id)
 
+        for app_id, package_id in (
+            ("visual_studio_code", "Microsoft.VisualStudioCode"),
+            ("jetbrains_toolbox", "JetBrains.Toolbox"),
+        ):
+            declaration = self.apps[app_id].for_platform(Platform.WINDOWS)
+            assert declaration is not None
+            self.assertIsInstance(declaration.install_strategy, WingetPackage)
+            assert isinstance(declaration.install_strategy, WingetPackage)
+            self.assertEqual(package_id, declaration.install_strategy.package_id)
+            self.assertEqual(InstallationScope.USER, declaration.install_strategy.scope_policy.scope)
+            self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.INSTALL))
+            self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.UNINSTALL))
+            self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.CHECK_INSTALLED))
+
     def test_native_windows_discovery_is_supported_independently_from_install(self) -> None:
-        expected = {"cmd", "contour", "oh_my_posh", "powershell", "windows_terminal"}
+        expected = {
+            "cmd",
+            "contour",
+            "jetbrains_toolbox",
+            "oh_my_posh",
+            "powershell",
+            "visual_studio_code",
+            "windows_terminal",
+        }
         supported = set()
         for app_id in expected:
             declaration = self.apps[app_id].for_platform(Platform.WINDOWS)
@@ -122,13 +149,13 @@ class RealApplicationDeclarationTests(unittest.TestCase):
     def test_unmanaged_install_mutations_are_explicitly_not_implemented(self) -> None:
         for app in self.apps.values():
             for declaration in app.platforms:
-                if (
-                    app.id == "fish"
-                    and declaration.platform is Platform.LINUX
-                ) or (
-                    app.id == "oh_my_posh"
-                    and declaration.platform is Platform.WINDOWS
-                ):
+                managed = {
+                    ("fish", Platform.LINUX),
+                    ("oh_my_posh", Platform.WINDOWS),
+                    ("visual_studio_code", Platform.WINDOWS),
+                    ("jetbrains_toolbox", Platform.WINDOWS),
+                }
+                if (app.id, declaration.platform) in managed:
                     continue
                 self.assertEqual(Support.NOT_IMPLEMENTED, declaration.support_for(Operation.INSTALL))
                 self.assertEqual(Support.NOT_IMPLEMENTED, declaration.support_for(Operation.UNINSTALL))
