@@ -18,7 +18,7 @@ from .model import (
 from .state import read_json_state, write_json_state
 
 
-_RUNTIME_STATE_SCHEMA = 1
+_RUNTIME_STATE_SCHEMA = 2
 
 
 class RuntimeStateError(RuntimeError):
@@ -34,20 +34,25 @@ def runtime_ownership_path(
     subject: str,
     backend: str,
     backend_key: str,
+    *,
+    scope_subject: str | None = None,
 ) -> Path:
-    """Canonical machine/host-scoped ownership record for one runtime instance."""
+    """Canonical ownership record for one exact runtime instance."""
     if not all(value.strip() for value in (subject, backend, backend_key)):
         raise ValueError("Runtime ownership identity fields cannot be empty.")
-    return (
+    root = (
         context.repository_root
         / "scratch"
         / "state"
         / "runtime"
         / context.host
         / _safe_component(subject)
-        / _safe_component(backend)
-        / f"{_safe_component(backend_key)}.json"
     )
+    if scope_subject is not None:
+        if not scope_subject.strip():
+            raise ValueError("Runtime ownership scope subject cannot be empty.")
+        root = root / "scoped" / _safe_component(scope_subject)
+    return root / _safe_component(backend) / f"{_safe_component(backend_key)}.json"
 
 
 def _subject_state_root(context: OperationContext, subject: str) -> Path:
@@ -63,7 +68,7 @@ def _subject_state_root(context: OperationContext, subject: str) -> Path:
 
 def _ownership_from_payload(payload: dict[str, object]) -> RuntimeOwnership:
     schema = payload.get("schema")
-    if schema != _RUNTIME_STATE_SCHEMA:
+    if schema not in {1, _RUNTIME_STATE_SCHEMA}:
         raise RuntimeStateError(f"Unsupported runtime ownership schema: {schema!r}.")
     required = ("host", "subject", "backend", "backend_key", "version")
     if not all(isinstance(payload.get(name), str) and payload[name] for name in required):
@@ -99,6 +104,11 @@ def _ownership_from_payload(payload: dict[str, object]) -> RuntimeOwnership:
             if payload.get("prefix") not in (None, "")
             else None
         ),
+        scope_subject=(
+            str(payload["scope_subject"])
+            if payload.get("scope_subject") not in (None, "")
+            else None
+        ),
         schema=_RUNTIME_STATE_SCHEMA,
     )
 
@@ -112,7 +122,7 @@ def read_runtime_ownerships(
     if not root.is_dir():
         return ()
     states: list[RuntimeOwnership] = []
-    for path in sorted(root.glob("*/*.json")):
+    for path in sorted(root.rglob("*.json")):
         payload = read_json_state(path)
         if payload is None:
             continue
@@ -124,6 +134,7 @@ def read_runtime_ownerships(
             state.subject,
             state.backend,
             state.backend_key,
+            scope_subject=state.scope_subject,
         )
         if path != expected:
             raise RuntimeStateError("Runtime ownership payload is stored under the wrong identity key.")
@@ -141,6 +152,7 @@ def _write_runtime_ownership(
             state.subject,
             state.backend,
             state.backend_key,
+            scope_subject=state.scope_subject,
         ),
         state.to_dict(),
     )
@@ -155,6 +167,7 @@ def _delete_runtime_ownership(
         state.subject,
         state.backend,
         state.backend_key,
+        scope_subject=state.scope_subject,
     )
     try:
         path.unlink()
@@ -221,10 +234,35 @@ def _discover_exact(
     return instances, None
 
 
+def _backend_ownership_scope(
+    backend: RuntimeBackend,
+    context: OperationContext,
+) -> tuple[str | None, OperationResult | None]:
+    resolver = getattr(backend, "ownership_scope", None)
+    if resolver is None:
+        return None, None
+    try:
+        scope_subject = resolver(context)
+    except Exception as exc:
+        return None, OperationResult.error(
+            "runtime_ownership_scope_failed",
+            f"Runtime backend ownership-scope resolution failed: {exc}",
+        )
+    if scope_subject is not None and (
+        not isinstance(scope_subject, str) or not scope_subject.strip()
+    ):
+        return None, OperationResult.error(
+            "runtime_ownership_scope_invalid",
+            "Runtime backend ownership scope must be a non-empty string or None.",
+        )
+    return scope_subject, None
+
+
 def _owned_backend_guard(
     context: OperationContext,
     subject: str,
     backend_name: str,
+    scope_subject: str | None,
 ) -> tuple[tuple[RuntimeOwnership, ...], OperationResult | None]:
     try:
         ownerships = read_runtime_ownerships(context, subject)
@@ -233,6 +271,9 @@ def _owned_backend_guard(
             "runtime_provenance_invalid",
             str(exc),
         )
+    ownerships = tuple(
+        state for state in ownerships if state.scope_subject == scope_subject
+    )
     foreign = [state for state in ownerships if state.backend != backend_name]
     if foreign:
         return ownerships, OperationResult.failure(
@@ -241,6 +282,7 @@ def _owned_backend_guard(
             data={
                 "subject": subject,
                 "requested_backend": backend_name,
+                "scope_subject": scope_subject,
                 "owned_backends": sorted({state.backend for state in foreign}),
                 "foreign_ownership": [state.to_dict() for state in foreign],
             },
@@ -257,7 +299,15 @@ def adopt_runtime_instance(
     invalid = _validate_backend_identity(backend)
     if invalid is not None:
         return invalid
-    ownerships, guard = _owned_backend_guard(context, backend.subject, backend.name)
+    scope_subject, scope_error = _backend_ownership_scope(backend, context)
+    if scope_error is not None:
+        return scope_error
+    ownerships, guard = _owned_backend_guard(
+        context,
+        backend.subject,
+        backend.name,
+        scope_subject,
+    )
     if guard is not None:
         return guard
     instances, error = _discover_exact(backend, context)
@@ -308,7 +358,11 @@ def adopt_runtime_instance(
 
     _write_runtime_ownership(
         context,
-        RuntimeOwnership.from_instance(context.host, instance),
+        RuntimeOwnership.from_instance(
+            context.host,
+            instance,
+            scope_subject=scope_subject,
+        ),
     )
     return OperationResult.success(
         "runtime_instance_adopted",
@@ -345,7 +399,15 @@ def reconcile_runtime(
     if invalid is not None:
         return invalid
 
-    ownerships, guard = _owned_backend_guard(context, desired.subject, backend.name)
+    scope_subject, scope_error = _backend_ownership_scope(backend, context)
+    if scope_error is not None:
+        return scope_error
+    ownerships, guard = _owned_backend_guard(
+        context,
+        desired.subject,
+        backend.name,
+        scope_subject,
+    )
     if guard is not None:
         return guard
 
@@ -460,9 +522,17 @@ def reconcile_runtime(
             )
         _write_runtime_ownership(
             context,
-            RuntimeOwnership.from_instance(context.host, matches[0]),
+            RuntimeOwnership.from_instance(
+                context.host,
+                matches[0],
+                scope_subject=scope_subject,
+            ),
         )
-        ownership_by_key[key] = RuntimeOwnership.from_instance(context.host, matches[0])
+        ownership_by_key[key] = RuntimeOwnership.from_instance(
+                context.host,
+                matches[0],
+                scope_subject=scope_subject,
+            )
         managed_observed[key] = matches[0]
         changed = True
 

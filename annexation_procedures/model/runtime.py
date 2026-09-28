@@ -126,7 +126,7 @@ class RuntimeDesiredState:
 
 @dataclass(frozen=True)
 class RuntimeOwnership:
-    """Machine-scoped provenance for one exact runtime instance."""
+    """Scoped provenance for one exact runtime instance."""
 
     host: str
     subject: str
@@ -138,7 +138,8 @@ class RuntimeOwnership:
     distribution: str | None = None
     executable: Path | None = None
     prefix: Path | None = None
-    schema: int = 1
+    scope_subject: str | None = None
+    schema: int = 2
 
     def __post_init__(self) -> None:
         for name in ("host", "subject", "backend", "backend_key", "version"):
@@ -148,9 +149,17 @@ class RuntimeOwnership:
             object.__setattr__(self, "executable", Path(self.executable))
         if self.prefix is not None:
             object.__setattr__(self, "prefix", Path(self.prefix))
+        if self.scope_subject is not None and not self.scope_subject.strip():
+            raise ValueError("scope_subject cannot be empty.")
 
     @classmethod
-    def from_instance(cls, host: str, instance: RuntimeInstance) -> "RuntimeOwnership":
+    def from_instance(
+        cls,
+        host: str,
+        instance: RuntimeInstance,
+        *,
+        scope_subject: str | None = None,
+    ) -> "RuntimeOwnership":
         return cls(
             host=host,
             subject=instance.subject,
@@ -162,6 +171,7 @@ class RuntimeOwnership:
             distribution=instance.distribution,
             executable=instance.executable,
             prefix=instance.prefix,
+            scope_subject=scope_subject,
         )
 
     def matches_instance(self, instance: RuntimeInstance) -> bool:
@@ -190,6 +200,7 @@ class RuntimeOwnership:
             "distribution": self.distribution,
             "executable": str(self.executable) if self.executable is not None else None,
             "prefix": str(self.prefix) if self.prefix is not None else None,
+            "scope_subject": self.scope_subject,
         }
 
 
@@ -199,6 +210,10 @@ class RuntimeBackend(Protocol):
 
     subject: str
     name: str
+
+    def ownership_scope(self, context: OperationContext) -> str | None:
+        """Return backend-defined ownership scope; None means host-wide."""
+        ...
 
     def discover(self, context: OperationContext) -> tuple[RuntimeInstance, ...]:
         """Discover relevant runtime instances without mutating state."""

@@ -38,6 +38,7 @@ EXPECTED_APPLICATIONS = {
     "jetbrains_toolbox",
     "oh_my_posh",
     "powershell",
+    "python_install_manager",
     "visual_studio_code",
     "windows_terminal",
     "zsh",

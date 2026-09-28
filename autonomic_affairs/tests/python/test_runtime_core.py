@@ -22,7 +22,13 @@ from annexation_procedures.runtime import (
 
 
 class FakeRuntimeBackend:
-    def __init__(self, *, subject: str = "fixture", name: str = "fixture-manager") -> None:
+    def __init__(
+        self,
+        *,
+        subject: str = "fixture",
+        name: str = "fixture-manager",
+        user_scoped: bool = False,
+    ) -> None:
         self.subject = subject
         self.name = name
         self.instances: dict[str, RuntimeInstance] = {}
@@ -32,6 +38,12 @@ class FakeRuntimeBackend:
         self.fail_install: set[str] = set()
         self.fail_uninstall: set[str] = set()
         self.fail_select: set[str] = set()
+        self.user_scoped = user_scoped
+
+    def ownership_scope(self, context: OperationContext) -> str | None:
+        if not self.user_scoped:
+            return None
+        return f"user:{context.target_account.name.casefold()}"
 
     def spec(self, version: str, key: str | None = None) -> RuntimeSpec:
         return RuntimeSpec(
@@ -343,6 +355,27 @@ class RuntimeCoreTests(unittest.TestCase):
         self.assertEqual("runtime_instance_adopted", adopted.code)
         self.assertEqual("runtime_backend_migration_required", result.code)
         self.assertEqual([], second.calls)
+
+    def test_user_scoped_runtime_ownership_can_coexist_across_accounts(self) -> None:
+        first_backend = FakeRuntimeBackend(user_scoped=True)
+        second_backend = FakeRuntimeBackend(user_scoped=True)
+        first_backend.instances["1.0"] = first_backend.instance("1.0")
+        second_backend.instances["1.0"] = second_backend.instance("1.0")
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first = self._context(root, account="First")
+            second = self._context(root, account="Second")
+            first_result = adopt_runtime_instance(first, first_backend, "1.0")
+            second_result = adopt_runtime_instance(second, second_backend, "1.0")
+            states = read_runtime_ownerships(first, first_backend.subject)
+
+        self.assertEqual("runtime_instance_adopted", first_result.code)
+        self.assertEqual("runtime_instance_adopted", second_result.code)
+        self.assertEqual(
+            {"user:first", "user:second"},
+            {state.scope_subject for state in states},
+        )
 
     def test_runtime_ownership_is_host_scoped_not_target_account_scoped(self) -> None:
         backend = FakeRuntimeBackend()

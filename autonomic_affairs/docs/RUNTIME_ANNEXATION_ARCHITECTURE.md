@@ -53,7 +53,9 @@ This intentionally permits different strategies:
 
 ## Ownership and adoption
 
-Runtime ownership is machine/host scoped under scratch state and is separate from ordinary application package-manager provenance.
+Runtime ownership is separate from ordinary application package-manager provenance.
+
+Each backend declares its ownership scope. A host-wide backend uses host scope; a per-user manager uses a stable user scope subject. This prevents two accounts on one host from colliding while still allowing machine-owned runtimes to remain account-independent.
 
 Discovery never grants ownership.
 
@@ -108,6 +110,6 @@ This task does not manage pip/npm/LuaRocks inventories. Package environments wil
 
 ## Current implementation boundary
 
-The shared runtime core is implemented, but concrete Python, Node, and Lua/LuaJIT backends are separate tasks.
+The shared runtime core is implemented and supports backend-defined host/user ownership scope. Concrete Python, Node, and Lua/LuaJIT lifecycle backends remain separate concerns.
 
 Machine-Soul therefore has runtime lifecycle semantics before it has ecosystem-specific commands—a deliberate layering boundary.

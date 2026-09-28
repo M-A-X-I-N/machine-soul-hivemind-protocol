@@ -35,6 +35,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                 "jetbrains_toolbox",
                 "oh_my_posh",
                 "powershell",
+                "python_install_manager",
                 "visual_studio_code",
                 "windows_terminal",
                 "zsh",
@@ -43,7 +44,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         )
 
     def test_config_capabilities_are_declared_supported_on_present_platforms(self) -> None:
-        install_only = {"jetbrains_toolbox", "visual_studio_code"}
+        install_only = {"jetbrains_toolbox", "python_install_manager", "visual_studio_code"}
         for app in self.apps.values():
             for declaration in app.platforms:
                 expected = Support.UNSUPPORTED if app.id in install_only else Support.SUPPORTED
@@ -68,6 +69,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         for app_id, package_id in (
             ("visual_studio_code", "Microsoft.VisualStudioCode"),
             ("jetbrains_toolbox", "JetBrains.Toolbox"),
+            ("python_install_manager", "9NQ7512CXL7T"),
         ):
             declaration = self.apps[app_id].for_platform(Platform.WINDOWS)
             assert declaration is not None
@@ -86,6 +88,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
             "jetbrains_toolbox",
             "oh_my_posh",
             "powershell",
+            "python_install_manager",
             "visual_studio_code",
             "windows_terminal",
         }
@@ -154,6 +157,7 @@ class RealApplicationDeclarationTests(unittest.TestCase):
                     ("oh_my_posh", Platform.WINDOWS),
                     ("visual_studio_code", Platform.WINDOWS),
                     ("jetbrains_toolbox", Platform.WINDOWS),
+                    ("python_install_manager", Platform.WINDOWS),
                 }
                 if (app.id, declaration.platform) in managed:
                     continue
