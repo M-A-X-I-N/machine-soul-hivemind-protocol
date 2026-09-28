@@ -149,3 +149,15 @@ WinGet is the primary current selectable-scope mutation backend.
 The current Oh My Posh WinGet manifest is an explicit regression edge because it is AppX/MSIX without a manifest `Scope:` field. Scoped implementation must test WinGet's behavior and verify native package-user registration rather than relying solely on manifest scope metadata.
 
 Detailed Windows research is preserved in the active `MSHP-INST-A` workspace until synthesis.
+## Linux extensibility findings
+
+The core scope model also survives representative Linux package-manager patterns without becoming manager-specific.
+
+- Apt/dpkg is a fixed `MACHINE` backend; sudo/root affects execution identity only.
+- Flatpak uses explicit per-user and system installations and may have multiple **named system installations**. A Flatpak backend would therefore use core USER/MACHINE scope plus a backend installation-name identity.
+- pipx defaults to user-local roots and supports `--global` all-users installation with independently configurable roots. A pipx backend would use core USER/MACHINE plus its resolved path metadata.
+- Homebrew/Linuxbrew is organized around one owning account and a prefix rather than a package-level `--user`/`--system` switch. A future backend must preserve prefix + owner identity and should decide the appropriate coarse scope only when actual Homebrew support is designed.
+
+These examples reinforce the boundary: the core owns coarse scope policy/compatibility/provenance semantics; each backend owns native selectors, exact installation identity, roots/prefixes, and scope verification.
+
+Unsupported managers remain gaps in `MSHP-INST-SCOPE`, not permanently incomplete tasks.
