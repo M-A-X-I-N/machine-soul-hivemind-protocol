@@ -18,6 +18,7 @@ Repository state and tracked durable documentation are authoritative over rememb
 
 - `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; `autonomic_affairs/agent_tasks/` owns active task specifications, temporary task workspaces, and structured archived task material. Task IDs remain stable even when completed blocks move into `agent_tasks/archive/`.
 - `autonomic_affairs/reminders.md` owns deliberately non-executable future ideas. Reminders are not authorization and must not be silently executed/promoted.
+- `autonomic_affairs/initiatives/` owns structured, intentionally unfinished work/debt that is more concrete than a reminder but is still non-executable. Initiatives are context, never Dispatch authorization.
 - Tracked configuration files own canonical desired configuration.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.

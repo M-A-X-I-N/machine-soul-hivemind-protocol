@@ -15,6 +15,7 @@ If meaningful effort was spent learning something and it is likely to matter aga
 ## What does not belong here
 
 - live task scheduling/state — use `../autonomic_affairs/agent_tasks.md`; active and archived execution specifications live under `../autonomic_affairs/agent_tasks/`;
+- structured non-executable unfinished work/debt — use `../autonomic_affairs/initiatives/`;
 - temporary task/block/workstream research needed mainly to carry unfinished work across context boundaries — use the relevant tracked task workspace under `../autonomic_affairs/agent_tasks/`;
 - secrets, tokens, passwords, private keys, or other sensitive machine-local values;
 - generated output or disposable scratch data;

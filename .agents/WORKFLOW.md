@@ -28,8 +28,9 @@ When information conflicts, prefer the source that owns the subject:
 1. tracked configuration/source for implemented behavior;
 2. human-facing architecture/policy docs for durable design;
 3. `autonomic_affairs/agent_tasks.md` for scheduling/state/Dispatch and `autonomic_affairs/agent_tasks/` for active/archived execution specifications plus temporary task workspaces;
-4. root `AGENTS.md` for concise operating rules;
-5. `.agents/` for supporting agent workflow/context/discoveries.
+4. `autonomic_affairs/initiatives/` for structured non-executable unfinished intent/debt relevant to the active work;
+5. root `AGENTS.md` for concise operating rules;
+6. `.agents/` for supporting agent workflow/context/discoveries.
 
 ## Knowledge capture
 
@@ -54,3 +55,11 @@ Use real checks matching the changed surface. Documentation/policy changes may b
 ## Provenance
 
 Follow `../AGENTS.md` and [`PROVENANCE.md`](PROVENANCE.md). Resolve the authoring agent variant through the canonical registry before creating a wholly agent-authored substantive commit. If the variant is unnamed/unregistered, follow the `UNNAMED` notification/ask rules rather than inventing a designation.
+
+## Initiatives
+
+Initiatives are structured context, not executable work.
+
+Consult an initiative when the active task/spec links it or when a newly discovered gap appears to be intentionally deferred structured work rather than a casual idea. Do not add initiatives to Dispatch, claim them, or infer authorization from them.
+
+Use `autonomic_affairs/reminders.md` for lightweight "do not forget" ideas, `autonomic_affairs/initiatives/` for recognized multi-phase unfinished intent/debt, and `autonomic_affairs/agent_tasks.md` plus task specs for bounded executable work.

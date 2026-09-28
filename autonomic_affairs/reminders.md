@@ -9,7 +9,7 @@ A reminder:
 - must not be silently executed or promoted by an agent;
 - becomes executable work only after discussion/refinement makes it sufficiently specified for `agent_tasks`.
 
-Keep this register simple until real use demonstrates a need for additional structure.
+Keep this register simple. When an idea becomes a recognized structured multi-phase concern with known gaps/boundaries but is still not itself executable, promote it deliberately into [`initiatives/`](initiatives/) rather than turning this file into a second backlog.
 
 ## Cross-repository provenance normalization / gloriously unnecessary rebases
 
