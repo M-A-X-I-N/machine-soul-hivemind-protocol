@@ -4,12 +4,12 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from accumulated_instruments.machine_soul.configuration import (
+from annexation_procedures.configuration import (
     ConfigurationResolutionError,
     resolve_configurations,
     resolve_source,
 )
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     ConfigurationFile,
     HomeRelativeDestination,

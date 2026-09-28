@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from accumulated_instruments.machine_soul.configuration import resolve_destination
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.configuration import resolve_destination
+from annexation_procedures.model import (
     ConfigurationFile,
     LocalAppDataRelativeDestination,
     OperationContext,
@@ -16,7 +16,7 @@ from accumulated_instruments.machine_soul.model import (
     WindowsPosixHomeDestination,
     WindowsTerminalSettingsDestination,
 )
-from accumulated_instruments.machine_soul.process import ProcessResult
+from annexation_procedures.process import ProcessResult
 
 
 class DestinationStrategyTests(unittest.TestCase):
@@ -77,10 +77,10 @@ class DestinationStrategyTests(unittest.TestCase):
             context = self._context(root, environment={"PATH": "fixture"})
             expected = root / "profile.ps1"
             with patch(
-                "accumulated_instruments.machine_soul.configuration.shutil.which",
+                "annexation_procedures.configuration.shutil.which",
                 return_value="powershell.exe",
             ), patch(
-                "accumulated_instruments.machine_soul.configuration.run_process",
+                "annexation_procedures.configuration.run_process",
                 return_value=ProcessResult(0, str(expected), ""),
             ):
                 result = resolve_destination(
@@ -97,10 +97,10 @@ class DestinationStrategyTests(unittest.TestCase):
                 environment={"HOME": "/c/Users/fixture", "PATH": "fixture"},
             )
             with patch(
-                "accumulated_instruments.machine_soul.configuration.shutil.which",
+                "annexation_procedures.configuration.shutil.which",
                 return_value="cygpath",
             ), patch(
-                "accumulated_instruments.machine_soul.configuration.run_process",
+                "annexation_procedures.configuration.run_process",
                 return_value=ProcessResult(0, r"C:\Users\fixture\.config\fish\config.fish", ""),
             ) as runner:
                 result = resolve_destination(

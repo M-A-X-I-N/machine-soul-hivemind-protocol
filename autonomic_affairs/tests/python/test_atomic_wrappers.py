@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     ConflictPolicy,
     Operation,
     OperationContext,
@@ -18,7 +18,7 @@ from accumulated_instruments.machine_soul.model import (
     Platform,
     TargetAccount,
 )
-from accumulated_instruments.machine_soul.presentation import wrapper_main
+from annexation_procedures.presentation import wrapper_main
 
 
 EXPECTED_OPERATIONS = {
@@ -133,7 +133,7 @@ class WrapperMainTests(unittest.TestCase):
 
         output = StringIO()
         with patch(
-            "accumulated_instruments.machine_soul.presentation.build_operation_context",
+            "annexation_procedures.presentation.build_operation_context",
             return_value=self.context,
         ) as build, redirect_stdout(output):
             code = wrapper_main(
@@ -177,7 +177,7 @@ class WrapperMainTests(unittest.TestCase):
             return OperationResult.success("applied", "applied", changed=True)
 
         with patch(
-            "accumulated_instruments.machine_soul.presentation.build_operation_context",
+            "annexation_procedures.presentation.build_operation_context",
             return_value=prompt_context,
         ), patch("builtins.input", return_value="yes"), redirect_stdout(StringIO()):
             code = wrapper_main(run, [])
@@ -210,7 +210,7 @@ class WrapperMainTests(unittest.TestCase):
 
         output = StringIO()
         with patch(
-            "accumulated_instruments.machine_soul.presentation.build_operation_context",
+            "annexation_procedures.presentation.build_operation_context",
             return_value=prompt_context,
         ), patch("builtins.input", return_value="no"), redirect_stdout(output):
             code = wrapper_main(run, [])

@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     ConfigurationFile,
     ConflictPolicy,
@@ -14,7 +14,7 @@ from accumulated_instruments.machine_soul.model import (
     PlatformDeclaration,
     TargetAccount,
 )
-from accumulated_instruments.machine_soul.operations import apply_config, check_config, unapply_config
+from annexation_procedures.operations import apply_config, check_config, unapply_config
 
 
 class ConfigurationOperationTests(unittest.TestCase):

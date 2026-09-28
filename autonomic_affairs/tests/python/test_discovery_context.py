@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from accumulated_instruments.machine_soul.discovery import (
+from annexation_procedures.discovery import (
     DiscoveryError,
     UnsupportedTargetAccount,
     build_operation_context,
@@ -13,7 +13,7 @@ from accumulated_instruments.machine_soul.discovery import (
     resolve_repository_root,
     resolve_target_account,
 )
-from accumulated_instruments.machine_soul.model import Platform
+from annexation_procedures.model import Platform
 
 
 class DiscoveryTests(unittest.TestCase):

@@ -5,7 +5,7 @@ import tempfile
 import textwrap
 import unittest
 
-from accumulated_instruments.machine_soul.applications import (
+from annexation_procedures.applications import (
     ApplicationLoadError,
     discover_applications,
     load_application,
@@ -17,7 +17,7 @@ class ApplicationLoadingTests(unittest.TestCase):
         path.write_text(
             textwrap.dedent(
                 f"""
-                from accumulated_instruments.machine_soul.model import Application
+                from annexation_procedures.model import Application
                 APPLICATION = Application(id={app_id!r}, display_name={app_id!r}, platforms=())
                 """
             ),

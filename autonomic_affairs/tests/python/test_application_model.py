@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from accumulated_instruments.machine_soul.model import (
+from annexation_procedures.model import (
     Application,
     AptPackage,
     ConfigurationFile,
