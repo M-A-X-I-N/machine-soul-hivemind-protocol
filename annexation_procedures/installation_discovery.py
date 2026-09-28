@@ -470,6 +470,7 @@ def discover_installation(
 
     candidates: list[InstallationCandidate] = []
     errors: list[str] = []
+    assessment_observations: list[DiscoveryObservation] = []
 
     for strategy in plan.strategies:
         found: list[InstallationCandidate] = []
@@ -566,8 +567,17 @@ def discover_installation(
         )
     elif legacy_state is not None:
         state_relation = InstallationOwnership.UNKNOWN
-        errors.append(
-            "Legacy scope-unknown Machine-Soul installation provenance requires reconciliation."
+        assessment_observations.append(
+            DiscoveryObservation(
+                "legacy_install_provenance",
+                "machine_soul_state",
+                ObservationAuthority.DIRECT,
+                {
+                    "manager": legacy_state.manager,
+                    "identity": legacy_state.identity,
+                    "account": legacy_state.account,
+                },
+            )
         )
     elif candidates:
         state_relation = InstallationOwnership.UNMANAGED
@@ -593,5 +603,6 @@ def discover_installation(
         candidates=tuple(candidates),
         preferred_candidate_index=preferred_index,
         machine_soul_state=state_relation,
+        observations=tuple(assessment_observations),
         errors=tuple(errors),
     )

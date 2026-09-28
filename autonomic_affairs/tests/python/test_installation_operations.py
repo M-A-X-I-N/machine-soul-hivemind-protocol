@@ -25,7 +25,12 @@ from annexation_procedures.operations.installation import (
     uninstall_application,
 )
 from annexation_procedures.process import ProcessResult
-from annexation_procedures.state import read_install_state
+from annexation_procedures.state import (
+    InstallState,
+    read_install_state,
+    read_install_states,
+    write_install_state,
+)
 
 
 class FakeApt:
@@ -156,6 +161,85 @@ class InstallationOperationTests(unittest.TestCase):
             )
             self.assertEqual("installed_unmanaged", uninstall_result.code)
             self.assertTrue(fake.installed)
+
+    def test_legacy_provenance_blocks_install_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt()
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+            write_install_state(
+                context,
+                InstallState(
+                    application="fish",
+                    host=context.host,
+                    account=context.target_account.name,
+                    manager="apt",
+                    identity="fish",
+                ),
+            )
+
+            result = install_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+
+            self.assertEqual("installation_provenance_unreconciled", result.code)
+            self.assertFalse(any("apt-get" in call for call in fake.calls))
+
+    def test_uninstall_clears_exact_stale_scoped_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fake = FakeApt(installed=False)
+            declaration = PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={},
+                install_strategy=AptPackage("fish"),
+                installation_discovery=InstallationDiscoveryPlan(
+                    (DpkgPackageDiscovery("fish", preferred=True),)
+                ),
+            )
+            app = Application(id="fish", display_name="Fish", platforms=(declaration,))
+            context = self._context(root, Platform.LINUX)
+            write_install_state(
+                context,
+                InstallState(
+                    application="fish",
+                    host=context.host,
+                    account=context.target_account.name,
+                    manager="apt",
+                    identity="fish",
+                    requested_scope_mode=declaration.install_strategy.scope_policy.mode,
+                    requested_scope=InstallationScope.MACHINE,
+                    actual_scope=InstallationScope.MACHINE,
+                    native_identity="fish",
+                ),
+            )
+
+            result = uninstall_application(
+                app,
+                declaration,
+                context,
+                runner=fake,
+                which=lambda command: f"/usr/bin/{command}",
+                geteuid=lambda: 0,
+            )
+
+            self.assertEqual("not_installed", result.code)
+            self.assertTrue(result.changed)
+            self.assertEqual((), read_install_states(context, "fish"))
 
     def test_check_installed_can_work_without_install_strategy(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -301,7 +385,7 @@ class InstallationOperationTests(unittest.TestCase):
             self.assertEqual("installation_scope_target_unsupported", result.code)
             self.assertEqual([], fake.calls)
 
-    def test_winget_strategy_uses_shared_handler(self) -> None:
+    def test_winget_scope_must_be_verified_before_provenance(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             fake = FakeWinget()
@@ -326,18 +410,10 @@ class InstallationOperationTests(unittest.TestCase):
                 runner=fake,
                 which=lambda command: "winget.exe" if command == "winget" else None,
             )
-            self.assertEqual("installed_managed", result.code)
+            self.assertEqual("installation_scope_unverified", result.code)
+            self.assertTrue(result.changed)
             self.assertTrue(fake.installed)
-
-            result = uninstall_application(
-                app,
-                declaration,
-                context,
-                runner=fake,
-                which=lambda command: "winget.exe" if command == "winget" else None,
-            )
-            self.assertEqual("not_installed", result.code)
-            self.assertFalse(fake.installed)
+            self.assertEqual((), read_install_states(context, "example"))
 
 
 if __name__ == "__main__":

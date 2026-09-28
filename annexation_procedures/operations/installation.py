@@ -11,8 +11,11 @@ from ..model import (
     Application,
     AptPackage,
     CustomInstaller,
+    InstallationCandidate,
     InstallationOwnership,
     InstallationPresence,
+    InstallationScope,
+    InstallationScopePolicy,
     OperationContext,
     OperationResult,
     PlatformDeclaration,
@@ -21,11 +24,17 @@ from ..model import (
     WingetPackage,
     installation_scope_target_error,
 )
+from ..installation_ownership import (
+    candidate_satisfies_scope_policy,
+    installation_candidate_matches_state,
+    state_satisfies_scope_policy,
+)
 from ..process import ProcessResult, run_process
 from ..state import (
     InstallState,
-    delete_install_state,
-    read_install_state,
+    delete_scoped_install_state,
+    read_install_states,
+    read_legacy_install_state,
     write_install_state,
 )
 
@@ -74,6 +83,122 @@ def _manager_identity(strategy: object) -> tuple[str, str, dict[str, object]]:
     if isinstance(strategy, WingetPackage):
         return "winget", strategy.package_id, {"source": strategy.source}
     return type(strategy).__name__.lower(), type(strategy).__name__, {}
+
+
+def _scope_policy(strategy: object) -> InstallationScopePolicy | None:
+    policy = getattr(strategy, "scope_policy", None)
+    return policy if isinstance(policy, InstallationScopePolicy) else None
+
+
+def _scope_result_data(policy: InstallationScopePolicy) -> dict[str, object]:
+    return {
+        "scope_policy": policy.mode.value,
+        "requested_scope": policy.scope.value if policy.scope else None,
+    }
+
+
+def _scope_guard(
+    strategy: object,
+    context: OperationContext,
+) -> tuple[InstallationScopePolicy | None, OperationResult | None]:
+    policy = _scope_policy(strategy)
+    if policy is None:
+        return None, OperationResult.not_implemented(
+            "installation_scope_policy_missing",
+            "Installation strategy does not declare a scope policy.",
+        )
+    error = installation_scope_target_error(policy, context.target_account)
+    if error is not None:
+        return policy, OperationResult.unsupported(
+            "installation_scope_target_unsupported",
+            error,
+            data={
+                **_scope_result_data(policy),
+                "target_account": context.target_account.name,
+            },
+        )
+    return policy, None
+
+
+def _intended_candidates(
+    candidates: tuple[InstallationCandidate, ...],
+    policy: InstallationScopePolicy,
+    context: OperationContext,
+) -> list[InstallationCandidate]:
+    return [
+        candidate
+        for candidate in candidates
+        if candidate_satisfies_scope_policy(
+            candidate,
+            policy,
+            context.target_account,
+        )
+    ]
+
+
+def _intended_states(
+    states: tuple[InstallState, ...],
+    policy: InstallationScopePolicy,
+    context: OperationContext,
+) -> list[InstallState]:
+    return [
+        state
+        for state in states
+        if state_satisfies_scope_policy(
+            state,
+            policy,
+            context.target_account,
+        )
+    ]
+
+
+def _state_from_candidate(
+    application: Application,
+    strategy: object,
+    policy: InstallationScopePolicy,
+    candidate: InstallationCandidate,
+    context: OperationContext,
+) -> InstallState:
+    manager, identity, metadata = _manager_identity(strategy)
+    if candidate.registration_kind is not None:
+        metadata["registration_kind"] = candidate.registration_kind
+    return InstallState(
+        application=application.id,
+        host=context.host,
+        account=context.target_account.name,
+        manager=manager,
+        identity=identity,
+        requested_scope_mode=policy.mode,
+        requested_scope=policy.scope,
+        actual_scope=candidate.scope,
+        scope_subject=(
+            candidate.scope_subject
+            if candidate.scope in {InstallationScope.USER, InstallationScope.PACKAGE_USER}
+            else None
+        ),
+        native_identity=candidate.native_identity,
+        uninstall_identity=candidate.uninstall_identity,
+        metadata=metadata,
+    )
+
+
+def _scoped_result(
+    result: OperationResult,
+    policy: InstallationScopePolicy,
+    *,
+    candidate: InstallationCandidate | None = None,
+) -> OperationResult:
+    data = dict(result.data)
+    data.update(_scope_result_data(policy))
+    if candidate is not None:
+        data["candidate"] = candidate.to_dict()
+    return OperationResult(
+        result.status,
+        result.changed,
+        result.code,
+        result.message,
+        data,
+    )
 
 
 def check_installed(
@@ -336,50 +461,85 @@ def install_application(
             "No installation strategy is declared for this platform.",
         )
 
-    scope_policy = getattr(strategy, "scope_policy", None)
-    if scope_policy is not None:
-        scope_error = installation_scope_target_error(
-            scope_policy,
-            context.target_account,
-        )
-        if scope_error is not None:
-            return OperationResult.unsupported(
-                "installation_scope_target_unsupported",
-                scope_error,
-                data={
-                    "scope_policy": scope_policy.mode.value,
-                    "scope": scope_policy.scope.value if scope_policy.scope else None,
-                    "target_account": context.target_account.name,
-                },
-            )
+    policy, guard = _scope_guard(strategy, context)
+    if guard is not None:
+        return guard
+    assert policy is not None
 
-    scope_policy = getattr(strategy, "scope_policy", None)
-    if scope_policy is not None:
-        scope_error = installation_scope_target_error(
-            scope_policy,
-            context.target_account,
+    legacy_state = read_legacy_install_state(context, application.id)
+    if legacy_state is not None:
+        assessment = discover_installation(
+            application.id,
+            declaration,
+            context,
+            runner=runner,
+            which=which,
         )
-        if scope_error is not None:
-            return OperationResult.unsupported(
-                "installation_scope_target_unsupported",
-                scope_error,
-                data={
-                    "scope_policy": scope_policy.mode.value,
-                    "scope": scope_policy.scope.value if scope_policy.scope else None,
-                    "target_account": context.target_account.name,
-                },
-            )
+        return OperationResult.failure(
+            "installation_provenance_unreconciled",
+            "Scope-unknown legacy installation provenance must be reconciled before mutation.",
+            data={
+                **_scope_result_data(policy),
+                "assessment": assessment.to_dict(),
+                "legacy_manager": legacy_state.manager,
+                "legacy_identity": legacy_state.identity,
+            },
+        )
 
-    installed = _is_installed(strategy, runner)
-    if installed is True:
-        if read_install_state(context, application.id) is not None:
+    assessment = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    intended = _intended_candidates(assessment.candidates, policy, context)
+    relevant_states = _intended_states(
+        read_install_states(context, application.id),
+        policy,
+        context,
+    )
+
+    if len(intended) > 1:
+        return OperationResult.failure(
+            "installed_ambiguous",
+            "Multiple candidates exist in the intended installation scope; refusing mutation.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+        )
+    if len(intended) == 1:
+        candidate = intended[0]
+        if candidate.ownership is InstallationOwnership.MANAGED:
             return OperationResult.success(
                 "installed_managed",
-                "Application is already installed with Machine-Soul provenance.",
+                "The intended scoped installation is already owned by Machine-Soul.",
+                data={
+                    **_scope_result_data(policy),
+                    "assessment": assessment.to_dict(),
+                    "candidate": candidate.to_dict(),
+                },
             )
         return OperationResult.failure(
             "installed_unmanaged",
-            "Application is already installed but is unmanaged; refusing to claim ownership.",
+            "An installation already exists in the intended scope but is unmanaged; refusing to claim it.",
+            data={
+                **_scope_result_data(policy),
+                "assessment": assessment.to_dict(),
+                "candidate": candidate.to_dict(),
+            },
+        )
+
+    if relevant_states:
+        return OperationResult.failure(
+            "installation_provenance_stale",
+            "Scoped Machine-Soul provenance exists without a matching current candidate; refusing install until reconciled.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+        )
+
+    if assessment.presence is InstallationPresence.UNKNOWN and not assessment.candidates:
+        return OperationResult.error(
+            "installation_unknown",
+            "Installation presence could not be determined safely before mutation.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
         )
 
     result = _perform_strategy(
@@ -392,26 +552,72 @@ def install_application(
         geteuid=geteuid,
     )
     if result.status.value != "success" or not result.changed:
-        return result
+        return _scoped_result(result, policy)
 
-    manager, identity, metadata = _manager_identity(strategy)
-    state = InstallState(
-        application=application.id,
-        host=context.host,
-        account=context.target_account.name,
-        manager=manager,
-        identity=identity,
-        metadata=metadata,
+    post = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    verified = _intended_candidates(post.candidates, policy, context)
+    if len(verified) != 1:
+        return OperationResult.error(
+            (
+                "installation_scope_ambiguous"
+                if len(verified) > 1
+                else "installation_scope_unverified"
+            ),
+            (
+                "Installation changed state but multiple intended-scope candidates were discovered."
+                if len(verified) > 1
+                else "Installation changed state but the intended scope could not be verified."
+            ),
+            changed=True,
+            data={**_scope_result_data(policy), "assessment": post.to_dict()},
+        )
+
+    candidate = verified[0]
+    if candidate.ownership is InstallationOwnership.MANAGED:
+        return OperationResult.success(
+            "installed_managed",
+            "Installation completed and existing exact scoped ownership is valid.",
+            changed=True,
+            data={
+                **_scope_result_data(policy),
+                "assessment": post.to_dict(),
+                "candidate": candidate.to_dict(),
+            },
+        )
+
+    state = _state_from_candidate(
+        application,
+        strategy,
+        policy,
+        candidate,
+        context,
     )
     try:
         write_install_state(context, state)
     except Exception as exc:
         return OperationResult.error(
             "provenance_write_failed",
-            f"Application installed but provenance could not be recorded: {exc}",
+            f"Application installed but scoped provenance could not be recorded: {exc}",
             changed=True,
+            data={**_scope_result_data(policy), "candidate": candidate.to_dict()},
         )
-    return result
+
+    return OperationResult.success(
+        "installed_managed",
+        "Application was installed and exact scoped Machine-Soul provenance was recorded.",
+        changed=True,
+        data={
+            **_scope_result_data(policy),
+            "candidate": candidate.to_dict(),
+        },
+    )
+
 
 
 def uninstall_application(
@@ -430,30 +636,106 @@ def uninstall_application(
             "No installation strategy is declared for this platform.",
         )
 
-    state = read_install_state(context, application.id)
-    installed = _is_installed(strategy, runner)
+    policy, guard = _scope_guard(strategy, context)
+    if guard is not None:
+        return guard
+    assert policy is not None
 
-    if state is None:
-        if installed:
+    legacy_state = read_legacy_install_state(context, application.id)
+    if legacy_state is not None:
+        assessment = discover_installation(
+            application.id,
+            declaration,
+            context,
+            runner=runner,
+            which=which,
+        )
+        return OperationResult.failure(
+            "installation_provenance_unreconciled",
+            "Scope-unknown legacy installation provenance cannot authorize uninstall.",
+            data={
+                **_scope_result_data(policy),
+                "assessment": assessment.to_dict(),
+                "legacy_manager": legacy_state.manager,
+                "legacy_identity": legacy_state.identity,
+            },
+        )
+
+    states = _intended_states(
+        read_install_states(context, application.id),
+        policy,
+        context,
+    )
+    assessment = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    intended = _intended_candidates(assessment.candidates, policy, context)
+
+    if not states:
+        if intended:
             return OperationResult.failure(
                 "installed_unmanaged",
-                "Application is installed without Machine-Soul provenance; refusing to uninstall.",
+                "An installation exists in the intended scope without Machine-Soul ownership; refusing uninstall.",
+                data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
             )
-        return OperationResult.success("not_installed", "Application is already not installed.")
+        if assessment.presence is InstallationPresence.UNKNOWN and not assessment.candidates:
+            return OperationResult.error(
+                "installation_unknown",
+                "Installation presence could not be determined safely.",
+                data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+            )
+        return OperationResult.success(
+            "not_installed",
+            "No Machine-Soul-owned installation exists in the intended scope.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+        )
 
-    if installed is False:
+    if len(states) > 1:
+        return OperationResult.failure(
+            "installation_provenance_ambiguous",
+            "Multiple ownership records satisfy the intended scope; refusing uninstall.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+        )
+
+    state = states[0]
+    matches = [
+        candidate
+        for candidate in assessment.candidates
+        if installation_candidate_matches_state(state, candidate)
+    ]
+    if len(matches) > 1:
+        return OperationResult.failure(
+            "installed_ambiguous",
+            "One ownership record matches multiple current candidates; refusing uninstall.",
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+        )
+
+    if not matches:
+        if assessment.presence is InstallationPresence.UNKNOWN and not assessment.candidates:
+            return OperationResult.error(
+                "installation_unknown",
+                "Installation presence could not be determined safely; ownership was preserved.",
+                data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
+            )
         if context.dry_run:
             return OperationResult.success(
                 "would_clear_stale_provenance",
-                "Application is absent; stale install provenance would be removed.",
+                "The exact owned candidate is absent; stale scoped provenance would be removed.",
+                data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
             )
-        delete_install_state(context, application.id)
+        delete_scoped_install_state(context, state)
         return OperationResult.success(
             "not_installed",
-            "Application was absent and stale provenance was removed.",
+            "The exact owned candidate was absent and stale scoped provenance was removed.",
             changed=True,
+            data={**_scope_result_data(policy), "assessment": assessment.to_dict()},
         )
 
+    candidate = matches[0]
     result = _perform_strategy(
         strategy,
         uninstall=True,
@@ -463,17 +745,43 @@ def uninstall_application(
         which=which,
         geteuid=geteuid,
     )
-    if result.status.value != "success":
-        return result
-    if context.dry_run:
-        return result
+    if result.status.value != "success" or context.dry_run:
+        return _scoped_result(result, policy, candidate=candidate)
+
+    post = discover_installation(
+        application.id,
+        declaration,
+        context,
+        runner=runner,
+        which=which,
+    )
+    if any(
+        installation_candidate_matches_state(state, item)
+        for item in post.candidates
+    ):
+        return OperationResult.error(
+            "verification_failed",
+            "Backend removal returned success but the exact owned candidate is still present.",
+            changed=True,
+            data={**_scope_result_data(policy), "assessment": post.to_dict()},
+        )
 
     try:
-        delete_install_state(context, application.id)
+        delete_scoped_install_state(context, state)
     except Exception as exc:
         return OperationResult.error(
             "provenance_cleanup_failed",
-            f"Application was removed but install provenance could not be deleted: {exc}",
+            f"Application was removed but scoped provenance could not be deleted: {exc}",
             changed=True,
+            data={**_scope_result_data(policy), "candidate": candidate.to_dict()},
         )
-    return result
+
+    return OperationResult.success(
+        "not_installed",
+        "The exact Machine-Soul-owned scoped installation was removed.",
+        changed=True,
+        data={
+            **_scope_result_data(policy),
+            "candidate": candidate.to_dict(),
+        },
+    )
