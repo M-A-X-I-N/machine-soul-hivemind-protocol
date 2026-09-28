@@ -60,6 +60,13 @@ Unless the human explicitly changes these laws:
 - Check reports meaningful state rather than only true/false;
 - installing an application and applying its configuration are separate operations.
 
+## Agent working branches and CI
+
+- Prefer normal substantive development under `agent/{identifier}/main`, where `identifier` follows the repository lineage policy in [`.agents/WORKFLOW.md`](.agents/WORKFLOW.md). A lineage owns its entire `agent/{identifier}/*` namespace and may be adopted by a recovery agent.
+- Direct `main` changes remain valid when they naturally belong there, especially coordination/bookkeeping.
+- Main integration defaults to full blocking CI; deliberate subset/no-CI behavior must be explicit. Non-main branches are quiet by default and may be validated explicitly when useful.
+- CI selection is explicit intent, never changed-path inference. Optimize against wasted validation, not CI usage itself.
+
 ## Git and checkpoint discipline
 
 - Preserve Git history and recoverability by default.

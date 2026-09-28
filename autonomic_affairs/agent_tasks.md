@@ -66,11 +66,12 @@ Allowed lifecycle states:
 - `IN_PROGRESS`
 - `BLOCKED`
 - `FROZEN`
+- `AWAITING_DEFERRED_CI`
 - `COMPLETE`
 - `CANCELLED`
 - `SUPERSEDED`
 
-A dependency is another task whose completed output is structurally required. A temporary external, technical, or human impediment is a blocker, not a dependency.
+A dependency is another task whose completed output is structurally required. A temporary external, technical, or human impediment is a blocker, not a dependency. `FROZEN` is an intentional priority/policy hold rather than a technical blocker. `AWAITING_DEFERRED_CI` means implementation and advancement-blocking validation are complete while explicitly deferred analysis is still pending; such a task is not `COMPLETE` until its required deferred checks pass.
 
 ### Source ownership
 

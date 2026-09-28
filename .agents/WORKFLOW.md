@@ -25,6 +25,33 @@ If a change is isolated from any larger active block and is obviously one natura
 
 Do not use this exception to bypass task state for work that is already part of an active task/block, has meaningful sequencing/dependencies, spans multiple checkpoints, or could plausibly be interrupted between distinct decisions.
 
+## Agent lineages and working branches
+
+Normal substantive development should occur in a recoverable agent lineage namespace unless a direct `main` change is naturally simpler.
+
+A lineage identifier is `{name}_YYMMDD-HHmmss`: a four-letter lowercase ASCII female, neutral, or fantasy-style human-readable name plus its UTC creation timestamp. Prefer an initial not already in active/recent use when practical; do not maintain a canonical name registry.
+
+The lineage owns `agent/{identifier}/*`; its canonical working branch is `agent/{identifier}/main`. It may create additional branches anywhere inside that namespace. A replacement chat/agent continuing the same work adopts the existing lineage instead of creating a new identity merely because the transport/session changed.
+
+Cross-agent coordination, task bookkeeping, and similarly natural repository-control changes may still land directly on `main`.
+
+## CI selection and deferred validation
+
+CI is chosen for validation value, not to minimize runner usage.
+
+- Pushes to `main` default to all registered blocking validation sets.
+- A main tip may use a `CI:` commit trailer to select `all`, `none`, or a comma-separated subset of registered validation-set names. For a multi-commit push, the pushed tip controls the integration event.
+- Native `skip-checks: true` remains an explicit hard bypass for commits that should instantiate no normal checked-in push workflow at all, such as pure bookkeeping.
+- Non-main pushes, including `agent/**`, do not run normal blocking validation automatically.
+- Explicit/manual validation may target any branch/ref and request all or selected registered validation sets whenever an intermediate checkpoint is worth testing.
+- Do not infer CI selection from changed paths.
+
+Malformed or unknown selectors must fail safe: they must not silently suppress validation.
+
+`AWAITING_DEFERRED_CI` means implementation and advancement-blocking CI are complete, but explicitly deferred repository analysis is still pending. Such a task may yield active work to the next task, but cannot become `COMPLETE` until required deferred checks succeed. Later tasks in the same ordered workstream must not be marked `COMPLETE` past an unresolved earlier deferred task. Substantive deferred-analysis failures reopen/block originating work; infrastructure-only failures are retried/investigated separately.
+
+`FROZEN` is an intentional priority/policy hold. It is neither a dependency nor evidence of a technical blocker.
+
 ## Interrupted-session recovery
 
 Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/agent_tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.
