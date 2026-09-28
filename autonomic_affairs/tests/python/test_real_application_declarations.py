@@ -60,6 +60,21 @@ class RealApplicationDeclarationTests(unittest.TestCase):
         assert isinstance(omp_windows.install_strategy, WingetPackage)
         self.assertEqual("JanDeDobbeleer.OhMyPosh", omp_windows.install_strategy.package_id)
 
+    def test_native_windows_discovery_is_supported_independently_from_install(self) -> None:
+        expected = {"cmd", "contour", "oh_my_posh", "powershell", "windows_terminal"}
+        supported = set()
+        for app_id in expected:
+            declaration = self.apps[app_id].for_platform(Platform.WINDOWS)
+            assert declaration is not None
+            self.assertEqual(
+                Support.SUPPORTED,
+                declaration.support_for(Operation.CHECK_INSTALLED),
+            )
+            self.assertIsNotNone(declaration.installation_discovery)
+            supported.add(app_id)
+
+        self.assertEqual(expected, supported)
+
     def test_windows_destination_strategies_are_declarative(self) -> None:
         for app_id in ("bash", "fish", "zsh"):
             declaration = self.apps[app_id].for_platform(Platform.WINDOWS)

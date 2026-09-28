@@ -238,7 +238,7 @@ def appx_candidates(
     command = (
         "Get-AppxPackage | "
         f"Where-Object {{ $_.PackageFamilyName -eq '{family}' }} | "
-        "Select-Object Name,PackageFullName,PackageFamilyName,Version,InstallLocation,PublisherId | "
+        "Select-Object Name,PackageFullName,PackageFamilyName,@{Name='Version';Expression={$_.Version.ToString()}},InstallLocation,PublisherId | "
         "ConvertTo-Json -Compress"
     )
     result = runner([powershell, "-NoProfile", "-Command", command])

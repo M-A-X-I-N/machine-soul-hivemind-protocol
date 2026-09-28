@@ -56,10 +56,7 @@ APPLICATION = Application(
             ),
             installation_discovery=InstallationDiscoveryPlan(
                 (
-                    WindowsArpDiscovery(
-                        display_name="Contour",
-                        executable_name="contour.exe",
-                    ),
+                    WindowsArpDiscovery(executable_name="contour.exe"),
                     ExecutableDiscovery("contour.exe", ("--version",)),
                 )
             ),
