@@ -109,3 +109,35 @@ The shared engine maps assessments to stable operation codes:
 - `verification_indeterminate`.
 
 Structured evidence remains under `OperationResult.data["assessment"]`.
+
+
+## Shell startup verification implementation
+
+Bash, Zsh, and Fish now use the shared `ShellStartupVerification` declaration strategy on Linux and supported Windows POSIX compatibility environments.
+
+### Bash
+
+Machine-Soul runs a controlled interactive Bash startup with xtrace enabled and a `PS4` that includes `BASH_SOURCE` and line number. Runtime evidence is granted only when:
+
+- ordinary startup trace names the expected `.bashrc`; and
+- a matching `--norc` negative control does **not** name it.
+
+This tests ordinary startup selection rather than manually sourcing the file.
+
+### Zsh
+
+Zsh uses the same semantic approach with native xtrace and `PS4=+%N:%i:`, paired with `-f` (NO_RCS) as the negative control. Runtime evidence requires expected `.zshrc` source attribution in ordinary startup and its absence when rc loading is disabled.
+
+### Fish
+
+Fish deliberately remains at **resolution** evidence.
+
+The current native tracing/debug surfaces do not provide a sufficiently stable source-file attribution contract for Machine-Soul to claim that `config.fish` itself was observed executing. Verification therefore confirms the resolved default config path, executable presence, and whether the target config path exists, but does not label that evidence runtime-strength.
+
+This is an intentional evidence ceiling, not an unfinished boolean check.
+
+### Windows POSIX environments
+
+Bash/Zsh trace matching translates the native Windows configuration destination back into the active compatibility environment's POSIX path with `cygpath -u`. The shell executable and translation tool are resolved from the same context PATH used by Windows POSIX discovery/configuration resolution.
+
+Verification does not scan arbitrary native Windows shells and does not mutate shell config/history. POSIX runs direct history output to the null device where applicable.

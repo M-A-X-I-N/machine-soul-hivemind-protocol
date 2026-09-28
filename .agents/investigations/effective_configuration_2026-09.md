@@ -33,3 +33,17 @@ Before committing to specific command parsing, validate:
 - Manually sourcing a shell config is not proof that ordinary startup would select it.
 
 The human-facing contract is `autonomic_affairs/docs/CONFIGURATION_VERIFICATION.md`.
+
+
+## Implemented shell verification — MSHP-DISC-B-070
+
+The reusable `ShellStartupVerification` strategy is now wired for Bash, Zsh, and Fish on Linux and the supported Windows POSIX environment.
+
+Durable evidence rules:
+
+- Bash runtime proof requires ordinary `-i -x` startup attribution to the expected path plus a `--norc` negative control.
+- Zsh runtime proof uses source-aware xtrace with `%N/%i` plus `-f` as the NO_RCS negative control.
+- Fish remains resolution-strength intentionally; do not upgrade it to runtime evidence unless a supported Fish interface can attribute startup execution to the exact `config.fish` source path.
+- On Windows, translate the declared native destination back into the active POSIX path before trace matching and resolve all tools from the same compatibility-environment PATH.
+- Missing executable, non-current target account, translation failure, or failed trace produces indeterminate/resolution evidence rather than a false not-effective result.
+- Do not replace normal startup with explicit `source`/manual config execution in future tests.
