@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-META-A-070`](agent_tasks/MSHP-META-A/MSHP-META-A-070.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -20,7 +20,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-META-A-040`](agent_tasks/MSHP-META-A/MSHP-META-A-040.md) | COMPLETE | `MSHP-META-A-010` | Formalize agent provenance | Establish stable-designation registry, accurate official identities, optional honorifics, and conspicuous `UNNAMED` behavior. |
 | [`MSHP-META-A-050`](agent_tasks/MSHP-META-A/MSHP-META-A-050.md) | COMPLETE | `MSHP-META-A-010` | Establish reminders | Create the non-executable reminders register and seed provenance-rewrite, cross-repo agent-baseline, and Skills investigations. |
 | [`MSHP-META-A-060`](agent_tasks/MSHP-META-A/MSHP-META-A-060.md) | COMPLETE | `MSHP-META-A-010` | Codify idiot-maintainer language | Permit optional maintainer-directed idiot-human humor while explicitly excluding end users and formal interfaces. |
-| [`MSHP-META-A-065`](agent_tasks/MSHP-META-A/MSHP-META-A-065.md) | IN_PROGRESS | `MSHP-META-A-020` | Restructure task lifecycle storage | Replace the blob-style archive with structured task/block archival and add flexible tracked workspaces for temporary cross-task knowledge. |
+| [`MSHP-META-A-065`](agent_tasks/MSHP-META-A/MSHP-META-A-065.md) | COMPLETE | `MSHP-META-A-020` | Restructure task lifecycle storage | Replace the blob-style archive with structured task/block archival and add flexible tracked workspaces for temporary cross-task knowledge. |
 | [`MSHP-META-A-070`](agent_tasks/MSHP-META-A/MSHP-META-A-070.md) | QUEUED | `V2-63` | Rehome assimilation runtime | Move the core Machine-Soul Python runtime and orchestrator out of `accumulated_instruments/` and into the operational `annexation_procedures/` system without redesigning behavior. |
 | [`MSHP-META-A-075`](agent_tasks/MSHP-META-A/MSHP-META-A-075.md) | QUEUED | — | Promote active iteration to main | Promote the current `experimental/v2` iteration to `main`, update active-branch assumptions, and retire the redundant `experimental/v2` branch. |
 
