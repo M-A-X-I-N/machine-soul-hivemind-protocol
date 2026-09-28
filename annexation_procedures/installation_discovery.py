@@ -26,8 +26,9 @@ from .model import (
     WindowsPosixPackageDiscovery,
     WingetPackageDiscovery,
 )
+from .installation_ownership import installation_candidate_matches_state
 from .process import ProcessResult, run_process
-from .state import InstallState, read_install_state
+from .state import read_install_states, read_legacy_install_state
 from .windows_installation_discovery import (
     appx_candidates,
     arp_candidates,
@@ -318,6 +319,36 @@ def _candidate_executable_names(candidate: InstallationCandidate) -> set[str]:
     return names
 
 
+def _merge_candidate_scope(
+    left: InstallationCandidate,
+    right: InstallationCandidate,
+) -> tuple[InstallationScope, str | None] | None:
+    known = {left.scope, right.scope} - {InstallationScope.UNKNOWN}
+    if InstallationScope.MACHINE in known and (
+        InstallationScope.USER in known or InstallationScope.PACKAGE_USER in known
+    ):
+        return None
+
+    subjects = {
+        value
+        for value in (left.scope_subject, right.scope_subject)
+        if value is not None
+    }
+    if len(subjects) > 1:
+        return None
+
+    if InstallationScope.PACKAGE_USER in known:
+        scope = InstallationScope.PACKAGE_USER
+    elif InstallationScope.USER in known:
+        scope = InstallationScope.USER
+    elif InstallationScope.MACHINE in known:
+        scope = InstallationScope.MACHINE
+    else:
+        scope = InstallationScope.UNKNOWN
+
+    return scope, next(iter(subjects), None)
+
+
 def _merge_pair(
     left: InstallationCandidate,
     right: InstallationCandidate,
@@ -343,6 +374,11 @@ def _merge_pair(
         or correlated_executable
     ):
         return None
+
+    merged_scope = _merge_candidate_scope(left, right)
+    if merged_scope is None:
+        return None
+    scope, scope_subject = merged_scope
 
     preferred = (
         TriState.YES
@@ -383,11 +419,8 @@ def _merge_pair(
         display_identity=left.display_identity or right.display_identity,
         version=left.version or right.version,
         paths=paths,
-        scope=(
-            left.scope
-            if left.scope is not InstallationScope.UNKNOWN
-            else right.scope
-        ),
+        scope=scope,
+        scope_subject=scope_subject,
         registration_kind=registration_kind,
         acquisition_channel=left.acquisition_channel or right.acquisition_channel,
         acquisition_authority=left.acquisition_authority or right.acquisition_authority,
@@ -412,16 +445,6 @@ def _merge_candidates(
         else:
             merged.append(candidate)
     return merged
-
-def _state_matches(state: InstallState, candidate: InstallationCandidate) -> bool:
-    if state.identity != candidate.native_identity:
-        return False
-    if state.manager == "apt" and candidate.registration_kind == "dpkg":
-        return True
-    if state.manager == "winget" and candidate.registration_kind == "winget_correlation":
-        return True
-    return False
-
 
 def discover_installation(
     application_id: str,
@@ -492,38 +515,62 @@ def discover_installation(
             errors.append(error)
 
     candidates = _merge_candidates(candidates)
-
-    state = read_install_state(context, application_id)
-    state_relation = InstallationOwnership.UNKNOWN
-
-    if state is not None:
-        match_index = next(
+    if context.target_account.is_current:
+        candidates = [
             (
-                index
-                for index, candidate in enumerate(candidates)
-                if _state_matches(state, candidate)
-            ),
-            None,
-        )
-        if match_index is not None:
-            state_relation = InstallationOwnership.MANAGED
-            candidates[match_index] = replace(
-                candidates[match_index],
-                ownership=InstallationOwnership.MANAGED,
+                replace(candidate, scope_subject=context.target_account.name)
+                if candidate.scope in {InstallationScope.USER, InstallationScope.PACKAGE_USER}
+                and candidate.scope_subject is None
+                else candidate
             )
-        elif errors and not candidates:
-            state_relation = InstallationOwnership.UNKNOWN
-        else:
-            state_relation = InstallationOwnership.STALE
-    elif candidates:
-        state_relation = InstallationOwnership.UNMANAGED
+            for candidate in candidates
+        ]
+
+    states = read_install_states(context, application_id)
+    legacy_state = read_legacy_install_state(context, application_id)
+    state_relation = InstallationOwnership.UNKNOWN
+    managed_indexes: set[int] = set()
+
+    for state in states:
+        matches = [
+            index
+            for index, candidate in enumerate(candidates)
+            if installation_candidate_matches_state(state, candidate)
+        ]
+        if len(matches) == 1:
+            managed_indexes.add(matches[0])
+        elif len(matches) > 1:
+            errors.append(
+                "One scoped Machine-Soul ownership record matches multiple installation candidates."
+            )
 
     candidates = [
-        candidate
-        if candidate.ownership is InstallationOwnership.MANAGED
-        else replace(candidate, ownership=InstallationOwnership.UNMANAGED)
-        for candidate in candidates
+        replace(
+            candidate,
+            ownership=(
+                InstallationOwnership.MANAGED
+                if index in managed_indexes
+                else InstallationOwnership.UNMANAGED
+            ),
+        )
+        for index, candidate in enumerate(candidates)
     ]
+
+    if managed_indexes:
+        state_relation = InstallationOwnership.MANAGED
+    elif states:
+        state_relation = (
+            InstallationOwnership.UNKNOWN
+            if errors and not candidates
+            else InstallationOwnership.STALE
+        )
+    elif legacy_state is not None:
+        state_relation = InstallationOwnership.UNKNOWN
+        errors.append(
+            "Legacy scope-unknown Machine-Soul installation provenance requires reconciliation."
+        )
+    elif candidates:
+        state_relation = InstallationOwnership.UNMANAGED
 
     if len(candidates) > 1:
         presence = InstallationPresence.AMBIGUOUS

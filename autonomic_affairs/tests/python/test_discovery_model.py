@@ -53,6 +53,7 @@ class DiscoveryModelTests(unittest.TestCase):
             version="27.0.0",
             paths=(r"C:\Program Files\oh-my-posh\bin\oh-my-posh.exe",),
             scope=InstallationScope.MACHINE,
+            scope_subject=None,
             registration_kind="arp",
             acquisition_channel="unknown",
             acquisition_authority=ObservationAuthority.HINT,
@@ -64,6 +65,14 @@ class DiscoveryModelTests(unittest.TestCase):
 
         self.assertEqual(TriState.YES, candidate.preferred_match)
         self.assertEqual(InstallationOwnership.UNMANAGED, candidate.ownership)
+        self.assertEqual(candidate, InstallationCandidate.from_dict(candidate.to_dict()))
+
+    def test_installation_candidate_scope_subject_round_trips(self) -> None:
+        candidate = InstallationCandidate(
+            native_identity="example",
+            scope=InstallationScope.PACKAGE_USER,
+            scope_subject="fixture_user",
+        )
         self.assertEqual(candidate, InstallationCandidate.from_dict(candidate.to_dict()))
 
     def test_present_assessment_requires_candidate_and_round_trips(self) -> None:

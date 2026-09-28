@@ -151,6 +151,7 @@ class InstallationCandidate:
     version: str | None = None
     paths: tuple[str, ...] = ()
     scope: InstallationScope = InstallationScope.UNKNOWN
+    scope_subject: str | None = None
     registration_kind: str | None = None
     acquisition_channel: str | None = None
     acquisition_authority: ObservationAuthority | None = None
@@ -162,7 +163,7 @@ class InstallationCandidate:
 
     def __post_init__(self) -> None:
         _validate_nonempty(self.native_identity, "native_identity")
-        for name in ("display_identity", "version", "registration_kind", "acquisition_channel", "uninstall_identity"):
+        for name in ("display_identity", "version", "scope_subject", "registration_kind", "acquisition_channel", "uninstall_identity"):
             value = getattr(self, name)
             if value is not None:
                 _validate_nonempty(value, name)
@@ -194,6 +195,7 @@ class InstallationCandidate:
             "version": self.version,
             "paths": list(self.paths),
             "scope": self.scope.value,
+            "scope_subject": self.scope_subject,
             "registration_kind": self.registration_kind,
             "acquisition_channel": self.acquisition_channel,
             "acquisition_authority": (
@@ -215,6 +217,7 @@ class InstallationCandidate:
             version=_optional_string(payload.get("version"), "version"),
             paths=tuple(str(item) for item in _sequence(payload.get("paths", []), "paths")),
             scope=InstallationScope(str(payload.get("scope", InstallationScope.UNKNOWN.value))),
+            scope_subject=_optional_string(payload.get("scope_subject"), "scope_subject"),
             registration_kind=_optional_string(payload.get("registration_kind"), "registration_kind"),
             acquisition_channel=_optional_string(payload.get("acquisition_channel"), "acquisition_channel"),
             acquisition_authority=(
