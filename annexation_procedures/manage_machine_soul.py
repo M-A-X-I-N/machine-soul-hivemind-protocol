@@ -23,16 +23,21 @@ from annexation_procedures.orchestration import (  # noqa: E402
     apply_selected_configurations,
     bindings_for_operation,
     check_all_configurations,
+    discovery_status,
     discover_wrappers,
 )
 from annexation_procedures.presentation import render_human  # noqa: E402
+from annexation_procedures.status_presentation import (  # noqa: E402
+    render_discovery_status_human,
+    render_discovery_status_json,
+)
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Machine-Soul operation manager")
     parser.add_argument(
         "--workflow",
-        choices=("list", "check-config-all", "apply-config", "apply-installed"),
+        choices=("list", "status", "check-config-all", "apply-config", "apply-installed"),
         help="Run a workflow non-interactively; omit for the interactive menu.",
     )
     parser.add_argument(
@@ -98,8 +103,9 @@ def _interactive_choice(bindings: tuple[WrapperBinding, ...]) -> tuple[str | Non
     print("1) Check configuration for all discovered applications")
     print("2) Apply configuration to selected applications")
     print("3) Apply configuration to detected installed applications")
-    print("4) Exit without performing operations")
-    choice = input("Choice [4]: ").strip() or "4"
+    print("4) Show installation / configuration / effective status")
+    print("5) Exit without performing operations")
+    choice = input("Choice [5]: ").strip() or "5"
 
     if choice == "1":
         return "check-config-all", []
@@ -115,6 +121,8 @@ def _interactive_choice(bindings: tuple[WrapperBinding, ...]) -> tuple[str | Non
     if choice == "3":
         return "apply-installed", []
     if choice == "4":
+        return "status", []
+    if choice == "5":
         return None, []
     raise ValueError(f"Unknown interactive choice: {choice!r}.")
 
@@ -161,6 +169,15 @@ def main(argv=None) -> int:
     except DiscoveryError as exc:
         print(f"ERROR context_discovery_failed: {exc}")
         return 3
+
+    if workflow == "status":
+        status_report = discovery_status(bindings, context)
+        print(
+            render_discovery_status_json(status_report)
+            if args.json_output
+            else render_discovery_status_human(status_report)
+        )
+        return status_report.exit_code
 
     if workflow == "check-config-all":
         report = check_all_configurations(bindings, context)
