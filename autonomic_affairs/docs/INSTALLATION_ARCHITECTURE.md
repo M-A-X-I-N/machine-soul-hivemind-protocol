@@ -147,3 +147,16 @@ Discovery should gather candidate facts from declared reusable discovery strateg
 Package/catalog correlation must not be presented as historical installer provenance unless the platform exposes evidence that actually proves it. WinGet can correlate/manage software installed by other means, and a dpkg package does not prove whether apt or direct dpkg installation originally acquired it.
 
 See [`DISCOVERY_SEMANTICS.md`](DISCOVERY_SEMANTICS.md) and the DISC-A installation-discovery workspace for the detailed evidence map.
+
+
+## 12. Concrete discovery-plan surface
+
+`PlatformDeclaration.installation_discovery` owns read-only installation discovery independently from `install_strategy`.
+
+A declaration may therefore support `check_installed` while Install/Uninstall remain unsupported or not implemented. Conversely, an install strategy does not implicitly authorize discovery semantics.
+
+The shared discovery engine consumes ordered reusable descriptors such as exact dpkg package identity, exact WinGet package correlation, and executable identity. Platform-specific tasks may enrich those descriptors/backends, but generic operation code must not branch on application IDs.
+
+The current `check_installed` operation serializes a typed `InstallationAssessment` beneath `OperationResult.data["assessment"]`. Presence may be `present`, `absent`, `ambiguous`, or `unknown`; backend unavailability must not become false absence.
+
+Install/Uninstall continue to use `install_strategy` and Machine-Soul provenance for mutation safety. Discovery does not claim/adopt ownership.

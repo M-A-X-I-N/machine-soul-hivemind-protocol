@@ -172,3 +172,18 @@ A dry run must not create backups, state records, directories, symlinks, package
 Some applications will have unusual config behavior.
 
 Exceptions are allowed, but must be documented in the application module and should reuse the shared primitives wherever possible rather than bypassing safety rules.
+
+
+## Installation discovery declaration
+
+Installation discovery is declared separately from installation mutation.
+
+```text
+PlatformDeclaration
+├── install_strategy          optional mutating strategy
+└── installation_discovery   optional read-only discovery plan
+```
+
+If `CHECK_INSTALLED` is `SUPPORTED`, a discovery plan is required. The plan may exist without any install strategy.
+
+This distinction allows Machine-Soul to discover built-in, manually installed, or externally managed applications without pretending it knows how to install/remove them or owns their installation.
