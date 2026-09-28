@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import tempfile
 import unittest
 
@@ -66,6 +67,9 @@ class ConfigurationOperationTests(unittest.TestCase):
 
             checked = check_config(app, declaration, context)
             self.assertEqual("applied", checked.code)
+            self.assertEqual("applied", checked.data["structural_state"])
+            self.assertTrue(checked.data["state_recorded"])
+            self.assertEqual("managed", checked.data["ownership_state"])
 
             again = apply_config(app, declaration, context)
             self.assertEqual("applied", again.code)
@@ -75,6 +79,71 @@ class ConfigurationOperationTests(unittest.TestCase):
             self.assertEqual("not_applied", unapplied.code)
             self.assertTrue(unapplied.changed)
             self.assertFalse(destination.exists())
+
+    def test_check_distinguishes_structural_apply_from_ownership(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            app, declaration, context = self._build(root)
+            source = root / "assimilation_directives/example/default/common/config.txt"
+            destination = root / "home/.config/example/config.txt"
+            destination.parent.mkdir(parents=True)
+            os.symlink(source, destination)
+
+            checked = check_config(app, declaration, context)
+
+            self.assertEqual("applied", checked.code)
+            self.assertEqual("applied", checked.data["structural_state"])
+            self.assertFalse(checked.data["state_recorded"])
+            self.assertEqual("unrecorded", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertTrue(destination.is_symlink())
+
+    def test_check_reports_stale_state_without_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            app, declaration, context = self._build(root)
+            destination = root / "home/.config/example/config.txt"
+            self.assertTrue(apply_config(app, declaration, context).changed)
+            destination.unlink()
+
+            checked = check_config(app, declaration, context)
+
+            self.assertEqual("not_applied", checked.code)
+            self.assertEqual("not_applied", checked.data["structural_state"])
+            self.assertTrue(checked.data["state_recorded"])
+            self.assertEqual("stale_state", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertFalse(destination.exists())
+
+    def test_check_reports_owned_relocation_without_repairing(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            old_root = base / "old"
+            new_root = base / "new"
+            destination_home = base / "native_home"
+            old_root.mkdir()
+            app, declaration, context = self._build(old_root, home=destination_home)
+            destination = destination_home / ".config/example/config.txt"
+            self.assertTrue(apply_config(app, declaration, context).changed)
+            raw_target = os.readlink(destination)
+            old_root.rename(new_root)
+
+            relocated_context = OperationContext(
+                repository_root=new_root,
+                platform=Platform.LINUX,
+                host="fixture_host",
+                target_account=TargetAccount("fixture_user", destination_home, True),
+                conflict_policy=ConflictPolicy.ABORT,
+            )
+            checked = check_config(app, declaration, relocated_context)
+
+            self.assertEqual("broken", checked.code)
+            self.assertEqual("broken", checked.data["structural_state"])
+            self.assertTrue(checked.data["state_recorded"])
+            self.assertEqual("managed_stale_link", checked.data["ownership_state"])
+            self.assertFalse(checked.changed)
+            self.assertTrue(destination.is_symlink())
+            self.assertEqual(raw_target, os.readlink(destination))
 
     def test_existing_file_is_backed_up_and_restored(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

@@ -185,11 +185,21 @@ Repeated Apply against the already-correct managed link should not create a new 
 
 Repeated Unapply after a completed unapply should not destroy restored unmanaged state.
 
-## 11. Checkout relocation
+## 11. Check is structural and read-only
+
+Check inspects both current destination structure and the relationship to Machine-Soul deployment metadata without mutating either.
+
+The primary result code describes the native destination: `applied`, `not_applied`, `conflict`, `wrong_target`, or `broken`. Structured result data separately reports Machine-Soul ownership/state relationship.
+
+An exact expected symlink with no recorded state is still structurally applied, but Machine-Soul ownership is unproven. Conversely, stale recorded state must be surfaced rather than silently treated as proof of current ownership.
+
+Check does not prove application installation or runtime/effective configuration use. Effective verification is the separate `verify_config` concept defined in `DISCOVERY_SEMANTICS.md`.
+
+## 12. Checkout relocation
 
 Because native symlinks contain concrete targets, moving `$MACHINE_SOUL` may make existing links stale.
 
-Check must surface this as `WRONG_TARGET` or `BROKEN` as appropriate.
+Check must surface this as `WRONG_TARGET` or `BROKEN` as appropriate and may additionally identify the link as `managed_stale_link` when deployment state proves the relationship to the previous checkout target. Check must not repair it.
 
 Apply may repair a stale previously-managed link only after safely establishing its relationship to the repository/state; it must not blindly classify every arbitrary wrong symlink as owned.
 

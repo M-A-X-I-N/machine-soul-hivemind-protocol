@@ -25,6 +25,7 @@ from ..model import (
 )
 from ..state import (
     ConfigState,
+    StateError,
     backup_root,
     delete_config_state,
     read_config_state,
@@ -61,18 +62,89 @@ def _backup_relative(context: OperationContext, backup: Path | None) -> str | No
         return None
 
 
-def _check_one(target: ResolvedConfiguration) -> OperationResult:
+def _ownership_data(
+    application: Application,
+    context: OperationContext,
+    target: ResolvedConfiguration,
+    info: LinkInfo,
+) -> dict[str, object]:
+    """Describe Machine-Soul ownership separately from structural link state."""
+    data: dict[str, object] = {
+        "structural_state": info.status.value,
+    }
+    state = read_config_state(context, application.id, target.destination)
+    if state is None:
+        data["state_recorded"] = False
+        data["ownership_state"] = "unrecorded"
+        return data
+
+    data["state_recorded"] = True
+    data["recorded_source_relative"] = state.source_relative
+    data["recorded_applied_target"] = state.applied_target
+
+    logical_source = context.repository_root / state.source_relative
+    record_matches_target = (
+        state.application == application.id
+        and state.host == context.host
+        and state.account == context.target_account.name
+        and paths_equal(state.destination, target.destination)
+        and paths_equal(canonical_target(logical_source), canonical_target(target.source))
+    )
+    if not record_matches_target:
+        data["ownership_state"] = "state_conflict"
+        return data
+
+    if (
+        info.status is LinkStatus.APPLIED
+        and info.actual_target is not None
+        and paths_equal(info.actual_target, state.applied_target)
+    ):
+        data["ownership_state"] = "managed"
+        return data
+
+    if (
+        info.status in {LinkStatus.WRONG_TARGET, LinkStatus.BROKEN}
+        and info.actual_target is not None
+        and paths_equal(info.actual_target, state.applied_target)
+    ):
+        data["ownership_state"] = "managed_stale_link"
+        return data
+
+    data["ownership_state"] = "stale_state"
+    return data
+
+
+def _check_one(
+    application: Application,
+    context: OperationContext,
+    target: ResolvedConfiguration,
+) -> OperationResult:
     info = classify_link(target.source, target.destination)
     data = _result_data(target)
     if info.actual_target is not None:
         data["actual_target"] = str(info.actual_target)
 
+    try:
+        data.update(_ownership_data(application, context, target, info))
+    except StateError as exc:
+        data["structural_state"] = info.status.value
+        return OperationResult.error(
+            "deployment_state_error",
+            f"Configuration structure was inspected but deployment state could not be read safely: {exc}",
+            data=data,
+        )
+
     if info.status is LinkStatus.APPLIED:
-        return OperationResult.success("applied", "Configuration is applied.", data=data)
+        message = (
+            "Configuration is structurally applied with matching Machine-Soul state."
+            if data["ownership_state"] == "managed"
+            else "Configuration is structurally applied; Machine-Soul ownership is not proven."
+        )
+        return OperationResult.success("applied", message, data=data)
     if info.status is LinkStatus.NOT_APPLIED:
-        return OperationResult.failure("not_applied", "Configuration is not applied.", data=data)
+        return OperationResult.failure("not_applied", "Configuration is not structurally applied.", data=data)
     if info.status is LinkStatus.CONFLICT:
-        return OperationResult.failure("conflict", "Destination contains unmanaged state.", data=data)
+        return OperationResult.failure("conflict", "Destination contains unmanaged structural state.", data=data)
     if info.status is LinkStatus.WRONG_TARGET:
         return OperationResult.failure("wrong_target", "Destination symlink targets another object.", data=data)
     return OperationResult.failure("broken", "Destination symlink target does not exist.", data=data)
@@ -474,7 +546,10 @@ def check_config(
     targets = _resolve(application, declaration, context)
     if isinstance(targets, OperationResult):
         return targets
-    return _aggregate("check", [_check_one(target) for target in targets])
+    return _aggregate(
+        "check",
+        [_check_one(application, context, target) for target in targets],
+    )
 
 
 def apply_config(

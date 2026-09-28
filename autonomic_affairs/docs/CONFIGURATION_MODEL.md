@@ -167,7 +167,19 @@ Minimum states:
 - `UNSUPPORTED` — no source/destination mapping exists for this host/account/platform;
 - `ERROR` — state could not be determined safely.
 
-Application-specific sub-status may be added, but these names form the shared contract.
+Application-specific sub-status may be added, but these names form the shared structural contract.
+
+Structural state and Machine-Soul ownership are reported separately. A destination can be exactly linked to the expected tracked source while lacking Machine-Soul deployment metadata, so structural `APPLIED` does not by itself prove ownership.
+
+Current ownership-state vocabulary includes:
+
+- `managed` — recorded Machine-Soul state agrees with the exact current managed link;
+- `unrecorded` — no deployment state exists for the destination;
+- `managed_stale_link` — recorded state explains a wrong/broken link to the previous checkout target, such as repository relocation;
+- `stale_state` — deployment state exists but no longer describes the current destination object;
+- `state_conflict` — the stored record itself does not match the current application/host/account/destination/source relationship.
+
+`check_config` is read-only. It may report a repairable stale managed link, but only a mutating operation such as Apply may repair it after performing the safety checks required by the deployment contract.
 
 ## 9. Runtime discovery and host-specific configuration
 
