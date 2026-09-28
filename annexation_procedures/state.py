@@ -12,11 +12,11 @@ from pathlib import Path
 import tempfile
 from typing import Mapping
 
-from .model import OperationContext, Platform
+from .model import InstallationScope, InstallationScopePolicyMode, OperationContext, Platform
 
 
 CONFIG_STATE_SCHEMA = 3
-INSTALL_STATE_SCHEMA = 2
+INSTALL_STATE_SCHEMA = 3
 
 
 class StateError(RuntimeError):
@@ -130,14 +130,77 @@ def install_state_path(
     *,
     extension: str = ".json",
 ) -> Path:
+    """Return the legacy account-namespaced unscoped install-state path."""
+    return _legacy_install_state_path_for_account(
+        context,
+        application,
+        context.target_account.name,
+        extension=extension,
+    )
+
+
+def _legacy_install_state_path_for_account(
+    context: OperationContext,
+    application: str,
+    account: str,
+    *,
+    extension: str = ".json",
+) -> Path:
     return (
         _scratch(context)
         / "state"
         / "install"
         / context.host
-        / context.target_account.name
+        / account
         / f"{application}{extension}"
     )
+
+
+def _install_state_record_key(
+    manager: str,
+    identity: str,
+    actual_scope: InstallationScope,
+    scope_subject: str | None,
+) -> str:
+    raw = json.dumps(
+        [manager, identity, actual_scope.value, scope_subject],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def scoped_install_state_path(
+    context: OperationContext,
+    application: str,
+    *,
+    manager: str,
+    identity: str,
+    actual_scope: InstallationScope,
+    scope_subject: str | None = None,
+    extension: str = ".json",
+) -> Path:
+    """Return the canonical path for one scope-aware installation ownership record."""
+    if actual_scope is InstallationScope.MACHINE:
+        if scope_subject is not None:
+            raise ValueError("Machine-scoped install state cannot have a scope subject.")
+        namespace = _scratch(context) / "state" / "install" / context.host / "machine"
+    elif actual_scope in {InstallationScope.USER, InstallationScope.PACKAGE_USER}:
+        if scope_subject is None or not scope_subject.strip():
+            raise ValueError("User/package-user install state requires a scope subject.")
+        namespace = (
+            _scratch(context)
+            / "state"
+            / "install"
+            / context.host
+            / "user"
+            / scope_subject
+        )
+    else:
+        raise ValueError("Canonical scoped install state requires a known actual scope.")
+
+    key = _install_state_record_key(manager, identity, actual_scope, scope_subject)
+    return namespace / application / f"{key}{extension}"
 
 
 def backup_root(
@@ -198,11 +261,44 @@ class InstallState:
     account: str
     manager: str
     identity: str
+    requested_scope_mode: InstallationScopePolicyMode | None = None
+    requested_scope: InstallationScope | None = None
+    actual_scope: InstallationScope = InstallationScope.UNKNOWN
+    scope_subject: str | None = None
+    native_identity: str | None = None
+    uninstall_identity: str | None = None
     metadata: Mapping[str, object] = field(default_factory=dict)
     schema: int = INSTALL_STATE_SCHEMA
 
+    def __post_init__(self) -> None:
+        if self.requested_scope_mode is None:
+            if self.requested_scope is not None:
+                raise ValueError("requested_scope requires requested_scope_mode.")
+        elif not isinstance(self.requested_scope_mode, InstallationScopePolicyMode):
+            raise TypeError("requested_scope_mode must be an InstallationScopePolicyMode or None.")
+        elif self.requested_scope_mode is InstallationScopePolicyMode.DELEGATED:
+            if self.requested_scope is not None:
+                raise ValueError("Delegated install state cannot declare requested_scope.")
+        elif self.requested_scope not in {InstallationScope.USER, InstallationScope.MACHINE}:
+            raise ValueError("Fixed/required requested_scope must be USER or MACHINE.")
+
+        if not isinstance(self.actual_scope, InstallationScope):
+            raise TypeError("actual_scope must be an InstallationScope.")
+        if self.actual_scope is InstallationScope.MACHINE and self.scope_subject is not None:
+            raise ValueError("Machine-scoped install state cannot have a scope subject.")
+        if self.actual_scope in {InstallationScope.USER, InstallationScope.PACKAGE_USER}:
+            if self.scope_subject is None or not self.scope_subject.strip():
+                raise ValueError("User/package-user install state requires a scope subject.")
+
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
+        payload["requested_scope_mode"] = (
+            self.requested_scope_mode.value if self.requested_scope_mode else None
+        )
+        payload["requested_scope"] = (
+            self.requested_scope.value if self.requested_scope else None
+        )
+        payload["actual_scope"] = self.actual_scope.value
         payload["metadata"] = dict(self.metadata)
         return payload
 
@@ -350,14 +446,29 @@ def resolve_backup_path(context: OperationContext, state: ConfigState) -> Path |
 
 
 def write_install_state(context: OperationContext, state: InstallState) -> Path:
-    path = install_state_path(context, state.application)
+    """Persist scoped state canonically; keep unknown-scope writes on the legacy path."""
+    if state.actual_scope is InstallationScope.UNKNOWN:
+        path = _legacy_install_state_path_for_account(
+            context,
+            state.application,
+            state.account or context.target_account.name,
+        )
+    else:
+        path = scoped_install_state_path(
+            context,
+            state.application,
+            manager=state.manager,
+            identity=state.identity,
+            actual_scope=state.actual_scope,
+            scope_subject=state.scope_subject,
+        )
     _write_json_atomic(path, state.to_dict())
     return path
 
 
 def _json_install_state(payload: Mapping[str, object]) -> InstallState:
     schema = int(payload.get("schema", 1))
-    if schema not in {1, INSTALL_STATE_SCHEMA}:
+    if schema not in {1, 2, INSTALL_STATE_SCHEMA}:
         raise StateError(f"Unsupported install state schema: {schema}.")
     application = str(payload["application"])
     manager = str(payload.get("manager", "unknown"))
@@ -367,20 +478,78 @@ def _json_install_state(payload: Mapping[str, object]) -> InstallState:
         or payload.get("package_id")
         or application
     )
-    known = {"schema", "application", "host", "account", "manager", "identity", "package", "package_id", "metadata"}
+    known = {
+        "schema",
+        "application",
+        "host",
+        "account",
+        "manager",
+        "identity",
+        "package",
+        "package_id",
+        "requested_scope_mode",
+        "requested_scope",
+        "actual_scope",
+        "scope_subject",
+        "native_identity",
+        "uninstall_identity",
+        "metadata",
+    }
     nested_metadata = payload.get("metadata", {})
     if not isinstance(nested_metadata, Mapping):
         raise StateError("Install state metadata must be a mapping.")
     metadata = dict(nested_metadata)
     metadata.update({str(k): v for k, v in payload.items() if k not in known})
+
+    requested_mode_raw = payload.get("requested_scope_mode")
+    requested_scope_raw = payload.get("requested_scope")
+    actual_scope_raw = payload.get("actual_scope", InstallationScope.UNKNOWN.value)
+
     return InstallState(
         application=application,
         host=str(payload.get("host", "")),
         account=str(payload.get("account", "")),
         manager=manager,
         identity=identity,
+        requested_scope_mode=(
+            InstallationScopePolicyMode(str(requested_mode_raw))
+            if requested_mode_raw not in (None, "")
+            else None
+        ),
+        requested_scope=(
+            InstallationScope(str(requested_scope_raw))
+            if requested_scope_raw not in (None, "")
+            else None
+        ),
+        actual_scope=InstallationScope(str(actual_scope_raw)),
+        scope_subject=(
+            str(payload["scope_subject"])
+            if payload.get("scope_subject") not in (None, "")
+            else None
+        ),
+        native_identity=(
+            str(payload["native_identity"])
+            if payload.get("native_identity") not in (None, "")
+            else None
+        ),
+        uninstall_identity=(
+            str(payload["uninstall_identity"])
+            if payload.get("uninstall_identity") not in (None, "")
+            else None
+        ),
         metadata=metadata,
+        schema=INSTALL_STATE_SCHEMA,
     )
+
+
+def _read_install_state_json(path: Path) -> InstallState:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise StateError(f"Malformed install state JSON: {path!s}") from exc
+    if not isinstance(payload, dict):
+        raise StateError("Install state JSON must be an object.")
+    return _json_install_state(payload)
 
 
 def _legacy_install_state(path: Path) -> InstallState:
@@ -394,27 +563,183 @@ def _legacy_install_state(path: Path) -> InstallState:
     return _json_install_state(fields)
 
 
-def read_install_state(context: OperationContext, application: str) -> InstallState | None:
-    json_path = install_state_path(context, application)
-    if json_path.is_file():
-        try:
-            payload = json.loads(json_path.read_text(encoding="utf-8-sig"))
-        except json.JSONDecodeError as exc:
-            raise StateError(f"Malformed install state JSON: {json_path!s}") from exc
-        if not isinstance(payload, dict):
-            raise StateError("Install state JSON must be an object.")
-        return _json_install_state(payload)
+def read_install_states(
+    context: OperationContext,
+    application: str,
+) -> tuple[InstallState, ...]:
+    """Read canonical scoped ownership for the target account plus host machine state."""
+    roots = [
+        _scratch(context)
+        / "state"
+        / "install"
+        / context.host
+        / "machine"
+        / application,
+        _scratch(context)
+        / "state"
+        / "install"
+        / context.host
+        / "user"
+        / context.target_account.name
+        / application,
+    ]
+    states: list[InstallState] = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for path in sorted(root.glob("*.json")):
+            state = _read_install_state_json(path)
+            if state.actual_scope is InstallationScope.UNKNOWN:
+                raise StateError(f"Canonical scoped install state has unknown scope: {path!s}")
+            states.append(state)
+    return tuple(states)
 
-    legacy = install_state_path(context, application, extension=".state")
+
+def read_legacy_install_state(
+    context: OperationContext,
+    application: str,
+    *,
+    account: str | None = None,
+) -> InstallState | None:
+    """Read one old account-namespaced scope-less ownership record."""
+    subject = account or context.target_account.name
+    json_path = _legacy_install_state_path_for_account(context, application, subject)
+    if json_path.is_file():
+        state = _read_install_state_json(json_path)
+        if state.actual_scope is not InstallationScope.UNKNOWN:
+            raise StateError("Legacy install-state location contains scoped state.")
+        return state
+
+    legacy = _legacy_install_state_path_for_account(
+        context,
+        application,
+        subject,
+        extension=".state",
+    )
     if legacy.is_file():
-        return _legacy_install_state(legacy)
+        state = _legacy_install_state(legacy)
+        if state.actual_scope is not InstallationScope.UNKNOWN:
+            raise StateError("Legacy install-state location contains scoped state.")
+        return state
     return None
 
 
-def delete_install_state(context: OperationContext, application: str) -> None:
+def read_legacy_install_states(
+    context: OperationContext,
+    application: str,
+) -> tuple[InstallState, ...]:
+    """Enumerate old scope-less records across account namespaces on this host."""
+    host_root = _scratch(context) / "state" / "install" / context.host
+    if not host_root.is_dir():
+        return ()
+
+    states: list[InstallState] = []
+    for account_root in sorted(path for path in host_root.iterdir() if path.is_dir()):
+        for extension in (".json", ".state"):
+            path = account_root / f"{application}{extension}"
+            if not path.is_file():
+                continue
+            state = (
+                _read_install_state_json(path)
+                if extension == ".json"
+                else _legacy_install_state(path)
+            )
+            if state.actual_scope is not InstallationScope.UNKNOWN:
+                raise StateError("Legacy install-state location contains scoped state.")
+            states.append(state)
+            break
+    return tuple(states)
+
+
+def read_install_state(context: OperationContext, application: str) -> InstallState | None:
+    """Compatibility reader for callers that still expect at most one ownership record."""
+    scoped = read_install_states(context, application)
+    if len(scoped) > 1:
+        raise StateError(
+            "Multiple scoped installation ownership records exist; use read_install_states()."
+        )
+    if scoped:
+        return scoped[0]
+    return read_legacy_install_state(context, application)
+
+
+def delete_scoped_install_state(
+    context: OperationContext,
+    state: InstallState,
+) -> None:
+    if state.actual_scope is InstallationScope.UNKNOWN:
+        raise StateError("Cannot delete unknown-scope state as canonical scoped ownership.")
+    path = scoped_install_state_path(
+        context,
+        state.application,
+        manager=state.manager,
+        identity=state.identity,
+        actual_scope=state.actual_scope,
+        scope_subject=state.scope_subject,
+    )
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def delete_legacy_install_state(
+    context: OperationContext,
+    application: str,
+    *,
+    account: str | None = None,
+) -> None:
+    subject = account or context.target_account.name
     for extension in (".json", ".state"):
-        path = install_state_path(context, application, extension=extension)
+        path = _legacy_install_state_path_for_account(
+            context,
+            application,
+            subject,
+            extension=extension,
+        )
         try:
             path.unlink()
         except FileNotFoundError:
             pass
+
+
+def reconcile_legacy_install_state(
+    context: OperationContext,
+    legacy_state: InstallState,
+    replacement: InstallState,
+) -> Path:
+    """Promote proven legacy ownership after a caller establishes one exact scoped candidate."""
+    if legacy_state.actual_scope is not InstallationScope.UNKNOWN:
+        raise StateError("Only scope-unknown legacy state can be reconciled.")
+    if replacement.actual_scope is InstallationScope.UNKNOWN:
+        raise StateError("Replacement ownership must have a known actual scope.")
+
+    for field_name in ("application", "host", "manager", "identity"):
+        if getattr(legacy_state, field_name) != getattr(replacement, field_name):
+            raise StateError(
+                f"Legacy reconciliation identity mismatch for {field_name}."
+            )
+
+    existing = [
+        state
+        for state in read_install_states(context, replacement.application)
+        if state.manager == replacement.manager and state.identity == replacement.identity
+    ]
+    for state in existing:
+        if state != replacement:
+            raise StateError(
+                "Conflicting scoped ownership already exists; refusing legacy reconciliation."
+            )
+
+    path = write_install_state(context, replacement)
+    delete_legacy_install_state(
+        context,
+        legacy_state.application,
+        account=legacy_state.account or context.target_account.name,
+    )
+    return path
+
+
+def delete_install_state(context: OperationContext, application: str) -> None:
+    """Compatibility deletion for the target account's old scope-less state only."""
+    delete_legacy_install_state(context, application)
