@@ -27,7 +27,7 @@ Current investigation block `MSHP-DEV-A` covers:
 
 - VS Code installation is technically ready for scoped WinGet promotion, but no selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
 - JetBrains Toolbox installation is technically ready as scoped USER WinGet support; no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
-- Lua research found no single clean native-Windows manager for PUC Lua 5.1–5.5 + LuaJIT; versioned runtime instances plus separately managed default selection is the leading model, while the acquisition backend remains open pending Python/Node comparison; no chosen Python/Node backend yet;
+- Lua research found no single clean native-Windows manager for PUC Lua 5.1–5.5 + LuaJIT; versioned runtime instances plus separately managed default selection is the leading model. Python now has a strong official Windows Python Install Manager with exact multiversion lifecycle and native default selection; Node backend choice remains open pending investigation;
 - no generic representation yet for intentionally desired simultaneous runtime versions;
 - no runtime-bound package-environment/inventory model yet;
 - many possible future runtimes/toolchains/package managers remain intentionally uninvestigated.
