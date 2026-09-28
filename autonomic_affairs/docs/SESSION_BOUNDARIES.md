@@ -30,4 +30,8 @@ The account being managed is not inferred again after an elevation/process bound
 
 Likewise, an elevated helper must not reinterpret "current user" and accidentally write root-owned state for a configuration operation that logically targets the invoking user.
 
-Target account identity therefore owns configuration selection, destination resolution, and deployment/install provenance. Execution identity owns only the permissions of the process performing a particular action.
+Target account identity therefore owns configuration selection and destination resolution. Configuration-deployment provenance is target-account scoped.
+
+Installation provenance is different: its ownership namespace follows the actual installation scope. User-scoped installation provenance belongs to the relevant host/account; machine-scoped installation provenance belongs to the host/machine rather than whichever account requested the operation. Execution identity owns the permissions/security context of the process performing a particular action and must not be conflated with either target account or installation scope.
+
+See [`INSTALLATION_SCOPE.md`](INSTALLATION_SCOPE.md).

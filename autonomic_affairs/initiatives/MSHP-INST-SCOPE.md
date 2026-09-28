@@ -22,7 +22,8 @@ Package-manager defaults or user configuration must not silently redefine semant
 - `InstallState` provenance does not yet record installation scope.
 - Apt mutation is effectively machine/system scoped but provenance is currently stored beneath a target-account namespace.
 - WinGet mutation currently omits `--scope`, so WinGet/package defaults can influence actual scope.
-- The `MSHP-INST-A` investigation block defines the core semantics, Windows behavior, Linux extensibility, and then creates an evidence-based implementation roadmap.
+- `MSHP-INST-A-010` has now defined the core semantic contract: observed scope is separate from mutation scope policy; managed mutation must be fixed-scope, explicitly required-scope, or intentionally delegated; unknown legacy scope cannot authorize ambiguous uninstall.
+- The remaining `MSHP-INST-A` investigation tasks test that model against Windows and representative Linux mechanisms before creating the implementation roadmap.
 
 ## Known gaps
 
