@@ -285,11 +285,12 @@ class LuaPrefixBackendTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             context = self._context(Path(raw))
             backend = self._backend(fixture)
+            payload = self._source_archive_bytes()
             spec = luajit_runtime_spec(
                 "2.1.rolling-fixture",
                 "x64",
                 source_url="https://example.invalid/luajit.tar.gz",
-                source_sha256="e" * 64,
+                source_sha256=hashlib.sha256(payload).hexdigest(),
             )
             result = reconcile_runtime(
                 context,

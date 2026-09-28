@@ -254,7 +254,12 @@ def _safe_tar_extract(payload: bytes, destination: Path) -> Path:
                 target = (destination / member.name).resolve()
                 if root not in target.parents and target != root:
                     raise LuaRuntimeError("Lua source archive contains an unsafe path.")
-            tf.extractall(destination, members=members)
+            try:
+                tf.extractall(destination, members=members, filter="data")
+            except TypeError:
+                # Python versions predating tarfile's filter parameter still
+                # use the explicit path traversal checks above.
+                tf.extractall(destination, members=members)
     finally:
         archive.unlink(missing_ok=True)
     directories = [
