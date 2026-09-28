@@ -23,6 +23,7 @@ from .model import (
     TriState,
     WindowsAppxDiscovery,
     WindowsArpDiscovery,
+    WindowsPosixPackageDiscovery,
     WingetPackageDiscovery,
 )
 from .process import ProcessResult, run_process
@@ -32,6 +33,7 @@ from .windows_installation_discovery import (
     arp_candidates,
     builtin_candidate,
 )
+from .windows_posix_installation_discovery import windows_posix_candidates
 
 
 Runner = Callable[[list[str]], ProcessResult]
@@ -427,9 +429,15 @@ def discover_installation(
     context: OperationContext,
     *,
     runner: Runner = run_process,
-    which: Which = shutil.which,
+    which: Which | None = None,
 ) -> InstallationAssessment:
     """Execute a declared read-only discovery plan and assess candidates."""
+    if which is None:
+        which = lambda command: shutil.which(
+            command,
+            path=context.environment.get("PATH"),
+        )
+
     plan = declaration.installation_discovery
     if plan is None:
         return InstallationAssessment(
@@ -469,6 +477,13 @@ def discover_installation(
             candidate, error = builtin_candidate(strategy, runner, which)
             if candidate is not None:
                 found.append(candidate)
+        elif isinstance(strategy, WindowsPosixPackageDiscovery):
+            found, error = windows_posix_candidates(
+                strategy,
+                context,
+                runner,
+                which,
+            )
         else:
             error = f"Unsupported discovery strategy: {type(strategy).__name__}."
 

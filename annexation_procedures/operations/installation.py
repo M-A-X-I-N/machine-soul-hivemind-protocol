@@ -81,7 +81,7 @@ def check_installed(
     context: OperationContext,
     *,
     runner: Runner = run_process,
-    which: Which = shutil.which,
+    which: Which | None = None,
 ) -> OperationResult:
     assessment = discover_installation(
         application.id,
