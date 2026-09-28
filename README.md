@@ -1,6 +1,6 @@
 # Machine-Soul Hivemind Protocol
 
-A cross-host configuration repository for keeping canonical tracked configuration files while safely linking them into the native locations expected by applications.
+A cross-host machine-assimilation repository for reproducing desired machine state: canonical configuration where useful, plus installation and other operational machinery where configuration management is irrelevant or unnecessary.
 
 The active development/experimental iteration lives on **main**.
 
@@ -41,13 +41,21 @@ Shared fragments may exist, but deployment resolves to one concrete tracked file
 
 Tracked configuration currently includes one Windows host variant and multiple Linux host variants. See autonomic_affairs/docs/CONFIGURATION_MODEL.md.
 
-## Paired configuration and operation trees
+## Assimilation directives and annexation procedures
 
-Canonical application configuration lives under `assimilation_directives/<application>/...`.
+`assimilation_directives/` contains the canonical tracked **instructions for how an assimilated machine should behave**: application configuration and other desired behavioral content that belongs in version control.
 
-The matching per-application operational machinery lives under `annexation_procedures/<application>/...`. The shared Python runtime and broad manager also live directly under `annexation_procedures/`; the tree is the operational Machine-Soul system, not merely a collection of application adapters.
+`annexation_procedures/` contains the executable **machinery used to take over / bring a machine into the collective**: shared Python runtime, application declarations, install/uninstall/discovery/configuration operations, wrappers, and broad orchestration.
 
-Configured targets normally provide Apply config, Unapply config, and Check config from the annexation tree. Installation support may additionally provide Install and Uninstall there.
+The names describe different responsibilities, not two halves that every target must possess.
+
+A target may legitimately have:
+
+- annexation procedures with assimilation directives — for example an application whose installation and configuration are both managed;
+- annexation procedures without assimilation directives — for example a runtime/tool whose useful Machine-Soul responsibility is installation/version lifecycle only;
+- assimilation directives whose application is already installed independently — configuration management does not imply installation ownership.
+
+There is no requirement that an annexation target have configuration files merely to be considered supported.
 
 `accumulated_instruments/` is reserved for tracked tools/programs/scripts that are useful enough to keep with the repository but are not intrinsically part of the assimilation/annexation system.
 

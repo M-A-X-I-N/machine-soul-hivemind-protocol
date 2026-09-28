@@ -1,6 +1,6 @@
 # Agent operating guide
 
-This repository preserves and applies the Machine Soul across multiple hosts, platforms, users, shells, terminals, and applications.
+This repository annexes machines into the Machine Soul across multiple hosts, platforms, users, shells, terminals, runtimes, tools, and applications. Configuration is one managed capability, not the definition of support.
 
 Keep this file concise. Detailed agent procedure and persisted context live under [`.agents/`](.agents/). The authoritative executable-work ledger is [`autonomic_affairs/agent_tasks.md`](autonomic_affairs/agent_tasks.md).
 
@@ -19,7 +19,7 @@ Repository state and tracked durable documentation are authoritative over rememb
 - `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata and Dispatch; `autonomic_affairs/agent_tasks/` owns active task specifications, temporary task workspaces, and structured archived task material. Task IDs remain stable even when completed blocks move into `agent_tasks/archive/`.
 - `autonomic_affairs/reminders.md` owns deliberately non-executable future ideas. Reminders are not authorization and must not be silently executed/promoted.
 - `autonomic_affairs/initiatives/` owns structured, intentionally unfinished work/debt that is more concrete than a reminder but is still non-executable. Initiatives are context, never Dispatch authorization.
-- Tracked configuration files own canonical desired configuration.
+- `assimilation_directives/` owns canonical tracked desired configuration/behavioral content when such content exists. A supported annexation target does not need an assimilation directive.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.
 - Task workspaces under `autonomic_affairs/agent_tasks/` own tracked temporary/intermediate knowledge needed across task or context boundaries; they are not permanent agent memory and are not mandatory reading unless relevant.

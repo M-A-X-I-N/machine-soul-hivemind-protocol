@@ -1,22 +1,31 @@
-# Paired configuration / operation taxonomy
+# Assimilation / annexation taxonomy
 
 ## Decision
 
-Machine-Soul intentionally separates application configuration content from the machinery that applies or installs it.
+Machine-Soul intentionally separates **desired behavioral content** from the **operational machinery that changes a machine**.
 
-The paired trees are:
+The names are intentionally asymmetric:
+
+- **assimilation** = instructions describing how the machine should behave as part of the collective;
+- **annexation** = procedures that take over / prepare / manage the machine so those desired capabilities exist.
+
+The trees are:
 
 ```text
-assimilation_directives/<application>/...
-    canonical tracked configuration content
+assimilation_directives/<subject>/...
+    canonical tracked desired configuration / behavioral content
 
-annexation_procedures/<application>/...
-    Apply / Unapply / Check / Install / Uninstall entry points
+annexation_procedures/<subject>/...
+    executable lifecycle/discovery/configuration/installation machinery
 ```
 
-The matching application name is the relationship between the two trees.
+When the same subject exists in both trees, the matching subject name relates its behavioral content to its operational machinery.
 
-Do not reintroduce per-application `config/` or `operations/` wrapper directories beneath these roots. The root names already provide those semantics.
+**The trees are not required to be one-to-one.** Annexation support does not require assimilation directives. An install-only/runtime/version-management subject may live entirely under `annexation_procedures/`. Conversely, tracked assimilation directives do not imply that Machine-Soul owns or performs installation.
+
+Do not create fake configuration content merely to make an annexation subject appear "complete".
+
+Do not reintroduce per-subject `config/` or `operations/` wrapper directories beneath these roots. The root names already provide those semantics.
 
 ## Shared operation machinery
 
