@@ -566,7 +566,11 @@ def discover_installation(
             else InstallationOwnership.STALE
         )
     elif legacy_state is not None:
-        state_relation = InstallationOwnership.UNKNOWN
+        state_relation = (
+            InstallationOwnership.STALE
+            if not candidates and not errors
+            else InstallationOwnership.UNKNOWN
+        )
         assessment_observations.append(
             DiscoveryObservation(
                 "legacy_install_provenance",
