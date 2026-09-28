@@ -26,7 +26,7 @@ Current investigation block `MSHP-DEV-A` covers:
 ## Known gaps
 
 - VS Code installation is technically ready for scoped WinGet promotion, but no selected VS Code desired settings/profile/extension inventory or Settings Sync ownership policy exists yet;
-- no selected JetBrains desired settings/plugins/toolbox policy yet;
+- JetBrains Toolbox installation is technically ready as scoped USER WinGet support; no selected Toolbox settings, IDE product/version policy, IDE settings/plugins, or Backup-and-Sync ownership policy exists yet, and the Toolbox CLI remains explicitly work-in-progress;
 - no chosen Lua/Python/Node installation/version-manager backend yet;
 - no generic representation yet for intentionally desired simultaneous runtime versions;
 - no runtime-bound package-environment/inventory model yet;
