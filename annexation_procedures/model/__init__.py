@@ -24,6 +24,12 @@ from .discovery import (
     VerificationObservation,
 )
 from .result import OperationResult, ResultStatus
+from .installation_scope import (
+    InstallationScopePolicy,
+    InstallationScopePolicyMode,
+    installation_scope_compatible,
+    installation_scope_target_error,
+)
 from .strategies import (
     ApplicationConfigProbe,
     AptPackage,
@@ -77,6 +83,10 @@ __all__ = [
     "VerificationObservation",
     "OperationResult",
     "ResultStatus",
+    "InstallationScopePolicy",
+    "InstallationScopePolicyMode",
+    "installation_scope_compatible",
+    "installation_scope_target_error",
     "ApplicationConfigProbe",
     "AptPackage",
     "BuiltInExecutableDiscovery",

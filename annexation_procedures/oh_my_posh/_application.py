@@ -9,6 +9,8 @@ from annexation_procedures.model import (
     Support,
     HomeRelativeDestination,
     InstallationDiscoveryPlan,
+    InstallationScope,
+    InstallationScopePolicy,
     LocalAppDataRelativeDestination,
     OhMyPoshVerification,
     WingetPackage,
@@ -67,7 +69,10 @@ APPLICATION = Application(
                     destination=LocalAppDataRelativeDestination("oh-my-posh/theme.omp.json"),
                 ),
             ),
-            install_strategy=WingetPackage("JanDeDobbeleer.OhMyPosh"),
+            install_strategy=WingetPackage(
+                "JanDeDobbeleer.OhMyPosh",
+                InstallationScopePolicy.required(InstallationScope.USER),
+            ),
             installation_discovery=InstallationDiscoveryPlan(
                 (
                     WingetPackageDiscovery(

@@ -6,8 +6,11 @@ operation engines interpret them later.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Protocol, runtime_checkable
+
+from .discovery import InstallationScope
+from .installation_scope import InstallationScopePolicy
 
 
 @runtime_checkable
@@ -179,12 +182,17 @@ class ExecutableDiscovery:
 @dataclass(frozen=True)
 class WingetPackage:
     package_id: str
+    scope_policy: InstallationScopePolicy
     source: str = "winget"
 
 
 @dataclass(frozen=True)
 class AptPackage:
     package_name: str
+    scope_policy: InstallationScopePolicy = field(
+        default_factory=lambda: InstallationScopePolicy.fixed(InstallationScope.MACHINE),
+        init=False,
+    )
 
 
 @dataclass(frozen=True)
