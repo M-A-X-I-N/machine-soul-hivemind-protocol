@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-META-B-010`](agent_tasks/MSHP-META-B/MSHP-META-B-010.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -14,7 +14,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-META-B-010`](agent_tasks/MSHP-META-B/MSHP-META-B-010.md) | QUEUED | — | Establish initiative layer | Add a lightweight non-executable initiative layer between casual reminders and executable tasks, and create installation scope as its first real initiative. |
+| [`MSHP-META-B-010`](agent_tasks/MSHP-META-B/MSHP-META-B-010.md) | IN_PROGRESS | — | Establish initiative layer | Add a lightweight non-executable initiative layer between casual reminders and executable tasks, and create installation scope as its first real initiative. |
 | [`MSHP-INST-A-010`](agent_tasks/MSHP-INST-A/MSHP-INST-A-010.md) | QUEUED | `MSHP-META-B-010` | Define installation scope semantics | Define installation scope as a first-class concept distinct from target account, execution identity, package-manager defaults, and Machine-Soul ownership. |
 | [`MSHP-INST-A-020`](agent_tasks/MSHP-INST-A/MSHP-INST-A-020.md) | QUEUED | `MSHP-INST-A-010` | Investigate Windows installation scope | Map WinGet and relevant native Windows scope behavior, including explicit user/machine selection, cross-account limits, provenance, and uninstall targeting. |
 | [`MSHP-INST-A-030`](agent_tasks/MSHP-INST-A/MSHP-INST-A-030.md) | QUEUED | `MSHP-INST-A-010` | Investigate Linux scope extensibility | Use Apt plus representative future user/system package mechanisms to ensure the scope model is extensible without attempting exhaustive Linux package-manager support. |
