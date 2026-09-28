@@ -150,3 +150,21 @@ The orchestrator/presentation layer may show these together as one health/status
 Discovery should preserve enough identity, mechanism, scope, version, path, registration, uninstall, and ownership information to support a future explicit installation-takeover workflow.
 
 That future workflow is not part of discovery. Discovery gathers/assesses facts; takeover would be a separate mutating safety-sensitive operation.
+
+
+## Concrete shared value model
+
+The implementation uses concrete model types under `annexation_procedures.model.discovery`.
+
+Raw installation observations use `DiscoveryObservation` with `ObservationAuthority` values:
+
+- `direct` — the source directly registers/reports the fact;
+- `correlated` — the fact is established by matching identities across sources;
+- `inferred` — the fact follows from other observed facts but is not directly registered;
+- `hint` — useful weak historical/context evidence that must not be treated as proof.
+
+This generic observation authority is intentionally separate from effective-configuration `EvidenceStrength`, whose values remain `runtime`, `application`, `resolution`, `convention`, and `none`.
+
+Installation candidates use independent `TriState` fields for preferred-strategy match/manageability and a separate `InstallationOwnership` relation, preventing combinatorial status enums.
+
+`InstallationAssessment` and `VerificationAssessment` are immutable, machine-serializable value objects below `OperationResult`. Unknown/ambiguous installation assessments may retain partial candidate evidence.

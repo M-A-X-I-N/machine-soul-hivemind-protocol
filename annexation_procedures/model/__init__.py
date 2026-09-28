@@ -9,6 +9,20 @@ from .application import (
     Support,
 )
 from .context import ConflictPolicy, OperationContext, TargetAccount
+from .discovery import (
+    DiscoveryObservation,
+    EvidenceStrength,
+    InstallationAssessment,
+    InstallationCandidate,
+    InstallationOwnership,
+    InstallationPresence,
+    InstallationScope,
+    ObservationAuthority,
+    TriState,
+    VerificationAssessment,
+    VerificationConclusion,
+    VerificationObservation,
+)
 from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
@@ -34,6 +48,18 @@ __all__ = [
     "ConflictPolicy",
     "OperationContext",
     "TargetAccount",
+    "DiscoveryObservation",
+    "EvidenceStrength",
+    "InstallationAssessment",
+    "InstallationCandidate",
+    "InstallationOwnership",
+    "InstallationPresence",
+    "InstallationScope",
+    "ObservationAuthority",
+    "TriState",
+    "VerificationAssessment",
+    "VerificationConclusion",
+    "VerificationObservation",
     "OperationResult",
     "ResultStatus",
     "AptPackage",
