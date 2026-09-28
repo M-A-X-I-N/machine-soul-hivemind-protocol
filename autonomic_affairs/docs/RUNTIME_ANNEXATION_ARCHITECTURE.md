@@ -121,6 +121,21 @@ The Node backend targets stable nvm-windows 2.0.0+ semantics:
 
 Global npm module copying, project pins, Corepack, and alternate manager migration remain separate concerns.
 
+### Machine-Soul Lua/LuaJIT prefixes
+
+Lua uses a deliberately different backend because no current native-Windows manager cleanly owns PUC Lua 5.1–5.5 plus LuaJIT:
+
+- exact per-user private prefixes;
+- LuaBinaries archives only when the requested patch/architecture exists exactly and the published digest verifies;
+- official-source builds when a patch is unavailable as a trusted prebuilt, with an exact source SHA-256;
+- B-025 native-toolchain prerequisite resolution before any source build;
+- the selected Visual Studio/Build Tools instance's `VsDevCmd.bat`, never an arbitrary ambient compiler;
+- PUC Lua and LuaJIT preserved as distinct flavors;
+- Machine-Soul-owned `lua.cmd`/`luac.cmd` routing under the runtime launcher directory, independent from install order;
+- exact-prefix removal only.
+
+The backend includes known LuaBinaries artifacts for the exact releases currently available across the 5.1–5.5 lines. Newer upstream patches such as releases that outpace LuaBinaries require the explicit source path rather than patch substitution.
+
 ## Package-environment extension
 
 Runtime ownership intentionally exposes stable exact runtime-instance identity for the later package-environment layer.
@@ -129,6 +144,6 @@ This task does not manage pip/npm/LuaRocks inventories. Package environments wil
 
 ## Current implementation boundary
 
-The shared runtime core supports backend-defined host/user ownership scope. Python Install Manager and nvm-windows v2 concrete backends are implemented; Lua/LuaJIT remains separate work.
+The shared runtime core supports backend-defined host/user ownership scope. Python Install Manager, nvm-windows v2, and the Machine-Soul Lua/LuaJIT prefix backend are implemented.
 
 Manager installation remains a separate application/tool concern from runtime instances. Machine-Soul may discover a runtime manager without claiming its installation lifecycle.
