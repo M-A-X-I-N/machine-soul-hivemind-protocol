@@ -179,7 +179,7 @@ class RealOrchestratorSurfaceTests(unittest.TestCase):
 
     def test_discovery_finds_every_current_atomic_wrapper(self) -> None:
         bindings = discover_wrappers(self.root)
-        self.assertEqual(48, len(bindings))
+        self.assertEqual(56, len(bindings))
         self.assertEqual(8, len({binding.application_id for binding in bindings}))
         for application_id in {binding.application_id for binding in bindings}:
             self.assertEqual(
@@ -200,6 +200,7 @@ class RealOrchestratorSurfaceTests(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("fish (Fish)", result.stdout)
         self.assertIn("windows_terminal (Windows Terminal)", result.stdout)
+        self.assertIn("verify_config", result.stdout)
 
     def test_interactive_exit_performs_no_operation(self) -> None:
         spec = importlib.util.spec_from_file_location("_machine_soul_manager_test", self.manager)

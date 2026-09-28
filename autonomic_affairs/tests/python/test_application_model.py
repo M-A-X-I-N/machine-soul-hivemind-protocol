@@ -5,6 +5,8 @@ import unittest
 from annexation_procedures.model import (
     Application,
     AptPackage,
+    ConfigurationVerificationPlan,
+    CustomVerification,
     DpkgPackageDiscovery,
     InstallationDiscoveryPlan,
     ConfigurationFile,
@@ -78,6 +80,25 @@ class ApplicationModelTests(unittest.TestCase):
         )
         self.assertIsNone(declaration.install_strategy)
         self.assertIsNotNone(declaration.installation_discovery)
+
+    def test_supported_verify_config_requires_verification_plan(self) -> None:
+        with self.assertRaises(ValueError):
+            PlatformDeclaration(
+                platform=Platform.LINUX,
+                capabilities={Operation.VERIFY_CONFIG: Support.SUPPORTED},
+            )
+
+    def test_verification_plan_does_not_imply_structural_or_install_capability(self) -> None:
+        declaration = PlatformDeclaration(
+            platform=Platform.LINUX,
+            capabilities={Operation.VERIFY_CONFIG: Support.SUPPORTED},
+            configuration_verification=ConfigurationVerificationPlan(
+                (CustomVerification(lambda application, declaration, context: None),)
+            ),
+        )
+        self.assertEqual(Support.SUPPORTED, declaration.support_for(Operation.VERIFY_CONFIG))
+        self.assertEqual(Support.UNSUPPORTED, declaration.support_for(Operation.CHECK_CONFIG))
+        self.assertIsNone(declaration.install_strategy)
 
     def test_duplicate_platform_declaration_is_rejected(self) -> None:
         linux = PlatformDeclaration(platform=Platform.LINUX, capabilities={})
