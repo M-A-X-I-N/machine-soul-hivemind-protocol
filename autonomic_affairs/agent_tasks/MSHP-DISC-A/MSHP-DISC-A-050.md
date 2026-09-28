@@ -44,3 +44,12 @@ Do not guess the implementation topology in advance. Let the evidence from insta
 - Verify no follow-on task depends on workspace material without linking/identifying it.
 - Review task dependencies for genuine structural necessity.
 - Confirm the active index and Dispatch remain consistent with the repository task contract.
+
+
+## Notes
+
+Synthesis produced the executable MSHP-DISC-B implementation block, tasks MSHP-DISC-B-010 through MSHP-DISC-B-100.
+
+The detailed finding-to-task traceability is preserved in workspace/synthesis.md. Installation and effective-configuration raw research remain in the DISC-A workspace for later archival, while durable conclusions were promoted into normal documentation and .agents memory.
+
+Per the human authorization boundary for this run, DISC-B remains QUEUED and is not placed in Dispatch.
