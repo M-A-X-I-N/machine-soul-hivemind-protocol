@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Smoke-test Python runtime package
         shell: bash
-        run: python3 -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
+        run: python3 -c "import annexation_procedures as ms; ms.require_supported_python()"
       - name: Test Python declaration model
         shell: bash
         run: python3 -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Smoke-test Python runtime package
         shell: powershell
-        run: python -c "import accumulated_instruments.machine_soul as ms; ms.require_supported_python()"
+        run: python -c "import annexation_procedures as ms; ms.require_supported_python()"
       - name: Test Python declaration model
         shell: powershell
         run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
