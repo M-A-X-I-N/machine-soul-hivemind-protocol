@@ -170,18 +170,16 @@ class PythonInstallManagerBackendTests(unittest.TestCase):
                 self._desired(selected="pythoncore-3.14-64"),
             )
             states = read_runtime_ownerships(context, "python")
+            self.assertTrue(config.is_file(), result.to_dict())
+            default_tag = json.loads(config.read_text(encoding="utf-8"))["default_tag"]
 
         self.assertEqual("runtime_reconciled", result.code, result.to_dict())
-        self.assertTrue(config.is_file(), result.to_dict())
         self.assertEqual(
             {"pythoncore-3.13-64", "pythoncore-3.14-64"},
             set(fake.managed),
         )
         self.assertEqual({"user:fixture"}, {state.scope_subject for state in states})
-        self.assertEqual(
-            "PythonCore\\3.14-64",
-            json.loads(config.read_text(encoding="utf-8"))["default_tag"],
-        )
+        self.assertEqual("PythonCore\\3.14-64", default_tag)
         install_calls = [call for call in fake.calls if call[1] == "install"]
         self.assertEqual(2, len(install_calls))
         self.assertTrue(all("--by-id" in call for call in install_calls))
@@ -205,16 +203,14 @@ class PythonInstallManagerBackendTests(unittest.TestCase):
                 backend,
                 self._desired(selected="pythoncore-3.14-64"),
             )
+            self.assertTrue(config.is_file(), result.to_dict())
+            default_tag = json.loads(config.read_text(encoding="utf-8"))["default_tag"]
 
         self.assertEqual("runtime_reconciled", result.code, result.to_dict())
-        self.assertTrue(config.is_file(), result.to_dict())
         self.assertFalse(
             any(call[1] in {"install", "uninstall"} for call in fake.calls)
         )
-        self.assertEqual(
-            "PythonCore\\3.14-64",
-            json.loads(config.read_text(encoding="utf-8"))["default_tag"],
-        )
+        self.assertEqual("PythonCore\\3.14-64", default_tag)
 
     def test_exact_uninstall_uses_by_id_and_preserves_other_version(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
