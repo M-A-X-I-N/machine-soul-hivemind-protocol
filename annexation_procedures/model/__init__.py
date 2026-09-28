@@ -25,8 +25,10 @@ from .discovery import (
 )
 from .result import OperationResult, ResultStatus
 from .strategies import (
+    ApplicationConfigProbe,
     AptPackage,
     BuiltInExecutableDiscovery,
+    CmdAutoRunVerification,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
@@ -38,6 +40,7 @@ from .strategies import (
     LocalAppDataRelativeDestination,
     PowerShellProfileDestination,
     RemoteInstallScript,
+    ResolvedPathVerification,
     ShellStartupVerification,
     StandaloneBinary,
     WindowsAppxDiscovery,
@@ -73,8 +76,10 @@ __all__ = [
     "VerificationObservation",
     "OperationResult",
     "ResultStatus",
+    "ApplicationConfigProbe",
     "AptPackage",
     "BuiltInExecutableDiscovery",
+    "CmdAutoRunVerification",
     "DpkgPackageDiscovery",
     "ExecutableDiscovery",
     "InstallationDiscoveryPlan",
@@ -86,6 +91,7 @@ __all__ = [
     "LocalAppDataRelativeDestination",
     "PowerShellProfileDestination",
     "RemoteInstallScript",
+    "ResolvedPathVerification",
     "ShellStartupVerification",
     "StandaloneBinary",
     "WindowsAppxDiscovery",

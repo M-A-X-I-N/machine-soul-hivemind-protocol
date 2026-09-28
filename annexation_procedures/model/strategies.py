@@ -47,6 +47,30 @@ class ConfigurationVerificationPlan:
 
 
 @dataclass(frozen=True)
+class ResolvedPathVerification:
+    """Verify that an application resolves to an existing declared config path."""
+
+    configuration_name: str
+    executable_name: str | None = None
+
+
+@dataclass(frozen=True)
+class ApplicationConfigProbe:
+    """Run a read-only application-native config inspection command."""
+
+    executable_name: str
+    arguments: tuple[str, ...]
+    configuration_name: str
+
+
+@dataclass(frozen=True)
+class CmdAutoRunVerification:
+    """Verify CMD's documented HKCU AutoRun selection of a command file."""
+
+    configuration_name: str = "command_file"
+
+
+@dataclass(frozen=True)
 class ShellStartupVerification:
     """Verify ordinary shell startup against one declared configuration."""
 

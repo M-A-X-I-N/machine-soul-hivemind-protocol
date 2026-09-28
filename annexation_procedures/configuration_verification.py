@@ -6,16 +6,24 @@ from collections.abc import Iterable
 
 from .model import (
     Application,
+    ApplicationConfigProbe,
+    CmdAutoRunVerification,
     ConfigurationVerificationPlan,
     CustomVerification,
     EvidenceStrength,
     OperationContext,
     OperationResult,
     PlatformDeclaration,
+    ResolvedPathVerification,
     ShellStartupVerification,
     VerificationAssessment,
     VerificationConclusion,
     VerificationObservation,
+)
+from .native_configuration_verification import (
+    verify_application_config_probe,
+    verify_cmd_autorun,
+    verify_resolved_path,
 )
 from .shell_verification import verify_shell_startup
 
@@ -85,6 +93,26 @@ def verify_config(
     observations: list[VerificationObservation] = []
     errors: list[str] = []
     for strategy in plan.strategies:
+        if isinstance(strategy, ResolvedPathVerification):
+            observations.append(
+                verify_resolved_path(application, declaration, context, strategy)
+            )
+            continue
+        if isinstance(strategy, ApplicationConfigProbe):
+            observations.append(
+                verify_application_config_probe(
+                    application,
+                    declaration,
+                    context,
+                    strategy,
+                )
+            )
+            continue
+        if isinstance(strategy, CmdAutoRunVerification):
+            observations.append(
+                verify_cmd_autorun(application, declaration, context, strategy)
+            )
+            continue
         if isinstance(strategy, ShellStartupVerification):
             try:
                 observations.append(
