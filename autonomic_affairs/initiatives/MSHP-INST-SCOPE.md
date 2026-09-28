@@ -23,7 +23,8 @@ Package-manager defaults or user configuration must not silently redefine semant
 - Apt mutation is effectively machine/system scoped but provenance is currently stored beneath a target-account namespace.
 - WinGet mutation currently omits `--scope`, so WinGet/package defaults can influence actual scope.
 - `MSHP-INST-A-010` has now defined the core semantic contract: observed scope is separate from mutation scope policy; managed mutation must be fixed-scope, explicitly required-scope, or intentionally delegated; unknown legacy scope cannot authorize ambiguous uninstall.
-- The remaining `MSHP-INST-A` investigation tasks test that model against Windows and representative Linux mechanisms before creating the implementation roadmap.
+- `MSHP-INST-A-020` confirms the Windows-first shape: WinGet must use explicit required scope; discovery/list and uninstall must be scope-filtered; current-user/package-user and machine candidates stay distinct; cross-account user mutation is initially unsupported.
+- The remaining Linux extensibility investigation stress-tests that model before synthesis creates implementation tasks.
 
 ## Known gaps
 
@@ -35,7 +36,8 @@ Current known future areas include:
 - Homebrew/Linuxbrew prefix and ownership semantics;
 - pipx or similar user-local application package managers;
 - other package managers with scope concepts that differ materially from current Apt/WinGet models;
-- cross-account user-scoped installation if no safe supported execution/impersonation mechanism exists yet;
+- cross-account user-scoped installation remains unsupported until a safe target-user execution/impersonation mechanism exists;
+- complete other-user MSI/AppX inventory beyond current-user/machine needs;
 - package-manager-specific discovery needed to prove actual scope for future backends.
 
 ## Deliberate boundaries / deferred work

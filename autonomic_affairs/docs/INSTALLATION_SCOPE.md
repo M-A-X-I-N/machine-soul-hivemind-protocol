@@ -133,3 +133,19 @@ Scope mismatch should be represented explicitly rather than hidden inside generi
 ## Implementation boundary
 
 This document defines semantics, not code. `MSHP-INST-A-020` and `MSHP-INST-A-030` test the model against real Windows/Linux mechanisms. `MSHP-INST-A-040` creates the evidence-based implementation tasks.
+
+## Windows platform findings
+
+WinGet is the primary current selectable-scope mutation backend.
+
+- Machine-Soul-managed WinGet mutation should use an explicit required `user` or `machine` scope rather than WinGet's ambient preference/fallback behavior.
+- Scoped WinGet discovery should query user and machine installed scopes separately and preserve coexisting candidates.
+- WinGet uninstall should scope-filter the exact managed installation and refuse ambiguity.
+- Requested core `USER` may map to observed native `USER` or current-target `PACKAGE_USER`; requested `MACHINE` requires observed machine scope.
+- User-scoped WinGet/AppX mutation for a non-current target account is initially unsupported.
+- MSI/ARP current-user versus machine scope is directly observable from registration context; complete other-user inventory is deferred.
+- AppX provisioning for future users is not treated as the same concept as a machine-scoped installed application.
+
+The current Oh My Posh WinGet manifest is an explicit regression edge because it is AppX/MSIX without a manifest `Scope:` field. Scoped implementation must test WinGet's behavior and verify native package-user registration rather than relying solely on manifest scope metadata.
+
+Detailed Windows research is preserved in the active `MSHP-INST-A` workspace until synthesis.
