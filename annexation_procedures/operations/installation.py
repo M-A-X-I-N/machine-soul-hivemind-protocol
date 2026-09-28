@@ -6,7 +6,7 @@ import os
 import shutil
 from typing import Callable
 
-from ..discovery import discover_installation
+from ..installation_discovery import discover_installation
 from ..model import (
     Application,
     AptPackage,
