@@ -26,6 +26,7 @@ from .discovery import (
 from .result import OperationResult, ResultStatus
 from .strategies import (
     AptPackage,
+    BuiltInExecutableDiscovery,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
@@ -36,6 +37,8 @@ from .strategies import (
     PowerShellProfileDestination,
     RemoteInstallScript,
     StandaloneBinary,
+    WindowsAppxDiscovery,
+    WindowsArpDiscovery,
     WindowsPosixHomeDestination,
     WindowsTerminalSettingsDestination,
     WingetPackage,
@@ -67,6 +70,7 @@ __all__ = [
     "OperationResult",
     "ResultStatus",
     "AptPackage",
+    "BuiltInExecutableDiscovery",
     "DpkgPackageDiscovery",
     "ExecutableDiscovery",
     "InstallationDiscoveryPlan",
@@ -77,6 +81,8 @@ __all__ = [
     "PowerShellProfileDestination",
     "RemoteInstallScript",
     "StandaloneBinary",
+    "WindowsAppxDiscovery",
+    "WindowsArpDiscovery",
     "WindowsPosixHomeDestination",
     "WindowsTerminalSettingsDestination",
     "WingetPackage",

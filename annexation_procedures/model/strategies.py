@@ -53,6 +53,35 @@ class WingetPackageDiscovery:
     package_id: str
     source: str = "winget"
     preferred: bool = False
+    executable_name: str | None = None
+    version_arguments: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class WindowsArpDiscovery:
+    display_name: str | None = None
+    publisher: str | None = None
+    product_code: str | None = None
+    executable_name: str | None = None
+    preferred: bool = False
+
+    def __post_init__(self) -> None:
+        if not any((self.display_name, self.product_code, self.executable_name)):
+            raise ValueError("ARP discovery requires an exact identity or executable correlation.")
+
+
+@dataclass(frozen=True)
+class WindowsAppxDiscovery:
+    package_family_name: str
+    executable_name: str | None = None
+    preferred: bool = False
+
+
+@dataclass(frozen=True)
+class BuiltInExecutableDiscovery:
+    executable_name: str
+    identity: str
+    version_arguments: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
