@@ -478,9 +478,16 @@ def _verification(
     environment: PackageEnvironment,
     desired_roots: tuple[DesiredPackageRoot, ...],
     inventory: PackageInventory,
+    owned_roots: tuple[PackageRootOwnership, ...],
 ) -> tuple[PackageVerification | None, OperationResult | None]:
     try:
-        verification = backend.verify(context, environment, desired_roots, inventory)
+        verification = backend.verify(
+            context,
+            environment,
+            desired_roots,
+            inventory,
+            owned_roots,
+        )
     except Exception as exc:
         return None, OperationResult.error(
             "package_verification_failed",
@@ -602,6 +609,7 @@ def reconcile_package_environment(
         environment,
         desired.roots,
         inventory,
+        ownership.roots,
     )
     if error is not None:
         return error
@@ -750,6 +758,7 @@ def reconcile_package_environment(
         environment,
         desired.roots,
         final_inventory,
+        ownership.roots,
     )
     if error is not None:
         return OperationResult.error(

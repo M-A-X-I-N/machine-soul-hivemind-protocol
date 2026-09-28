@@ -622,8 +622,14 @@ class PackageEnvironmentBackend(Protocol):
         environment: PackageEnvironment,
         desired_roots: Sequence[DesiredPackageRoot],
         inventory: PackageInventory,
+        owned_roots: Sequence[PackageRootOwnership],
     ) -> PackageVerification:
-        """Map desired roots to exact observed package/removal identities."""
+        """Map desired roots to exact observed package/removal identities.
+
+        Existing Machine-Soul root provenance is supplied so a backend can
+        distinguish a previously verified native specifier from an unrelated
+        package that merely has the same normalized identity.
+        """
         ...
 
     def install(

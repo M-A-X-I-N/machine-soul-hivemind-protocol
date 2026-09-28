@@ -101,7 +101,7 @@ class FakePackageBackend:
     def discover_inventory(self, context: OperationContext, environment: PackageEnvironment):
         return PackageInventory(environment.identity.backend_key, tuple(self.packages.values()))
 
-    def verify(self, context, environment, desired_roots, inventory):
+    def verify(self, context, environment, desired_roots, inventory, owned_roots):
         resolutions = []
         for root in desired_roots:
             package_key = self.desired_to_package.get(root.backend_key)
