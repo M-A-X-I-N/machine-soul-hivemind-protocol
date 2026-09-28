@@ -102,3 +102,20 @@ Important maintenance details:
 - Candidate merging occurs only when paths overlap or native registration identity matches. A package registration plus a different unowned PATH executable must remain separate/ambiguous.
 - Bash, Zsh, Fish, Oh My Posh, and Contour now support Linux `CHECK_INSTALLED` even though only Fish currently supports Machine-Soul Install/Uninstall.
 - Do not add a Contour Flatpak descriptor from the current install page alone: it confirms Flathub availability but does not expose the exact application ID there. Verify the ID from an authoritative source before adding that backend.
+
+
+## Implemented native Windows discovery — MSHP-DISC-B-040
+
+Native Windows discovery now has reusable exact WinGet-correlation, ARP/MSI, AppX/MSIX, executable, and built-in capability backends.
+
+Maintenance details:
+
+- WinGet is correlation/manageability evidence only. Do not reinterpret an exact `winget list` match as proof that WinGet historically installed the software.
+- No Microsoft.WinGet.Client dependency was introduced. WinGet's documented CLI output is used only for exact-match success/failure; structured registration/version/path details come from ARP/AppX/executable backends.
+- ARP enumeration uses `winreg` and checks user/machine plus available 32/64-bit views. Avoid fuzzy display-name matching; prefer product codes, exact declared names, or executable-under-InstallLocation correlation.
+- AppX discovery uses exact PackageFamilyName and JSON from the built-in PowerShell AppX interface.
+- PowerShell deliberately preserves Windows PowerShell and PowerShell 7 as separate candidates. Side-by-side presence is meaningful, not duplicate noise.
+- The stable Windows Terminal identity is `Microsoft.WindowsTerminal` / `Microsoft.WindowsTerminal_8wekyb3d8bbwe`.
+- Current PowerShell 7 WinGet identity is `Microsoft.PowerShell`; its current MSIX family is `Microsoft.PowerShell_8wekyb3d8bbwe`.
+- CMD is modeled as a built-in executable capability, not as an installable package.
+- Windows POSIX shell discovery remains a separate compatibility-environment concern.

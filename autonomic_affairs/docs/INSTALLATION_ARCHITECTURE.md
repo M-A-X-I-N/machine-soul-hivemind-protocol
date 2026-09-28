@@ -185,3 +185,58 @@ Current upstream references used for the Linux declaration choices:
 - https://fishshell.com/
 - https://ohmyposh.dev/docs/installation/linux
 - https://contour-terminal.org/install/
+
+
+## 14. Native Windows discovery implementation
+
+Native Windows installation discovery combines exact catalog/package identity, native registration, and executable evidence. The backends remain read-only.
+
+### WinGet correlation
+
+`WingetPackageDiscovery` uses an exact `winget list --id ... --source ... --exact` query as catalog-correlation evidence.
+
+WinGet documents that `list` includes applications installed by WinGet and applications installed by other means. A successful exact match therefore means the installed application correlates to/manageably maps to that WinGet package identity; it does **not** prove WinGet historically performed the install.
+
+Machine-Soul does not require the optional `Microsoft.WinGet.Client` PowerShell module. Structured version/path/registration facts come from native registration backends or application executable probes instead of parsing WinGet's human table output.
+
+### Add/Remove Programs / MSI
+
+`WindowsArpDiscovery` enumerates the standard per-user/per-machine uninstall registry areas across available 32/64-bit views using Python's standard-library `winreg`.
+
+Matching is exact:
+
+- exact product code when declared;
+- exact display name/publisher when declared;
+- or executable-under-`InstallLocation` correlation when the declaration intentionally uses an executable identity.
+
+The backend records display version, publisher, install/source paths, uninstall identity, scope, registry view, and whether Windows Installer registration is present.
+
+It does not infer the historical acquisition frontend from an MSI/ARP record.
+
+### MSIX/AppX
+
+`WindowsAppxDiscovery` queries installed packages by exact PackageFamilyName through the built-in Windows PowerShell AppX interface and consumes JSON output.
+
+It records PackageFullName, family, version, install location, publisher ID, and current-user package scope. Package identity does not by itself distinguish Store, WinGet, GitHub-release, or another acquisition frontend.
+
+### Built-in capability
+
+Windows platform components such as CMD use `BuiltInExecutableDiscovery`. This establishes the executable/platform capability directly without inventing package-manager provenance.
+
+### Current native Windows declarations
+
+- Oh My Posh: preferred exact WinGet correlation plus executable/version fallback.
+- PowerShell: PowerShell 7 WinGet/MSIX/ARP/executable evidence plus Windows PowerShell as a separate built-in candidate. Side-by-side installations remain visible/ambiguous rather than being collapsed.
+- Windows Terminal: exact stable WinGet package and stable PackageFamilyName plus executable fallback.
+- Contour: ARP registration correlated through `contour.exe` plus executable/version fallback.
+- CMD: built-in `cmd.exe` capability.
+
+Windows POSIX-environment shells are deliberately excluded here and are handled separately because MSYS2/Cygwin package/executable truth is not the same as native Windows installation state.
+
+Sources:
+- https://learn.microsoft.com/en-us/windows/package-manager/winget/list
+- https://learn.microsoft.com/en-us/windows/package-manager/package/manifest
+- https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key
+- https://learn.microsoft.com/en-us/powershell/module/appx/get-appxpackage
+- https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows
+- https://contour-terminal.org/install/
