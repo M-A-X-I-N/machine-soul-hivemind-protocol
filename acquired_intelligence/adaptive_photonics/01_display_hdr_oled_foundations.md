@@ -196,3 +196,25 @@ Before buying:
 10. Whether HDR and VRR coexist reliably.
 11. Whether the monitor exposes sensible calibration/ICC behavior.
 12. Whether text looks better with grayscale AA, OS subpixel AA, or custom panel-aware AA.
+
+
+## Second-pass scRGB reference-white nuance
+
+The convenient statement "scRGB 1.0 = 80 nits" needs careful scope.
+
+For Windows-scRGB stimulus encoding, the Wayland protocol specifies:
+- R=G=B=0.0 corresponds to 0 cd/m²;
+- R=G=B=1.0 corresponds to 80 cd/m²;
+- values can extend above 1.0 (up to the protocol-described 10,000-nit mapping range).
+
+However, the same protocol explicitly says the **reference white level of Windows-scRGB is unknown/variable**. When a compositor must assume a reference white for processing, it recommends R=G=B=2.5375, corresponding to **203 cd/m²** per ITU-R BT.2408-7.
+
+It also warns that `EGL_EXT_gl_colorspace_scrgb_linear` has different semantics: there 1.0 is defined as reference white.
+
+Source:
+https://wayland.app/protocols/color-management-v1
+
+Practical rule:
+- distinguish **stimulus luminance mapping** from **reference white for composition/viewing semantics**;
+- do not bake a single universal "1.0 = reference white" assumption into the core renderer;
+- platform backend owns this translation.
