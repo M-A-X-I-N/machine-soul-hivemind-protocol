@@ -301,3 +301,52 @@ For every reference implementation, specifically inspect:
 - HDR capability detection.
 
 This avoids reading entire UI frameworks when only five rendering seams actually matter.
+
+
+## Third-pass addition — Ghostty custom shaders
+
+Ghostty is now one of the most attractive first live-text laboratories.
+
+Official project/docs:
+- https://github.com/ghostty-org/ghostty
+- https://ghostty.org/docs/config/reference#custom-shader
+
+Ghostty supports custom GLSL post-process shaders with the rendered terminal exposed through `iChannel0`, and multiple shaders may be chained.
+
+A community implementation at https://github.com/lexrus/lex-ghostty-shaders demonstrates a particularly useful composition pattern: with a transparent terminal background, terminal glyph pixels remain in the foreground texture while generated imagery is composited only where terminal alpha leaves room. The shader performs premultiplied-alpha "over" composition so glyphs remain unchanged.
+
+That gives a cheap route to:
+- use real terminal glyph alpha as the protection mask;
+- generate or sample wallpaper underneath it;
+- locally dim/filter only the background;
+- compare exact untouched glyphs against adaptive-background processing.
+
+### Ghostty versus kitty
+
+- **Ghostty:** likely simpler for direct glyph/background separation through alpha.
+- **kitty:** richer experimental shader graph, intermediate textures, persistent state, event-driven execution, Slang.
+- **WezTerm:** strongest existing layered/parallax wallpaper baseline.
+
+Use all three as complementary laboratories rather than trying to pick a winner.
+
+## Third-pass addition — JetBrains already owns wallpaper insertion
+
+JetBrains IDEs/platform themes already support background images and transparency. Current plugins also provide background images and Windows Acrylic-style effects.
+
+Therefore a JetBrains prototype should focus on the unsolved seam:
+- visible glyph geometry / coverage;
+- viewport transforms;
+- semantic token metadata;
+- communication with a GPU sidecar;
+
+rather than spending engineering effort merely putting an image behind the editor.
+
+## Third-pass addition — capture/filter laboratories
+
+Before building a dedicated capture backend, useful existing hosts include:
+
+- **Magpie / MagpieFX:** mature Windows Graphics Capture plus multipass D3D11 compute-shader effects, FP16-capable intermediate formats.
+- **OBS + obs-shaderfilter:** capture any editor window, then run arbitrary shader experiments in a color-aware filter pipeline.
+- **GlassCode:** direct JetBrains capture/process/overlay ancestor and crude foreground/background-classification baseline.
+
+These can validate filter behavior independently of production integration.
