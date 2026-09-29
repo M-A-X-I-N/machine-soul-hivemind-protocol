@@ -90,8 +90,18 @@ Each runtime/global-prefix pair is a separate package environment. Machine-reada
 
 Project `package.json`, lockfiles, and local `node_modules` remain project-owned and outside this backend.
 
+### LuaRocks exact runtime/tree environments
+
+The initial LuaRocks backend binds each managed tree to one exact owned Lua/LuaJIT runtime instance plus one exact physical rocks-tree root. It invokes LuaRocks with explicit Lua directory, Lua line, tree, no-project, and single-tree dependency-mode selectors rather than ambient PATH or project discovery.
+
+Distinct simultaneous Lua runtimes use distinct trees. One physical tree is refused when configured against different exact runtimes. Project-local trees remain project-owned and non-adoptable by default.
+
+Porcelain inventory remains tree-local. Desired roots are manager-native package/version pairs; observed dependencies remain transitive observations rather than independently owned roots. Exact removal identities include package and installed version so reconciliation cannot remove a same-named rock from another runtime/tree.
+
+LuaRocks itself remains a separate tool capability. Native rock failures caused by missing Lua headers/libraries, compilers, or external dependencies are surfaced explicitly rather than silently annexing a native toolchain.
+
 ### Shared safety properties
 
-Both concrete backends preserve manager-native desired specifiers, keep tool availability separate from package-root ownership, preserve unknown top-level packages under managed-root policy, redact source/diagnostic metadata before persistence, and report missing native-build prerequisites instead of silently annexing compilers or SDKs.
+The concrete pip, npm, and LuaRocks backends preserve manager-native desired specifiers, keep tool availability separate from package-root ownership, preserve unknown top-level packages under managed-root policy, keep project-owned environments outside implicit annexation, bind mutation to exact runtime/environment identity, and report missing native-build prerequisites instead of silently annexing compilers or SDKs.
 
-LuaRocks remains the next concrete backend and must preserve its distinct exact-runtime + rocks-tree identity rather than reusing pip/npm command assumptions.
+Secret-bearing desired state remains rejected/redacted according to the shared package-environment boundary.
