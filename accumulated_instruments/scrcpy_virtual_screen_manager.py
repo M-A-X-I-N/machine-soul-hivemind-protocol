@@ -1127,6 +1127,15 @@ def win32_visible_window_for_pid(pid: int) -> int | None:
     matches: list[int] = []
 
     callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    user32.IsWindowVisible.argtypes = [wintypes.HWND]
+    user32.IsWindowVisible.restype = wintypes.BOOL
+    user32.GetWindowThreadProcessId.argtypes = [
+        wintypes.HWND,
+        ctypes.POINTER(wintypes.DWORD),
+    ]
+    user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+    user32.EnumWindows.argtypes = [callback_type, wintypes.LPARAM]
+    user32.EnumWindows.restype = wintypes.BOOL
 
     @callback_type
     def callback(hwnd: int, _lparam: int) -> bool:
@@ -1150,8 +1159,12 @@ def win32_is_window(hwnd: int | None) -> bool:
         return False
 
     import ctypes
+    from ctypes import wintypes
 
-    return bool(ctypes.windll.user32.IsWindow(hwnd))
+    user32 = ctypes.windll.user32
+    user32.IsWindow.argtypes = [wintypes.HWND]
+    user32.IsWindow.restype = wintypes.BOOL
+    return bool(user32.IsWindow(hwnd))
 
 
 def win32_client_rect_on_screen(hwnd: int) -> tuple[int, int, int, int] | None:
@@ -1166,6 +1179,17 @@ def win32_client_rect_on_screen(hwnd: int) -> tuple[int, int, int, int] | None:
         _fields_ = [("x", wintypes.LONG), ("y", wintypes.LONG)]
 
     user32 = ctypes.windll.user32
+    user32.GetClientRect.argtypes = [
+        wintypes.HWND,
+        ctypes.POINTER(wintypes.RECT),
+    ]
+    user32.GetClientRect.restype = wintypes.BOOL
+    user32.ClientToScreen.argtypes = [
+        wintypes.HWND,
+        ctypes.POINTER(Point),
+    ]
+    user32.ClientToScreen.restype = wintypes.BOOL
+
     rect = wintypes.RECT()
     if not user32.GetClientRect(hwnd, ctypes.byref(rect)):
         return None
@@ -1188,6 +1212,19 @@ def win32_set_window_rect(hwnd: int, rect: tuple[int, int, int, int]) -> bool:
         return False
 
     import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.SetWindowPos.argtypes = [
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    ]
+    user32.SetWindowPos.restype = wintypes.BOOL
 
     x, y, width, height = rect
     # HWND_TOP plus SWP_NOACTIVATE keeps grouped scrcpy windows above the
@@ -1196,7 +1233,7 @@ def win32_set_window_rect(hwnd: int, rect: tuple[int, int, int, int]) -> bool:
     SWP_NOACTIVATE = 0x0010
     SWP_SHOWWINDOW = 0x0040
     return bool(
-        ctypes.windll.user32.SetWindowPos(
+        user32.SetWindowPos(
             hwnd,
             HWND_TOP,
             int(x),
@@ -1382,9 +1419,18 @@ class OrganizerWindow:
         hwnd = self._current_hwnd()
         if hwnd is not None and os.name == "nt":
             import ctypes
+            from ctypes import wintypes
 
             WM_APP_UPDATE_TITLE = 0x8001
-            ctypes.windll.user32.PostMessageW(
+            user32 = ctypes.windll.user32
+            user32.PostMessageW.argtypes = [
+                wintypes.HWND,
+                wintypes.UINT,
+                wintypes.WPARAM,
+                wintypes.LPARAM,
+            ]
+            user32.PostMessageW.restype = wintypes.BOOL
+            user32.PostMessageW(
                 hwnd,
                 WM_APP_UPDATE_TITLE,
                 0,
@@ -1397,9 +1443,18 @@ class OrganizerWindow:
         hwnd = self._current_hwnd()
         if hwnd is not None and os.name == "nt":
             import ctypes
+            from ctypes import wintypes
 
             WM_CLOSE = 0x0010
-            ctypes.windll.user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+            user32 = ctypes.windll.user32
+            user32.PostMessageW.argtypes = [
+                wintypes.HWND,
+                wintypes.UINT,
+                wintypes.WPARAM,
+                wintypes.LPARAM,
+            ]
+            user32.PostMessageW.restype = wintypes.BOOL
+            user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
 
         if threading.current_thread() is not self._thread:
             self._thread.join(timeout=1.0)
@@ -1503,16 +1558,87 @@ class OrganizerWindow:
                 ("ptMaxTrackSize", wintypes.POINT),
             ]
 
-        # Pointer-sized return values must be declared explicitly on 64-bit
-        # Windows; ctypes otherwise assumes c_int for unannotated functions.
+        # Pointer-sized parameters and return values must be declared explicitly
+        # on 64-bit Windows; ctypes otherwise assumes c_int for unannotated APIs.
         kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
         kernel32.GetModuleHandleW.restype = wintypes.HMODULE
+
         user32.LoadCursorW.restype = wintypes.HCURSOR
+        user32.GetSysColorBrush.argtypes = [ctypes.c_int]
         user32.GetSysColorBrush.restype = wintypes.HBRUSH
+
         user32.RegisterClassExW.argtypes = [ctypes.POINTER(WindowClass)]
         user32.RegisterClassExW.restype = ctypes.c_ushort
+        user32.UnregisterClassW.argtypes = [
+            wintypes.LPCWSTR,
+            wintypes.HINSTANCE,
+        ]
+        user32.UnregisterClassW.restype = wintypes.BOOL
+
+        user32.CreateWindowExW.argtypes = [
+            wintypes.DWORD,
+            wintypes.LPCWSTR,
+            wintypes.LPCWSTR,
+            wintypes.DWORD,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            wintypes.HWND,
+            wintypes.HANDLE,
+            wintypes.HINSTANCE,
+            wintypes.LPVOID,
+        ]
         user32.CreateWindowExW.restype = wintypes.HWND
+
+        user32.DefWindowProcW.argtypes = [
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.WPARAM,
+            wintypes.LPARAM,
+        ]
         user32.DefWindowProcW.restype = ctypes.c_ssize_t
+
+        user32.SetTimer.argtypes = [
+            wintypes.HWND,
+            ctypes.c_size_t,
+            wintypes.UINT,
+            wintypes.LPVOID,
+        ]
+        user32.SetTimer.restype = ctypes.c_size_t
+        user32.KillTimer.argtypes = [wintypes.HWND, ctypes.c_size_t]
+        user32.KillTimer.restype = wintypes.BOOL
+
+        user32.SetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPCWSTR]
+        user32.SetWindowTextW.restype = wintypes.BOOL
+        user32.DestroyWindow.argtypes = [wintypes.HWND]
+        user32.DestroyWindow.restype = wintypes.BOOL
+        user32.IsWindow.argtypes = [wintypes.HWND]
+        user32.IsWindow.restype = wintypes.BOOL
+        user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+        user32.ShowWindow.restype = wintypes.BOOL
+        user32.UpdateWindow.argtypes = [wintypes.HWND]
+        user32.UpdateWindow.restype = wintypes.BOOL
+        user32.PostMessageW.argtypes = [
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.WPARAM,
+            wintypes.LPARAM,
+        ]
+        user32.PostMessageW.restype = wintypes.BOOL
+        user32.PostQuitMessage.argtypes = [ctypes.c_int]
+
+        user32.GetMessageW.argtypes = [
+            ctypes.POINTER(wintypes.MSG),
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.UINT,
+        ]
+        user32.GetMessageW.restype = wintypes.BOOL
+        user32.TranslateMessage.argtypes = [ctypes.POINTER(wintypes.MSG)]
+        user32.TranslateMessage.restype = wintypes.BOOL
+        user32.DispatchMessageW.argtypes = [ctypes.POINTER(wintypes.MSG)]
+        user32.DispatchMessageW.restype = ctypes.c_ssize_t
 
         hinstance = kernel32.GetModuleHandleW(None)
         class_name = (
