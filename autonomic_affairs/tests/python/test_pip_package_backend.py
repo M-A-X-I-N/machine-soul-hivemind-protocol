@@ -379,7 +379,10 @@ class PipPackageBackendTests(unittest.TestCase):
             and "--dry-run" not in call
         ]
         self.assertEqual(1, len(install_calls))
-        self.assertEqual(interpreter, install_calls[0][0])
+        self.assertEqual(
+            runner._interpreter_key(interpreter),
+            runner._interpreter_key(install_calls[0][0]),
+        )
 
     def test_persisted_root_provenance_avoids_re_resolving_same_specifier(self):
         runner = FakePipRunner()
