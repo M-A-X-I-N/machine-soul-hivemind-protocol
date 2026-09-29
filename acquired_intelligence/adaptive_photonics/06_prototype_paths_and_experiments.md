@@ -349,3 +349,82 @@ Zed/editor integration experiment
         ↓
 production-quality platform backends
 ```
+
+
+## Third-pass revised experiment ladder
+
+Existing implementations give us better cheap checkpoints.
+
+### A. Offline ancestry baselines
+
+Render the same test scene using:
+1. raw wallpaper;
+2. black/white adaptive foreground;
+3. outline/drop shadow;
+4. Material-style gradient scrim;
+5. GlassCode-style inferred local background versus shape classifier;
+6. exact glyph-mask local luminance reduction;
+7. exact glyph-mask high-frequency/detail suppression;
+8. perception-weighted variant.
+
+This directly answers which generation of solution actually earns its complexity.
+
+### B. Ghostty — exact foreground-alpha experiment
+
+When configured so terminal background alpha remains transparent, use `iChannel0.a` as a real terminal-derived foreground/protection signal.
+
+Test:
+- wallpaper below glyphs;
+- glyph-distance falloff;
+- local luminance suppression;
+- local multi-scale detail suppression;
+- dither after locally flattened gradients.
+
+This may be the cheapest proof that the visual idea works with real rendered text.
+
+### C. kitty — temporal/multipass extension
+
+Port the winning Ghostty/static algorithm into kitty's richer shader system and test:
+- persistent temporal state;
+- attack/release hysteresis;
+- event-driven recomputation;
+- chained intermediate maps.
+
+### D. Windows capture shader hosts
+
+Before writing our own capture/overlay backend, test algorithms in:
+- Windows Terminal HLSL when its texture inputs are enough;
+- OBS Window Capture + obs-shaderfilter;
+- MagpieFX if a no-scale/window-processing setup is convenient.
+
+### E. libplacebo feasibility spike
+
+Before committing to native custom D3D/Vulkan infrastructure:
+1. create a libplacebo GPU/context;
+2. load wallpaper into a correctly tagged color space;
+3. attach custom shader at a linear/high-precision hook stage;
+4. bind an external glyph-mask texture;
+5. implement a simple low/high-frequency attenuation pass;
+6. render to Windows and Linux targets;
+7. inventory remaining presentation glue.
+
+Specifically compare our first implementation against libplacebo's own **contrast-recovery** feature-map machinery, whose high-frequency residual is conceptually the inverse of what we need near glyphs.
+
+### F. Cooperative editor integration
+
+Only after the shader earns itself:
+- JetBrains plugin exposes visible text/protection geometry to sidecar;
+- Zed/GPUI branch exposes renderer-native glyph data;
+- Electron/Monaco path exposes layout + WebGPU background;
+- VS Code patching remains an option, not the default assumption.
+
+### G. Capture fallback
+
+If no editor can cooperate, reproduce the GlassCode architecture with modern pieces:
+- FP16 Windows Graphics Capture where HDR matters;
+- explicit color metadata;
+- better foreground mask inference;
+- adaptive renderer;
+- overlay/replacement window.
+
+The existence of GlassCode means this is ugly, not imaginary.
