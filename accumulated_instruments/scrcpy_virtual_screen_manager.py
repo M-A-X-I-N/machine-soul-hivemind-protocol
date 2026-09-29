@@ -1437,8 +1437,16 @@ class OrganizerWindow:
                 0,
             )
 
-    def send_to_back(self) -> None:
-        """Keep the geometry master behind the scrcpy windows it arranges."""
+    def place_behind(self, foreground_hwnd: int) -> None:
+        """
+        Place the organizer immediately behind one group member.
+
+        Member windows are moved to HWND_TOP in deterministic sequence during a
+        layout pass. The first member processed therefore becomes the lowest
+        member in that little stack. Putting the organizer directly behind that
+        window keeps the whole group together in z-order without pinning the
+        organizer beneath unrelated applications.
+        """
         hwnd = self._current_hwnd()
         if hwnd is None or os.name != "nt":
             return
@@ -1458,13 +1466,12 @@ class OrganizerWindow:
         ]
         user32.SetWindowPos.restype = wintypes.BOOL
 
-        HWND_BOTTOM = 1
         SWP_NOSIZE = 0x0001
         SWP_NOMOVE = 0x0002
         SWP_NOACTIVATE = 0x0010
         user32.SetWindowPos(
             hwnd,
-            HWND_BOTTOM,
+            foreground_hwnd,
             0,
             0,
             0,
@@ -2302,12 +2309,14 @@ class VirtualScreenManager:
                 screen.window_handle = None
                 success = False
 
-        if success:
+        if success and screens[0].window_handle is not None:
             # The organizer is normally the active window while the operator is
-            # dragging/resizing it. Explicitly put it behind the arranged scrcpy
-            # windows after every layout so its otherwise-empty client area never
-            # blankets the very screens it is meant to organize.
-            group.organizer.send_to_back()
+            # dragging/resizing it. Member windows above were deliberately moved
+            # to HWND_TOP in sorted order, making the first one the lowest member
+            # in the resulting stack. Put the organizer directly behind that
+            # member, not at the global bottom of the desktop, so unrelated apps
+            # cannot wedge themselves between the organizer and its screens.
+            group.organizer.place_behind(screens[0].window_handle)
 
         return success
 
