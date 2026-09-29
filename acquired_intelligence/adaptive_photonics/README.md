@@ -37,6 +37,14 @@ The working concept is an **adaptive local-contrast compositor**.
 - [04_linux_wayland_vulkan_nvidia.md](04_linux_wayland_vulkan_nvidia.md) — Wayland color-management-v1, Vulkan HDR/color-space support, KWin/KDE, DRM color pipelines, and current NVIDIA state.
 - [05_adaptive_compositor_architecture.md](05_adaptive_compositor_architecture.md) — proposed platform-neutral pipeline, algorithms, data flow, abstractions, and edge cases.
 - [06_prototype_paths_and_experiments.md](06_prototype_paths_and_experiments.md) — staged experiments designed to answer unknowns cheaply before writing an editor.
+- [07_perceptual_models_and_metrics.md](07_perceptual_models_and_metrics.md) — contrast-sensitivity models, visual angle, spatial/temporal frequency, and perceptual evaluation.
+- [08_web_chromium_electron_webgpu.md](08_web_chromium_electron_webgpu.md) — Chromium HDR/scRGB machinery, Electron, WebGPU FP16/extended tone mapping, and CSS HDR.
+- [09_capture_compositor_and_integration_routes.md](09_capture_compositor_and_integration_routes.md) — cooperative sidecars, capture, overlays, compositor routes, and editor integration.
+- [10_image_filtering_and_depth_preservation.md](10_image_filtering_and_depth_preservation.md) — Laplacian pyramids, local Laplacian/guided/bilateral filtering, depth cues, and selective detail destruction.
+- [11_calibration_measurement_and_color_management.md](11_calibration_measurement_and_color_management.md) — display characterization, Windows MHC2, ICC, LittleCMS, instruments, and physical-nit measurement.
+- [12_renderer_editor_and_terminal_laboratories.md](12_renderer_editor_and_terminal_laboratories.md) — Windows Terminal, kitty, WezTerm, Zed/GPUI, Qt, SDL, and other implementation laboratories.
+- [13_low_luminance_oled_transport_and_temporal_gotchas.md](13_low_luminance_oled_transport_and_temporal_gotchas.md) — near-black OLED behavior, VRR/gamma shifts, 4:4:4, DSC, precision, and multi-monitor transport issues.
+- [14_second_pass_open_questions.md](14_second_pass_open_questions.md) — unresolved questions and future research queue.
 - [SOURCES.md](SOURCES.md) — primary/secondary source map with notes.
 
 ## One-sentence mental model
@@ -86,3 +94,15 @@ Then compare it against:
 4. static translucent rectangle behind text.
 
 Only after the adaptive approach wins should editor integration become the next hard problem.
+
+
+## Second shotgun pass
+
+A second deliberately over-broad research pass added four major directions that were not obvious from the first pass:
+
+1. **Perception-informed conflict scoring** — castleCSF and related models make it plausible to reason in spatial/temporal frequency, luminance, visual angle, and chromatic sensitivity rather than inventing a readability score entirely from vibes.
+2. **WebGPU/Electron as a serious prototype** — modern Chromium/WebGPU has FP16 HDR canvas support and extended tone mapping, making a portable HDR compute-shader prototype worth testing before committing to raw D3D/Vulkan.
+3. **Existing renderer laboratories** — kitty 0.49 custom shaders, Windows Terminal shaders, WezTerm layered/parallax backgrounds, and Zed's GPU-native GPUI create much cheaper experimentation paths than building everything immediately.
+4. **Low-luminance behavior as a first-class hardware criterion** — near-black crush, gray uniformity, refresh-dependent gamma, VRR flicker, 4:4:4 transport, and actual minimum-brightness behavior matter unusually much for this use case.
+
+The first-pass architecture remains plausible, but these routes substantially expand the space of cheap prototypes and measurement techniques.
