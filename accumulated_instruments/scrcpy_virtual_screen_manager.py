@@ -14,6 +14,19 @@ related workflows:
    Manage multiple virtual-display scrcpy sessions from one terminal while
    centralizing device-global behavior in exactly one hidden scrcpy controller.
 
+INTERACTIVE CONTROL MODEL
+=========================
+The interactive interface is a keyboard-driven terminal UI rather than a
+numbered command prompt. The controller, every managed virtual display, and the
+manager actions are selectable list entries. Up/down moves the selection;
+Enter expands a process entry or invokes an action. Expanded process entries
+show an inline submenu directly below the entry.
+
+Every scrcpy subprocess spools its complete merged stdout/stderr stream to a
+per-session temporary log file. The main list shows only one ellipsized latest
+line so long output can never wrap and destroy the layout. The expanded
+Console action opens a full scrollable history viewer over the complete log.
+
 DESIGN INVARIANTS
 =================
 - Managed screen processes never own Android-global stay-awake state.
@@ -24,7 +37,9 @@ DESIGN INVARIANTS
     * --stay-awake
     * --turn-screen-off
     * --keep-active
-  for the lifetime of the interactive manager.
+  for the lifetime of the interactive manager once the first screen is added.
+- The controller appears in the same interactive process list as virtual
+  displays even though it has no video surface.
 - The controller is asked to stop gracefully so scrcpy can restore the original
   stay_on_while_plugged_in value.
 - Virtual-screen bitrate is deterministic from virtual framebuffer size unless
@@ -38,13 +53,15 @@ stay-awake as restoring its previous global setting on exit, while
 restoration. Interactive mode therefore centralizes that action, but does not
 attempt to guess or recreate the user's prior physical-screen state on exit.
 
-No third-party Python packages are required.
+No third-party Python packages are required. Nerd Font glyphs are intentionally
+used throughout the interactive interface; a Nerd Font-capable terminal is
+therefore strongly recommended.
 """
 
 from __future__ import annotations
 
 import argparse
-from collections import deque
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 import math
 import os
@@ -55,9 +72,11 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
+import textwrap
 import threading
 import time
-from typing import Iterable, Sequence
+from typing import Callable, Iterable, Iterator, Sequence
 
 
 # =============================================================================
@@ -79,14 +98,44 @@ AUTO_BITRATE_ROUNDING_BPS = 100_000
 PROCESS_STOP_GRACE_SECONDS = 4.0
 PROCESS_TERMINATE_GRACE_SECONDS = 2.0
 PROCESS_STARTUP_PROBE_SECONDS = 0.25
-LOG_BUFFER_LINES = 500
+UI_REFRESH_SECONDS = 0.20
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
+ANSI_ESCAPE_PATTERN = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[@-_])")
 
 EXIT_OK = 0
 EXIT_DEPENDENCY = 3
 EXIT_RUNTIME = 4
+
+# Nerd Font / terminal presentation glyphs. These are decoration only: control
+# logic never depends on glyph width or successful font rendering.
+ICON_POINTER = "󰜴"
+ICON_CONTROLLER = "󰒋"
+ICON_SCREEN = "󰍹"
+ICON_RUNNING = "󰐊"
+ICON_STOPPED = "󰅖"
+ICON_STANDBY = "󰒲"
+ICON_LOG = "󰆍"
+ICON_ADD = "󰐕"
+ICON_SETTINGS = "󰒓"
+ICON_HELP = "󰋗"
+ICON_QUIT = "󰈆"
+ICON_STOP = "󰆴"
+ICON_REMOVE = "󰆴"
+ICON_RESTART = "󰜉"
+ICON_EXPAND = "󰅂"
+ICON_COLLAPSE = "󰅀"
+ICON_BACK = "󰁍"
+ICON_SCROLL = "󰹹"
+ICON_INFO = "󰋽"
+ICON_TERMINAL = ""
+ICON_HEARTBEAT = "󰓅"
+
+ANSI_RESET = "\x1b[0m"
+ANSI_REVERSE = "\x1b[7m"
+ANSI_DIM = "\x1b[2m"
+ANSI_BOLD = "\x1b[1m"
 
 
 # =============================================================================
@@ -179,6 +228,24 @@ class ManagedScreen:
     @property
     def age_seconds(self) -> int:
         return max(0, int(time.monotonic() - self.started_monotonic))
+
+
+@dataclass(frozen=True, slots=True)
+class MenuItem:
+    """One selectable top-level interactive list entry."""
+
+    key: str
+    kind: str
+    screen_id: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class SubmenuAction:
+    """One selectable action displayed beneath an expanded process entry."""
+
+    action_id: str
+    label: str
+    icon: str
 
 
 # =============================================================================
@@ -367,7 +434,7 @@ def command_for_display(
             [
                 "--no-power-on",
                 "--no-terminal-title",
-                "--verbosity=warn",
+                "--verbosity=info",
             ]
         )
         if managed_screen_id is not None:
@@ -432,7 +499,7 @@ def command_for_device_state_controller(scrcpy: str) -> list[str]:
         "--turn-screen-off",
         "--no-clipboard-autosync",
         "--no-terminal-title",
-        "--verbosity=warn",
+        "--verbosity=info",
     ]
 
 
@@ -444,35 +511,92 @@ def printable_command(command: Sequence[str]) -> str:
 
 
 # =============================================================================
-# CHILD-PROCESS SUPERVISION
+# LOG SANITIZATION / DISPLAY GEOMETRY
+# =============================================================================
+
+
+def sanitize_log_line(line: str) -> str:
+    """Convert arbitrary subprocess output into one harmless terminal UI line."""
+    value = ANSI_ESCAPE_PATTERN.sub("", line)
+    value = value.replace("\r", " ").replace("\n", " ").replace("\t", "    ")
+    return "".join(character if character.isprintable() else "�" for character in value)
+
+
+def ellipsize(text: str, width: int) -> str:
+    """Fit text to exactly one terminal line without wrapping."""
+    if width <= 0:
+        return ""
+    clean = sanitize_log_line(text)
+    if len(clean) <= width:
+        return clean
+    if width == 1:
+        return "…"
+    return clean[: width - 1] + "…"
+
+
+def terminal_dimensions() -> tuple[int, int]:
+    """Return conservative terminal dimensions for deterministic rendering."""
+    size = shutil.get_terminal_size(fallback=(100, 30))
+    return max(50, size.columns), max(16, size.lines)
+
+
+# =============================================================================
+# CHILD-PROCESS SUPERVISION AND COMPLETE LOG SPOOLING
 # =============================================================================
 
 
 class ObservedProcess:
     """
-    One scrcpy process with bounded in-memory log capture.
+    One scrcpy process with complete file-backed console history.
 
     stdout and stderr are merged and drained continuously by a daemon reader
-    thread. This avoids both terminal-menu corruption and pipe-buffer deadlocks.
+    thread. The complete stream is written to log_path. Only the latest line and
+    line count stay in memory, making the always-visible UI cheap regardless of
+    session duration.
     """
 
-    def __init__(self, command: Sequence[str], *, label: str) -> None:
+    def __init__(self, command: Sequence[str], *, label: str, log_path: Path) -> None:
         self.command = list(command)
         self.label = label
-        self._lines: deque[str] = deque(maxlen=LOG_BUFFER_LINES)
+        self.log_path = log_path
         self._lock = threading.Lock()
         self._process: subprocess.Popen[str] | None = None
         self._reader: threading.Thread | None = None
+        self._latest_line = ""
+        self._line_count = 0
+        self._load_existing_log_state()
+
+    def _load_existing_log_state(self) -> None:
+        if not self.log_path.is_file():
+            return
+        try:
+            lines = self.log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            return
+        self._line_count = len(lines)
+        if lines:
+            self._latest_line = lines[-1]
 
     @property
     def pid(self) -> int | None:
         process = self._process
         return None if process is None else process.pid
 
+    @property
+    def latest_line(self) -> str:
+        with self._lock:
+            return self._latest_line
+
+    @property
+    def line_count(self) -> int:
+        with self._lock:
+            return self._line_count
+
     def start(self) -> None:
         if self._process is not None:
             raise LaunchError(f"{self.label} was already started.")
 
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
         creationflags = 0
         if os.name == "nt":
             creationflags |= subprocess.CREATE_NEW_PROCESS_GROUP
@@ -504,9 +628,17 @@ class ObservedProcess:
         self._reader.start()
 
     def _drain_output(self, stream: Iterable[str]) -> None:
-        for line in stream:
+        try:
+            with self.log_path.open("a", encoding="utf-8", buffering=1) as log_file:
+                for line in stream:
+                    normalized = line.rstrip("\r\n")
+                    log_file.write(normalized + "\n")
+                    with self._lock:
+                        self._latest_line = normalized
+                        self._line_count += 1
+        except OSError as exc:
             with self._lock:
-                self._lines.append(line.rstrip("\r\n"))
+                self._latest_line = f"[log spool failure: {exc}]"
 
     def poll(self) -> int | None:
         if self._process is None:
@@ -526,25 +658,28 @@ class ObservedProcess:
             + (f"\n{detail}" if detail else "")
         )
 
+    def read_all_lines(self) -> list[str]:
+        """Snapshot complete console history from disk."""
+        if not self.log_path.is_file():
+            return []
+        try:
+            return self.log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError as exc:
+            return [f"[unable to read log: {exc}]"]
+
     def tail(self, line_count: int = 40) -> list[str]:
-        with self._lock:
-            lines = list(self._lines)
-        return lines[-line_count:]
+        """Return the latest logical lines from complete file-backed history."""
+        if line_count <= 0:
+            return []
+        return self.read_all_lines()[-line_count:]
 
     def request_stop(self) -> bool:
-        """
-        Ask scrcpy to exit cleanly; force termination only as a fallback.
-
-        Returning False means a forced fallback was required. This matters most
-        for the device-state controller because normal scrcpy shutdown performs
-        stay-awake restoration.
-        """
+        """Ask scrcpy to exit cleanly; force termination only as a fallback."""
         process = self._process
         if process is None or process.poll() is not None:
             return True
 
         graceful = True
-
         try:
             if os.name == "nt":
                 process.send_signal(signal.CTRL_BREAK_EVENT)
@@ -569,12 +704,167 @@ class ObservedProcess:
 
 
 # =============================================================================
+# TERMINAL ABSTRACTION
+# =============================================================================
+
+
+class TerminalUI:
+    """Small ANSI/keyboard abstraction with Windows and POSIX key decoding."""
+
+    def __init__(self) -> None:
+        self._entered = False
+        self._posix_fd: int | None = None
+        self._posix_saved_attributes: object | None = None
+
+    def __enter__(self) -> "TerminalUI":
+        if not (sys.stdin.isatty() and sys.stdout.isatty()):
+            raise LaunchError("Interactive mode requires an interactive terminal (TTY).")
+
+        self._entered = True
+        if os.name != "nt":
+            import termios
+            import tty
+
+            self._posix_fd = sys.stdin.fileno()
+            self._posix_saved_attributes = termios.tcgetattr(self._posix_fd)
+            tty.setcbreak(self._posix_fd)
+
+        sys.stdout.write("\x1b[?1049h\x1b[?25l")
+        sys.stdout.flush()
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
+        self._restore_posix_input()
+        sys.stdout.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+        sys.stdout.flush()
+        self._entered = False
+
+    def _restore_posix_input(self) -> None:
+        if os.name == "nt" or self._posix_fd is None or self._posix_saved_attributes is None:
+            return
+        import termios
+
+        termios.tcsetattr(self._posix_fd, termios.TCSADRAIN, self._posix_saved_attributes)
+
+    def _enable_posix_cbreak(self) -> None:
+        if os.name == "nt" or self._posix_fd is None:
+            return
+        import tty
+
+        tty.setcbreak(self._posix_fd)
+
+    @contextmanager
+    def line_mode(self) -> Iterator[None]:
+        """Temporarily restore conventional line input for dialog prompts."""
+        self._restore_posix_input()
+        sys.stdout.write("\x1b[?25h")
+        sys.stdout.flush()
+        try:
+            yield
+        finally:
+            self._enable_posix_cbreak()
+            sys.stdout.write("\x1b[?25l")
+            sys.stdout.flush()
+
+    def draw(self, content: str) -> None:
+        """Redraw the alternate-screen surface from home."""
+        sys.stdout.write("\x1b[H\x1b[2J" + content)
+        sys.stdout.flush()
+
+    def clear_for_dialog(self, title: str) -> None:
+        width, _ = terminal_dimensions()
+        header = f"{ICON_TERMINAL}  {title}"
+        sys.stdout.write("\x1b[H\x1b[2J" + ANSI_BOLD + header + ANSI_RESET + "\n")
+        sys.stdout.write("─" * min(width, 100) + "\n\n")
+        sys.stdout.flush()
+
+    def read_key(self, timeout: float = UI_REFRESH_SECONDS) -> str | None:
+        """Return a normalized key name, or None when only the refresh timer fired."""
+        if os.name == "nt":
+            return self._read_key_windows(timeout)
+        return self._read_key_posix(timeout)
+
+    @staticmethod
+    def _read_key_windows(timeout: float) -> str | None:
+        import msvcrt
+
+        deadline = time.monotonic() + timeout
+        while not msvcrt.kbhit():
+            if time.monotonic() >= deadline:
+                return None
+            time.sleep(min(0.02, max(0.0, deadline - time.monotonic())))
+
+        char = msvcrt.getwch()
+        if char in {"\x00", "\xe0"}:
+            extended = msvcrt.getwch()
+            return {
+                "H": "UP",
+                "P": "DOWN",
+                "K": "LEFT",
+                "M": "RIGHT",
+                "G": "HOME",
+                "O": "END",
+                "I": "PAGE_UP",
+                "Q": "PAGE_DOWN",
+                "S": "DELETE",
+            }.get(extended, "UNKNOWN")
+
+        return TerminalUI._normalize_character_key(char)
+
+    @staticmethod
+    def _read_key_posix(timeout: float) -> str | None:
+        import select
+
+        ready, _, _ = select.select([sys.stdin], [], [], timeout)
+        if not ready:
+            return None
+
+        char = sys.stdin.read(1)
+        if char != "\x1b":
+            return TerminalUI._normalize_character_key(char)
+
+        sequence = ""
+        while True:
+            ready, _, _ = select.select([sys.stdin], [], [], 0.005)
+            if not ready:
+                break
+            sequence += sys.stdin.read(1)
+            if sequence and (sequence[-1].isalpha() or sequence[-1] == "~"):
+                break
+
+        return {
+            "": "ESC",
+            "[A": "UP",
+            "[B": "DOWN",
+            "[C": "RIGHT",
+            "[D": "LEFT",
+            "[H": "HOME",
+            "[F": "END",
+            "[1~": "HOME",
+            "[4~": "END",
+            "[5~": "PAGE_UP",
+            "[6~": "PAGE_DOWN",
+            "[3~": "DELETE",
+        }.get(sequence, "UNKNOWN")
+
+    @staticmethod
+    def _normalize_character_key(char: str) -> str:
+        return {
+            "\r": "ENTER",
+            "\n": "ENTER",
+            "\x1b": "ESC",
+            "\x03": "CTRL_C",
+            " ": "SPACE",
+        }.get(char, char.lower())
+
+
+# =============================================================================
 # INTERACTIVE MANAGER
 # =============================================================================
 
 
 class VirtualScreenManager:
-    """90s-terminal-style manager for multiple scrcpy virtual displays."""
+    """Keyboard-driven 90s-terminal manager for multiple scrcpy processes."""
 
     def __init__(self, scrcpy: str, defaults: ScreenDefaults) -> None:
         self.scrcpy = scrcpy
@@ -582,56 +872,217 @@ class VirtualScreenManager:
         self.screens: dict[int, ManagedScreen] = {}
         self.next_screen_id = 1
         self.controller: ObservedProcess | None = None
+        self.selected_index = 0
+        self.expanded_key: str | None = None
+        self.submenu_index = 0
+        self.terminal: TerminalUI | None = None
+        self._log_directory = tempfile.TemporaryDirectory(prefix="scrcpy-screen-manager-")
+        self.log_root = Path(self._log_directory.name)
 
     def run(self) -> int:
-        """Run until the operator exits or input terminates."""
+        """Run until the operator selects Quit or sends Ctrl+C."""
         try:
-            while True:
-                self._clear_terminal()
-                self._render()
-
-                try:
-                    choice = input("\nCOMMAND> ").strip().lower()
-                except EOFError:
-                    choice = "q"
-
-                if choice in {"1", "a", "add"}:
-                    self._action_add()
-                elif choice in {"2", "k", "kill"}:
-                    self._action_kill()
-                elif choice in {"3", "x", "kill-all", "killall"}:
-                    self._action_kill_all()
-                elif choice in {"4", "d", "defaults"}:
-                    self._action_defaults()
-                elif choice in {"5", "l", "log", "logs"}:
-                    self._action_log()
-                elif choice in {"6", "c", "clear"}:
-                    self._action_clear_exited()
-                elif choice in {"r", "refresh", ""}:
-                    continue
-                elif choice in {"h", "help", "?"}:
-                    self._action_help()
-                elif choice in {"q", "quit", "exit"}:
-                    return EXIT_OK
-                else:
-                    self._pause(f"Unknown command: {choice!r}")
-        except KeyboardInterrupt:
-            return EXIT_OK
+            with TerminalUI() as terminal:
+                self.terminal = terminal
+                while True:
+                    items = self._menu_items()
+                    self.selected_index = min(self.selected_index, max(0, len(items) - 1))
+                    terminal.draw(self._render(items))
+                    key = terminal.read_key(UI_REFRESH_SECONDS)
+                    if key is None:
+                        continue
+                    if key == "CTRL_C":
+                        return EXIT_OK
+                    if self._handle_key(key, items):
+                        return EXIT_OK
         finally:
             self._shutdown()
+            try:
+                self._log_directory.cleanup()
+            except OSError:
+                # A truly unkillable child may still hold its spool file open on
+                # Windows. Never mask manager shutdown with temp cleanup failure.
+                pass
+            self.terminal = None
+
+    def _menu_items(self) -> list[MenuItem]:
+        items = [MenuItem("controller", "controller")]
+        items.extend(
+            MenuItem(f"screen:{screen_id}", "screen", screen_id)
+            for screen_id in sorted(self.screens)
+        )
+        items.extend(
+            [
+                MenuItem("action:add", "action_add"),
+                MenuItem("action:defaults", "action_defaults"),
+                MenuItem("action:help", "action_help"),
+                MenuItem("action:quit", "action_quit"),
+            ]
+        )
+        return items
+
+    def _handle_key(self, key: str, items: list[MenuItem]) -> bool:
+        selected = items[self.selected_index]
+        actions = self._submenu_actions(selected)
+
+        if key == "q" and self.expanded_key is None:
+            return True
+        if key == "a" and self.expanded_key is None:
+            self._run_dialog("ADD VIRTUAL SCREEN", self._action_add)
+            return False
+        if key == "d" and self.expanded_key is None:
+            self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
+            return False
+        if key in {"h", "?"} and self.expanded_key is None:
+            self._show_help()
+            return False
+
+        if key == "UP":
+            self.selected_index = (self.selected_index - 1) % len(items)
+            self._collapse_if_selection_changed(items)
+            return False
+        if key == "DOWN":
+            self.selected_index = (self.selected_index + 1) % len(items)
+            self._collapse_if_selection_changed(items)
+            return False
+        if key in {"LEFT", "RIGHT"} and self.expanded_key == selected.key and actions:
+            delta = -1 if key == "LEFT" else 1
+            self.submenu_index = (self.submenu_index + delta) % len(actions)
+            return False
+        if key == "ESC":
+            self.expanded_key = None
+            self.submenu_index = 0
+            return False
+        if key == "ENTER":
+            if selected.kind.startswith("action_"):
+                return self._invoke_top_level_action(selected.kind)
+
+            if self.expanded_key != selected.key:
+                self.expanded_key = selected.key
+                self.submenu_index = 0
+                return False
+
+            if not actions:
+                self.expanded_key = None
+                return False
+
+            self.submenu_index = min(self.submenu_index, len(actions) - 1)
+            self._invoke_submenu_action(selected, actions[self.submenu_index])
+            return False
+
+        return False
+
+    def _collapse_if_selection_changed(self, items: list[MenuItem]) -> None:
+        selected = items[self.selected_index]
+        if self.expanded_key != selected.key:
+            self.expanded_key = None
+            self.submenu_index = 0
+
+    def _invoke_top_level_action(self, kind: str) -> bool:
+        if kind == "action_add":
+            self._run_dialog("ADD VIRTUAL SCREEN", self._action_add)
+        elif kind == "action_defaults":
+            self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
+        elif kind == "action_help":
+            self._show_help()
+        elif kind == "action_quit":
+            return True
+        return False
+
+    def _submenu_actions(self, item: MenuItem) -> list[SubmenuAction]:
+        if item.kind == "controller":
+            actions = [
+                SubmenuAction(
+                    "console",
+                    f"Console history ({self._controller_line_count()} lines)",
+                    ICON_LOG,
+                )
+            ]
+            if self.controller is None or self.controller.poll() is not None:
+                actions.append(SubmenuAction("restart_controller", "Start controller", ICON_RESTART))
+            return actions
+
+        if item.kind != "screen" or item.screen_id is None:
+            return []
+
+        screen = self.screens[item.screen_id]
+        actions = [
+            SubmenuAction(
+                "console",
+                f"Console history ({screen.process.line_count} lines)",
+                ICON_LOG,
+            )
+        ]
+        if screen.process.poll() is None:
+            actions.append(SubmenuAction("stop", "Stop screen", ICON_STOP))
+        else:
+            actions.append(SubmenuAction("remove", "Remove record", ICON_REMOVE))
+        return actions
+
+    def _invoke_submenu_action(self, item: MenuItem, action: SubmenuAction) -> None:
+        if action.action_id == "console":
+            process = self._process_for_item(item)
+            if process is None:
+                self._show_log_viewer(
+                    title="CTRL / DEVICE-STATE CONTROLLER",
+                    process=None,
+                    standby_message="Controller has not started yet; no console history exists.",
+                )
+            else:
+                title = (
+                    "CTRL / DEVICE-STATE CONTROLLER"
+                    if item.kind == "controller"
+                    else (
+                        f"SCREEN {item.screen_id:02d} / "
+                        f"{self.screens[item.screen_id].request.app or 'bare virtual display'}"
+                    )
+                )
+                self._show_log_viewer(title=title, process=process)
+            return
+
+        if action.action_id == "restart_controller":
+            try:
+                self._ensure_controller()
+            except LaunchError as exc:
+                self._show_message("CONTROLLER START FAILED", str(exc))
+            return
+
+        if item.kind != "screen" or item.screen_id is None:
+            return
+        screen = self.screens[item.screen_id]
+
+        if action.action_id == "stop":
+            graceful = screen.process.request_stop()
+            if not graceful:
+                self._show_message(
+                    "FORCED TERMINATION",
+                    f"Screen {screen.screen_id:02d} required the forced termination fallback.",
+                )
+            return
+
+        if action.action_id == "remove":
+            del self.screens[item.screen_id]
+            self.expanded_key = None
+            self.submenu_index = 0
+
+    def _process_for_item(self, item: MenuItem) -> ObservedProcess | None:
+        if item.kind == "controller":
+            return self.controller
+        if item.kind == "screen" and item.screen_id is not None:
+            return self.screens[item.screen_id].process
+        return None
 
     def _ensure_controller(self) -> None:
-        """
-        Lazily start the single process that owns device-global state.
-
-        Laziness means opening the manager without creating a screen does not
-        mutate the phone at all.
-        """
+        """Lazily start the single process that owns device-global state."""
         if self.controller is not None and self.controller.poll() is None:
             return
 
         command = command_for_device_state_controller(self.scrcpy)
-        controller = ObservedProcess(command, label="device-state controller")
+        controller = ObservedProcess(
+            command,
+            label="device-state controller",
+            log_path=self.log_root / "controller.log",
+        )
         controller.start()
         controller.startup_probe()
         self.controller = controller
@@ -651,7 +1102,6 @@ class VirtualScreenManager:
                 bitrate_spec=self.defaults.bitrate_spec,
                 app=app,
             )
-
             if not use_defaults:
                 request = ScreenRequest(
                     size=self._prompt_size("Size", request.size),
@@ -669,53 +1119,25 @@ class VirtualScreenManager:
                 managed_screen_id=screen_id,
                 interactive_managed=True,
             )
-            process = ObservedProcess(command, label=f"screen {screen_id:02d}")
+            process = ObservedProcess(
+                command,
+                label=f"screen {screen_id:02d}",
+                log_path=self.log_root / f"screen_{screen_id:02d}.log",
+            )
             process.start()
             process.startup_probe()
 
-            self.screens[screen_id] = ManagedScreen(
-                screen_id=screen_id,
-                request=request,
-                bitrate=bitrate,
-                process=process,
-            )
+            self.screens[screen_id] = ManagedScreen(screen_id, request, bitrate, process)
             self.next_screen_id += 1
-
-            self._pause(
-                f"Screen {screen_id:02d} launched successfully.\n"
-                f"{printable_command(command)}"
-            )
+            print()
+            print(f"{ICON_RUNNING} Screen {screen_id:02d} launched successfully.")
+            print(printable_command(command))
+            input("\nPress Enter to return to the manager...")
         except (ConfigurationError, LaunchError) as exc:
-            self._pause(f"ADD FAILED\n{exc}")
-
-    def _action_kill(self) -> None:
-        screen = self._prompt_screen("Kill screen ID")
-        if screen is None:
-            return
-
-        graceful = screen.process.request_stop()
-        suffix = "" if graceful else "\nForced termination fallback was required."
-        self._pause(f"Stop requested for screen {screen.screen_id:02d}.{suffix}")
-
-    def _action_kill_all(self) -> None:
-        running = [screen for screen in self.screens.values() if screen.process.poll() is None]
-        if not running:
-            self._pause("No running managed screens.")
-            return
-
-        if not self._prompt_yes_no(f"Stop all {len(running)} running screens?", default=False):
-            return
-
-        forced = []
-        for screen in running:
-            if not screen.process.request_stop():
-                forced.append(screen.screen_id)
-
-        message = f"Stop requested for {len(running)} screen(s)."
-        if forced:
-            joined = ", ".join(f"{value:02d}" for value in forced)
-            message += f"\nForced termination was required for: {joined}"
-        self._pause(message)
+            print()
+            print(f"{ICON_STOPPED} ADD FAILED")
+            print(exc)
+            input("\nPress Enter to return to the manager...")
 
     def _action_defaults(self) -> None:
         try:
@@ -723,54 +1145,273 @@ class VirtualScreenManager:
             max_fps = self._prompt_fps("Default max FPS", self.defaults.max_fps)
             bitrate = self._prompt_bitrate("Default bitrate", self.defaults.bitrate_spec)
             self.defaults = ScreenDefaults(size=size, max_fps=max_fps, bitrate_spec=bitrate)
-            self._pause("New-screen defaults updated.")
+            print(f"\n{ICON_SETTINGS} New-screen defaults updated.")
+            input("\nPress Enter to return to the manager...")
         except ConfigurationError as exc:
-            self._pause(f"DEFAULT UPDATE FAILED\n{exc}")
+            print(f"\n{ICON_STOPPED} DEFAULT UPDATE FAILED\n{exc}")
+            input("\nPress Enter to return to the manager...")
 
-    def _action_log(self) -> None:
-        screen = self._prompt_screen("Show log for screen ID")
-        if screen is None:
-            return
+    def _run_dialog(self, title: str, action: Callable[[], None]) -> None:
+        terminal = self._require_terminal()
+        with terminal.line_mode():
+            terminal.clear_for_dialog(title)
+            action()
 
-        lines = screen.process.tail(80)
-        body = "\n".join(lines) if lines else "(no captured output)"
-        self._pause(
-            f"LOG / SCREEN {screen.screen_id:02d} / {screen.status}\n"
-            f"{'-' * 72}\n{body}"
-        )
+    def _show_message(self, title: str, message: str) -> None:
+        terminal = self._require_terminal()
+        with terminal.line_mode():
+            terminal.clear_for_dialog(title)
+            print(message)
+            input("\nPress Enter to return to the manager...")
 
-    def _action_clear_exited(self) -> None:
-        exited = [
-            screen_id
-            for screen_id, screen in self.screens.items()
-            if screen.process.poll() is not None
+    def _show_help(self) -> None:
+        terminal = self._require_terminal()
+        width, _ = terminal_dimensions()
+        content = [
+            f"{ANSI_BOLD}{ICON_HELP}  HELP / CONTROL MAP{ANSI_RESET}",
+            "─" * min(width, 100),
+            "",
+            f"  {ICON_POINTER} Up / Down      Select controller, screen, or manager action",
+            f"  {ICON_EXPAND} Enter           Expand a process entry / invoke selected action",
+            f"  {ICON_SCROLL} Left / Right    Select an expanded submenu action",
+            f"  {ICON_BACK} Esc              Collapse the current submenu",
+            f"  {ICON_ADD} A                Add screen",
+            f"  {ICON_SETTINGS} D                Edit defaults",
+            f"  {ICON_HELP} H / ?            Help",
+            f"  {ICON_QUIT} Q                Quit manager (and stop owned processes)",
+            "",
+            f"{ICON_CONTROLLER} Controller architecture",
+            "  One hidden control-only scrcpy process owns --stay-awake,",
+            "  --turn-screen-off and --keep-active. Managed displays receive",
+            "  --no-power-on and never independently own those shared behaviors.",
+            "",
+            f"{ICON_LOG} Console history",
+            "  Every process is fully spooled to a temporary log file. The list",
+            "  shows only an ellipsized latest line. Console history opens a",
+            "  scrollable viewer over the complete output generated this session.",
+            "",
+            f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
         ]
-        for screen_id in exited:
-            del self.screens[screen_id]
-        self._pause(f"Cleared {len(exited)} exited screen record(s).")
+        terminal.draw("\n".join(content))
+        while True:
+            key = terminal.read_key(0.5)
+            if key in {"ESC", "ENTER", "q", "h", "?", "CTRL_C"}:
+                return
 
-    def _action_help(self) -> None:
-        controller_text = (
-            "Interactive mode uses one hidden control-only scrcpy process to own "
-            "--stay-awake, --turn-screen-off and --keep-active. Managed screen "
-            "processes receive --no-power-on and do not receive those shared-state flags."
+    def _show_log_viewer(
+        self,
+        *,
+        title: str,
+        process: ObservedProcess | None,
+        standby_message: str | None = None,
+    ) -> None:
+        terminal = self._require_terminal()
+        top = 0
+        follow_tail = True
+
+        while True:
+            width, height = terminal_dimensions()
+            logical_lines = process.read_all_lines() if process is not None else []
+            visual_lines = self._wrap_log_lines(logical_lines, max(20, width - 4))
+            if not visual_lines and standby_message:
+                visual_lines = [standby_message]
+            elif not visual_lines:
+                visual_lines = ["(no console output yet)"]
+
+            body_height = max(3, height - 7)
+            max_top = max(0, len(visual_lines) - body_height)
+            if follow_tail:
+                top = max_top
+            else:
+                top = max(0, min(top, max_top))
+
+            visible = visual_lines[top : top + body_height]
+            logical_count = process.line_count if process is not None else 0
+            status = self._process_status(process)
+            position = (
+                f"{top + 1}-{min(len(visual_lines), top + body_height)} / "
+                f"{len(visual_lines)} visual"
+            )
+            follow_text = "FOLLOW" if follow_tail else "PAUSED"
+
+            header = [
+                f"{ANSI_BOLD}{ICON_TERMINAL}  {title}{ANSI_RESET}",
+                f"{ICON_HEARTBEAT} {status}    {ICON_LOG} {logical_count} logical lines    "
+                f"{ICON_SCROLL} {position}    {follow_text}",
+                "─" * min(width, 140),
+            ]
+            footer = [
+                "─" * min(width, 140),
+                f"{ANSI_DIM}↑/↓ line  PgUp/PgDn page  Home/End boundary  "
+                f"R refresh/follow  Esc/Enter/Q back{ANSI_RESET}",
+            ]
+            terminal.draw("\n".join(header + visible + footer))
+
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "ENTER", "q", "CTRL_C"}:
+                return
+            if key == "UP":
+                follow_tail = False
+                top = max(0, top - 1)
+            elif key == "DOWN":
+                top = min(max_top, top + 1)
+                follow_tail = top >= max_top
+            elif key == "PAGE_UP":
+                follow_tail = False
+                top = max(0, top - body_height)
+            elif key == "PAGE_DOWN":
+                top = min(max_top, top + body_height)
+                follow_tail = top >= max_top
+            elif key == "HOME":
+                follow_tail = False
+                top = 0
+            elif key in {"END", "r"}:
+                follow_tail = True
+                top = max_top
+
+    @staticmethod
+    def _wrap_log_lines(lines: Sequence[str], width: int) -> list[str]:
+        """Expand logical log lines into wrapped visual lines for full-history view."""
+        output: list[str] = []
+        for line in lines:
+            clean = sanitize_log_line(line)
+            wrapped = textwrap.wrap(
+                clean,
+                width=width,
+                replace_whitespace=False,
+                drop_whitespace=False,
+                break_long_words=True,
+                break_on_hyphens=False,
+            )
+            output.extend(wrapped or [""])
+        return output
+
+    def _render(self, items: list[MenuItem]) -> str:
+        width, _ = terminal_dimensions()
+        running = sum(screen.process.poll() is None for screen in self.screens.values())
+        lines = [
+            f"{ANSI_BOLD}╔{'═' * min(width - 2, 98)}╗{ANSI_RESET}",
+            f"{ANSI_BOLD}  {ICON_TERMINAL} SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}",
+            f"  {ICON_SCREEN} {len(self.screens)} displays / {running} running    "
+            f"{ICON_SETTINGS} defaults {self.defaults.size} · "
+            f"{self.defaults.max_fps} FPS · {self.defaults.bitrate_spec}",
+            "",
+            f"{ANSI_BOLD}[ {ICON_SCREEN} SESSIONS / CONTROLS ]{ANSI_RESET}",
+        ]
+
+        for index, item in enumerate(items):
+            selected = index == self.selected_index
+            lines.extend(self._render_item(item, selected=selected, width=width))
+
+        lines.extend(
+            [
+                "",
+                f"{ANSI_DIM}↑/↓ select   Enter expand/invoke   ←/→ submenu   "
+                f"Esc collapse   A add   D defaults   H help   Q quit{ANSI_RESET}",
+            ]
         )
-        self._pause(
-            "HELP\n"
-            "====\n"
-            "A / Add       Create another virtual display.\n"
-            "K / Kill      Stop one managed display.\n"
-            "X / Kill all  Stop all managed display processes.\n"
-            "D / Defaults  Change defaults for future displays.\n"
-            "L / Log       Inspect captured scrcpy output for one display.\n"
-            "C / Clear     Remove exited display records from the table.\n"
-            "R / Refresh   Redraw status.\n"
-            "Q / Quit      Stop displays, stop controller, exit.\n\n"
-            f"{controller_text}\n\n"
-            "A bare virtual display is supported by scrcpy, but some Android "
-            "devices do not expose a launcher there; such a display may appear "
-            "empty until an app is explicitly started."
+        return "\n".join(lines)
+
+    def _render_item(self, item: MenuItem, *, selected: bool, width: int) -> list[str]:
+        pointer = ICON_POINTER if selected else " "
+        expanded = self.expanded_key == item.key
+        expander = ICON_COLLAPSE if expanded else ICON_EXPAND
+
+        if item.kind == "controller":
+            status = self._controller_status_short()
+            pid = self.controller.pid if self.controller is not None else None
+            row = (
+                f" {pointer} {expander} {ICON_CONTROLLER} CTRL  {status:<9}  "
+                f"pid={pid or '-':<7}  device-state controller"
+            )
+            process = self.controller
+            latest = (
+                "(standby — starts with first virtual screen)"
+                if process is None
+                else (process.latest_line or "(no console output yet)")
+            )
+            return self._render_process_block(item, row, latest, selected, width)
+
+        if item.kind == "screen" and item.screen_id is not None:
+            screen = self.screens[item.screen_id]
+            pid = screen.process.pid or 0
+            age = self._format_age(screen.age_seconds)
+            app = screen.request.app or "(bare virtual display)"
+            icon = ICON_RUNNING if screen.process.poll() is None else ICON_STOPPED
+            row = (
+                f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d}    "
+                f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
+                f"{screen.request.size} {screen.request.max_fps}fps "
+                f"{screen.bitrate.display_value}  {app}"
+            )
+            latest = screen.process.latest_line or "(no console output yet)"
+            return self._render_process_block(item, row, latest, selected, width)
+
+        action_data = {
+            "action_add": (ICON_ADD, "Add virtual screen"),
+            "action_defaults": (ICON_SETTINGS, "Edit new-screen defaults"),
+            "action_help": (ICON_HELP, "Help / architecture notes"),
+            "action_quit": (ICON_QUIT, "Quit manager"),
+        }
+        icon, label = action_data[item.kind]
+        row = ellipsize(f" {pointer}   {icon} {label}", width)
+        return [self._style_selected(row, selected)]
+
+    def _render_process_block(
+        self,
+        item: MenuItem,
+        row: str,
+        latest: str,
+        selected: bool,
+        width: int,
+    ) -> list[str]:
+        # Keep a small width reserve because Nerd Font glyphs may occupy two
+        # terminal cells even though Python len() counts one code point. This is
+        # especially important for the always-visible log preview: it must never
+        # wrap and destabilize the list layout.
+        safe_width = max(20, width - 4)
+        output = [self._style_selected(ellipsize(row, safe_width), selected)]
+
+        if self.expanded_key == item.key:
+            actions = self._submenu_actions(item)
+            if actions:
+                rendered_actions = []
+                for index, action in enumerate(actions):
+                    label = f" {action.icon} {action.label} "
+                    if index == self.submenu_index:
+                        label = ANSI_REVERSE + label + ANSI_RESET
+                    rendered_actions.append(label)
+                submenu = "       ╰─ " + "   ".join(rendered_actions)
+                output.append(ellipsize_ansi_safe(submenu, safe_width))
+
+        log_prefix = f"       {ICON_LOG} "
+        preview_width = max(1, safe_width - len(log_prefix) - 2)
+        output.append(
+            ANSI_DIM + log_prefix + ellipsize(latest, preview_width) + ANSI_RESET
         )
+        return output
+
+    @staticmethod
+    def _style_selected(text: str, selected: bool) -> str:
+        return ANSI_REVERSE + text + ANSI_RESET if selected else text
+
+    def _controller_status_short(self) -> str:
+        if self.controller is None:
+            return "STANDBY"
+        code = self.controller.poll()
+        return "RUNNING" if code is None else f"EXIT {code}"
+
+    def _controller_line_count(self) -> int:
+        return 0 if self.controller is None else self.controller.line_count
+
+    @staticmethod
+    def _process_status(process: ObservedProcess | None) -> str:
+        if process is None:
+            return "STANDBY"
+        code = process.poll()
+        return "RUNNING" if code is None else f"EXIT {code}"
 
     def _shutdown(self) -> None:
         running = [screen for screen in self.screens.values() if screen.process.poll() is None]
@@ -788,82 +1429,10 @@ class VirtualScreenManager:
                     file=sys.stderr,
                 )
 
-    def _render(self) -> None:
-        running = sum(screen.process.poll() is None for screen in self.screens.values())
-        controller_status = self._controller_status()
-
-        print("+============================================================================+")
-        print("|  SCRCPY VIRTUAL DISPLAY CONTROL / INTERACTIVE MODE                         |")
-        print("+============================================================================+")
-        print(f"  Managed screens : {len(self.screens)} total / {running} running")
-        print(
-            "  New-screen defaults : "
-            f"size={self.defaults.size}  fps={self.defaults.max_fps}  "
-            f"bitrate={self.defaults.bitrate_spec}"
-        )
-        print(f"  Device controller   : {controller_status}")
-        print()
-        print("[SCREENS]")
-        print()
-
-        if not self.screens:
-            print("  (none)")
-        else:
-            print(" ID  STATUS    PID      AGE      SIZE       FPS  BITRATE      APP")
-            print(" --  --------  -------  -------  ---------  ---  -----------  ------------------------------")
-            for screen_id in sorted(self.screens):
-                screen = self.screens[screen_id]
-                pid = screen.process.pid or 0
-                age = self._format_age(screen.age_seconds)
-                app = screen.request.app or "(bare virtual display)"
-                print(
-                    f" {screen.screen_id:02d}  "
-                    f"{screen.status:<8}  "
-                    f"{pid:<7}  "
-                    f"{age:<7}  "
-                    f"{str(screen.request.size):<9}  "
-                    f"{screen.request.max_fps:>3}  "
-                    f"{screen.bitrate.display_value:<11}  "
-                    f"{app}"
-                )
-
-        print()
-        print("[CONTROL]")
-        print("  [1/A] Add screen")
-        print("  [2/K] Kill screen")
-        print("  [3/X] Kill all screens")
-        print("  [4/D] Edit new-screen defaults")
-        print("  [5/L] Show screen log")
-        print("  [6/C] Clear exited screen records")
-        print("  [R]   Refresh")
-        print("  [H]   Help / architecture notes")
-        print("  [Q]   Quit manager")
-
-    def _controller_status(self) -> str:
-        if self.controller is None:
-            return "STANDBY (starts with first screen)"
-        code = self.controller.poll()
-        if code is None:
-            return f"RUNNING pid={self.controller.pid}"
-        return f"EXIT {code} (will restart before next Add)"
-
-    def _prompt_screen(self, prompt: str) -> ManagedScreen | None:
-        if not self.screens:
-            self._pause("No managed screens exist.")
-            return None
-
-        text = input(f"{prompt} [blank = cancel]: ").strip()
-        if not text:
-            return None
-        if not text.isdigit():
-            self._pause(f"Invalid screen ID: {text!r}")
-            return None
-
-        screen = self.screens.get(int(text))
-        if screen is None:
-            self._pause(f"No screen has ID {text}.")
-            return None
-        return screen
+    def _require_terminal(self) -> TerminalUI:
+        if self.terminal is None:
+            raise RuntimeError("Interactive terminal is not active.")
+        return self.terminal
 
     def _prompt_size(self, label: str, current: DisplaySize) -> DisplaySize:
         text = input(f"{label} [{current}]: ").strip()
@@ -902,20 +1471,18 @@ class VirtualScreenManager:
             return f"{hours:02d}:{minutes:02d}:{secs:02d}"
         return f"{minutes:02d}:{secs:02d}"
 
-    @staticmethod
-    def _pause(message: str) -> None:
-        print()
-        print(message)
-        try:
-            input("\nPress Enter to continue...")
-        except EOFError:
-            pass
 
-    @staticmethod
-    def _clear_terminal() -> None:
-        if not sys.stdout.isatty():
-            return
-        os.system("cls" if os.name == "nt" else "clear")
+def ellipsize_ansi_safe(text: str, width: int) -> str:
+    """
+    Conservative submenu fitting while preserving our own ANSI styling.
+
+    Submenus are short; if they exceed the terminal, strip styling and emit an
+    ordinary ellipsized line rather than risk cutting an escape sequence.
+    """
+    visible = ANSI_ESCAPE_PATTERN.sub("", text)
+    if len(visible) <= width:
+        return text
+    return ellipsize(visible, width)
 
 
 # =============================================================================
