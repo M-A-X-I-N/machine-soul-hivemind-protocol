@@ -636,12 +636,14 @@ def command_for_device_state_controller(scrcpy: str) -> list[str]:
     - --keep-active: one periodic user-activity source.
 
     --no-power-on prevents controller startup from briefly waking the screen.
-    --no-video --no-audio leaves a control-only scrcpy session with no window.
+    --no-window explicitly suppresses the host-side scrcpy window while keeping
+    the control channel needed for the manager-owned device-state operations.
     """
     return [
         scrcpy,
         "--no-video",
         "--no-audio",
+        "--no-window",
         "--no-power-on",
         "--keep-active",
         "--stay-awake",
