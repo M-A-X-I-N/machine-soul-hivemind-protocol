@@ -200,3 +200,143 @@ Product availability/specs are volatile and must be rechecked before purchase.
   https://code.visualstudio.com/api/references/vscode-api
 
 Public decoration controls are useful but do not obviously expose the full final-pixel compositor required by the concept. Dedicated integration research remains future work.
+
+
+# Second shotgun pass sources
+
+## Human visual system / perceptual models
+
+- castleCSF — open contrast-sensitivity model and dataset  
+  https://github.com/gfxdisp/castleCSF  
+  Spatial frequency, temporal frequency, luminance, eccentricity, area, chromaticity, chromatic modulation, stimulus shape.
+
+- Graphics & Displays group, University of Cambridge  
+  https://github.com/gfxdisp  
+  Related HDR/perceptual tooling and datasets.
+
+- Blur and contrast as pictorial depth cues  
+  https://pubmed.ncbi.nlm.nih.gov/9488884/
+
+- Contrast as a depth cue  
+  https://pubmed.ncbi.nlm.nih.gov/7941367/
+
+- Blur and the perception of depth at occlusions  
+  https://pubmed.ncbi.nlm.nih.gov/27115522/
+
+- Occlusion edge blur as a relative-depth cue  
+  https://pubmed.ncbi.nlm.nih.gov/8867752/
+
+- Stereoscopy / pictorial depth cue overview  
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC3490636/
+
+## Edge-aware and multi-scale filtering
+
+- Local Laplacian Filters explanatory chapter  
+  https://people.csail.mit.edu/fredo/comp-photo-book/05-edges-matter-05-local-laplacian-filters.html
+
+- Paris, Hasinoff, Kautz — Local Laplacian Filters paper  
+  https://people.csail.mit.edu/hasinoff/pubs/ParisEtAl11-lapfilters.pdf
+
+- Guided Image Filtering  
+  https://pubmed.ncbi.nlm.nih.gov/23599054/
+
+- Bilateral filtering overview  
+  https://doi.org/10.1145/1401132.1401134
+
+## Chromium / Electron / WebGPU / web HDR
+
+- Chromium gfx::ColorSpace  
+  https://chromium.googlesource.com/chromium/src/+/main/ui/gfx/color_space.h  
+  Extended sRGB, scRGB linear, scRGB 80-nit convention, HDR10, HLG.
+
+- Chrome WebGPU 129 — HDR canvas extended tone mapping  
+  https://developer.chrome.com/blog/new-in-webgpu-129
+
+- Chrome WebGPU 131 — inspect configured tone-mapping mode  
+  https://developer.chrome.com/blog/new-in-webgpu-131
+
+- CSS Color HDR Level 1, July 2026 Working Draft  
+  https://www.w3.org/TR/2026/WD-css-color-hdr-1-20260728/
+
+- Electron 44  
+  https://www.electronjs.org/blog/electron-44-0  
+  Chromium 152-era Electron baseline.
+
+- Electron release schedule  
+  https://releases.electronjs.org/schedule
+
+## Terminal / editor rendering laboratories
+
+- kitty custom shaders  
+  https://sw.kovidgoyal.net/kitty/custom-shaders/  
+  Added in kitty 0.49.0; linear-RGB end-of-pipeline shaders, chained groups, intermediate/persistent textures.
+
+- kitty 0.49 changelog  
+  https://sw.kovidgoyal.net/kitty/changelog/
+
+- kitty graphics protocol  
+  https://sw.kovidgoyal.net/kitty/graphics-protocol/
+
+- WezTerm background image  
+  https://wezterm.org/config/lua/config/window_background_image.html
+
+- WezTerm background HSB transform  
+  https://wezterm.org/config/lua/config/window_background_image_hsb.html
+
+- WezTerm layered/parallax background system  
+  https://wezterm.org/config/lua/config/background.html
+
+- Zed / GPUI GPU-rendering architecture  
+  https://zed.dev/blog/videogame
+
+## Windows capture / display calibration
+
+- Windows Graphics Capture  
+  https://learn.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture  
+  Important HDR note: use R16G16B16A16_FLOAT throughout capture pipeline to avoid HDR clipping/washout.
+
+- Windows AdvancedColorInfo  
+  https://learn.microsoft.com/en-us/uwp/api/windows.graphics.display.advancedcolorinfo  
+  Peak/full-frame/min luminance, SDR white, primaries, white point, dynamic state.
+
+- Windows MHC2 hardware display calibration pipeline  
+  https://learn.microsoft.com/en-us/windows/win32/wcs/display-calibration-mhc
+
+- Windows Advanced Color architecture  
+  https://learn.microsoft.com/en-us/windows/win32/direct3darticles/high-dynamic-range
+
+- LittleCMS  
+  https://littlecms.com/color-engine/
+
+## Wayland details revisited
+
+- Wayland color-management-v1  
+  https://wayland.app/protocols/color-management-v1  
+  Important nuance: Windows-scRGB stimulus maps 1.0 to 80 cd/m², but the protocol calls reference white unknown/variable and uses 203 cd/m² when compositor processing must assume one.
+
+- Vulkan WSI  
+  https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html  
+  Relevant to Wayland pass-through color space + explicit color-management surface ownership.
+
+## Low-luminance OLED / signal transport
+
+- TFTCentral — OLED black crush and shadow detail  
+  https://tftcentral.co.uk/articles/does-oled-have-a-black-crush-problem-understanding-and-testing-oled-shadow-detail
+
+- RTINGS — OLED low-refresh gamma shift  
+  https://www.rtings.com/monitor/learn/gamma-shift-investigation
+
+- RTINGS — VRR flicker research  
+  https://www.rtings.com/monitor/learn/research/vrr-flicker
+
+- RTINGS — chroma subsampling and PC text  
+  https://www.rtings.com/tv/learn/chroma-subsampling
+
+- TFTCentral — 2026 RGB-stripe OLED development  
+  https://tftcentral.co.uk/articles/oled-rgb-stripe-panels-explained-should-you-wait
+
+## Notes about source quality
+
+- Platform/API claims should prefer Microsoft, Khronos, Wayland protocol XML/docs, Linux kernel docs, KDE/NVIDIA first-party sources, or source code.
+- Display behavior (black crush, text clarity, flicker, subpixel geometry) often requires instrumented secondary reviewers such as RTINGS/TFTCentral because vendors rarely publish the ugly details.
+- Psychology/vision conclusions should be treated as evidence about variables and mechanisms, not as universal ergonomic prescriptions.
