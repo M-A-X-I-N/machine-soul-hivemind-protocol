@@ -331,6 +331,62 @@ class LuaRocksPackageBackendTests(unittest.TestCase):
         self.assertEqual("top_level", kinds["managed-rock"])
         self.assertEqual("transitive", kinds["managed-dep"])
 
+    def test_owned_root_removal_is_exact_to_one_runtime_tree(self):
+        runner = FakeLuaRocksRunner()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            context = self.context(root)
+            tree51 = root / "rocks51"
+            tree54 = root / "rocks54"
+            tree51.mkdir()
+            tree54.mkdir()
+            runtime51 = self.runtime("5.1.5", root / "lua51")
+            runtime54 = self.runtime("5.4.8", root / "lua54")
+            self.own_runtime(context, runtime51)
+            self.own_runtime(context, runtime54)
+            target51 = LuaRocksTreeTarget(runtime51, tree51, Path("C:/tools/luarocks.exe"))
+            target54 = LuaRocksTreeTarget(runtime54, tree54, Path("C:/tools/luarocks.exe"))
+            runner.add_tree(str(tree51))
+            runner.add_tree(str(tree54))
+            runner.add_package(str(tree51), "managed-rock", "1.0-1")
+            runner.add_package(str(tree54), "managed-rock", "9.0-1")
+            backend = LuaRocksPackageEnvironmentBackend(
+                [target51, target54],
+                runner=runner,
+            )
+
+            environment51 = next(
+                env
+                for env in backend.discover_environments(context)
+                if env.identity.runtime is not None
+                and env.identity.runtime.backend_key == runtime51.backend_key
+            )
+            adopt_package_environment(
+                context,
+                backend,
+                environment51.identity.backend_key,
+                mutation_policy=PackageMutationPolicy.MANAGED_ROOTS,
+            )
+            desired = PackageEnvironmentDesiredState(
+                environment51.identity,
+                (luarocks_desired_root("managed-rock", "1.0-1"),),
+            )
+            first = reconcile_package_environment(context, backend, desired)
+            empty = PackageEnvironmentDesiredState(environment51.identity, ())
+            removed = reconcile_package_environment(context, backend, empty)
+
+        self.assertEqual("package_environment_reconciled", first.code)
+        self.assertEqual("package_environment_reconciled", removed.code)
+        self.assertNotIn("managed-rock", runner.packages[str(tree51)])
+        self.assertEqual("9.0-1", runner.packages[str(tree54)]["managed-rock"]["version"])
+        remove_calls = [
+            call
+            for call in runner.calls
+            if runner._command(call)[:1] == ["remove"]
+        ]
+        self.assertEqual(1, len(remove_calls))
+        self.assertIn(f"--tree={tree51}", remove_calls[0])
+
     def test_project_tree_is_not_adoptable_without_explicit_reclassification(self):
         runner = FakeLuaRocksRunner()
         with tempfile.TemporaryDirectory() as temp:
@@ -418,11 +474,11 @@ class LuaRocksPackageBackendTests(unittest.TestCase):
 
             environment = backend.discover_environments(context)
             self.assertEqual(1, len(environment))
+            tool = backend.check_tool(context, environment[0])
 
-        self.assertTrue(
-            all("--lua-version=5.1" in call for call in runner.calls)
-            if runner.calls else True
-        )
+        self.assertEqual("luarocks_tool_available", tool.code)
+        self.assertTrue(runner.calls)
+        self.assertTrue(all("--lua-version=5.1" in call for call in runner.calls))
 
     def test_native_build_failure_is_explicit_and_no_toolchain_is_installed(self):
         runner = FakeLuaRocksRunner()
