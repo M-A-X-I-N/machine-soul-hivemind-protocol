@@ -72,4 +72,26 @@ Credentials, registry tokens, index authentication, and raw backend output are n
 
 ## Concrete backends
 
-The shared core deliberately contains no pip, npm, or LuaRocks command syntax. Those ecosystems validate the abstraction in later DEV-B tasks while preserving their distinct interpreter/prefix/tree semantics.
+The shared core remains manager-agnostic; concrete backends preserve their own command and environment semantics.
+
+### pip exact environments
+
+The initial pip backend manages only explicitly enumerated Python environments. Every operation is bound to an exact interpreter and invokes pip through that interpreter rather than a PATH-selected executable.
+
+Environment identity records the interpreter, prefix, and exact runtime reference. Discovery distinguishes ordinary runtime-global/venv environments from project-owned, ephemeral, and externally-managed Python environments. Project-owned and externally-managed environments remain non-adoptable under normal policy.
+
+Inventory uses pip's local machine-readable inspection so inherited system-site visibility is not mistaken for locally owned package state. Requested roots remain distinct from transitive packages. If pip's resolver considers a desired root satisfied only through inherited visibility, reconciliation forces a local installation before the root can become owned.
+
+### npm runtime-global prefixes
+
+The initial npm backend binds global package state to an exact Node runtime plus its resolved global prefix. It invokes the npm CLI through the exact Node executable/runtime rather than ambient PATH and never interprets `-g` as machine-global state.
+
+Each runtime/global-prefix pair is a separate package environment. Machine-readable npm inventory distinguishes top-level global roots from observed transitive dependencies, allowing simultaneous Node versions to carry different global CLI inventories safely.
+
+Project `package.json`, lockfiles, and local `node_modules` remain project-owned and outside this backend.
+
+### Shared safety properties
+
+Both concrete backends preserve manager-native desired specifiers, keep tool availability separate from package-root ownership, preserve unknown top-level packages under managed-root policy, redact source/diagnostic metadata before persistence, and report missing native-build prerequisites instead of silently annexing compilers or SDKs.
+
+LuaRocks remains the next concrete backend and must preserve its distinct exact-runtime + rocks-tree identity rather than reusing pip/npm command assumptions.
