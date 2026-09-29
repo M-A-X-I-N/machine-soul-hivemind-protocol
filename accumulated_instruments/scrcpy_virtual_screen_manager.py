@@ -79,6 +79,12 @@ Interactive surfaces are composed inside a four-sided frame that consumes the
 current terminal rectangle. Main-menu and viewer row budgets are derived from
 live terminal width and height so resizing changes both wrapping and viewport
 capacity without waiting for user input.
+
+On Windows, running virtual screens may optionally be collected into lightweight
+organizer groups. The organizer does not reparent or embed scrcpy windows: it is
+only a resizable geometry master. Its client rectangle is debounced and used to
+move/resize ordinary scrcpy top-level windows with bounded portrait aspect-ratio
+wiggle. Closing an organizer disbands its group without stopping any screen.
 """
 
 from __future__ import annotations
@@ -89,6 +95,7 @@ from dataclasses import dataclass, field
 import math
 import os
 from pathlib import Path
+import queue
 import re
 import shlex
 import shutil
@@ -123,6 +130,14 @@ PROCESS_STOP_GRACE_SECONDS = 4.0
 PROCESS_TERMINATE_GRACE_SECONDS = 2.0
 PROCESS_STARTUP_PROBE_SECONDS = 0.25
 UI_REFRESH_SECONDS = 0.169
+
+GROUP_RESIZE_DEBOUNCE_SECONDS = 0.169
+GROUP_ASPECT_WIGGLE_FRACTION = 0.12
+GROUP_WINDOW_GAP_PX = 8
+GROUP_WINDOW_MIN_WIDTH = 420
+GROUP_WINDOW_MIN_HEIGHT = 300
+GROUP_WINDOW_INITIAL_WIDTH = 1000
+GROUP_WINDOW_INITIAL_HEIGHT = 700
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
@@ -181,6 +196,7 @@ ICON_INFO = ""          # U+EA74 cod-info
 ICON_TERMINAL = ""      # U+EA85 cod-terminal
 ICON_HEARTBEAT = ""     # U+EB31 cod-pulse
 ICON_APPS = ""          # U+EB86 cod-list_tree
+ICON_GROUP = ""         # U+EB23 cod-multiple_windows
 ICON_USER_APP = ""      # U+EADB cod-device_mobile
 ICON_SYSTEM_APP = ""    # U+EB50 cod-server
 ICON_SEARCH = ""        # U+EA6D cod-search
@@ -280,6 +296,8 @@ class ManagedScreen:
     bitrate: ResolvedBitrate
     process: "ObservedProcess"
     started_monotonic: float = field(default_factory=time.monotonic)
+    group_id: int | None = None
+    window_handle: int | None = None
 
     @property
     def status(self) -> str:
@@ -318,6 +336,27 @@ class SubmenuAction:
     action_id: str
     label: str
     icon: str
+
+
+@dataclass(frozen=True, slots=True)
+class GroupWindowEvent:
+    """One geometry/lifecycle notification emitted by an organizer window."""
+
+    group_id: int
+    kind: str
+    rect: tuple[int, int, int, int] | None = None
+    detail: str | None = None
+
+
+@dataclass(slots=True)
+class ManagedGroup:
+    """Runtime membership and geometry state for one organizer window."""
+
+    group_id: int
+    screen_ids: set[int]
+    organizer: "OrganizerWindow"
+    last_rect: tuple[int, int, int, int] | None = None
+    pending_rect: tuple[int, int, int, int] | None = None
 
 
 # =============================================================================
@@ -1071,6 +1110,361 @@ class ObservedProcess:
 
 
 # =============================================================================
+# OPTIONAL WINDOWS GROUP ORGANIZER
+# =============================================================================
+
+
+def win32_visible_window_for_pid(pid: int) -> int | None:
+    """Return one visible top-level HWND owned by pid, or None."""
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    matches: list[int] = []
+
+    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    @callback_type
+    def callback(hwnd: int, _lparam: int) -> bool:
+        if not user32.IsWindowVisible(hwnd):
+            return True
+
+        process_id = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(process_id))
+        if process_id.value == pid:
+            matches.append(int(hwnd))
+            return False
+        return True
+
+    user32.EnumWindows(callback, 0)
+    return matches[0] if matches else None
+
+
+def win32_is_window(hwnd: int | None) -> bool:
+    """Return whether hwnd still names a live Win32 window."""
+    if os.name != "nt" or hwnd is None:
+        return False
+
+    import ctypes
+
+    return bool(ctypes.windll.user32.IsWindow(hwnd))
+
+
+def win32_client_rect_on_screen(hwnd: int) -> tuple[int, int, int, int] | None:
+    """Return a Win32 client rectangle as screen x, y, width, height."""
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    class Point(ctypes.Structure):
+        _fields_ = [("x", wintypes.LONG), ("y", wintypes.LONG)]
+
+    user32 = ctypes.windll.user32
+    rect = wintypes.RECT()
+    if not user32.GetClientRect(hwnd, ctypes.byref(rect)):
+        return None
+
+    origin = Point(0, 0)
+    if not user32.ClientToScreen(hwnd, ctypes.byref(origin)):
+        return None
+
+    return (
+        int(origin.x),
+        int(origin.y),
+        max(1, int(rect.right - rect.left)),
+        max(1, int(rect.bottom - rect.top)),
+    )
+
+
+def win32_set_window_rect(hwnd: int, rect: tuple[int, int, int, int]) -> bool:
+    """Move/resize a top-level window without activating it."""
+    if os.name != "nt":
+        return False
+
+    import ctypes
+
+    x, y, width, height = rect
+    # HWND_TOP plus SWP_NOACTIVATE keeps grouped scrcpy windows above the
+    # organizer without stealing keyboard focus from the terminal.
+    HWND_TOP = 0
+    SWP_NOACTIVATE = 0x0010
+    SWP_SHOWWINDOW = 0x0040
+    return bool(
+        ctypes.windll.user32.SetWindowPos(
+            hwnd,
+            HWND_TOP,
+            int(x),
+            int(y),
+            max(1, int(width)),
+            max(1, int(height)),
+            SWP_NOACTIVATE | SWP_SHOWWINDOW,
+        )
+    )
+
+
+def _fit_ratio_inside_cell(
+    cell_x: int,
+    cell_y: int,
+    cell_width: int,
+    cell_height: int,
+    preferred_ratio: float,
+    wiggle_fraction: float,
+) -> tuple[int, int, int, int]:
+    """
+    Fit one portrait window into a cell with bounded aspect-ratio distortion.
+
+    The organizer is allowed to stretch/squish each screen independently by the
+    configured fraction. Outside that band, empty space is preferred over more
+    geometric distortion.
+    """
+    minimum_ratio = preferred_ratio * (1.0 - wiggle_fraction)
+    maximum_ratio = preferred_ratio * (1.0 + wiggle_fraction)
+    cell_ratio = cell_width / max(1, cell_height)
+    target_ratio = max(minimum_ratio, min(maximum_ratio, cell_ratio))
+
+    if cell_ratio > target_ratio:
+        height = cell_height
+        width = max(1, round(height * target_ratio))
+    else:
+        width = cell_width
+        height = max(1, round(width / target_ratio))
+
+    x = cell_x + (cell_width - width) // 2
+    y = cell_y + (cell_height - height) // 2
+    return x, y, width, height
+
+
+def calculate_group_layout(
+    bounds: tuple[int, int, int, int],
+    screens: Sequence[ManagedScreen],
+) -> dict[int, tuple[int, int, int, int]]:
+    """
+    Choose a compact portrait-only row layout for the current organizer shape.
+
+    Candidate row counts are intentionally finite and boring. Row heights are
+    weighted toward the height that would preserve each row's preferred screen
+    ratios, then every individual screen may wiggle within a small bounded band.
+    The candidate covering the most total window area wins.
+    """
+    x0, y0, total_width, total_height = bounds
+    count = len(screens)
+    if count == 0:
+        return {}
+
+    best_score = -1
+    best_layout: dict[int, tuple[int, int, int, int]] = {}
+
+    for row_count in range(1, count + 1):
+        base = count // row_count
+        remainder = count % row_count
+        if base == 0:
+            continue
+
+        row_sizes = [
+            base + (1 if row_index < remainder else 0)
+            for row_index in range(row_count)
+        ]
+        usable_height = total_height - GROUP_WINDOW_GAP_PX * (row_count - 1)
+        if usable_height <= 0:
+            continue
+
+        row_specs: list[tuple[list[ManagedScreen], int, float]] = []
+        cursor = 0
+        ideal_height_sum = 0.0
+        for row_size in row_sizes:
+            row_screens = list(screens[cursor : cursor + row_size])
+            cursor += row_size
+
+            usable_width = total_width - GROUP_WINDOW_GAP_PX * (row_size - 1)
+            if usable_width <= 0:
+                row_specs = []
+                break
+
+            cell_width = usable_width / row_size
+            preferred_heights = [
+                cell_width / max(0.05, screen.request.size.width / screen.request.size.height)
+                for screen in row_screens
+            ]
+            ideal_height = sum(preferred_heights) / len(preferred_heights)
+            ideal_height_sum += ideal_height
+            row_specs.append((row_screens, usable_width, ideal_height))
+
+        if not row_specs or ideal_height_sum <= 0:
+            continue
+
+        row_heights = [
+            max(1, round(usable_height * ideal_height / ideal_height_sum))
+            for _row_screens, _usable_width, ideal_height in row_specs
+        ]
+        row_heights[-1] += usable_height - sum(row_heights)
+        if row_heights[-1] <= 0:
+            continue
+
+        layout: dict[int, tuple[int, int, int, int]] = {}
+        used_area = 0
+        row_y = y0
+
+        for (row_screens, usable_width, _ideal_height), row_height in zip(
+            row_specs,
+            row_heights,
+        ):
+            row_size = len(row_screens)
+            cell_widths = [usable_width // row_size] * row_size
+            cell_widths[-1] += usable_width - sum(cell_widths)
+
+            cell_x = x0
+            for screen, cell_width in zip(row_screens, cell_widths):
+                preferred_ratio = (
+                    screen.request.size.width / screen.request.size.height
+                )
+                rect = _fit_ratio_inside_cell(
+                    cell_x,
+                    row_y,
+                    max(1, cell_width),
+                    max(1, row_height),
+                    preferred_ratio,
+                    GROUP_ASPECT_WIGGLE_FRACTION,
+                )
+                layout[screen.screen_id] = rect
+                used_area += rect[2] * rect[3]
+                cell_x += cell_width + GROUP_WINDOW_GAP_PX
+
+            row_y += row_height + GROUP_WINDOW_GAP_PX
+
+        if used_area > best_score:
+            best_score = used_area
+            best_layout = layout
+
+    return best_layout
+
+
+class OrganizerWindow:
+    """
+    Tiny Tk host rectangle used only as geometry input for grouped scrcpy windows.
+
+    scrcpy windows remain independent top-level windows. This helper runs Tk in
+    its own daemon thread and emits debounced client-rectangle changes through a
+    thread-safe queue consumed by the terminal manager.
+    """
+
+    def __init__(
+        self,
+        group_id: int,
+        member_count: int,
+        events: "queue.SimpleQueue[GroupWindowEvent]",
+    ) -> None:
+        self.group_id = group_id
+        self._member_count = member_count
+        self._events = events
+        self._stop_event = threading.Event()
+        self._member_lock = threading.Lock()
+        self._thread = threading.Thread(
+            target=self._run,
+            name=f"scrcpy-organizer-{group_id:02d}",
+            daemon=True,
+        )
+        self._thread.start()
+
+    def set_member_count(self, member_count: int) -> None:
+        with self._member_lock:
+            self._member_count = member_count
+
+    def close(self) -> None:
+        self._stop_event.set()
+        if threading.current_thread() is not self._thread:
+            self._thread.join(timeout=1.0)
+
+    def _current_member_count(self) -> int:
+        with self._member_lock:
+            return self._member_count
+
+    def _run(self) -> None:
+        try:
+            import tkinter as tk
+
+            root = tk.Tk()
+            root.title(
+                f"scrcpy group {self.group_id:02d} — "
+                f"{self._current_member_count()} screens"
+            )
+            root.minsize(GROUP_WINDOW_MIN_WIDTH, GROUP_WINDOW_MIN_HEIGHT)
+            root.geometry(
+                f"{GROUP_WINDOW_INITIAL_WIDTH}x{GROUP_WINDOW_INITIAL_HEIGHT}"
+            )
+            root.configure(background="#111318")
+
+            label = tk.Label(
+                root,
+                text=(
+                    f"SCRCPY GROUP {self.group_id:02d}\n"
+                    "Move or resize this window to reorganize its screens."
+                ),
+                background="#111318",
+                foreground="#a9b1bd",
+                justify="center",
+            )
+            label.place(relx=0.5, rely=0.5, anchor="center")
+
+            debounce_after: list[str | None] = [None]
+            closed_by_user = [False]
+
+            def emit_geometry() -> None:
+                debounce_after[0] = None
+                if self._stop_event.is_set():
+                    return
+                root.update_idletasks()
+                rect = win32_client_rect_on_screen(int(root.winfo_id()))
+                if rect is not None:
+                    self._events.put(
+                        GroupWindowEvent(self.group_id, "geometry", rect=rect)
+                    )
+
+            def schedule_geometry(_event: object | None = None) -> None:
+                if debounce_after[0] is not None:
+                    root.after_cancel(debounce_after[0])
+                debounce_after[0] = root.after(
+                    round(GROUP_RESIZE_DEBOUNCE_SECONDS * 1000),
+                    emit_geometry,
+                )
+
+            def close_from_titlebar() -> None:
+                closed_by_user[0] = True
+                root.destroy()
+
+            def poll_control() -> None:
+                if self._stop_event.is_set():
+                    root.destroy()
+                    return
+                root.title(
+                    f"scrcpy group {self.group_id:02d} — "
+                    f"{self._current_member_count()} screens"
+                )
+                root.after(100, poll_control)
+
+            root.protocol("WM_DELETE_WINDOW", close_from_titlebar)
+            root.bind("<Configure>", schedule_geometry)
+            root.after(10, schedule_geometry)
+            root.after(100, poll_control)
+            root.mainloop()
+
+            if closed_by_user[0]:
+                self._events.put(GroupWindowEvent(self.group_id, "closed"))
+        except Exception as exc:
+            self._events.put(
+                GroupWindowEvent(
+                    self.group_id,
+                    "error",
+                    detail=f"{type(exc).__name__}: {exc}",
+                )
+            )
+
+
+# =============================================================================
 # TERMINAL ABSTRACTION
 # =============================================================================
 
@@ -1265,6 +1659,9 @@ class VirtualScreenManager:
         self._log_directory = tempfile.TemporaryDirectory(prefix="scrcpy-screen-manager-")
         self.log_root = Path(self._log_directory.name)
         self._installed_apps: tuple[InstalledApp, ...] | None = None
+        self.groups: dict[int, ManagedGroup] = {}
+        self.next_group_id = 1
+        self._group_events: queue.SimpleQueue[GroupWindowEvent] = queue.SimpleQueue()
 
     def run(self) -> int:
         """Run until the operator selects Quit or sends Ctrl+C."""
@@ -1272,6 +1669,7 @@ class VirtualScreenManager:
             with TerminalUI() as terminal:
                 self.terminal = terminal
                 while True:
+                    self._maintain_groups()
                     items = self._menu_items()
                     self.selected_index = min(self.selected_index, max(0, len(items) - 1))
                     terminal.draw(self._render(items))
@@ -1301,6 +1699,7 @@ class VirtualScreenManager:
         items.extend(
             [
                 MenuItem("action:add", "action_add"),
+                MenuItem("action:group", "action_group"),
                 MenuItem("action:apps", "action_apps"),
                 MenuItem("action:defaults", "action_defaults"),
                 MenuItem("action:help", "action_help"),
@@ -1320,6 +1719,9 @@ class VirtualScreenManager:
             return False
         if key == "f" and self.expanded_key is None:
             self._action_browse_apps()
+            return False
+        if key == "g" and self.expanded_key is None:
+            self._action_create_group()
             return False
         if key == "d" and self.expanded_key is None:
             self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
@@ -1372,6 +1774,8 @@ class VirtualScreenManager:
     def _invoke_top_level_action(self, kind: str) -> bool:
         if kind == "action_add":
             self._action_add()
+        elif kind == "action_group":
+            self._action_create_group()
         elif kind == "action_apps":
             self._action_browse_apps()
         elif kind == "action_defaults":
@@ -1406,6 +1810,10 @@ class VirtualScreenManager:
                 ICON_LOG,
             )
         ]
+        if screen.group_id is not None:
+            actions.append(
+                SubmenuAction("ungroup", "Remove from group", ICON_GROUP)
+            )
         if screen.process.poll() is None:
             actions.append(SubmenuAction("stop", "Stop screen", ICON_STOP))
         else:
@@ -1444,8 +1852,15 @@ class VirtualScreenManager:
             return
         screen = self.screens[item.screen_id]
 
+        if action.action_id == "ungroup":
+            self._remove_screen_from_group(screen.screen_id)
+            self.expanded_key = None
+            self.submenu_index = 0
+            return
+
         if action.action_id == "stop":
             graceful = screen.process.request_stop()
+            self._remove_screen_from_group(screen.screen_id)
             if not graceful:
                 self._show_message(
                     "FORCED TERMINATION",
@@ -1454,6 +1869,7 @@ class VirtualScreenManager:
             return
 
         if action.action_id == "remove":
+            self._remove_screen_from_group(screen.screen_id)
             del self.screens[item.screen_id]
             self.expanded_key = None
             self.submenu_index = 0
@@ -1464,6 +1880,252 @@ class VirtualScreenManager:
         if item.kind == "screen" and item.screen_id is not None:
             return self.screens[item.screen_id].process
         return None
+
+    def _maintain_groups(self) -> None:
+        """Consume organizer events, remove dead members, and retry pending layouts."""
+        while True:
+            try:
+                event = self._group_events.get_nowait()
+            except queue.Empty:
+                break
+
+            group = self.groups.get(event.group_id)
+            if group is None:
+                continue
+
+            if event.kind == "geometry" and event.rect is not None:
+                group.last_rect = event.rect
+                group.pending_rect = event.rect
+            elif event.kind == "closed":
+                self._dissolve_group(event.group_id)
+            elif event.kind == "error":
+                detail = event.detail or "unknown organizer error"
+                self._dissolve_group(event.group_id)
+                self._show_message(
+                    "GROUP ORGANIZER FAILED",
+                    f"Group {event.group_id:02d}: {detail}",
+                )
+
+        for group_id in list(self.groups):
+            group = self.groups.get(group_id)
+            if group is None:
+                continue
+
+            for screen_id in list(group.screen_ids):
+                screen = self.screens.get(screen_id)
+                if screen is None or screen.process.poll() is not None:
+                    self._remove_screen_from_group(screen_id)
+
+            group = self.groups.get(group_id)
+            if group is not None and group.pending_rect is not None:
+                if self._layout_group(group):
+                    group.pending_rect = None
+
+    def _layout_group(self, group: ManagedGroup) -> bool:
+        """Apply the best current portrait layout to every member window."""
+        rect = group.pending_rect or group.last_rect
+        if rect is None:
+            return False
+
+        screens: list[ManagedScreen] = []
+        for screen_id in sorted(group.screen_ids):
+            screen = self.screens.get(screen_id)
+            if screen is None or screen.process.poll() is not None:
+                continue
+
+            if not win32_is_window(screen.window_handle):
+                screen.window_handle = win32_visible_window_for_pid(
+                    screen.process.pid or 0
+                )
+            if screen.window_handle is None:
+                return False
+            screens.append(screen)
+
+        if len(screens) < 2:
+            return False
+
+        layout = calculate_group_layout(rect, screens)
+        if len(layout) != len(screens):
+            return False
+
+        success = True
+        for screen in screens:
+            target = layout.get(screen.screen_id)
+            if target is None or screen.window_handle is None:
+                success = False
+                continue
+            if not win32_set_window_rect(screen.window_handle, target):
+                screen.window_handle = None
+                success = False
+
+        return success
+
+    def _action_create_group(self) -> None:
+        """Select running ungrouped screens and create one geometry organizer."""
+        if os.name != "nt":
+            self._show_message(
+                "GROUPS ARE WINDOWS-ONLY FOR NOW",
+                "The organizer currently uses direct Win32 window positioning.",
+            )
+            return
+
+        eligible = [
+            screen
+            for screen in self.screens.values()
+            if screen.process.poll() is None and screen.group_id is None
+        ]
+        if len(eligible) < 2:
+            self._show_message(
+                "NOT ENOUGH UNGROUPED SCREENS",
+                "Create at least two running ungrouped screens first.",
+            )
+            return
+
+        selected_ids = self._show_group_picker(eligible)
+        if selected_ids is None:
+            return
+
+        group_id = self.next_group_id
+        organizer = OrganizerWindow(
+            group_id,
+            len(selected_ids),
+            self._group_events,
+        )
+        group = ManagedGroup(
+            group_id=group_id,
+            screen_ids=set(selected_ids),
+            organizer=organizer,
+        )
+        self.groups[group_id] = group
+        self.next_group_id += 1
+
+        for screen_id in selected_ids:
+            self.screens[screen_id].group_id = group_id
+
+    def _show_group_picker(
+        self,
+        eligible: Sequence[ManagedScreen],
+    ) -> list[int] | None:
+        """Checkbox picker used by Create Group."""
+        terminal = self._require_terminal()
+        screens = list(sorted(eligible, key=lambda screen: screen.screen_id))
+        selected_index = 0
+        checked = {screen.screen_id for screen in screens}
+        top = 0
+
+        while True:
+            width, height = terminal_dimensions()
+            inner_width = max(1, width - 2)
+            inner_height = max(1, height - 2)
+            body_height = max(1, inner_height - 5)
+
+            selected_index = max(0, min(selected_index, len(screens) - 1))
+            if selected_index < top:
+                top = selected_index
+            elif selected_index >= top + body_height:
+                top = selected_index - body_height + 1
+            top = max(0, min(top, max(0, len(screens) - body_height)))
+
+            lines = [
+                f" {ANSI_BOLD}{ANSI_FG_CYAN}{ICON_GROUP} CREATE GROUP{ANSI_RESET}",
+                (
+                    f" {ANSI_DIM}{len(checked)} selected / {len(screens)} eligible"
+                    f"   aspect wiggle ±{GROUP_ASPECT_WIGGLE_FRACTION * 100:.0f}%{ANSI_RESET}"
+                ),
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
+            ]
+
+            visible = screens[top : top + body_height]
+            for offset, screen in enumerate(visible):
+                absolute = top + offset
+                hovered = absolute == selected_index
+                pointer = ICON_POINTER if hovered else " "
+                mark = "x" if screen.screen_id in checked else " "
+                app = screen.request.app or "(bare virtual display)"
+                row = ellipsize(
+                    f" {pointer} [{mark}] {ICON_SCREEN} "
+                    f"Screen {screen.screen_id:02d}  {app}",
+                    inner_width,
+                )
+                lines.append(
+                    ANSI_REVERSE + row + ANSI_RESET if hovered else row
+                )
+
+            lines.extend(
+                [""] * max(0, body_height - len(visible))
+            )
+            lines.append(
+                f"{ANSI_DIM}Space toggle · A all · N none · Enter create · Esc cancel{ANSI_RESET}"
+            )
+            terminal.draw(compose_terminal_frame(lines, width, height))
+
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "CTRL_C"}:
+                return None
+            if key == "UP":
+                selected_index = (selected_index - 1) % len(screens)
+            elif key == "DOWN":
+                selected_index = (selected_index + 1) % len(screens)
+            elif key == "PAGE_UP":
+                selected_index = max(0, selected_index - body_height)
+            elif key == "PAGE_DOWN":
+                selected_index = min(
+                    len(screens) - 1,
+                    selected_index + body_height,
+                )
+            elif key == "HOME":
+                selected_index = 0
+            elif key == "END":
+                selected_index = len(screens) - 1
+            elif key == "SPACE":
+                screen_id = screens[selected_index].screen_id
+                if screen_id in checked:
+                    checked.remove(screen_id)
+                else:
+                    checked.add(screen_id)
+            elif key == "a":
+                checked = {screen.screen_id for screen in screens}
+            elif key == "n":
+                checked.clear()
+            elif key == "ENTER":
+                if len(checked) >= 2:
+                    return sorted(checked)
+
+    def _remove_screen_from_group(self, screen_id: int) -> None:
+        """Remove one screen and dissolve its group when fewer than two remain."""
+        screen = self.screens.get(screen_id)
+        if screen is None or screen.group_id is None:
+            return
+
+        group_id = screen.group_id
+        screen.group_id = None
+        group = self.groups.get(group_id)
+        if group is None:
+            return
+
+        group.screen_ids.discard(screen_id)
+        if len(group.screen_ids) < 2:
+            self._dissolve_group(group_id)
+            return
+
+        group.organizer.set_member_count(len(group.screen_ids))
+        if group.last_rect is not None:
+            group.pending_rect = group.last_rect
+
+    def _dissolve_group(self, group_id: int) -> None:
+        """Release members and close one organizer without stopping scrcpy."""
+        group = self.groups.pop(group_id, None)
+        if group is None:
+            return
+
+        for screen_id in group.screen_ids:
+            screen = self.screens.get(screen_id)
+            if screen is not None and screen.group_id == group_id:
+                screen.group_id = None
+
+        group.organizer.close()
 
     def _ensure_controller(self) -> None:
         """Lazily start the single process that owns device-global state."""
@@ -1912,6 +2574,7 @@ class VirtualScreenManager:
             f"  {ICON_SCROLL} Left / Right    Select an expanded submenu action",
             f"  {ICON_BACK} Esc              Collapse the current submenu",
             f"  {ICON_ADD} A                Add screen",
+            f"  {ICON_GROUP} G                Create organizer group",
             f"  {ICON_APPS} F                Find installed app/package",
             f"  {ICON_SETTINGS} D                Edit defaults",
             f"  {ICON_HELP} H / ?            Help",
@@ -1926,6 +2589,12 @@ class VirtualScreenManager:
             "  Every process is fully spooled to a temporary log file. The list",
             "  shows only an ellipsized latest line. Console history opens a",
             "  scrollable viewer over the complete output generated this session.",
+            "",
+            f"{ICON_GROUP} Organizer groups (Windows)",
+            "  Create Group selects two or more running ungrouped screens.",
+            "  A normal resizable organizer window becomes their geometry master.",
+            "  Closing it disbands the group; screens remain alive and independent.",
+            "  Groups automatically dissolve when fewer than two members remain.",
             "",
             f"{ICON_APPS} Installed-app finder",
             "  Uses scrcpy's Android-side app inventory to search human app labels",
@@ -2052,13 +2721,14 @@ class VirtualScreenManager:
             status = (
                 f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
                 f"{len(self.screens)} displays / {running} running"
+                f"    {ANSI_FG_MAGENTA}{ICON_GROUP}{ANSI_RESET} {len(self.groups)} groups"
                 f"    {ANSI_FG_YELLOW}{ICON_SETTINGS}{ANSI_RESET} defaults "
                 f"{self.defaults.size} · {self.defaults.max_fps} FPS · "
                 f"{self.defaults.bitrate_spec}"
             )
             footer = (
                 " ↑/↓ select   Enter expand/invoke   ←/→ submenu   "
-                "Esc collapse   A add   F apps   D defaults   H help   Q quit"
+                "Esc collapse   A add   G group   F apps   D defaults   H help   Q quit"
             )
         elif inner_width >= 58:
             status = (
@@ -2068,14 +2738,14 @@ class VirtualScreenManager:
                 f"{self.defaults.size} · {self.defaults.max_fps}fps · "
                 f"{self.defaults.bitrate_spec}"
             )
-            footer = " ↑/↓ select · Enter · Esc · A add · F apps · D defaults · H help · Q quit"
+            footer = " ↑/↓ select · Enter · Esc · A add · G group · F apps · D defaults · H help · Q quit"
         else:
             status = (
                 f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
                 f"{running}/{len(self.screens)}   "
                 f"{self.defaults.size} {self.defaults.max_fps}fps"
             )
-            footer = " ↑↓ Enter Esc  A  F  D  H  Q"
+            footer = " ↑↓ Enter Esc  A G F D H Q"
 
         title = (
             f" {ANSI_BOLD}{ANSI_FG_CYAN}{ICON_TERMINAL} "
@@ -2137,8 +2807,14 @@ class VirtualScreenManager:
             age = self._format_age(screen.age_seconds)
             app = screen.request.app or "(bare virtual display)"
             icon = ICON_RUNNING if screen.process.poll() is None else ICON_STOPPED
+            group_badge = (
+                f"G{screen.group_id:02d} "
+                if screen.group_id is not None
+                else ""
+            )
             row = (
-                f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d}    "
+                f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d} "
+                f"{group_badge:>4} "
                 f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
                 f"{screen.request.size} {screen.request.max_fps}fps "
                 f"{screen.bitrate.display_value}  {app}"
@@ -2148,6 +2824,7 @@ class VirtualScreenManager:
 
         action_data = {
             "action_add": (ICON_ADD, "Add virtual screen"),
+            "action_group": (ICON_GROUP, "Create group"),
             "action_apps": (ICON_APPS, "Find installed app / package"),
             "action_defaults": (ICON_SETTINGS, "Edit new-screen defaults"),
             "action_help": (ICON_HELP, "Help / architecture notes"),
@@ -2216,6 +2893,9 @@ class VirtualScreenManager:
         return "RUNNING" if code is None else f"EXIT {code}"
 
     def _shutdown(self) -> None:
+        for group_id in list(self.groups):
+            self._dissolve_group(group_id)
+
         running = [screen for screen in self.screens.values() if screen.process.poll() is None]
         for screen in running:
             screen.process.request_stop()
