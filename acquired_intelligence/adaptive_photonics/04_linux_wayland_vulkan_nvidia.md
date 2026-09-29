@@ -228,3 +228,34 @@ Before blaming the algorithm:
 11. inspect direct-scanout behavior;
 12. compare against known-good HDR content/app;
 13. only then debug adaptive-compositor math.
+
+
+## Second-pass Windows-scRGB semantics correction
+
+The predefined Wayland `create_windows_scrgb` description is more nuanced than a simple "linear FP16 where 1.0 is reference white."
+
+The protocol states:
+- channel 0.0 maps to 0 cd/m²;
+- channel 1.0 maps to 80 cd/m² in the Windows-scRGB stimulus encoding;
+- extended values and negative values are valid when the pixel format can represent them;
+- the **reference white level is unknown/variable**;
+- if compositor processing needs an assumed reference white, use 2.5375 (= 203 cd/m²) following BT.2408 guidance;
+- EGL scRGB-linear differs because it defines 1.0 as reference white.
+
+This distinction belongs entirely inside the Wayland/presentation backend.
+
+Source:
+https://wayland.app/protocols/color-management-v1
+
+## Vulkan pass-through interaction
+
+On Wayland, `VK_COLOR_SPACE_PASS_THROUGH_EXT` is relevant when the application intends to manage the Wayland surface's image description explicitly through `wp_color_management_surface_v1` rather than have Vulkan WSI own color management.
+
+This can avoid creating two competing color-management objects for the same surface.
+
+Source:
+https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html
+
+Experiment both paths rather than assuming which KWin/NVIDIA combination behaves best:
+1. Vulkan WSI extended-sRGB color space;
+2. pass-through WSI + explicit Wayland image description.
