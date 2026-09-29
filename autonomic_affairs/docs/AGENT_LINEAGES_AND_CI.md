@@ -97,7 +97,25 @@ A task in that state may yield active implementation to the next task, but it ca
 
 Within an ordered workstream, later tasks must not be marked `COMPLETE` past an unresolved earlier `AWAITING_DEFERRED_CI` task. A substantive deferred-analysis failure reopens/blocks the originating work and prevents later completion until resolved. Infrastructure-only failures are retried or investigated without being misclassified as code defects.
 
-Specific analysis products such as CodeQL are classified separately; the lifecycle state is intentionally product-agnostic.
+Specific analysis products remain separately classified; the lifecycle state is intentionally product-agnostic.
+
+### CodeQL advanced analysis
+
+CodeQL is the repository's **deferred security-analysis** workflow, not a registered blocking validation set.
+
+Its normal routing is deliberately separate from the Machine-Soul blocking dispatcher:
+
+- pushes to `main` run CodeQL automatically;
+- pull requests targeting `main` run CodeQL automatically;
+- the default branch receives a weekly scheduled full scan so updated CodeQL queries/models can find newly understood issues without source changes;
+- ordinary non-main pushes, including `agent/**`, remain quiet;
+- `workflow_dispatch` permits deliberate analysis of a selected ref/agent branch.
+
+The blocking `CI:` commit selector controls only the Machine-Soul validation dispatcher. It does **not** select, subset, or suppress CodeQL. Native GitHub `skip-checks: true`, when formatted according to GitHub's trailer rules, is the shared hard bypass for push/pull-request workflows and therefore also suppresses push-triggered CodeQL.
+
+CodeQL uses one stable automatic analysis policy: the default high-precision security query suite for the explicitly registered `python` and `actions` languages. Do not introduce event-specific query profiles, additional persistent analysis categories, source-path exclusions, custom packs/models, or a separate CodeQL config file without a concrete repository need.
+
+CodeQL success is completion-required when a task's final substantive tree is subject to CodeQL. Blocking validation may allow advancement while that analysis remains pending; use `AWAITING_DEFERRED_CI` when the distinction survives long enough to matter.
 
 ## Frozen work
 

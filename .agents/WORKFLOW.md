@@ -41,6 +41,7 @@ CI is chosen for validation value, not to minimize runner usage.
 
 - Pushes to `main` default to all registered blocking validation sets.
 - A main tip may use a `CI:` commit trailer to select `all`, `none`, or a comma-separated subset of registered validation-set names. For a multi-commit push, the pushed tip controls the integration event.
+- The `CI:` selector applies only to the Machine-Soul blocking dispatcher. CodeQL is a separate deferred workflow and is not selected/suppressed by `CI:`; use native `skip-checks: true` only when a push/PR should instantiate neither workflow.
 - Native `skip-checks: true` remains an explicit hard bypass for commits that should instantiate no normal checked-in push workflow at all, such as pure bookkeeping. GitHub requires the trailer section to be preceded by **two empty lines** and requires `skip-checks` to be the last trailer; one ordinary blank line is not sufficient. When constructing commit messages programmatically, preserve that spacing exactly.
 - Non-main pushes, including `agent/**`, do not run normal blocking validation automatically.
 - Explicit/manual validation may target any branch/ref and request all or selected registered validation sets whenever an intermediate checkpoint is worth testing.
