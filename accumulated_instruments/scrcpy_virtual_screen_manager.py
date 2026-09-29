@@ -112,7 +112,7 @@ UI_REFRESH_SECONDS = 0.20
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
 ANDROID_PACKAGE_PATTERN = re.compile(
-    r"(?P<package>[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)$"
+    r"(?P<package>[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)$"
 )
 SCRCPY_LOG_PREFIX_PATTERN = re.compile(
     r"^(?:\[[^\]]+\]\s*)?(?:VERBOSE|DEBUG|INFO|WARN|ERROR):\s*"
@@ -976,6 +976,7 @@ class TerminalUI:
             "\n": "ENTER",
             "\x1b": "ESC",
             "\x03": "CTRL_C",
+            "\x12": "CTRL_R",
             "\x08": "BACKSPACE",
             "\x7f": "BACKSPACE",
             " ": "SPACE",
@@ -1431,7 +1432,7 @@ class VirtualScreenManager:
                 terminal_rule(width),
                 f"{ICON_SEARCH} {filter_text}",
                 f"{ANSI_DIM}{len(matches)} matches / {len(apps)} installed   "
-                f"{ICON_REFRESH} R refresh inventory{ANSI_RESET}",
+                f"{ICON_REFRESH} Ctrl+R refresh inventory{ANSI_RESET}",
                 "",
             ]
 
@@ -1455,7 +1456,7 @@ class VirtualScreenManager:
                 [
                     "",
                     f"{ANSI_DIM}Type to filter · Backspace · ↑/↓ · PgUp/PgDn · "
-                    f"Enter select · R refresh · Esc cancel{ANSI_RESET}",
+                    f"Enter select · Ctrl+R refresh · Esc cancel{ANSI_RESET}",
                 ]
             )
             terminal.draw("\n".join(lines))
@@ -1483,13 +1484,17 @@ class VirtualScreenManager:
                 query = query[:-1]
                 selected = 0
                 top = 0
-            elif key == "r":
+            elif key == "CTRL_R":
                 try:
                     apps = self._load_installed_apps(force=True)
                     selected = 0
                     top = 0
                 except LaunchError as exc:
                     self._show_message("APP INVENTORY FAILED", str(exc))
+            elif key == "SPACE":
+                query += " "
+                selected = 0
+                top = 0
             elif len(key) == 1 and key.isprintable() and key not in {"\r", "\n"}:
                 query += key
                 selected = 0
