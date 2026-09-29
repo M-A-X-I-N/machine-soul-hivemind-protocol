@@ -136,14 +136,18 @@ Lua uses a deliberately different backend because no current native-Windows mana
 
 The backend includes known LuaBinaries artifacts for the exact releases currently available across the 5.1–5.5 lines. Newer upstream patches such as releases that outpace LuaBinaries require the explicit source path rather than patch substitution.
 
-## Package-environment extension
+## Package-environment integration
 
-Runtime ownership intentionally exposes stable exact runtime-instance identity for the later package-environment layer.
+Runtime ownership exposes stable exact runtime-instance identity to the implemented package-environment layer. pip, npm, and LuaRocks environments reference exact runtime instances rather than language/version strings.
 
-This task does not manage pip/npm/LuaRocks inventories. Package environments will reference exact runtime instances rather than language/version strings.
+Runtime selection/default state remains independent from package desired roots. Changing the selected Node/Python/Lua instance does not implicitly rewrite package inventories.
+
+The package layer contributes a runtime-removal guard. If a Machine-Soul-owned package environment still references an exact runtime instance, runtime reconciliation refuses to remove that instance before mutation. This dependency remains one-way: the runtime core accepts a generic guard and does not import package-manager policy.
 
 ## Current implementation boundary
 
 The shared runtime core supports backend-defined host/user ownership scope. Python Install Manager, nvm-windows v2, and the Machine-Soul Lua/LuaJIT prefix backend are implemented.
 
-Manager installation remains a separate application/tool concern from runtime instances. Machine-Soul may discover a runtime manager without claiming its installation lifecycle.
+The package-environment core and concrete pip, npm, and LuaRocks backends are also implemented for the first developer-annexation phase. Desired package inventories remain explicit; Machine-Soul does not infer project/global intent merely from observed packages.
+
+Manager/tool installation remains a separate application capability from runtime instances and package environments. Machine-Soul may discover a runtime/package manager without claiming its installation lifecycle.

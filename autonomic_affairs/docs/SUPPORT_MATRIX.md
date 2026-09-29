@@ -47,12 +47,34 @@ Current managed installation examples:
 |---|---|---|---|---|
 | Fish | Ubuntu/Linux | Supported via fixed-machine `apt` | Supported via fixed-machine `apt` | host/machine-scoped exact provenance |
 | Oh My Posh | Windows | Supported via exact-ID WinGet with explicit user scope | Supported via exact-ID WinGet with explicit owned scope | scoped user/package-user exact provenance |
+| Visual Studio Code | Windows | Supported via exact `Microsoft.VisualStudioCode` WinGet identity | Supported for exact owned USER-scoped install | scoped user/package-user exact provenance |
+| JetBrains Toolbox | Windows | Supported via exact `JetBrains.Toolbox` WinGet identity | Supported for exact owned USER-scoped install | scoped user/package-user exact provenance |
+| Python Install Manager | Windows | Supported via exact Microsoft Store/WinGet identity | Supported for exact owned USER-scoped install | scoped user/package-user exact provenance |
+
+Visual Studio Code and JetBrains Toolbox are intentionally **install-only**: Machine-Soul does not yet own editor/IDE settings, profiles, extensions/plugins, Sync, or selected IDE versions. nvm-windows is discoverable as a manager/tool but its own installation lifecycle remains unclaimed; Node runtime lifecycle is handled separately by the runtime backend.
 
 Other application install/uninstall operations remain `NOT_IMPLEMENTED` until a safe platform strategy is added.
 
 A pre-existing installation is reported as unmanaged and is never silently claimed for later uninstall.
 
 Managed installation scope is explicit. WinGet mutation does not inherit ambient `settings.json` scope preferences, and Apt is modeled as fixed machine scope. User- and machine-scoped instances may coexist; uninstall requires exact scoped ownership/candidate matching. Legacy scope-less provenance is treated as unreconciled until a backend can prove one safe migration.
+
+## Developer runtime and package lifecycle
+
+The first developer-annexation runtime/package phase is implemented as library/backend capabilities with explicit desired state rather than inferred global inventories.
+
+| Layer | Windows capability | Important boundary |
+|---|---|---|
+| Python runtimes | Official Python Install Manager exact per-user multiversion set + explicit default | unmanaged/legacy Python remains visible but unowned |
+| Node runtimes | nvm-windows v2 exact per-user multiversion set + explicit default | manager migration, Corepack, and project pins remain separate |
+| Lua/LuaJIT runtimes | exact Machine-Soul-owned versioned prefixes + explicit launcher selection | native source builds require explicit trusted source/digest and native-toolchain prerequisites |
+| pip environments | exact interpreter-bound package environments | project/external environments are not silently adopted |
+| npm global packages | exact Node runtime + resolved global-prefix environments | `npm -g` is never treated as machine-global state |
+| LuaRocks trees | exact owned Lua/LuaJIT runtime + exact rocks-tree environments | distinct runtimes use distinct trees; project trees remain project-owned |
+
+Runtime default/selection state is independent from package desired roots. An owned package environment blocks removal of its exact runtime until the package-environment ownership is resolved. Matching versions under another manager/backend do not migrate automatically.
+
+No maintainer-selected runtime/package inventory is invented by these capabilities. Project-local dependency manifests, lockfiles, virtual environments, local `node_modules`, and LuaRocks project trees remain project-owned unless a future explicit policy says otherwise.
 
 ## Validation coverage
 
@@ -69,7 +91,8 @@ CI currently exercises:
 - `$MACHINE_SOUL` checkout relocation while preserving the original restore lineage;
 - root/normal-account separation including an actual Ubuntu `sudo` process;
 - Linux host variants × normal/privileged target-account config resolution;
-- fresh remote clones on Windows and Ubuntu.
+- fresh remote clones on Windows and Ubuntu;
+- developer-annexation integration across install-only editors, simultaneous Python/Node/Lua runtime sets, independent default selection, runtime-bound package ownership, unknown-package preservation, blocked runtime removal, project-owned refusal, backend-migration refusal, and credential non-persistence.
 
 
 ## Installation discovery
@@ -86,6 +109,10 @@ Installation discovery is broader than managed installation.
 | Windows Terminal | Supported via exact WinGet/MSIX/executable evidence | Not applicable |
 | Contour | Supported via ARP/executable evidence | Supported via executable evidence with opportunistic dpkg ownership |
 | CMD | Supported as a built-in Windows capability | Not applicable |
+| Visual Studio Code | Supported via exact WinGet/executable evidence | Not applicable |
+| JetBrains Toolbox | Supported via exact WinGet/executable evidence | Not applicable |
+| Python Install Manager | Supported via exact Microsoft Store/WinGet/executable evidence | Not applicable |
+| nvm-windows | Supported via executable/manager discovery | Not applicable |
 
 Discovery can report present, absent, ambiguous, or unknown. Preferred-strategy compatibility and Machine-Soul ownership remain separate dimensions; neither implies historical installer provenance.
 
