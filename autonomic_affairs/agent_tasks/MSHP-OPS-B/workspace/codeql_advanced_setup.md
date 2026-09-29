@@ -161,3 +161,28 @@ Do not currently add trigger path routing, analysis exclusions, custom queries/p
 The investigation justifies **one implementation/validation task**, not separate implementation and validation tasks. The change is one small coherent workflow-policy checkpoint, and validation is inseparable from proving it.
 
 No additional query-profile/config-file task is justified until real scan results create a need.
+
+## B-020 implementation validation
+
+Implemented at `f586ca133132b41d9006192e7bdbe12e24174ac6`.
+
+Verified behavior:
+
+- ordinary push to `agent/lyra_260928-230718/main` produced zero workflow runs;
+- integration to `main` used `CI: none`, so Machine-Soul validation ran only its selector job and skipped all four blocking validation sets;
+- CodeQL still ran independently on the same main push;
+- `Analyze (actions)` succeeded with reduced permissions, scanned 6/6 GitHub Actions files, and uploaded SARIF successfully;
+- `Analyze (python)` succeeded with reduced permissions, scanned 183/183 Python files plus 6/6 GitHub Actions files, and uploaded SARIF successfully;
+- the default-branch workflow contains `workflow_dispatch`, event/ref-scoped concurrency, the same explicit `actions` + `python` matrix, `build-mode: none`, and stable `/language:${{ matrix.language }}` categories;
+- no CodeQL config sidecar or additional checked-in category/profile was introduced.
+
+### Manual-dispatch verification limitation
+
+The GitHub connector available to this agent can inspect workflow runs/jobs/logs and rerun existing jobs, but does not expose an action for creating a `workflow_dispatch` event. The connector also does not expose the workflow-metadata dispatch endpoint directly.
+
+The workflow is on the default branch and contains `workflow_dispatch`, satisfying GitHub's registration prerequisite. Manual selected-ref behavior is therefore left to GitHub's documented semantics rather than a manufactured substitute test.
+
+Exact manual verification paths:
+
+- GitHub UI: **Actions → CodeQL Advanced → Run workflow → choose the target branch/ref → Run workflow**.
+- GitHub CLI: `gh workflow run codeql.yml --ref agent/lyra_260928-230718/main` (replace the ref as desired).
