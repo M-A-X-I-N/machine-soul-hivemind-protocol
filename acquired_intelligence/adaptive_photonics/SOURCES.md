@@ -340,3 +340,31 @@ Public decoration controls are useful but do not obviously expose the full final
 - Platform/API claims should prefer Microsoft, Khronos, Wayland protocol XML/docs, Linux kernel docs, KDE/NVIDIA first-party sources, or source code.
 - Display behavior (black crush, text clarity, flicker, subpixel geometry) often requires instrumented secondary reviewers such as RTINGS/TFTCentral because vendors rarely publish the ugly details.
 - Psychology/vision conclusions should be treated as evidence about variables and mechanisms, not as universal ergonomic prescriptions.
+
+
+## Miscellaneous implementation sources
+
+- OpenType optical-size axis (`opsz`)  
+  https://learn.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_opsz  
+  Size-specific font design; explicitly discusses physical size and viewing-distance considerations.
+
+- Skia — The Raster Tragedy / gamma handling for text  
+  https://docs.skia.org/docs/dev/design/raster_tragedy/
+
+- Slang shader compiler/language  
+  https://docs.shader-slang.org/  
+  Cross-target shader source including DXIL, SPIR-V, WGSL, Metal, GLSL, etc.
+
+- Slang target/compiler reference  
+  https://docs.shader-slang.org/en/stable/external/slang/docs/command-line-slangc-reference.html
+
+- OpenEXR  
+  https://openexr.com/en/latest/  
+  Floating-point HDR/scene-linear image storage useful for deterministic debug captures.
+
+- OpenEXR scene-linear representation  
+  https://openexr.com/en/latest/SceneLinear.html
+
+- PIX GPU captures  
+  https://devblogs.microsoft.com/pix/gpu-captures/  
+  Pipeline/resource inspection, pixel history, shader debugging.
