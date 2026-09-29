@@ -46,6 +46,10 @@ The working concept is an **adaptive local-contrast compositor**.
 - [13_low_luminance_oled_transport_and_temporal_gotchas.md](13_low_luminance_oled_transport_and_temporal_gotchas.md) — near-black OLED behavior, VRR/gamma shifts, 4:4:4, DSC, precision, and multi-monitor transport issues.
 - [14_second_pass_open_questions.md](14_second_pass_open_questions.md) — unresolved questions and future research queue.
 - [15_miscellaneous_implementation_ammunition.md](15_miscellaneous_implementation_ammunition.md) — optical-size fonts, Skia gamma behavior, Slang shaders, EXR replay, GPU debuggers, and assorted future ammunition.
+- [16_existing_implementations_direct_hits.md](16_existing_implementations_direct_hits.md) — GlassCode, editor wallpaper systems, saliency/text-layout projects, and direct historical ancestors.
+- [17_existing_hdr_color_and_compositor_reference_code.md](17_existing_hdr_color_and_compositor_reference_code.md) — libplacebo, Gamescope, Magpie, OBS, RenoDX, ReShade HDR, and reusable rendering machinery.
+- [18_existing_legibility_overlay_and_material_patterns.md](18_existing_legibility_overlay_and_material_patterns.md) — AR readability, subtitles, scrims, Acrylic/Vibrancy, compositor blur, and conditional legibility patterns.
+- [19_existing_implementation_reuse_matrix_and_extra_labs.md](19_existing_implementation_reuse_matrix_and_extra_labs.md) — Ghostty, JetBrains/DWM extras, reuse/dependency matrix, licensing snapshot, and consolidated prototype strategy.
 - [SOURCES.md](SOURCES.md) — primary/secondary source map with notes.
 
 ## One-sentence mental model
@@ -107,3 +111,16 @@ A second deliberately over-broad research pass added four major directions that 
 4. **Low-luminance behavior as a first-class hardware criterion** — near-black crush, gray uniformity, refresh-dependent gamma, VRR flicker, 4:4:4 transport, and actual minimum-brightness behavior matter unusually much for this use case.
 
 The first-pass architecture remains plausible, but these routes substantially expand the space of cheap prototypes and measurement techniques.
+
+
+## Third shotgun pass — existing implementations
+
+A third pass searched specifically for software and research that already implements all or part of the idea. The major conclusions:
+
+- **GlassCode is a direct historical ancestor**: JetBrains window capture, local text/shape inference, separate foreground/background treatment, CUDA acceleration, and layered replacement windows.
+- **libplacebo may be an actual dependency candidate**, not just reading material: it already owns HDR/ICC/gamut/tone/dither/GPU plumbing and exposes custom high-precision shader hooks. Its HDR contrast-recovery path already constructs a low-frequency feature map and high-frequency residual — extremely close to the inverse of our desired glyph-local detail suppression.
+- **Ghostty may be the cleanest cheap live-text experiment host** because custom shaders can receive the rendered terminal as a texture and community shaders demonstrate using terminal alpha to put generated imagery behind unchanged glyphs.
+- **Gamescope is a current code-level reference for Wayland scRGB/PQ**, while Magpie/OBS/RenoDX/ReShade provide capture, shader-graph, HDR-upgrade, and diagnostic machinery.
+- AR, subtitle, Material, Acrylic, Vibrancy, and system-bar systems repeatedly converge on the same policy: **leave the scene alone when contrast is already sufficient; reveal the smallest local support needed when it is not.**
+
+The implementation question is no longer "how do we invent every layer?". It is increasingly "which existing layers should we reuse, and where is our genuinely novel glyph-aware algorithm inserted?"
