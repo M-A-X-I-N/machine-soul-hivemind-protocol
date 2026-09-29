@@ -10,7 +10,7 @@ Annexation is broader than configuration management. A subject may be useful to 
 
 ## Current state / coverage
 
-Machine-Soul already has generic installation discovery/provenance/scope machinery and independent configuration capabilities. DEV-A has now established the runtime and package-environment architecture; DEV-B is the planned implementation phase.
+Machine-Soul already has generic installation discovery/provenance/scope machinery and independent configuration capabilities. DEV-A established the runtime and package-environment architecture, and the first DEV-B implementation phase is now complete and integration-validated end to end.
 
 Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
@@ -32,7 +32,7 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 - LuaRocks annexation now implements exact owned Lua/LuaJIT runtime + rocks-tree identity, explicit Lua directory/version/tree/no-project/single-tree selectors, distinct simultaneous trees, project-tree refusal, desired-root/transitive separation, exact per-tree removal, runtime-removal dependency guards, and explicit native-build prerequisite failures. LuaRocks tool installation remains separate from tree/package ownership;
 - pip annexation now implements exact interpreter/environment binding through `python -m pip`, local machine-readable inventory, explicit environment adoption, externally-managed/project-owned refusal, desired-root provenance, inherited-system-site isolation, secret-safe source metadata, and explicit native-build prerequisite failures;
 - npm annexation now implements exact Node-runtime + global-prefix identity, exact runtime-bound npm CLI invocation, machine-readable top-level/transitive global inventory, managed-root reconciliation, unknown-root preservation, and explicit native-build prerequisite failures while leaving project manifests/locks/local `node_modules` project-owned;
-- the shared package-environment core is implemented with exact backend-defined environment identity, runtime-instance references, explicit adoption/created ownership, conservative desired-root provenance, secret-safe diagnostics, and runtime-removal dependency guards. pip, npm, and LuaRocks now prove the model across interpreter/venv, Node/global-prefix, and Lua exact-runtime/tree semantics; `MSHP-DEV-B-100` is the remaining first-phase integration/validation task.
+- the shared package-environment core is implemented with exact backend-defined environment identity, runtime-instance references, explicit adoption/created ownership, conservative desired-root provenance, secret-safe diagnostics, and runtime-removal dependency guards. pip, npm, and LuaRocks prove the model across interpreter/venv, Node/global-prefix, and Lua exact-runtime/tree semantics; `MSHP-DEV-B-100` now integration-validates the full first-phase lifecycle, including install-only editors, independent runtime selection, package-root ownership, project/external boundaries, backend migration refusal, secret safety, and runtime-removal ordering.
 - Windows native toolchain research is complete and `MSHP-DEV-B-025` now implements exact Visual Studio/Build Tools instance/component discovery, prerequisite queries, explicit instance adoption, and conservative exact-component ownership/reconciliation. Whole-instance provisioning remains blocked on maintainer-selected product/channel/path policy;
 - .NET SDK/runtime, Java/JDK, Rust, and Go remain credible future annexation subjects with meaningful multiversion/selection semantics, but current evidence still does not justify executable tasks for them;
 - Ruby and PHP remain plausible ecosystem-specific future subjects but are lower priority without a concrete workload; Perl is intentionally cold unless a real dependency appears.
@@ -58,7 +58,7 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
 ## Related executable tasks
 
-`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the planned implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
+`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the completed first implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
 
 ## Promotion / closure criteria
 
