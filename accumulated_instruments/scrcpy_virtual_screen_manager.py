@@ -69,7 +69,13 @@ attempt to guess or recreate the user's prior physical-screen state on exit.
 
 No third-party Python packages are required. Nerd Font glyphs are intentionally
 used throughout the interactive interface; a Nerd Font-capable terminal is
-therefore strongly recommended.
+therefore strongly recommended. UI icon constants are restricted to the BMP
+private-use area (U+E000-U+F8FF) for broad Windows terminal compatibility.
+
+Interactive surfaces are composed inside a four-sided frame that consumes the
+current terminal rectangle. Main-menu and viewer row budgets are derived from
+live terminal width and height so resizing changes both wrapping and viewport
+capacity without waiting for user input.
 """
 
 from __future__ import annotations
@@ -146,32 +152,32 @@ EXIT_RUNTIME = 4
 
 # Nerd Font / terminal presentation glyphs. These are decoration only: control
 # logic never depends on glyph width or successful font rendering.
-ICON_POINTER = "󰜴"
-ICON_CONTROLLER = "󰒋"
-ICON_SCREEN = "󰍹"
-ICON_RUNNING = "󰐊"
-ICON_STOPPED = "󰅖"
-ICON_STANDBY = "󰒲"
-ICON_LOG = "󰆍"
-ICON_ADD = "󰐕"
-ICON_SETTINGS = "󰒓"
-ICON_HELP = "󰋗"
-ICON_QUIT = "󰈆"
-ICON_STOP = "󰆴"
-ICON_REMOVE = "󰆴"
-ICON_RESTART = "󰜉"
-ICON_EXPAND = "󰅂"
-ICON_COLLAPSE = "󰅀"
-ICON_BACK = "󰁍"
-ICON_SCROLL = "󰹹"
-ICON_INFO = "󰋽"
-ICON_TERMINAL = ""
-ICON_HEARTBEAT = "󰓅"
-ICON_APPS = "󰀻"
-ICON_USER_APP = "󰏖"
-ICON_SYSTEM_APP = "󰒓"
-ICON_SEARCH = "󰍉"
-ICON_REFRESH = "󰑐"
+ICON_POINTER = ""       # U+F054 nf-fa-chevron_right
+ICON_CONTROLLER = ""    # U+F120 nf-fa-terminal
+ICON_SCREEN = ""        # U+F108 nf-fa-desktop
+ICON_RUNNING = ""       # U+F04B nf-fa-play
+ICON_STOPPED = ""       # U+F04D nf-fa-stop
+ICON_STANDBY = ""       # U+F017 nf-fa-clock_o
+ICON_LOG = ""           # U+F0F6 nf-fa-file_text_o
+ICON_ADD = ""           # U+F067 nf-fa-plus
+ICON_SETTINGS = ""      # U+F013 nf-fa-cog
+ICON_HELP = ""          # U+F059 nf-fa-question_circle
+ICON_QUIT = ""          # U+F08B nf-fa-sign_out
+ICON_STOP = ""          # U+F04D nf-fa-stop
+ICON_REMOVE = ""        # U+F1F8 nf-fa-trash
+ICON_RESTART = ""       # U+F021 nf-fa-refresh
+ICON_EXPAND = ""        # U+F054 nf-fa-chevron_right
+ICON_COLLAPSE = ""      # U+F078 nf-fa-chevron_down
+ICON_BACK = ""          # U+F060 nf-fa-arrow_left
+ICON_SCROLL = ""        # U+F0AE nf-fa-tasks
+ICON_INFO = ""          # U+F05A nf-fa-info_circle
+ICON_TERMINAL = ""      # U+F120 nf-fa-terminal
+ICON_HEARTBEAT = ""     # U+F21E nf-fa-heartbeat
+ICON_APPS = ""          # U+F03A nf-fa-list
+ICON_USER_APP = ""      # U+F10B nf-fa-mobile
+ICON_SYSTEM_APP = ""    # U+F17B nf-fa-android
+ICON_SEARCH = ""        # U+F002 nf-fa-search
+ICON_REFRESH = ""       # U+F021 nf-fa-refresh
 
 ANSI_RESET = "\x1b[0m"
 ANSI_REVERSE = "\x1b[7m"
@@ -772,8 +778,111 @@ def terminal_dimensions() -> tuple[int, int]:
 
 
 def terminal_rule(width: int, glyph: str = "─") -> str:
-    """Build a border/rule sized from the terminal's current width."""
+    """Build a horizontal rule for an already-computed content width."""
     return glyph * max(1, width)
+
+
+def visible_width(text: str) -> int:
+    """Return printable width approximation with ANSI control sequences removed."""
+    return len(ANSI_ESCAPE_PATTERN.sub("", text))
+
+
+def fit_ansi_line(text: str, width: int) -> str:
+    """
+    Fit a styled line into exactly the requested terminal width.
+
+    Normal lines retain ANSI styling. If truncation is required, styling is
+    stripped before ellipsizing so an escape sequence can never be cut in half.
+    """
+    if width <= 0:
+        return ""
+
+    current = visible_width(text)
+    if current > width:
+        return ellipsize(ANSI_ESCAPE_PATTERN.sub("", text), width)
+
+    return text + (" " * (width - current))
+
+
+def compose_terminal_frame(
+    content_lines: Sequence[str],
+    width: int,
+    height: int,
+    *,
+    frame_style: str = ANSI_FG_CYAN,
+) -> str:
+    """
+    Compose one complete frame occupying the current terminal rectangle.
+
+    The caller supplies logical interior rows. This function truncates/pads them
+    to the available interior and supplies all four borders. The output therefore
+    always tracks both terminal width and terminal height, not merely a top rule.
+    """
+    width = max(1, width)
+    height = max(1, height)
+
+    if width < 2 or height < 2:
+        raw = list(content_lines)[:height]
+        raw.extend([""] * max(0, height - len(raw)))
+        return "\n".join(ellipsize(line, width) for line in raw)
+
+    inner_width = width - 2
+    inner_height = height - 2
+
+    visible_content = list(content_lines)[:inner_height]
+    visible_content.extend([""] * max(0, inner_height - len(visible_content)))
+
+    top = f"{frame_style}╔{'═' * inner_width}╗{ANSI_RESET}"
+    bottom = f"{frame_style}╚{'═' * inner_width}╝{ANSI_RESET}"
+
+    rows = [top]
+    for line in visible_content:
+        fitted = fit_ansi_line(line, inner_width)
+        rows.append(
+            f"{frame_style}║{ANSI_RESET}{fitted}"
+            f"{frame_style}║{ANSI_RESET}"
+        )
+    rows.append(bottom)
+    return "\n".join(rows)
+
+
+def selected_viewport(
+    blocks: Sequence[Sequence[str]],
+    selected_index: int,
+    row_budget: int,
+) -> list[str]:
+    """
+    Slice variable-height menu blocks while keeping the selected block visible.
+
+    The viewport is centered loosely around the selection when there is enough
+    space, while small terminals still prioritize the selected entry itself.
+    """
+    if row_budget <= 0 or not blocks:
+        return []
+
+    flat: list[str] = []
+    starts: list[int] = []
+    ends: list[int] = []
+    for block in blocks:
+        starts.append(len(flat))
+        flat.extend(block)
+        ends.append(len(flat))
+
+    if len(flat) <= row_budget:
+        return flat
+
+    selected_index = max(0, min(selected_index, len(blocks) - 1))
+    selected_start = starts[selected_index]
+    selected_end = ends[selected_index]
+
+    target_top = selected_start - row_budget // 3
+    top = max(0, min(target_top, len(flat) - row_budget))
+    if selected_end > top + row_budget:
+        top = max(0, selected_end - row_budget)
+    if selected_start < top:
+        top = selected_start
+
+    return flat[top : top + row_budget]
 
 
 # =============================================================================
@@ -1533,6 +1642,8 @@ class VirtualScreenManager:
 
         while True:
             width, height = terminal_dimensions()
+            inner_width = max(1, width - 2)
+            inner_height = max(1, height - 2)
             folded = query.casefold()
             matches = [
                 app
@@ -1558,9 +1669,8 @@ class VirtualScreenManager:
                 if focus == "list":
                     focus = "search"
 
-            # Reserve five fixed rows below the list: separator, Search, Back,
-            # blank, and controls. The header consumes four rows.
-            body_height = max(1, height - 9)
+            # Reserve title/status above and divider/search/back/help below.
+            body_height = max(1, inner_height - 6)
             if selected < top:
                 top = selected
             elif selected >= top + body_height:
@@ -1589,7 +1699,7 @@ class VirtualScreenManager:
                 kind_style = ANSI_FG_YELLOW if app.is_system else ANSI_FG_GREEN
 
                 prefix_plain = f" {pointer} {app_icon} {kind}  "
-                available = max(1, width - len(prefix_plain) - 2)
+                available = max(1, inner_width - len(prefix_plain) - 1)
                 combined = ellipsize(f"{app.name}  [{app.package}]", available)
 
                 base_style = ANSI_REVERSE if hovered else ""
@@ -1604,21 +1714,19 @@ class VirtualScreenManager:
                 )
                 lines.append(prefix + highlighted + ANSI_RESET)
 
-            # Keep the bottom controls physically at the bottom of the terminal
-            # where possible, rather than immediately after a short result list.
-            fixed_after_list = 4
-            desired_before_controls = max(
-                0,
-                height - (len(lines) + fixed_after_list),
+            # Fill the list viewport so Search and Back remain pinned near the
+            # bottom edge of the surrounding full-terminal frame.
+            list_rows_used = max(1, len(visible))
+            lines.extend([""] * max(0, body_height - list_rows_used))
+            lines.append(
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}"
             )
-            lines.extend([""] * desired_before_controls)
-            lines.append(f"{ANSI_FG_CYAN}{terminal_rule(width)}{ANSI_RESET}")
 
             search_hovered = focus == "search"
             search_base = ANSI_REVERSE if search_hovered else ""
             search_value = query or "(empty — all apps)"
             search_prefix = f" {ICON_POINTER if search_hovered else ' '} {ICON_SEARCH} Search: "
-            search_available = max(1, width - len(search_prefix) - 2)
+            search_available = max(1, inner_width - len(search_prefix) - 1)
             visible_search = ellipsize(search_value, search_available)
             lines.append(
                 search_base
@@ -1638,16 +1746,16 @@ class VirtualScreenManager:
             cancel_hovered = focus == "cancel"
             cancel_row = f" {ICON_POINTER if cancel_hovered else ' '} {ICON_BACK} Back / Cancel"
             lines.append(
-                ANSI_REVERSE + ellipsize(cancel_row, max(1, width - 1)) + ANSI_RESET
+                ANSI_REVERSE + ellipsize(cancel_row, max(1, inner_width - 1)) + ANSI_RESET
                 if cancel_hovered
-                else ellipsize(cancel_row, max(1, width - 1))
+                else ellipsize(cancel_row, max(1, inner_width - 1))
             )
 
             lines.append(
                 f"{ANSI_DIM}↑/↓ navigate · type to search · Tab focus · Enter select · "
                 f"Ctrl+R refresh · Esc cancel{ANSI_RESET}"
             )
-            terminal.draw("\n".join(lines))
+            terminal.draw(compose_terminal_frame(lines, width, height))
 
             key = terminal.read_key(UI_REFRESH_SECONDS)
             if key is None:
@@ -1767,10 +1875,11 @@ class VirtualScreenManager:
 
     def _show_help(self) -> None:
         terminal = self._require_terminal()
-        width, _ = terminal_dimensions()
+        width, height = terminal_dimensions()
+        inner_width = max(1, width - 2)
         content = [
             f"{ANSI_BOLD}{ICON_HELP}  HELP / CONTROL MAP{ANSI_RESET}",
-            terminal_rule(width),
+            f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
             "",
             f"  {ICON_POINTER} Up / Down      Select controller, screen, or manager action",
             f"  {ICON_EXPAND} Enter           Expand a process entry / invoke selected action",
@@ -1801,7 +1910,7 @@ class VirtualScreenManager:
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
         ]
-        terminal.draw("\n".join(content))
+        terminal.draw(compose_terminal_frame(content, width, height))
         while True:
             key = terminal.read_key(0.5)
             if key in {"ESC", "ENTER", "q", "h", "?", "CTRL_C"}:
@@ -1820,14 +1929,19 @@ class VirtualScreenManager:
 
         while True:
             width, height = terminal_dimensions()
+            inner_width = max(1, width - 2)
+            inner_height = max(1, height - 2)
             logical_lines = process.read_all_lines() if process is not None else []
-            visual_lines = self._wrap_log_lines(logical_lines, max(20, width - 4))
+            visual_lines = self._wrap_log_lines(
+                logical_lines,
+                max(1, inner_width - 2),
+            )
             if not visual_lines and standby_message:
                 visual_lines = [standby_message]
             elif not visual_lines:
                 visual_lines = ["(no console output yet)"]
 
-            body_height = max(3, height - 7)
+            body_height = max(1, inner_height - 4)
             max_top = max(0, len(visual_lines) - body_height)
             if follow_tail:
                 top = max_top
@@ -1850,14 +1964,16 @@ class VirtualScreenManager:
                 f"{ANSI_BOLD}{ICON_TERMINAL}  {title}{ANSI_RESET}",
                 f"{ICON_HEARTBEAT} {status}    {ICON_LOG} {logical_count} logical lines    "
                 f"{ICON_SCROLL} {position}    {follow_text}",
-                terminal_rule(width),
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
             ]
             footer = [
-                terminal_rule(width),
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
                 f"{ANSI_DIM}↑/↓ line  PgUp/PgDn page  Home/End boundary  "
                 f"R refresh/follow  Esc/Enter/Q back{ANSI_RESET}",
             ]
-            terminal.draw("\n".join(header + visible + footer))
+            terminal.draw(
+                compose_terminal_frame(header + visible + footer, width, height)
+            )
 
             key = terminal.read_key(UI_REFRESH_SECONDS)
             if key is None:
@@ -1901,34 +2017,73 @@ class VirtualScreenManager:
         return output
 
     def _render(self, items: list[MenuItem]) -> str:
-        width, _ = terminal_dimensions()
+        width, height = terminal_dimensions()
+        inner_width = max(1, width - 2)
+        inner_height = max(1, height - 2)
         running = sum(screen.process.poll() is None for screen in self.screens.values())
-        lines = [
-            (
-                f"{ANSI_BOLD}{ANSI_FG_CYAN}╔{'═' * max(0, width - 2)}╗{ANSI_RESET}"
-                if width >= 2
-                else f"{ANSI_BOLD}╗{ANSI_RESET}"
-            ),
-            f"{ANSI_BOLD}{ANSI_FG_CYAN}  {ICON_TERMINAL} SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}",
-            f"  {ICON_SCREEN} {len(self.screens)} displays / {running} running    "
-            f"{ICON_SETTINGS} defaults {self.defaults.size} · "
-            f"{self.defaults.max_fps} FPS · {self.defaults.bitrate_spec}",
-            "",
-            f"{ANSI_BOLD}[ {ICON_SCREEN} SESSIONS / CONTROLS ]{ANSI_RESET}",
-        ]
 
-        for index, item in enumerate(items):
-            selected = index == self.selected_index
-            lines.extend(self._render_item(item, selected=selected, width=width))
+        if inner_width >= 90:
+            status = (
+                f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
+                f"{len(self.screens)} displays / {running} running"
+                f"    {ANSI_FG_YELLOW}{ICON_SETTINGS}{ANSI_RESET} defaults "
+                f"{self.defaults.size} · {self.defaults.max_fps} FPS · "
+                f"{self.defaults.bitrate_spec}"
+            )
+            footer = (
+                " ↑/↓ select   Enter expand/invoke   ←/→ submenu   "
+                "Esc collapse   A add   F apps   D defaults   H help   Q quit"
+            )
+        elif inner_width >= 58:
+            status = (
+                f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
+                f"{running}/{len(self.screens)} running   "
+                f"{ANSI_FG_YELLOW}{ICON_SETTINGS}{ANSI_RESET} "
+                f"{self.defaults.size} · {self.defaults.max_fps}fps · "
+                f"{self.defaults.bitrate_spec}"
+            )
+            footer = " ↑/↓ select · Enter · Esc · A add · F apps · D defaults · H help · Q quit"
+        else:
+            status = (
+                f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
+                f"{running}/{len(self.screens)}   "
+                f"{self.defaults.size} {self.defaults.max_fps}fps"
+            )
+            footer = " ↑↓ Enter Esc  A  F  D  H  Q"
 
-        lines.extend(
-            [
-                "",
-                f"{ANSI_DIM}↑/↓ select   Enter expand/invoke   ←/→ submenu   "
-                f"Esc collapse   A add   F apps   D defaults   H help   Q quit{ANSI_RESET}",
-            ]
+        title = (
+            f" {ANSI_BOLD}{ANSI_FG_CYAN}{ICON_TERMINAL} "
+            f"SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}"
         )
-        return "\n".join(lines)
+        section = (
+            f" {ANSI_BOLD}{ANSI_FG_BLUE}[ {ICON_SCREEN} SESSIONS / CONTROLS ]"
+            f"{ANSI_RESET}"
+        )
+        divider = f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}"
+
+        fixed_rows = 5
+        body_budget = max(0, inner_height - fixed_rows)
+
+        blocks: list[list[str]] = []
+        for index, item in enumerate(items):
+            blocks.append(
+                self._render_item(
+                    item,
+                    selected=index == self.selected_index,
+                    width=inner_width,
+                )
+            )
+
+        body = selected_viewport(blocks, self.selected_index, body_budget)
+        content = [title, status, section]
+        content.extend(body)
+
+        reserved_bottom = 2
+        filler = max(0, inner_height - len(content) - reserved_bottom)
+        content.extend([""] * filler)
+        content.extend([divider, f"{ANSI_DIM}{footer}{ANSI_RESET}"])
+
+        return compose_terminal_frame(content, width, height)
 
     def _render_item(self, item: MenuItem, *, selected: bool, width: int) -> list[str]:
         pointer = ICON_POINTER if selected else " "
@@ -1988,7 +2143,7 @@ class VirtualScreenManager:
         # terminal cells even though Python len() counts one code point. This is
         # especially important for the always-visible log preview: it must never
         # wrap and destabilize the list layout.
-        safe_width = max(20, width - 4)
+        safe_width = max(1, width)
         output = [self._style_selected(ellipsize(row, safe_width), selected)]
 
         if self.expanded_key == item.key:
