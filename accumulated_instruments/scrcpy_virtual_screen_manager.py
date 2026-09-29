@@ -81,10 +81,11 @@ live terminal width and height so resizing changes both wrapping and viewport
 capacity without waiting for user input.
 
 On Windows, running virtual screens may optionally be collected into lightweight
-organizer groups. The organizer does not reparent or embed scrcpy windows: it is
-only a resizable geometry master. Its client rectangle is debounced and used to
-move/resize ordinary scrcpy top-level windows with bounded portrait aspect-ratio
-wiggle. Closing an organizer disbands its group without stopping any screen.
+organizer groups. The organizer is a dependency-free native Win32 window created
+with ctypes; it does not reparent or embed scrcpy windows. Its client rectangle
+is debounced and used to move/resize ordinary scrcpy top-level windows with
+bounded portrait aspect-ratio wiggle. Closing an organizer disbands its group
+without stopping any screen.
 """
 
 from __future__ import annotations
@@ -1345,11 +1346,12 @@ def calculate_group_layout(
 
 class OrganizerWindow:
     """
-    Tiny Tk host rectangle used only as geometry input for grouped scrcpy windows.
+    Native Win32 geometry-master window for one scrcpy screen group.
 
-    scrcpy windows remain independent top-level windows. This helper runs Tk in
-    its own daemon thread and emits debounced client-rectangle changes through a
-    thread-safe queue consumed by the terminal manager.
+    The organizer is deliberately dependency-free: it creates one ordinary
+    resizable top-level Win32 window with ctypes, debounces WM_MOVE/WM_SIZE, and
+    emits its client rectangle through the manager's thread-safe event queue.
+    scrcpy windows remain independent top-level windows.
     """
 
     def __init__(
@@ -1363,6 +1365,8 @@ class OrganizerWindow:
         self._events = events
         self._stop_event = threading.Event()
         self._member_lock = threading.Lock()
+        self._window_lock = threading.Lock()
+        self._hwnd: int | None = None
         self._thread = threading.Thread(
             target=self._run,
             name=f"scrcpy-organizer-{group_id:02d}",
@@ -1371,11 +1375,32 @@ class OrganizerWindow:
         self._thread.start()
 
     def set_member_count(self, member_count: int) -> None:
+        """Update the organizer title without coupling manager and GUI threads."""
         with self._member_lock:
             self._member_count = member_count
 
+        hwnd = self._current_hwnd()
+        if hwnd is not None and os.name == "nt":
+            import ctypes
+
+            WM_APP_UPDATE_TITLE = 0x8001
+            ctypes.windll.user32.PostMessageW(
+                hwnd,
+                WM_APP_UPDATE_TITLE,
+                0,
+                0,
+            )
+
     def close(self) -> None:
+        """Request native-window shutdown and briefly wait for its UI thread."""
         self._stop_event.set()
+        hwnd = self._current_hwnd()
+        if hwnd is not None and os.name == "nt":
+            import ctypes
+
+            WM_CLOSE = 0x0010
+            ctypes.windll.user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+
         if threading.current_thread() is not self._thread:
             self._thread.join(timeout=1.0)
 
@@ -1383,77 +1408,33 @@ class OrganizerWindow:
         with self._member_lock:
             return self._member_count
 
+    def _current_hwnd(self) -> int | None:
+        with self._window_lock:
+            return self._hwnd
+
+    def _set_hwnd(self, hwnd: int | None) -> None:
+        with self._window_lock:
+            self._hwnd = hwnd
+
+    def _window_title(self) -> str:
+        return (
+            f"scrcpy group {self.group_id:02d} — "
+            f"{self._current_member_count()} screens"
+        )
+
     def _run(self) -> None:
+        if os.name != "nt":
+            self._events.put(
+                GroupWindowEvent(
+                    self.group_id,
+                    "error",
+                    detail="native organizer requires Windows",
+                )
+            )
+            return
+
         try:
-            import tkinter as tk
-
-            root = tk.Tk()
-            root.title(
-                f"scrcpy group {self.group_id:02d} — "
-                f"{self._current_member_count()} screens"
-            )
-            root.minsize(GROUP_WINDOW_MIN_WIDTH, GROUP_WINDOW_MIN_HEIGHT)
-            root.geometry(
-                f"{GROUP_WINDOW_INITIAL_WIDTH}x{GROUP_WINDOW_INITIAL_HEIGHT}"
-            )
-            root.configure(background="#111318")
-
-            label = tk.Label(
-                root,
-                text=(
-                    f"SCRCPY GROUP {self.group_id:02d}\n"
-                    "Move or resize this window to reorganize its screens."
-                ),
-                background="#111318",
-                foreground="#a9b1bd",
-                justify="center",
-            )
-            label.place(relx=0.5, rely=0.5, anchor="center")
-
-            debounce_after: list[str | None] = [None]
-            closed_by_user = [False]
-
-            def emit_geometry() -> None:
-                debounce_after[0] = None
-                if self._stop_event.is_set():
-                    return
-                root.update_idletasks()
-                rect = win32_client_rect_on_screen(int(root.winfo_id()))
-                if rect is not None:
-                    self._events.put(
-                        GroupWindowEvent(self.group_id, "geometry", rect=rect)
-                    )
-
-            def schedule_geometry(_event: object | None = None) -> None:
-                if debounce_after[0] is not None:
-                    root.after_cancel(debounce_after[0])
-                debounce_after[0] = root.after(
-                    round(GROUP_RESIZE_DEBOUNCE_SECONDS * 1000),
-                    emit_geometry,
-                )
-
-            def close_from_titlebar() -> None:
-                closed_by_user[0] = True
-                root.destroy()
-
-            def poll_control() -> None:
-                if self._stop_event.is_set():
-                    root.destroy()
-                    return
-                root.title(
-                    f"scrcpy group {self.group_id:02d} — "
-                    f"{self._current_member_count()} screens"
-                )
-                root.after(100, poll_control)
-
-            root.protocol("WM_DELETE_WINDOW", close_from_titlebar)
-            root.bind("<Configure>", schedule_geometry)
-            root.after(10, schedule_geometry)
-            root.after(100, poll_control)
-            root.mainloop()
-
-            if closed_by_user[0]:
-                self._events.put(GroupWindowEvent(self.group_id, "closed"))
+            self._run_windows()
         except Exception as exc:
             self._events.put(
                 GroupWindowEvent(
@@ -1462,6 +1443,208 @@ class OrganizerWindow:
                     detail=f"{type(exc).__name__}: {exc}",
                 )
             )
+
+    def _run_windows(self) -> None:
+        """Own one native Win32 window and its message pump on this thread."""
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+
+        WM_CLOSE = 0x0010
+        WM_DESTROY = 0x0002
+        WM_MOVE = 0x0003
+        WM_SIZE = 0x0005
+        WM_TIMER = 0x0113
+        WM_GETMINMAXINFO = 0x0024
+        WM_APP_UPDATE_TITLE = 0x8001
+
+        TIMER_LAYOUT = 1
+        debounce_ms = max(1, round(GROUP_RESIZE_DEBOUNCE_SECONDS * 1000))
+
+        WS_OVERLAPPEDWINDOW = 0x00CF0000
+        WS_VISIBLE = 0x10000000
+        CW_USEDEFAULT = -2147483648
+        SW_SHOW = 5
+        COLOR_WINDOW = 5
+        IDC_ARROW = 32512
+
+        wndproc_type = ctypes.WINFUNCTYPE(
+            ctypes.c_ssize_t,
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.WPARAM,
+            wintypes.LPARAM,
+        )
+
+        class WindowClass(ctypes.Structure):
+            _fields_ = [
+                ("cbSize", wintypes.UINT),
+                ("style", wintypes.UINT),
+                ("lpfnWndProc", wndproc_type),
+                ("cbClsExtra", ctypes.c_int),
+                ("cbWndExtra", ctypes.c_int),
+                ("hInstance", wintypes.HINSTANCE),
+                ("hIcon", wintypes.HICON),
+                ("hCursor", wintypes.HCURSOR),
+                ("hbrBackground", wintypes.HBRUSH),
+                ("lpszMenuName", wintypes.LPCWSTR),
+                ("lpszClassName", wintypes.LPCWSTR),
+                ("hIconSm", wintypes.HICON),
+            ]
+
+        class MinMaxInfo(ctypes.Structure):
+            _fields_ = [
+                ("ptReserved", wintypes.POINT),
+                ("ptMaxSize", wintypes.POINT),
+                ("ptMaxPosition", wintypes.POINT),
+                ("ptMinTrackSize", wintypes.POINT),
+                ("ptMaxTrackSize", wintypes.POINT),
+            ]
+
+        # Pointer-sized return values must be declared explicitly on 64-bit
+        # Windows; ctypes otherwise assumes c_int for unannotated functions.
+        kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
+        kernel32.GetModuleHandleW.restype = wintypes.HMODULE
+        user32.LoadCursorW.restype = wintypes.HCURSOR
+        user32.GetSysColorBrush.restype = wintypes.HBRUSH
+        user32.RegisterClassExW.argtypes = [ctypes.POINTER(WindowClass)]
+        user32.RegisterClassExW.restype = ctypes.c_ushort
+        user32.CreateWindowExW.restype = wintypes.HWND
+        user32.DefWindowProcW.restype = ctypes.c_ssize_t
+
+        hinstance = kernel32.GetModuleHandleW(None)
+        class_name = (
+            f"ScrcpyOrganizer_{os.getpid()}_{self.group_id}_"
+            f"{threading.get_ident()}"
+        )
+
+        def schedule_geometry(hwnd: int) -> None:
+            user32.KillTimer(hwnd, TIMER_LAYOUT)
+            user32.SetTimer(hwnd, TIMER_LAYOUT, debounce_ms, None)
+
+        @wndproc_type
+        def wndproc(
+            hwnd: int,
+            message: int,
+            wparam: int,
+            lparam: int,
+        ) -> int:
+            if message in {WM_MOVE, WM_SIZE}:
+                schedule_geometry(hwnd)
+                return 0
+
+            if message == WM_TIMER and wparam == TIMER_LAYOUT:
+                user32.KillTimer(hwnd, TIMER_LAYOUT)
+                if not self._stop_event.is_set():
+                    rect = win32_client_rect_on_screen(int(hwnd))
+                    if rect is not None:
+                        self._events.put(
+                            GroupWindowEvent(
+                                self.group_id,
+                                "geometry",
+                                rect=rect,
+                            )
+                        )
+                return 0
+
+            if message == WM_APP_UPDATE_TITLE:
+                user32.SetWindowTextW(hwnd, self._window_title())
+                return 0
+
+            if message == WM_GETMINMAXINFO:
+                info = ctypes.cast(
+                    lparam,
+                    ctypes.POINTER(MinMaxInfo),
+                ).contents
+                info.ptMinTrackSize.x = GROUP_WINDOW_MIN_WIDTH
+                info.ptMinTrackSize.y = GROUP_WINDOW_MIN_HEIGHT
+                return 0
+
+            if message == WM_CLOSE:
+                if not self._stop_event.is_set():
+                    self._events.put(
+                        GroupWindowEvent(self.group_id, "closed")
+                    )
+                user32.DestroyWindow(hwnd)
+                return 0
+
+            if message == WM_DESTROY:
+                self._set_hwnd(None)
+                user32.PostQuitMessage(0)
+                return 0
+
+            return int(user32.DefWindowProcW(hwnd, message, wparam, lparam))
+
+        window_class = WindowClass()
+        window_class.cbSize = ctypes.sizeof(WindowClass)
+        window_class.style = 0
+        window_class.lpfnWndProc = wndproc
+        window_class.cbClsExtra = 0
+        window_class.cbWndExtra = 0
+        window_class.hInstance = hinstance
+        window_class.hIcon = None
+        window_class.hCursor = user32.LoadCursorW(None, IDC_ARROW)
+        window_class.hbrBackground = user32.GetSysColorBrush(COLOR_WINDOW)
+        window_class.lpszMenuName = None
+        window_class.lpszClassName = class_name
+        window_class.hIconSm = None
+
+        atom = user32.RegisterClassExW(ctypes.byref(window_class))
+        if not atom:
+            raise ctypes.WinError()
+
+        hwnd: int | None = None
+        try:
+            hwnd_value = user32.CreateWindowExW(
+                0,
+                class_name,
+                self._window_title(),
+                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                CW_USEDEFAULT,
+                CW_USEDEFAULT,
+                GROUP_WINDOW_INITIAL_WIDTH,
+                GROUP_WINDOW_INITIAL_HEIGHT,
+                None,
+                None,
+                hinstance,
+                None,
+            )
+            if not hwnd_value:
+                raise ctypes.WinError()
+
+            hwnd = int(hwnd_value)
+            self._set_hwnd(hwnd)
+
+            user32.ShowWindow(hwnd, SW_SHOW)
+            user32.UpdateWindow(hwnd)
+            schedule_geometry(hwnd)
+
+            # close() may race with window creation. Honor an already-pending
+            # stop request immediately instead of entering a stranded pump.
+            if self._stop_event.is_set():
+                user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+
+            message = wintypes.MSG()
+            while True:
+                result = user32.GetMessageW(
+                    ctypes.byref(message),
+                    None,
+                    0,
+                    0,
+                )
+                if result == -1:
+                    raise ctypes.WinError()
+                if result == 0:
+                    break
+                user32.TranslateMessage(ctypes.byref(message))
+                user32.DispatchMessageW(ctypes.byref(message))
+        finally:
+            self._set_hwnd(None)
+            if hwnd is not None and user32.IsWindow(hwnd):
+                user32.DestroyWindow(hwnd)
+            user32.UnregisterClassW(class_name, hinstance)
 
 
 # =============================================================================
