@@ -368,8 +368,9 @@ class PipPackageBackendTests(unittest.TestCase):
 
         self.assertEqual("package_environment_owned", adopted.code)
         self.assertEqual("package_environment_reconciled", reconciled.code)
-        self.assertIn("human-tool", runner.packages[interpreter])
-        self.assertEqual("2", runner.packages[interpreter]["managed-tool"]["version"])
+        package_state = runner.packages[runner._interpreter_key(interpreter)]
+        self.assertIn("human-tool", package_state)
+        self.assertEqual("2", package_state["managed-tool"]["version"])
         self.assertEqual("runtime_has_owned_package_environments", guard.code)
         install_calls = [
             call
