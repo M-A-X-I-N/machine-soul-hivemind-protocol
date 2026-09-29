@@ -44,9 +44,23 @@ class FakeLuaRocksRunner:
 
     @staticmethod
     def _command(argv: list[str]) -> list[str]:
+        binding_flags = (
+            "--lua-dir=",
+            "--lua-version=",
+            "--tree=",
+            "--no-project",
+            "--deps-mode=",
+        )
         index = 1
-        while index < len(argv) and argv[index].startswith("--"):
-            index += 1
+        while index < len(argv):
+            value = argv[index]
+            if any(
+                value == prefix or value.startswith(prefix)
+                for prefix in binding_flags
+            ):
+                index += 1
+                continue
+            break
         return argv[index:]
 
     def add_tree(self, tree: str) -> None:
