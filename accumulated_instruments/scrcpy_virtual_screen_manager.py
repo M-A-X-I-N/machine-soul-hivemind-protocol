@@ -1558,27 +1558,39 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  %(prog)s
+  %(prog)s --size 360x800 --max-fps 45 --bitrate auto
+  %(prog)s -i
   %(prog)s com.example.app
   %(prog)s com.example.app --size 360x800 --max-fps 45
   %(prog)s com.example.app --bitrate 4M
-  %(prog)s -i
-  %(prog)s -i --size 360x800 --max-fps 45 --bitrate auto
+  %(prog)s --physical
 
-Interactive mode centralizes --stay-awake, --turn-screen-off and --keep-active
-in one hidden scrcpy control process. Managed virtual-display processes use
---no-power-on so they do not wake the physical phone screen.
+With no app package, interactive mode is the default. Interactive mode
+centralizes --stay-awake, --turn-screen-off and --keep-active in one hidden
+scrcpy control process. Managed virtual-display processes use --no-power-on so
+they do not wake the physical phone screen. Use --physical explicitly to mirror
+the device's normal physical display instead.
 """.strip(),
     )
     parser.add_argument(
         "app",
         nargs="?",
-        help="Android package to start in direct mode. Omit to mirror the physical display.",
+        help=(
+            "Android package to start directly on a virtual display. "
+            "Omit the package to enter interactive mode by default."
+        ),
     )
     parser.add_argument(
         "-i",
         "--interactive",
         action="store_true",
-        help="Run the interactive multi-virtual-display manager.",
+        help="Explicitly run the interactive multi-virtual-display manager.",
+    )
+    parser.add_argument(
+        "--physical",
+        action="store_true",
+        help="Mirror the device's normal physical display instead of entering interactive mode.",
     )
     parser.add_argument(
         "--size",
@@ -1613,9 +1625,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         app = validate_app(args.app)
         scrcpy = resolve_scrcpy_executable()
 
-        if args.interactive:
+        if args.interactive and args.physical:
+            parser.error("--interactive and --physical are mutually exclusive.")
+        if args.physical and app is not None:
+            parser.error("--physical does not accept an app package.")
+
+        interactive_mode = args.interactive or (app is None and not args.physical)
+
+        if interactive_mode:
             if app is not None:
-                parser.error("Do not supply the positional app in interactive mode; choose apps from Add screen.")
+                parser.error(
+                    "Do not supply the positional app in interactive mode; "
+                    "choose apps from Add screen."
+                )
 
             manager = VirtualScreenManager(
                 scrcpy=scrcpy,
