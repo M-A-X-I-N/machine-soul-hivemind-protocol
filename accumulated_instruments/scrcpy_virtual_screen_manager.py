@@ -39,7 +39,9 @@ package-finder action.
 
 Raw scrcpy logs remain unmodified on disk. Presentation-time pattern recognition
 adds conservative semantic color for source tags, log levels, known subsystem
-labels, success/error words, metrics, and package-like identifiers.
+labels, success/error words, metrics, and package-like identifiers. Terminal
+sanitization explicitly preserves Unicode Private Use codepoints so Nerd Font
+glyphs survive sizing/ellipsizing operations.
 
 DESIGN INVARIANTS
 =================
@@ -97,6 +99,7 @@ import tempfile
 import textwrap
 import threading
 import time
+import unicodedata
 from typing import Callable, Iterable, Iterator, Sequence
 
 
@@ -662,10 +665,23 @@ def printable_command(command: Sequence[str]) -> str:
 
 
 def sanitize_log_line(line: str) -> str:
-    """Convert arbitrary subprocess output into one harmless terminal UI line."""
+    """
+    Convert arbitrary subprocess output into one harmless terminal UI line.
+
+    Python deliberately reports Unicode Private Use characters (category Co)
+    as non-printable. Nerd Fonts live in those private-use ranges, so treating
+    str.isprintable() as the whole policy would destroy valid UI glyphs by
+    replacing them with U+FFFD. Preserve private-use codepoints explicitly while
+    still rejecting actual control/unassigned formatting garbage.
+    """
     value = ANSI_ESCAPE_PATTERN.sub("", line)
     value = value.replace("\r", " ").replace("\n", " ").replace("\t", "    ")
-    return "".join(character if character.isprintable() else "�" for character in value)
+    return "".join(
+        character
+        if character.isprintable() or unicodedata.category(character) == "Co"
+        else "�"
+        for character in value
+    )
 
 
 def ellipsize(text: str, width: int) -> str:
