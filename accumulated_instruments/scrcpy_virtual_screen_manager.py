@@ -1644,7 +1644,7 @@ class VirtualScreenManager:
             )
 
             lines.append(
-                f"{ANSI_DIM}↑/↓ navigate · Tab focus · / search · Enter select · "
+                f"{ANSI_DIM}↑/↓ navigate · type to search · Tab focus · Enter select · "
                 f"Ctrl+R refresh · Esc cancel{ANSI_RESET}"
             )
             terminal.draw("\n".join(lines))
@@ -1662,10 +1662,6 @@ class VirtualScreenManager:
                     top = 0
                 except LaunchError as exc:
                     self._show_message("APP INVENTORY FAILED", str(exc))
-                continue
-
-            if key == "/":
-                focus = "search"
                 continue
 
             if key == "TAB":
@@ -1708,7 +1704,21 @@ class VirtualScreenManager:
                     focus = "list"
                 continue
 
-            # App-list focus.
+            # App-list focus. Typing starts a search immediately, so no
+            # keyboard-layout-specific search shortcut is required.
+            if key == "SPACE":
+                focus = "search"
+                query = " "
+                selected = 0
+                top = 0
+                continue
+            if len(key) == 1 and key.isprintable():
+                focus = "search"
+                query = key
+                selected = 0
+                top = 0
+                continue
+
             if key == "ENTER" and matches:
                 return matches[selected]
             if key == "UP" and matches:
@@ -1785,7 +1795,8 @@ class VirtualScreenManager:
             f"{ICON_APPS} Installed-app finder",
             "  Uses scrcpy's Android-side app inventory to search human app labels",
             "  and exact package names case-insensitively. Search is a focusable",
-            "  live field: typing updates immediately and matched text is highlighted.",
+            "  live field: typing anywhere in the app list jumps into it immediately,",
+            "  updates results without Enter, and highlights matched text.",
             "  The inventory is cached until Ctrl+R refreshes it.",
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
