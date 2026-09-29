@@ -1941,7 +1941,7 @@ class VirtualScreenManager:
             elif not visual_lines:
                 visual_lines = ["(no console output yet)"]
 
-            body_height = max(1, inner_height - 4)
+            body_height = max(1, inner_height - 5)
             max_top = max(0, len(visual_lines) - body_height)
             if follow_tail:
                 top = max_top
