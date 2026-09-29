@@ -36,7 +36,7 @@ from .process import ProcessResult, run_process
 
 
 Runner = Callable[[list[str]], ProcessResult]
-_NPM_NAME = re.compile(r"^(?:@[^/@\s]+/[^/@\s]+|[^/@\s][^@\s]*)$")
+_NPM_NAME = re.compile(r"^(?:@[^/@\s]+/[^/@\s]+|[^/@\s][^/@\s]*)$")
 
 
 class NpmPackageEnvironmentError(RuntimeError):

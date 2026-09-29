@@ -33,7 +33,12 @@ class FakePipRunner:
         self.calls: list[list[str]] = []
         self.probes: dict[str, dict[str, object]] = {}
         self.packages: dict[str, dict[str, dict[str, object]]] = {}
+        self.inherited_packages: dict[str, dict[str, str]] = {}
         self.native_failure = False
+
+    @staticmethod
+    def _interpreter_key(interpreter: str) -> str:
+        return str(Path(interpreter))
 
     def add_environment(
         self,
@@ -44,6 +49,7 @@ class FakePipRunner:
         externally_managed: bool = False,
     ) -> None:
         base = base_prefix or prefix
+        interpreter = self._interpreter_key(interpreter)
         self.probes[interpreter] = {
             "prefix": prefix,
             "base_prefix": base,
@@ -55,6 +61,7 @@ class FakePipRunner:
             "externally_managed": externally_managed,
         }
         self.packages.setdefault(interpreter, {})
+        self.inherited_packages.setdefault(interpreter, {})
 
     def add_package(
         self,
@@ -65,12 +72,24 @@ class FakePipRunner:
         requested: bool,
         direct_url: object | None = None,
     ) -> None:
+        interpreter = self._interpreter_key(interpreter)
         self.packages[interpreter][normalize_python_distribution_name(name)] = {
             "name": name,
             "version": version,
             "requested": requested,
             "direct_url": direct_url,
         }
+
+    def add_inherited_package(
+        self,
+        interpreter: str,
+        name: str,
+        version: str,
+    ) -> None:
+        interpreter = self._interpreter_key(interpreter)
+        self.inherited_packages[interpreter][
+            normalize_python_distribution_name(name)
+        ] = version
 
     @staticmethod
     def _specifier_name(specifier: str) -> str:
@@ -91,7 +110,7 @@ class FakePipRunner:
 
     def __call__(self, argv: list[str]) -> ProcessResult:
         self.calls.append(list(argv))
-        interpreter = argv[0]
+        interpreter = self._interpreter_key(argv[0])
         if argv[1] == "-c":
             return ProcessResult(0, json.dumps(self.probes[interpreter]), "")
 
@@ -132,9 +151,13 @@ class FakePipRunner:
             specifier = args[-1]
             name = self._specifier_name(specifier)
             installed = self.packages[interpreter].get(name)
+            inherited = self.inherited_packages[interpreter].get(name)
             exact = self._specifier_version(specifier)
-            satisfied = installed is not None and (
-                exact is None or installed["version"] == exact
+            installed_version = (
+                installed["version"] if installed is not None else inherited
+            )
+            satisfied = installed_version is not None and (
+                exact is None or installed_version == exact
             )
             report_install = [] if satisfied else [
                 {
@@ -215,6 +238,16 @@ class PipPackageBackendTests(unittest.TestCase):
         root = pip_desired_root("Some_Package>=2")
         self.assertEqual("some-package", root.backend_key)
         self.assertEqual("Some_Package>=2", root.native_specifier)
+
+    def test_bare_url_requires_explicit_distribution_name(self):
+        with self.assertRaises(ValueError):
+            pip_desired_root("https://example.invalid/tool.whl")
+
+        root = pip_desired_root(
+            "https://example.invalid/tool.whl",
+            name="remote-tool",
+        )
+        self.assertEqual("remote-tool", root.backend_key)
 
     def test_exact_interpreter_inventory_excludes_inherited_visibility(self):
         runner = FakePipRunner()
@@ -403,6 +436,43 @@ class PipPackageBackendTests(unittest.TestCase):
         self.assertNotIn("secret", json.dumps(dict(metadata)))
         self.assertNotIn("token=abc", json.dumps(dict(metadata)))
         self.assertIn("<redacted>", json.dumps(dict(metadata)))
+
+    def test_inherited_distribution_is_installed_locally_when_desired(self):
+        runner = FakePipRunner()
+        interpreter = "C:/venv/Scripts/python.exe"
+        runner.add_environment(
+            interpreter,
+            prefix="C:/venv",
+            base_prefix="C:/Python314",
+        )
+        runner.add_inherited_package(interpreter, "shared-tool", "1")
+        runtime = self.runtime(interpreter)
+        backend = PipPackageEnvironmentBackend(
+            [PipEnvironmentTarget(Path(interpreter), runtime)],
+            runner=runner,
+        )
+
+        with tempfile.TemporaryDirectory() as temp:
+            context = self.context(Path(temp))
+            environment = backend.discover_environments(context)[0]
+            adopt_package_environment(context, backend, environment.identity.backend_key)
+            desired = PackageEnvironmentDesiredState(
+                environment.identity,
+                (pip_desired_root("shared-tool==1"),),
+            )
+            result = reconcile_package_environment(context, backend, desired)
+
+        self.assertEqual("package_environment_reconciled", result.code)
+        local = runner.packages[runner._interpreter_key(interpreter)]
+        self.assertIn("shared-tool", local)
+        installs = [
+            call
+            for call in runner.calls
+            if call[1:4] == ["-m", "pip", "install"]
+            and "--dry-run" not in call
+        ]
+        self.assertEqual(1, len(installs))
+        self.assertIn("--ignore-installed", installs[0])
 
     def test_native_build_failure_is_explicit_and_does_not_annex_toolchain(self):
         runner = FakePipRunner()

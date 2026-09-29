@@ -188,6 +188,16 @@ class NpmPackageBackendTests(unittest.TestCase):
         self.assertEqual("typescript", plain.backend_key)
         self.assertEqual("@scope/tool", scoped.backend_key)
 
+    def test_bare_url_requires_explicit_package_name(self):
+        with self.assertRaises(ValueError):
+            npm_desired_root("https://example.invalid/tool.tgz")
+
+        root = npm_desired_root(
+            "https://example.invalid/tool.tgz",
+            name="remote-cli",
+        )
+        self.assertEqual("remote-cli", root.backend_key)
+
     def test_two_runtime_prefixes_keep_global_inventory_separate(self):
         runner = FakeNpmRunner()
         runtime22 = self.runtime("22.20.0", "C:/nvm/v22.20.0")

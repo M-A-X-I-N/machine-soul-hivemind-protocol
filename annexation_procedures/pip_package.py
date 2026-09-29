@@ -38,6 +38,7 @@ Runner = Callable[[list[str]], ProcessResult]
 _NAME_NORMALIZER = re.compile(r"[-_.]+")
 _REQUIREMENT_NAME = re.compile(
     r"^\s*([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)"
+    r"(?=\s*(?:$|\[|[<>=!~;@]))"
 )
 _PYTHON_ENVIRONMENT_PROBE = (
     "import json,site,sys,sysconfig;"
@@ -133,6 +134,7 @@ class PipPackageEnvironmentBackend:
         self._targets = tuple(targets)
         self._runner = runner
         self._recently_mutated: dict[tuple[str, str], str] = {}
+        self._force_local_install: set[tuple[str, str]] = set()
 
     def ownership_scope(self, context: OperationContext) -> str | None:
         self._guard_context(context)
@@ -507,6 +509,16 @@ class PipPackageEnvironmentBackend:
                 satisfied = True
             else:
                 satisfied = self._specifier_satisfied(context, environment, root)
+                if satisfied and package is None:
+                    # pip may consider a venv requirement satisfied by an
+                    # inherited system-site distribution even though
+                    # pip inspect --local correctly omits it. Desired
+                    # Machine-Soul roots must exist in the exact local
+                    # environment, so force a local installation.
+                    self._force_local_install.add(
+                        (environment.identity.backend_key, root.backend_key)
+                    )
+                    satisfied = False
 
             if satisfied and package is not None:
                 resolutions.append(
@@ -560,16 +572,16 @@ class PipPackageEnvironmentBackend:
         *,
         operation: str,
     ) -> OperationResult:
-        result = self._pip(
-            context,
-            environment,
-            [
-                "install",
-                "--no-input",
-                "--disable-pip-version-check",
-                root.native_specifier,
-            ],
-        )
+        force_key = (environment.identity.backend_key, root.backend_key)
+        args = [
+            "install",
+            "--no-input",
+            "--disable-pip-version-check",
+        ]
+        if force_key in self._force_local_install:
+            args.append("--ignore-installed")
+        args.append(root.native_specifier)
+        result = self._pip(context, environment, args)
         if result.returncode != 0:
             output = f"{result.stdout}\n{result.stderr}"
             if self._looks_like_native_build_failure(output):
@@ -587,6 +599,7 @@ class PipPackageEnvironmentBackend:
         self._recently_mutated[
             (environment.identity.backend_key, root.backend_key)
         ] = root.native_specifier
+        self._force_local_install.discard(force_key)
         return OperationResult.success(
             f"pip_package_{operation}d",
             f"pip package {operation} completed for the exact target environment.",
