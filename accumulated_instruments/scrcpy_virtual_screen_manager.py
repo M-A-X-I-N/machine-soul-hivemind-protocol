@@ -322,6 +322,19 @@ class InstalledApp:
 
 
 @dataclass(frozen=True, slots=True)
+class AppPickerSelection:
+    """Installed app plus optional scrcpy clean-start launch policy."""
+
+    app: InstalledApp
+    clean_start: bool = False
+
+    @property
+    def start_spec(self) -> str:
+        """Return the exact value expected by scrcpy --start-app."""
+        return ("+" if self.clean_start else "") + self.app.package
+
+
+@dataclass(frozen=True, slots=True)
 class MenuItem:
     """One selectable top-level interactive list entry."""
 
@@ -1153,6 +1166,117 @@ def win32_visible_window_for_pid(pid: int) -> int | None:
     return matches[0] if matches else None
 
 
+def win32_foreground_window() -> int | None:
+    """Return the current foreground HWND on Windows."""
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.GetForegroundWindow.argtypes = []
+    user32.GetForegroundWindow.restype = wintypes.HWND
+    hwnd = user32.GetForegroundWindow()
+    return int(hwnd) if hwnd else None
+
+
+def win32_restore_foreground_window(hwnd: int | None) -> bool:
+    """Best-effort restore of the foreground window that preceded scrcpy."""
+    if os.name != "nt" or hwnd is None:
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.IsWindow.argtypes = [wintypes.HWND]
+    user32.IsWindow.restype = wintypes.BOOL
+    user32.BringWindowToTop.argtypes = [wintypes.HWND]
+    user32.BringWindowToTop.restype = wintypes.BOOL
+    user32.SetForegroundWindow.argtypes = [wintypes.HWND]
+    user32.SetForegroundWindow.restype = wintypes.BOOL
+
+    if not user32.IsWindow(hwnd):
+        return False
+
+    user32.BringWindowToTop(hwnd)
+    return bool(user32.SetForegroundWindow(hwnd))
+
+
+def win32_capture_spawned_window_without_focus_theft(
+    pid: int,
+    previous_foreground: int | None,
+    *,
+    timeout_seconds: float = 2.0,
+) -> int | None:
+    """
+    Discover a new scrcpy HWND, then give focus back to its predecessor.
+
+    Waiting for the actual top-level window avoids restoring focus too early and
+    then having SDL steal it again a moment later while creating its window.
+    """
+    if os.name != "nt" or pid <= 0:
+        return None
+
+    deadline = time.monotonic() + timeout_seconds
+    hwnd: int | None = None
+    while time.monotonic() < deadline:
+        hwnd = win32_visible_window_for_pid(pid)
+        if hwnd is not None:
+            break
+        time.sleep(0.02)
+
+    if hwnd is None:
+        return None
+
+    # Cover the tail end of SDL/Windows activation without becoming a permanent
+    # focus-fighting daemon.
+    for _ in range(3):
+        win32_restore_foreground_window(previous_foreground)
+        time.sleep(0.03)
+
+    return hwnd
+
+
+def win32_raise_window(hwnd: int) -> bool:
+    """Raise one top-level window without moving, resizing, or activating it."""
+    if os.name != "nt":
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.SetWindowPos.argtypes = [
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    ]
+    user32.SetWindowPos.restype = wintypes.BOOL
+
+    HWND_TOP = 0
+    SWP_NOSIZE = 0x0001
+    SWP_NOMOVE = 0x0002
+    SWP_NOACTIVATE = 0x0010
+    SWP_SHOWWINDOW = 0x0040
+    return bool(
+        user32.SetWindowPos(
+            hwnd,
+            HWND_TOP,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+        )
+    )
+
+
 def win32_is_window(hwnd: int | None) -> bool:
     """Return whether hwnd still names a live Win32 window."""
     if os.name != "nt" or hwnd is None:
@@ -1553,6 +1677,7 @@ class OrganizerWindow:
         WM_DESTROY = 0x0002
         WM_MOVE = 0x0003
         WM_SIZE = 0x0005
+        WM_ACTIVATE = 0x0006
         WM_TIMER = 0x0113
         WM_GETMINMAXINFO = 0x0024
         WM_APP_UPDATE_TITLE = 0x8001
@@ -1702,6 +1827,14 @@ class OrganizerWindow:
             if message in {WM_MOVE, WM_SIZE}:
                 schedule_geometry(hwnd)
                 return 0
+
+            if message == WM_ACTIVATE:
+                WA_INACTIVE = 0
+                activation_state = int(wparam) & 0xFFFF
+                if activation_state != WA_INACTIVE and not self._stop_event.is_set():
+                    self._events.put(
+                        GroupWindowEvent(self.group_id, "activated")
+                    )
 
             if message == WM_TIMER and wparam == TIMER_LAYOUT:
                 user32.KillTimer(hwnd, TIMER_LAYOUT)
@@ -2247,6 +2380,8 @@ class VirtualScreenManager:
             if event.kind == "geometry" and event.rect is not None:
                 group.last_rect = event.rect
                 group.pending_rect = event.rect
+            elif event.kind == "activated":
+                self._raise_group(group)
             elif event.kind == "closed":
                 self._dissolve_group(event.group_id)
             elif event.kind == "error":
@@ -2271,6 +2406,36 @@ class VirtualScreenManager:
             if group is not None and group.pending_rect is not None:
                 if self._layout_group(group):
                     group.pending_rect = None
+
+    def _raise_group(self, group: ManagedGroup) -> bool:
+        """Raise all member screens together, leaving the organizer beneath them."""
+        screens: list[ManagedScreen] = []
+        for screen_id in sorted(group.screen_ids):
+            screen = self.screens.get(screen_id)
+            if screen is None or screen.process.poll() is not None:
+                continue
+
+            if not win32_is_window(screen.window_handle):
+                screen.window_handle = win32_visible_window_for_pid(
+                    screen.process.pid or 0
+                )
+            if screen.window_handle is None:
+                return False
+            screens.append(screen)
+
+        if len(screens) < 2:
+            return False
+
+        success = True
+        for screen in screens:
+            assert screen.window_handle is not None
+            if not win32_raise_window(screen.window_handle):
+                success = False
+
+        if success and screens[0].window_handle is not None:
+            group.organizer.place_behind(screens[0].window_handle)
+
+        return success
 
     def _layout_group(self, group: ManagedGroup) -> bool:
         """Apply the best current portrait layout to every member window."""
@@ -2517,10 +2682,13 @@ class VirtualScreenManager:
 
         app: str | None
         if mode == "browse":
-            selected = self._show_app_picker("SELECT INSTALLED APP")
+            selected = self._show_app_picker(
+                "SELECT INSTALLED APP",
+                allow_clean_start=True,
+            )
             if selected is None:
                 return
-            app = selected.package
+            app = selected.start_spec
         elif mode == "manual":
             value: list[str | None] = [None]
 
@@ -2576,10 +2744,21 @@ class VirtualScreenManager:
                 label=f"screen {screen_id:02d}",
                 log_path=self.log_root / f"screen_{screen_id:02d}.log",
             )
+            previous_foreground = win32_foreground_window()
             process.start()
             process.startup_probe()
+            window_handle = win32_capture_spawned_window_without_focus_theft(
+                process.pid or 0,
+                previous_foreground,
+            )
 
-            self.screens[screen_id] = ManagedScreen(screen_id, request, bitrate, process)
+            self.screens[screen_id] = ManagedScreen(
+                screen_id,
+                request,
+                bitrate,
+                process,
+                window_handle=window_handle,
+            )
             self.next_screen_id += 1
             print()
             print(f"{ICON_RUNNING} Screen {screen_id:02d} launched successfully.")
@@ -2595,10 +2774,11 @@ class VirtualScreenManager:
         selected = self._show_app_picker("INSTALLED APPS / PACKAGE FINDER")
         if selected is None:
             return
-        kind = "system app" if selected.is_system else "user app"
+        app = selected.app
+        kind = "system app" if app.is_system else "user app"
         self._show_message(
             "INSTALLED APP",
-            f"{selected.name}\n{selected.package}\n\nType: {kind}",
+            f"{app.name}\n{app.package}\n\nType: {kind}",
         )
 
     def _load_installed_apps(self, *, force: bool = False) -> tuple[InstalledApp, ...]:
@@ -2664,7 +2844,12 @@ class VirtualScreenManager:
             elif key == "ENTER":
                 return choices[selected][2]
 
-    def _show_app_picker(self, title: str) -> InstalledApp | None:
+    def _show_app_picker(
+        self,
+        title: str,
+        *,
+        allow_clean_start: bool = False,
+    ) -> AppPickerSelection | None:
         """
         Live installed-app browser with three keyboard-focus regions.
 
@@ -2687,6 +2872,7 @@ class VirtualScreenManager:
         selected = 0
         top = 0
         focus = "list"
+        clean_start = False
 
         while True:
             width, height = terminal_dimensions()
@@ -2726,11 +2912,20 @@ class VirtualScreenManager:
             max_top = max(0, len(matches) - body_height)
             top = max(0, min(top, max_top))
 
+            clean_status = ""
+            if allow_clean_start:
+                clean_style = ANSI_FG_GREEN if clean_start else ANSI_DIM
+                clean_label = "ON" if clean_start else "OFF"
+                clean_status = (
+                    f"   {clean_style}+ clean start: {clean_label}{ANSI_RESET}"
+                )
+
             lines = [
                 f"{ANSI_BOLD}{ANSI_FG_CYAN}{ICON_APPS}  {title}{ANSI_RESET}",
                 f"{ANSI_FG_CYAN}{terminal_rule(width)}{ANSI_RESET}",
                 f"{ANSI_DIM}{len(matches)} matches / {len(apps)} installed   "
-                f"{ICON_REFRESH} Ctrl+R refresh inventory{ANSI_RESET}",
+                f"{ICON_REFRESH} Ctrl+R refresh inventory{ANSI_RESET}"
+                + clean_status,
                 "",
             ]
 
@@ -2799,9 +2994,10 @@ class VirtualScreenManager:
                 else ellipsize(cancel_row, max(1, inner_width - 1))
             )
 
+            clean_hint = " · + clean-start" if allow_clean_start else ""
             lines.append(
-                f"{ANSI_DIM}↑/↓ navigate · type to search · Tab focus · Enter select · "
-                f"Ctrl+R refresh · Esc cancel{ANSI_RESET}"
+                f"{ANSI_DIM}↑/↓ navigate · type to search · Tab focus · Enter select"
+                f"{clean_hint} · Ctrl+R refresh · Esc cancel{ANSI_RESET}"
             )
             terminal.draw(compose_terminal_frame(lines, width, height))
 
@@ -2810,6 +3006,10 @@ class VirtualScreenManager:
                 continue
             if key in {"ESC", "CTRL_C"}:
                 return None
+
+            if allow_clean_start and key == "+":
+                clean_start = not clean_start
+                continue
 
             if key == "CTRL_R":
                 try:
@@ -2876,7 +3076,10 @@ class VirtualScreenManager:
                 continue
 
             if key == "ENTER" and matches:
-                return matches[selected]
+                return AppPickerSelection(
+                    app=matches[selected],
+                    clean_start=clean_start if allow_clean_start else False,
+                )
             if key == "UP" and matches:
                 if selected == 0:
                     focus = "cancel"
@@ -2954,6 +3157,7 @@ class VirtualScreenManager:
             "  Create Group selects two or more running ungrouped screens.",
             "  A normal resizable organizer window becomes their geometry master.",
             "  Closing it disbands the group; screens remain alive and independent.",
+            "  Activating the organizer raises all member screens together above it.",
             "  Groups automatically dissolve when fewer than two members remain.",
             "",
             f"{ICON_APPS} Installed-app finder",
@@ -2961,6 +3165,8 @@ class VirtualScreenManager:
             "  and exact package names case-insensitively. Search is a focusable",
             "  live field: typing anywhere in the app list jumps into it immediately,",
             "  updates results without Enter, and highlights matched text.",
+            "  During Add Screen, + toggles scrcpy clean-start mode; when enabled,",
+            "  the selected package is force-stopped before launch on the new display.",
             "  The inventory is cached until Ctrl+R refreshes it.",
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
