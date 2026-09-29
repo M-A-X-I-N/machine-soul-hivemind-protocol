@@ -293,3 +293,59 @@ A useful success criterion:
 > The wallpaper still looks spatially deep rather than frosted, and the viewer stops noticing that anything special is happening around the code.
 
 That is stronger than "the shader works."
+
+
+## Second-pass prototype shortcuts
+
+The research above was intentionally platform-first. The second pass found several cheaper laboratories worth inserting before a native standalone renderer.
+
+### kitty custom-shader prototype
+
+kitty 0.49.0 added an end-of-pipeline, linear-RGB custom shader system with chained passes and persistent intermediate textures.
+
+Use it to test:
+- multi-pass detail suppression;
+- temporal state/hysteresis;
+- local contrast maps;
+- scroll stability.
+
+First inspect what clean text/background information is available to the shader. If only the final backbuffer is exposed, use controlled foreground/background colors to construct a usable mask.
+
+### WezTerm depth baseline
+
+Use WezTerm's layered backgrounds, HSB transform, and parallax attachment as a baseline for "good spatial wallpaper without adaptation."
+
+This is useful because the project should beat an already-pretty static solution, not only beat raw wallpaper.
+
+### Electron/WebGPU capability probe
+
+Before writing DXGI/Vulkan plumbing, build a tiny Electron/WebGPU HDR probe:
+- rgba16float canvas;
+- extended tone mapping;
+- >1.0 values;
+- Windows HDR and KDE Wayland HDR;
+- known reference patches.
+
+If that reaches the panel correctly, use it for the first serious interactive compositor prototype.
+
+### Zed source experiment
+
+If a real-editor proof becomes desirable, inspect Zed/GPUI before VS Code/JetBrains internals. Its custom GPU renderer may already expose the exact glyph/background seam the experiment needs.
+
+### Updated cheap-to-expensive sequence
+
+```text
+offline SDR reference compositor
+        ↓
+Windows Terminal / kitty shader
+        ↓
+WezTerm baseline comparisons
+        ↓
+Electron/WebGPU HDR probe
+        ↓
+standalone native HDR renderer if needed
+        ↓
+Zed/editor integration experiment
+        ↓
+production-quality platform backends
+```
