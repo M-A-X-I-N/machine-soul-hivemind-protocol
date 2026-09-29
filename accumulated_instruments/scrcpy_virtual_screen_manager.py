@@ -1437,6 +1437,41 @@ class OrganizerWindow:
                 0,
             )
 
+    def send_to_back(self) -> None:
+        """Keep the geometry master behind the scrcpy windows it arranges."""
+        hwnd = self._current_hwnd()
+        if hwnd is None or os.name != "nt":
+            return
+
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        user32.SetWindowPos.argtypes = [
+            wintypes.HWND,
+            wintypes.HWND,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            wintypes.UINT,
+        ]
+        user32.SetWindowPos.restype = wintypes.BOOL
+
+        HWND_BOTTOM = 1
+        SWP_NOSIZE = 0x0001
+        SWP_NOMOVE = 0x0002
+        SWP_NOACTIVATE = 0x0010
+        user32.SetWindowPos(
+            hwnd,
+            HWND_BOTTOM,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE,
+        )
+
     def close(self) -> None:
         """Request native-window shutdown and briefly wait for its UI thread."""
         self._stop_event.set()
@@ -1522,7 +1557,7 @@ class OrganizerWindow:
         WS_VISIBLE = 0x10000000
         CW_USEDEFAULT = -2147483648
         SW_SHOW = 5
-        COLOR_WINDOW = 5
+        COLOR_APPWORKSPACE = 12
         IDC_ARROW = 32512
 
         wndproc_type = ctypes.WINFUNCTYPE(
@@ -1712,7 +1747,7 @@ class OrganizerWindow:
         window_class.hInstance = hinstance
         window_class.hIcon = None
         window_class.hCursor = user32.LoadCursorW(None, IDC_ARROW)
-        window_class.hbrBackground = user32.GetSysColorBrush(COLOR_WINDOW)
+        window_class.hbrBackground = user32.GetSysColorBrush(COLOR_APPWORKSPACE)
         window_class.lpszMenuName = None
         window_class.lpszClassName = class_name
         window_class.hIconSm = None
@@ -2266,6 +2301,13 @@ class VirtualScreenManager:
             if not win32_set_window_rect(screen.window_handle, target):
                 screen.window_handle = None
                 success = False
+
+        if success:
+            # The organizer is normally the active window while the operator is
+            # dragging/resizing it. Explicitly put it behind the arranged scrcpy
+            # windows after every layout so its otherwise-empty client area never
+            # blankets the very screens it is meant to organize.
+            group.organizer.send_to_back()
 
         return success
 
