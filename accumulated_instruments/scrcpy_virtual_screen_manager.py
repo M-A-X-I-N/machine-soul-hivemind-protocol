@@ -33,8 +33,13 @@ changes. Terminal resizes and new subprocess output therefore appear live.
 
 Installed-app discovery delegates to scrcpy --list-apps, which already exposes
 Android application labels alongside exact package names. The interactive app
-finder filters both fields and is shared by Add Screen and the standalone
+finder filters both fields case-insensitively with a focusable live search
+field, highlights matched text, and is shared by Add Screen and the standalone
 package-finder action.
+
+Raw scrcpy logs remain unmodified on disk. Presentation-time pattern recognition
+adds conservative semantic color for source tags, log levels, known subsystem
+labels, success/error words, metrics, and package-like identifiers.
 
 DESIGN INVARIANTS
 =================
@@ -107,7 +112,7 @@ AUTO_BITRATE_ROUNDING_BPS = 100_000
 PROCESS_STOP_GRACE_SECONDS = 4.0
 PROCESS_TERMINATE_GRACE_SECONDS = 2.0
 PROCESS_STARTUP_PROBE_SECONDS = 0.25
-UI_REFRESH_SECONDS = 0.20
+UI_REFRESH_SECONDS = 0.169
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
@@ -116,6 +121,22 @@ ANDROID_PACKAGE_PATTERN = re.compile(
 )
 SCRCPY_LOG_PREFIX_PATTERN = re.compile(
     r"^(?:\[[^\]]+\]\s*)?(?:VERBOSE|DEBUG|INFO|WARN|ERROR):\s*"
+)
+SCRCPY_LOG_LINE_PATTERN = re.compile(
+    r"^(?P<source>\[[^\]]+\]\s*)?"
+    r"(?P<level>VERBOSE|DEBUG|INFO|WARN|ERROR):(?P<body>.*)$"
+)
+SCRCPY_SEMANTIC_TOKEN_PATTERN = re.compile(
+    r"(?P<field>\b(?:ADB device found|Device|Renderer|Texture|Encoder|Decoder|"
+    r"Audio|Video|Display|OpenGL|DPI)\b(?=:))"
+    r"|(?P<success>\b(?:found|pushed|turned off|connected|created|started|"
+    r"successful(?:ly)?|success)\b)"
+    r"|(?P<error>\b(?:failed|failure|error|exception|unable|cannot)\b)"
+    r"|(?P<warning>\b(?:warning|warn)\b)"
+    r"|(?P<metric>\b\d+(?:\.\d+)?(?:x\d+|\s?(?:MB/s|Mbps|Kbps|fps|Hz|ms|bytes))\b)"
+    r"|(?P<package>\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){2,}\b)"
+    r"|(?P<arrow>-->)",
+    re.IGNORECASE,
 )
 ANSI_ESCAPE_PATTERN = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[@-_])")
 
@@ -156,6 +177,15 @@ ANSI_RESET = "\x1b[0m"
 ANSI_REVERSE = "\x1b[7m"
 ANSI_DIM = "\x1b[2m"
 ANSI_BOLD = "\x1b[1m"
+ANSI_FG_RED = "\x1b[91m"
+ANSI_FG_GREEN = "\x1b[92m"
+ANSI_FG_YELLOW = "\x1b[93m"
+ANSI_FG_BLUE = "\x1b[94m"
+ANSI_FG_MAGENTA = "\x1b[95m"
+ANSI_FG_CYAN = "\x1b[96m"
+ANSI_FG_GRAY = "\x1b[90m"
+ANSI_FG_WHITE = "\x1b[97m"
+ANSI_MATCH = "\x1b[27;30;103;1m"
 
 
 # =============================================================================
@@ -640,6 +670,101 @@ def ellipsize(text: str, width: int) -> str:
     return clean[: width - 1] + "…"
 
 
+
+def styled(text: str, style: str, *, base_style: str = "") -> str:
+    """Apply one ANSI style and reliably restore the caller's surrounding style."""
+    return f"{style}{text}{ANSI_RESET}{base_style}"
+
+
+def highlight_matches(text: str, query: str, *, base_style: str = "") -> str:
+    """Highlight every case-insensitive literal query match without changing text."""
+    if not query:
+        return text
+
+    pattern = re.compile(re.escape(query), re.IGNORECASE)
+    output: list[str] = []
+    cursor = 0
+    for match in pattern.finditer(text):
+        output.append(text[cursor : match.start()])
+        output.append(
+            f"{ANSI_MATCH}{match.group(0)}{ANSI_RESET}{base_style}"
+        )
+        cursor = match.end()
+    output.append(text[cursor:])
+    return "".join(output)
+
+
+def colorize_scrcpy_body(text: str, *, base_style: str = "") -> str:
+    """Color only conservative, semantically recognizable scrcpy tokens."""
+    output: list[str] = []
+    cursor = 0
+
+    for match in SCRCPY_SEMANTIC_TOKEN_PATTERN.finditer(text):
+        output.append(text[cursor : match.start()])
+        token = match.group(0)
+
+        if match.lastgroup == "field":
+            style = ANSI_FG_BLUE + ANSI_BOLD
+        elif match.lastgroup == "success":
+            style = ANSI_FG_GREEN
+        elif match.lastgroup == "error":
+            style = ANSI_FG_RED + ANSI_BOLD
+        elif match.lastgroup == "warning":
+            style = ANSI_FG_YELLOW + ANSI_BOLD
+        elif match.lastgroup == "metric":
+            style = ANSI_FG_YELLOW
+        elif match.lastgroup == "package":
+            style = ANSI_FG_MAGENTA
+        else:
+            style = ANSI_FG_CYAN
+
+        output.append(styled(token, style, base_style=base_style))
+        cursor = match.end()
+
+    output.append(text[cursor:])
+    return "".join(output)
+
+
+def colorize_scrcpy_log_line(line: str, *, base_style: str = "") -> str:
+    """
+    Add presentation-only semantic color to one raw scrcpy console line.
+
+    Unknown text is deliberately left untouched. Raw log files never contain
+    these ANSI sequences; coloring happens only while rendering the TUI.
+    """
+    clean = sanitize_log_line(line)
+    match = SCRCPY_LOG_LINE_PATTERN.match(clean)
+    if match is None:
+        return colorize_scrcpy_body(clean, base_style=base_style)
+
+    source = match.group("source") or ""
+    level = match.group("level")
+    body = match.group("body")
+
+    level_style = {
+        "VERBOSE": ANSI_DIM + ANSI_FG_GRAY,
+        "DEBUG": ANSI_FG_BLUE,
+        "INFO": ANSI_FG_CYAN,
+        "WARN": ANSI_FG_YELLOW + ANSI_BOLD,
+        "ERROR": ANSI_FG_RED + ANSI_BOLD,
+    }[level]
+
+    output = ""
+    if source:
+        output += styled(source.rstrip(), ANSI_FG_MAGENTA, base_style=base_style) + " "
+
+    output += styled(f"{level}:", level_style, base_style=base_style)
+
+    if level == "ERROR":
+        output += styled(body, ANSI_FG_RED, base_style=base_style)
+    elif level == "WARN":
+        output += styled(body, ANSI_FG_YELLOW, base_style=base_style)
+    else:
+        output += colorize_scrcpy_body(body, base_style=base_style)
+
+    return output
+
+
 def terminal_dimensions() -> tuple[int, int]:
     """Return the terminal's current live dimensions."""
     size = shutil.get_terminal_size(fallback=(100, 30))
@@ -976,6 +1101,7 @@ class TerminalUI:
             "\n": "ENTER",
             "\x1b": "ESC",
             "\x03": "CTRL_C",
+            "\x09": "TAB",
             "\x12": "CTRL_R",
             "\x08": "BACKSPACE",
             "\x7f": "BACKSPACE",
@@ -1382,6 +1508,17 @@ class VirtualScreenManager:
                 return choices[selected][2]
 
     def _show_app_picker(self, title: str) -> InstalledApp | None:
+        """
+        Live installed-app browser with three keyboard-focus regions.
+
+        Focus order:
+            app list -> living search input -> Back / Cancel
+
+        The search is deliberately case-insensitive and matches both the
+        human-readable app label and exact Android package name. Typing while
+        Search is focused changes the result set immediately; Enter is not
+        required.
+        """
         terminal = self._require_terminal()
         try:
             apps = self._load_installed_apps()
@@ -1392,6 +1529,7 @@ class VirtualScreenManager:
         query = ""
         selected = 0
         top = 0
+        focus = "list"
 
         while True:
             width, height = terminal_dimensions()
@@ -1417,8 +1555,12 @@ class VirtualScreenManager:
                 selected = max(0, min(selected, len(matches) - 1))
             else:
                 selected = 0
+                if focus == "list":
+                    focus = "search"
 
-            body_height = max(1, height - 8)
+            # Reserve five fixed rows below the list: separator, Search, Back,
+            # blank, and controls. The header consumes four rows.
+            body_height = max(1, height - 9)
             if selected < top:
                 top = selected
             elif selected >= top + body_height:
@@ -1426,11 +1568,9 @@ class VirtualScreenManager:
             max_top = max(0, len(matches) - body_height)
             top = max(0, min(top, max_top))
 
-            filter_text = query or "(type to filter)"
             lines = [
-                f"{ANSI_BOLD}{ICON_APPS}  {title}{ANSI_RESET}",
-                terminal_rule(width),
-                f"{ICON_SEARCH} {filter_text}",
+                f"{ANSI_BOLD}{ANSI_FG_CYAN}{ICON_APPS}  {title}{ANSI_RESET}",
+                f"{ANSI_FG_CYAN}{terminal_rule(width)}{ANSI_RESET}",
                 f"{ANSI_DIM}{len(matches)} matches / {len(apps)} installed   "
                 f"{ICON_REFRESH} Ctrl+R refresh inventory{ANSI_RESET}",
                 "",
@@ -1438,26 +1578,74 @@ class VirtualScreenManager:
 
             visible = matches[top : top + body_height]
             if not visible:
-                lines.append("  (no matching apps)")
+                lines.append(f"  {ANSI_DIM}(no matching apps){ANSI_RESET}")
+
             for offset, app in enumerate(visible):
                 absolute = top + offset
-                pointer = ICON_POINTER if absolute == selected else " "
+                hovered = focus == "list" and absolute == selected
+                pointer = ICON_POINTER if hovered else " "
                 app_icon = ICON_SYSTEM_APP if app.is_system else ICON_USER_APP
                 kind = "SYS" if app.is_system else "USR"
-                prefix = f" {pointer} {app_icon} {kind}  "
-                available = max(1, width - len(prefix) - 2)
-                name_and_package = f"{app.name}  [{app.package}]"
-                row = prefix + ellipsize(name_and_package, available)
-                lines.append(
-                    ANSI_REVERSE + row + ANSI_RESET if absolute == selected else row
-                )
+                kind_style = ANSI_FG_YELLOW if app.is_system else ANSI_FG_GREEN
 
-            lines.extend(
-                [
-                    "",
-                    f"{ANSI_DIM}Type to filter · Backspace · ↑/↓ · PgUp/PgDn · "
-                    f"Enter select · Ctrl+R refresh · Esc cancel{ANSI_RESET}",
-                ]
+                prefix_plain = f" {pointer} {app_icon} {kind}  "
+                available = max(1, width - len(prefix_plain) - 2)
+                combined = ellipsize(f"{app.name}  [{app.package}]", available)
+
+                base_style = ANSI_REVERSE if hovered else ""
+                prefix = (
+                    f"{base_style} {pointer} "
+                    f"{kind_style}{app_icon} {kind}{ANSI_RESET}{base_style}  "
+                )
+                highlighted = highlight_matches(
+                    combined,
+                    query,
+                    base_style=base_style,
+                )
+                lines.append(prefix + highlighted + ANSI_RESET)
+
+            # Keep the bottom controls physically at the bottom of the terminal
+            # where possible, rather than immediately after a short result list.
+            fixed_after_list = 4
+            desired_before_controls = max(
+                0,
+                height - (len(lines) + fixed_after_list),
+            )
+            lines.extend([""] * desired_before_controls)
+            lines.append(f"{ANSI_FG_CYAN}{terminal_rule(width)}{ANSI_RESET}")
+
+            search_hovered = focus == "search"
+            search_base = ANSI_REVERSE if search_hovered else ""
+            search_value = query or "(empty — all apps)"
+            search_prefix = f" {ICON_POINTER if search_hovered else ' '} {ICON_SEARCH} Search: "
+            search_available = max(1, width - len(search_prefix) - 2)
+            visible_search = ellipsize(search_value, search_available)
+            lines.append(
+                search_base
+                + search_prefix
+                + (
+                    highlight_matches(
+                        visible_search,
+                        query,
+                        base_style=search_base,
+                    )
+                    if query
+                    else visible_search
+                )
+                + ANSI_RESET
+            )
+
+            cancel_hovered = focus == "cancel"
+            cancel_row = f" {ICON_POINTER if cancel_hovered else ' '} {ICON_BACK} Back / Cancel"
+            lines.append(
+                ANSI_REVERSE + ellipsize(cancel_row, max(1, width - 1)) + ANSI_RESET
+                if cancel_hovered
+                else ellipsize(cancel_row, max(1, width - 1))
+            )
+
+            lines.append(
+                f"{ANSI_DIM}↑/↓ navigate · Tab focus · / search · Enter select · "
+                f"Ctrl+R refresh · Esc cancel{ANSI_RESET}"
             )
             terminal.draw("\n".join(lines))
 
@@ -1466,12 +1654,73 @@ class VirtualScreenManager:
                 continue
             if key in {"ESC", "CTRL_C"}:
                 return None
+
+            if key == "CTRL_R":
+                try:
+                    apps = self._load_installed_apps(force=True)
+                    selected = 0
+                    top = 0
+                except LaunchError as exc:
+                    self._show_message("APP INVENTORY FAILED", str(exc))
+                continue
+
+            if key == "/":
+                focus = "search"
+                continue
+
+            if key == "TAB":
+                focus = {
+                    "list": "search",
+                    "search": "cancel",
+                    "cancel": "list" if matches else "search",
+                }[focus]
+                continue
+
+            if focus == "search":
+                if key == "UP":
+                    if matches:
+                        focus = "list"
+                elif key == "DOWN":
+                    focus = "cancel"
+                elif key == "ENTER":
+                    if matches:
+                        focus = "list"
+                elif key == "BACKSPACE":
+                    query = query[:-1]
+                    selected = 0
+                    top = 0
+                elif key == "SPACE":
+                    query += " "
+                    selected = 0
+                    top = 0
+                elif len(key) == 1 and key.isprintable():
+                    query += key
+                    selected = 0
+                    top = 0
+                continue
+
+            if focus == "cancel":
+                if key == "ENTER":
+                    return None
+                if key == "UP":
+                    focus = "search"
+                elif key == "DOWN" and matches:
+                    focus = "list"
+                continue
+
+            # App-list focus.
             if key == "ENTER" and matches:
                 return matches[selected]
             if key == "UP" and matches:
-                selected = (selected - 1) % len(matches)
+                if selected == 0:
+                    focus = "cancel"
+                else:
+                    selected -= 1
             elif key == "DOWN" and matches:
-                selected = (selected + 1) % len(matches)
+                if selected == len(matches) - 1:
+                    focus = "search"
+                else:
+                    selected += 1
             elif key == "PAGE_UP" and matches:
                 selected = max(0, selected - body_height)
             elif key == "PAGE_DOWN" and matches:
@@ -1480,25 +1729,6 @@ class VirtualScreenManager:
                 selected = 0
             elif key == "END" and matches:
                 selected = len(matches) - 1
-            elif key == "BACKSPACE":
-                query = query[:-1]
-                selected = 0
-                top = 0
-            elif key == "CTRL_R":
-                try:
-                    apps = self._load_installed_apps(force=True)
-                    selected = 0
-                    top = 0
-                except LaunchError as exc:
-                    self._show_message("APP INVENTORY FAILED", str(exc))
-            elif key == "SPACE":
-                query += " "
-                selected = 0
-                top = 0
-            elif len(key) == 1 and key.isprintable() and key not in {"\r", "\n"}:
-                query += key
-                selected = 0
-                top = 0
 
     def _action_defaults(self) -> None:
         try:
@@ -1554,7 +1784,9 @@ class VirtualScreenManager:
             "",
             f"{ICON_APPS} Installed-app finder",
             "  Uses scrcpy's Android-side app inventory to search human app labels",
-            "  and exact package names. The inventory is cached until you press R.",
+            "  and exact package names case-insensitively. Search is a focusable",
+            "  live field: typing updates immediately and matched text is highlighted.",
+            "  The inventory is cached until Ctrl+R refreshes it.",
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
         ]
@@ -1591,7 +1823,10 @@ class VirtualScreenManager:
             else:
                 top = max(0, min(top, max_top))
 
-            visible = visual_lines[top : top + body_height]
+            visible = [
+                colorize_scrcpy_log_line(line)
+                for line in visual_lines[top : top + body_height]
+            ]
             logical_count = process.line_count if process is not None else 0
             status = self._process_status(process)
             position = (
@@ -1659,11 +1894,11 @@ class VirtualScreenManager:
         running = sum(screen.process.poll() is None for screen in self.screens.values())
         lines = [
             (
-                f"{ANSI_BOLD}╔{'═' * max(0, width - 2)}╗{ANSI_RESET}"
+                f"{ANSI_BOLD}{ANSI_FG_CYAN}╔{'═' * max(0, width - 2)}╗{ANSI_RESET}"
                 if width >= 2
                 else f"{ANSI_BOLD}╗{ANSI_RESET}"
             ),
-            f"{ANSI_BOLD}  {ICON_TERMINAL} SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}",
+            f"{ANSI_BOLD}{ANSI_FG_CYAN}  {ICON_TERMINAL} SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}",
             f"  {ICON_SCREEN} {len(self.screens)} displays / {running} running    "
             f"{ICON_SETTINGS} defaults {self.defaults.size} · "
             f"{self.defaults.max_fps} FPS · {self.defaults.bitrate_spec}",
@@ -1759,8 +1994,12 @@ class VirtualScreenManager:
 
         log_prefix = f"       {ICON_LOG} "
         preview_width = max(1, safe_width - len(log_prefix) - 2)
+        latest_preview = ellipsize(latest, preview_width)
         output.append(
-            ANSI_DIM + log_prefix + ellipsize(latest, preview_width) + ANSI_RESET
+            ANSI_DIM
+            + log_prefix
+            + colorize_scrcpy_log_line(latest_preview, base_style=ANSI_DIM)
+            + ANSI_RESET
         )
         return output
 
