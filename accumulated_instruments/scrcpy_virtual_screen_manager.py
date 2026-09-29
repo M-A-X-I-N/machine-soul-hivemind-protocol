@@ -69,8 +69,9 @@ attempt to guess or recreate the user's prior physical-screen state on exit.
 
 No third-party Python packages are required. Nerd Font glyphs are intentionally
 used throughout the interactive interface; a Nerd Font-capable terminal is
-therefore strongly recommended. UI icon constants are restricted to the BMP
-private-use area (U+E000-U+F8FF) for broad Windows terminal compatibility.
+therefore strongly recommended. UI icon constants deliberately use only Nerd
+Fonts Codicons (U+EA60-U+EC84), matching the operator-verified working Codicon
+range instead of relying on relocated Font Awesome or supplementary-PUA glyphs.
 
 Interactive surfaces are composed inside a four-sided frame that consumes the
 current terminal rectangle. Main-menu and viewer row budgets are derived from
@@ -152,32 +153,35 @@ EXIT_RUNTIME = 4
 
 # Nerd Font / terminal presentation glyphs. These are decoration only: control
 # logic never depends on glyph width or successful font rendering.
-ICON_POINTER = ""       # U+F054 nf-fa-chevron_right
-ICON_CONTROLLER = ""    # U+F120 nf-fa-terminal
-ICON_SCREEN = ""        # U+F108 nf-fa-desktop
-ICON_RUNNING = ""       # U+F04B nf-fa-play
-ICON_STOPPED = ""       # U+F04D nf-fa-stop
-ICON_STANDBY = ""       # U+F017 nf-fa-clock_o
-ICON_LOG = ""           # U+F0F6 nf-fa-file_text_o
-ICON_ADD = ""           # U+F067 nf-fa-plus
-ICON_SETTINGS = ""      # U+F013 nf-fa-cog
-ICON_HELP = ""          # U+F059 nf-fa-question_circle
-ICON_QUIT = ""          # U+F08B nf-fa-sign_out
-ICON_STOP = ""          # U+F04D nf-fa-stop
-ICON_REMOVE = ""        # U+F1F8 nf-fa-trash
-ICON_RESTART = ""       # U+F021 nf-fa-refresh
-ICON_EXPAND = ""        # U+F054 nf-fa-chevron_right
-ICON_COLLAPSE = ""      # U+F078 nf-fa-chevron_down
-ICON_BACK = ""          # U+F060 nf-fa-arrow_left
-ICON_SCROLL = ""        # U+F0AE nf-fa-tasks
-ICON_INFO = ""          # U+F05A nf-fa-info_circle
-ICON_TERMINAL = ""      # U+F120 nf-fa-terminal
-ICON_HEARTBEAT = ""     # U+F21E nf-fa-heartbeat
-ICON_APPS = ""          # U+F03A nf-fa-list
-ICON_USER_APP = ""      # U+F10B nf-fa-mobile
-ICON_SYSTEM_APP = ""    # U+F17B nf-fa-android
-ICON_SEARCH = ""        # U+F002 nf-fa-search
-ICON_REFRESH = ""       # U+F021 nf-fa-refresh
+# Nerd Fonts Codicons only. This project intentionally stays within the
+# current Codicon range U+EA60-U+EC84 because it is verified against the same
+# glyph set as the operator's known-good U+EB53 cod-shield character.
+ICON_POINTER = ""       # U+EAB6 cod-chevron_right
+ICON_CONTROLLER = ""    # U+EBA2 cod-server_process
+ICON_SCREEN = ""        # U+EB4C cod-screen_full
+ICON_RUNNING = ""       # U+EBA6 cod-play_circle
+ICON_STOPPED = ""       # U+EBA5 cod-stop_circle
+ICON_STANDBY = ""       # U+EC75 cod-clockface
+ICON_LOG = ""           # U+EC5E cod-file_text
+ICON_ADD = ""           # U+EA60 cod-add
+ICON_SETTINGS = ""      # U+EB51 cod-settings_gear
+ICON_HELP = ""          # U+EB32 cod-question
+ICON_QUIT = ""          # U+EA6E cod-sign_out
+ICON_STOP = ""          # U+EAD7 cod-debug_stop
+ICON_REMOVE = ""        # U+EA81 cod-trash
+ICON_RESTART = ""       # U+EB37 cod-refresh
+ICON_EXPAND = ""        # U+EAB6 cod-chevron_right
+ICON_COLLAPSE = ""      # U+EAB4 cod-chevron_down
+ICON_BACK = ""          # U+EA9B cod-arrow_left
+ICON_SCROLL = ""        # U+EB84 cod-list_flat
+ICON_INFO = ""          # U+EA74 cod-info
+ICON_TERMINAL = ""      # U+EA85 cod-terminal
+ICON_HEARTBEAT = ""     # U+EB31 cod-pulse
+ICON_APPS = ""          # U+EB86 cod-list_tree
+ICON_USER_APP = ""      # U+EADB cod-device_mobile
+ICON_SYSTEM_APP = ""    # U+EB50 cod-server
+ICON_SEARCH = ""        # U+EA6D cod-search
+ICON_REFRESH = ""       # U+EB37 cod-refresh
 
 ANSI_RESET = "\x1b[0m"
 ANSI_REVERSE = "\x1b[7m"
@@ -1075,13 +1079,17 @@ class TerminalUI:
             self._posix_saved_attributes = termios.tcgetattr(self._posix_fd)
             tty.setcbreak(self._posix_fd)
 
-        sys.stdout.write("\x1b[?1049h\x1b[?25l")
+        # Alternate screen + hidden cursor + DECAWM off. Disabling terminal
+        # autowrap lets the frame safely occupy the physical last column
+        # without the right border wrapping into the next row.
+        sys.stdout.write("\x1b[?1049h\x1b[?25l\x1b[?7l")
         sys.stdout.flush()
         return self
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         self._restore_posix_input()
-        sys.stdout.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+        # Restore autowrap before leaving the alternate screen.
+        sys.stdout.write("\x1b[0m\x1b[?7h\x1b[?25h\x1b[?1049l")
         sys.stdout.flush()
         self._entered = False
 
