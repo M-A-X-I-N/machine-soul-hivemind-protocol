@@ -45,6 +45,7 @@ The working concept is an **adaptive local-contrast compositor**.
 - [12_renderer_editor_and_terminal_laboratories.md](12_renderer_editor_and_terminal_laboratories.md) — Windows Terminal, kitty, WezTerm, Zed/GPUI, Qt, SDL, and other implementation laboratories.
 - [13_low_luminance_oled_transport_and_temporal_gotchas.md](13_low_luminance_oled_transport_and_temporal_gotchas.md) — near-black OLED behavior, VRR/gamma shifts, 4:4:4, DSC, precision, and multi-monitor transport issues.
 - [14_second_pass_open_questions.md](14_second_pass_open_questions.md) — unresolved questions and future research queue.
+- [15_miscellaneous_implementation_ammunition.md](15_miscellaneous_implementation_ammunition.md) — optical-size fonts, Skia gamma behavior, Slang shaders, EXR replay, GPU debuggers, and assorted future ammunition.
 - [SOURCES.md](SOURCES.md) — primary/secondary source map with notes.
 
 ## One-sentence mental model
