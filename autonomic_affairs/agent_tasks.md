@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-OPS-B-020`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-020.md)
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -41,7 +41,8 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-OPS-A-020`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-020.md) | COMPLETE | `MSHP-OPS-A-010` | Refactor repository validation into reusable sets | Preserve the current validation surface while extracting coherent reusable validation sets with stable names and no path-based routing. |
 | [`MSHP-OPS-A-030`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-030.md) | COMPLETE | `MSHP-OPS-A-020` | Implement explicit CI dispatcher and selectors | Make main default to full validation, allow explicit main subsets/none, keep non-main pushes quiet, and permit explicit validation of arbitrary agent refs. |
 | [`MSHP-OPS-A-040`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-040.md) | COMPLETE | `MSHP-OPS-A-030` | Validate CI control plane and thaw developer work | Prove the branch/selector/deferred-CI behavior end to end, cut over without duplicate runners, and restore the frozen DEV-B checkpoint. |
-| [`MSHP-OPS-B-010`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-010.md) | IN_PROGRESS | — | Investigate CodeQL advanced-analysis configuration | Map the current advanced-mode workflow and supported CodeQL/Actions control surface, experimentally verify material behavior, recommend an MSHP-native architecture, and taskify only evidence-backed follow-up work. |
+| [`MSHP-OPS-B-010`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-010.md) | COMPLETE | — | Investigate CodeQL advanced-analysis configuration | Map the current advanced-mode workflow and supported CodeQL/Actions control surface, experimentally verify material behavior, recommend an MSHP-native architecture, and taskify only evidence-backed follow-up work. |
+| [`MSHP-OPS-B-020`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-020.md) | QUEUED | `MSHP-OPS-B-010` | Integrate advanced CodeQL with selective-CI policy | Keep CodeQL as separate deferred analysis while adding manual ref dispatch, scoped concurrency, least-privilege permissions, and explicit policy alignment without unnecessary query/config complexity. |
 | [`MSHP-APPS-A-010`](agent_tasks/MSHP-APPS-A/MSHP-APPS-A-010.md) | COMPLETE | — | Investigate Windows config candidates | Inventory Windows-integrated and common Microsoft applications with stable user-manageable configuration surfaces that may deserve Machine-Soul configuration entries. |
 
 
