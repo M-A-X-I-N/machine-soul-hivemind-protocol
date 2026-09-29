@@ -368,3 +368,158 @@ Public decoration controls are useful but do not obviously expose the full final
 - PIX GPU captures  
   https://devblogs.microsoft.com/pix/gpu-captures/  
   Pipeline/resource inspection, pixel history, shader debugging.
+
+
+# Third shotgun pass — existing implementations and prior art
+
+## Direct editor / wallpaper ancestors
+
+- GlassCode — JetBrains capture/process/overlay plugin  
+  https://github.com/gileli121/GlassCode  
+  Windows Graphics Capture, D3D11/CUDA processing, local shape/background inference, separate text brightness/background opacity, layered replacement windows.
+
+- Wallpaper Setting — VS Code background-only transparency / filtering  
+  https://github.com/Angelmaneuver/wallpaper-setting
+
+- vscode-background — mature VS Code wallpaper injection ecosystem  
+  https://github.com/shalldie/vscode-background
+
+- IntelliJ Platform UI theme background images  
+  https://plugins.jetbrains.com/docs/intellij/themes-intro.html  
+  JetBrains already has platform-level background-image/theme support; exact theme/background APIs should be rechecked against the current SDK when implementing.
+
+- DWMBlurGlass — Windows Acrylic/material implementation reference  
+  https://github.com/Maplespe/DWMBlurGlass
+
+## Text-over-image / safe-region systems
+
+- SmartText — Harmonious Textual Layout Generation over Natural Images  
+  https://github.com/intchous/SmartText
+
+- PosterLayout CVPR 2023 — content-aware visual-textual presentation layout benchmark  
+  https://github.com/PKU-ICST-MIPL/PosterLayout-CVPR2023
+
+- smartcrop.js — cheap saliency/edge/skin/saturation crop heuristic  
+  https://github.com/jwagner/smartcrop.js
+
+## Existing adaptive foreground/readability patterns
+
+- AndroidX Palette source — minimum-alpha text colors over image swatches  
+  https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/palette/palette/src/main/java/androidx/palette/graphics/Palette.java
+
+- 2024 AR text-readability literature review  
+  https://link.springer.com/article/10.1007/s10055-024-00949-6
+
+- Edward Swan publication archive / AR text-display studies  
+  https://ed-swan.github.io/publications/
+
+- SmartColor — real-time color/contrast adaptation for optical see-through displays  
+  https://hci.cs.umanitoba.ca/Publications/details/smartcolor-real-time-color-correction-and-contrast-for-optical-see-through
+
+- Material Design imagery — text-protection scrims  
+  https://m1.material.io/style/imagery.html
+
+- Android edge-to-edge / system-bar protection  
+  https://developer.android.com/develop/ui/compose/system/system-bars
+
+- Adaptive subtitle color-management patent, US 12,549,822  
+  https://patents.justia.com/patent/12549822
+
+- mpv/libass subtitle styles and background boxes  
+  https://mpv.io/manual/master/
+
+## Translucent material / backdrop-filter systems
+
+- Microsoft Acrylic  
+  https://learn.microsoft.com/en-us/windows/apps/design/style/acrylic  
+  Blur + contrast/exclusion + tint + noise material pipeline.
+
+- Apple NSVisualEffectView / vibrancy  
+  https://developer.apple.com/documentation/appkit/nsvisualeffectview
+
+- GNOME Shell BlurEffect  
+  https://gnome.pages.gitlab.gnome.org/gnome-shell/shell/class.BlurEffect.html
+
+- KWin blur implementation  
+  https://github.com/KDE/kwin/blob/master/src/plugins/blur/blur.cpp  
+  Dual-Kawase-style blur, saturation/contrast transforms, damage handling, noise to mask banding.
+
+- Wayfire blur plugin  
+  https://github.com/WayfireWM/wayfire/blob/master/plugins/blur/blur.cpp
+
+- picom backdrop blur methods  
+  https://github.com/yshui/picom
+
+## HDR / color / GPU infrastructure worth mining
+
+- libplacebo  
+  https://github.com/haasn/libplacebo  
+  HDR/color/ICC/gamut/tone/dither/GPU abstraction with custom shader hooks.
+
+- libplacebo custom shader hooks  
+  https://github.com/haasn/libplacebo/blob/master/src/include/libplacebo/shaders/custom.h
+
+- libplacebo renderer / contrast recovery  
+  https://github.com/haasn/libplacebo/blob/master/src/renderer.c
+
+- libplacebo color shader feature extraction  
+  https://github.com/haasn/libplacebo/blob/master/src/shaders/colorspace.c  
+  Perceptual intensity feature map + low/high-frequency detail used for HDR contrast recovery; especially relevant as an inverse cousin of glyph-local detail suppression.
+
+- Gamescope  
+  https://github.com/ValveSoftware/gamescope  
+  Current Vulkan/DRM/Wayland HDR implementation and concrete upstream color-management-v1 / Windows-scRGB usage.
+
+- VK_hdr_layer  
+  https://github.com/Zamundaaa/VK_hdr_layer  
+  Small historical Vulkan↔Wayland HDR bridge; educational reference, not a recommended modern dependency.
+
+- Magpie  
+  https://github.com/Blinue/Magpie  
+  Windows capture plus multipass GPU processing.
+
+- MagpieFX format  
+  https://github.com/Blinue/Magpie/blob/dev/docs/MagpieFX.md  
+  D3D11 compute-shader graph, intermediate textures, FP16 formats, user parameters.
+
+- OBS Studio  
+  https://github.com/obsproject/obs-studio  
+  Cross-platform color-space-aware capture/filter/render graph including scRGB/16F paths.
+
+- obs-shaderfilter  
+  https://github.com/exeldro/obs-shaderfilter  
+  Arbitrary shader experiments on OBS sources, including extra texture inputs/masking.
+
+- RenoDX  
+  https://github.com/clshortfuse/renodx  
+  ReShade-based DirectX shader/resource/swapchain surgery; strong reference for upgrading 8-bit pipelines to FP16/HDR and separating scene from UI brightness.
+
+- ReShade HDR shaders / Lilium  
+  https://github.com/EndlesslyFlowering/ReShade_HDR_shaders  
+  scRGB/HDR10 analysis, tone mapping, nit/debug visualizations.
+
+## Terminal shader laboratories
+
+- Ghostty  
+  https://github.com/ghostty-org/ghostty
+
+- Ghostty custom shader configuration  
+  https://ghostty.org/docs/config/reference#custom-shader  
+  Post-process GLSL with the rendered terminal in iChannel0; shader chaining.
+
+- lex-ghostty-shaders  
+  https://github.com/lexrus/lex-ghostty-shaders  
+  Community examples; `neuro_noise.glsl` explicitly composites generated imagery behind a premultiplied terminal foreground using terminal alpha so glyphs remain untouched.
+
+- kitty custom shaders  
+  https://sw.kovidgoyal.net/kitty/custom-shaders/
+
+- Windows Terminal pixel shaders  
+  https://github.com/microsoft/terminal/tree/main/samples/PixelShaders
+
+- WezTerm layered backgrounds  
+  https://wezterm.org/config/lua/config/background.html
+
+## License caution
+
+Repository licenses differ substantially (MIT, LGPL, GPL, and unclassified/asset-specific cases). The source map records projects for research. Before importing implementation code rather than merely learning from it, perform a fresh license/dependency review of the exact version/file being reused.
