@@ -27,6 +27,15 @@ per-session temporary log file. The main list shows only one ellipsized latest
 line so long output can never wrap and destroy the layout. The expanded
 Console action opens a full scrollable history viewer over the complete log.
 
+The UI is time-driven, not input-driven. It polls current terminal dimensions
+and process/log state every UI tick, then repaints only when the rendered frame
+changes. Terminal resizes and new subprocess output therefore appear live.
+
+Installed-app discovery delegates to scrcpy --list-apps, which already exposes
+Android application labels alongside exact package names. The interactive app
+finder filters both fields and is shared by Add Screen and the standalone
+package-finder action.
+
 DESIGN INVARIANTS
 =================
 - Managed screen processes never own Android-global stay-awake state.
@@ -102,6 +111,12 @@ UI_REFRESH_SECONDS = 0.20
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
+ANDROID_PACKAGE_PATTERN = re.compile(
+    r"(?P<package>[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)$"
+)
+SCRCPY_LOG_PREFIX_PATTERN = re.compile(
+    r"^(?:\[[^\]]+\]\s*)?(?:VERBOSE|DEBUG|INFO|WARN|ERROR):\s*"
+)
 ANSI_ESCAPE_PATTERN = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[@-_])")
 
 EXIT_OK = 0
@@ -131,6 +146,11 @@ ICON_SCROLL = "󰹹"
 ICON_INFO = "󰋽"
 ICON_TERMINAL = ""
 ICON_HEARTBEAT = "󰓅"
+ICON_APPS = "󰀻"
+ICON_USER_APP = "󰏖"
+ICON_SYSTEM_APP = "󰒓"
+ICON_SEARCH = "󰍉"
+ICON_REFRESH = "󰑐"
 
 ANSI_RESET = "\x1b[0m"
 ANSI_REVERSE = "\x1b[7m"
@@ -228,6 +248,15 @@ class ManagedScreen:
     @property
     def age_seconds(self) -> int:
         return max(0, int(time.monotonic() - self.started_monotonic))
+
+
+@dataclass(frozen=True, slots=True)
+class InstalledApp:
+    """One Android app returned by scrcpy's label-aware app inventory."""
+
+    name: str
+    package: str
+    is_system: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -360,7 +389,7 @@ def resolve_bitrate(spec: str, size: DisplaySize | None) -> ResolvedBitrate:
 
 
 def validate_app(app: str | None) -> str | None:
-    """Normalize an optional Android package name without over-policing scrcpy syntax."""
+    """Normalize an optional exact Android package name."""
     if app is None:
         return None
 
@@ -370,6 +399,83 @@ def validate_app(app: str | None) -> str | None:
     if any(character.isspace() for character in stripped):
         raise ConfigurationError(f"App/package must not contain whitespace: {app!r}")
     return stripped
+
+
+def parse_scrcpy_app_list(output: str) -> tuple[InstalledApp, ...]:
+    """
+    Parse the human-label + package inventory emitted by scrcpy --list-apps.
+
+    scrcpy formats ordinary names on one line and wraps names longer than its
+    fixed name column onto a following package-only line. Parsing from the
+    package token at the end keeps this tolerant of both layouts and of normal
+    scrcpy/server log prefixes.
+    """
+    apps: dict[str, InstalledApp] = {}
+    pending_name: str | None = None
+    pending_system = False
+
+    for raw_line in output.splitlines():
+        line = sanitize_log_line(raw_line).strip()
+        line = SCRCPY_LOG_PREFIX_PATTERN.sub("", line).strip()
+        if not line or line == "List of apps:" or "Processing Android apps" in line:
+            continue
+
+        is_bullet = line.startswith(("* ", "- "))
+        if is_bullet:
+            pending_system = line.startswith("* ")
+            line = line[2:].strip()
+
+        package_match = ANDROID_PACKAGE_PATTERN.search(line)
+        if package_match is None:
+            if is_bullet and line:
+                pending_name = line
+            continue
+
+        package = package_match.group("package")
+        name_part = line[: package_match.start()].rstrip()
+        name = name_part or pending_name
+        if not name:
+            name = package
+
+        is_system = pending_system if not name_part else pending_system if is_bullet else False
+        apps[package] = InstalledApp(name=name, package=package, is_system=is_system)
+        pending_name = None
+        pending_system = False
+
+    return tuple(
+        sorted(
+            apps.values(),
+            key=lambda app: (app.name.casefold(), app.package.casefold()),
+        )
+    )
+
+
+def list_installed_apps(scrcpy: str) -> tuple[InstalledApp, ...]:
+    """Ask scrcpy/Android for installed app labels and package names."""
+    command = [scrcpy, "--list-apps", "--no-terminal-title"]
+    try:
+        completed = subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=45,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise LaunchError(f"Unable to query installed Android apps: {exc}") from exc
+
+    apps = parse_scrcpy_app_list(completed.stdout or "")
+    if completed.returncode != 0 or not apps:
+        tail = "\n".join((completed.stdout or "").splitlines()[-20:])
+        raise LaunchError(
+            "scrcpy --list-apps did not return a usable app inventory."
+            + (f"\n\n{tail}" if tail else "")
+        )
+    return apps
 
 
 # =============================================================================
@@ -535,9 +641,14 @@ def ellipsize(text: str, width: int) -> str:
 
 
 def terminal_dimensions() -> tuple[int, int]:
-    """Return conservative terminal dimensions for deterministic rendering."""
+    """Return the terminal's current live dimensions."""
     size = shutil.get_terminal_size(fallback=(100, 30))
-    return max(50, size.columns), max(16, size.lines)
+    return max(1, size.columns), max(1, size.lines)
+
+
+def terminal_rule(width: int, glyph: str = "─") -> str:
+    """Build a border/rule sized from the terminal's current width."""
+    return glyph * max(1, width)
 
 
 # =============================================================================
@@ -715,6 +826,7 @@ class TerminalUI:
         self._entered = False
         self._posix_fd: int | None = None
         self._posix_saved_attributes: object | None = None
+        self._last_frame: str | None = None
 
     def __enter__(self) -> "TerminalUI":
         if not (sys.stdin.isatty() and sys.stdout.isatty()):
@@ -766,16 +878,26 @@ class TerminalUI:
             sys.stdout.write("\x1b[?25l")
             sys.stdout.flush()
 
-    def draw(self, content: str) -> None:
-        """Redraw the alternate-screen surface from home."""
+    def draw(self, content: str, *, force: bool = False) -> None:
+        """
+        Redraw only when the frame changed.
+
+        The manager calls this on every timed UI tick, so process/log changes and
+        terminal resizes appear without keyboard input while identical frames do
+        not cause pointless terminal repaint traffic.
+        """
+        if not force and content == self._last_frame:
+            return
+        self._last_frame = content
         sys.stdout.write("\x1b[H\x1b[2J" + content)
         sys.stdout.flush()
 
     def clear_for_dialog(self, title: str) -> None:
         width, _ = terminal_dimensions()
+        self._last_frame = None
         header = f"{ICON_TERMINAL}  {title}"
         sys.stdout.write("\x1b[H\x1b[2J" + ANSI_BOLD + header + ANSI_RESET + "\n")
-        sys.stdout.write("─" * min(width, 100) + "\n\n")
+        sys.stdout.write(terminal_rule(width) + "\n\n")
         sys.stdout.flush()
 
     def read_key(self, timeout: float = UI_REFRESH_SECONDS) -> str | None:
@@ -854,6 +976,8 @@ class TerminalUI:
             "\n": "ENTER",
             "\x1b": "ESC",
             "\x03": "CTRL_C",
+            "\x08": "BACKSPACE",
+            "\x7f": "BACKSPACE",
             " ": "SPACE",
         }.get(char, char.lower())
 
@@ -878,6 +1002,7 @@ class VirtualScreenManager:
         self.terminal: TerminalUI | None = None
         self._log_directory = tempfile.TemporaryDirectory(prefix="scrcpy-screen-manager-")
         self.log_root = Path(self._log_directory.name)
+        self._installed_apps: tuple[InstalledApp, ...] | None = None
 
     def run(self) -> int:
         """Run until the operator selects Quit or sends Ctrl+C."""
@@ -914,6 +1039,7 @@ class VirtualScreenManager:
         items.extend(
             [
                 MenuItem("action:add", "action_add"),
+                MenuItem("action:apps", "action_apps"),
                 MenuItem("action:defaults", "action_defaults"),
                 MenuItem("action:help", "action_help"),
                 MenuItem("action:quit", "action_quit"),
@@ -928,7 +1054,10 @@ class VirtualScreenManager:
         if key == "q" and self.expanded_key is None:
             return True
         if key == "a" and self.expanded_key is None:
-            self._run_dialog("ADD VIRTUAL SCREEN", self._action_add)
+            self._action_add()
+            return False
+        if key == "f" and self.expanded_key is None:
+            self._action_browse_apps()
             return False
         if key == "d" and self.expanded_key is None:
             self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
@@ -980,7 +1109,9 @@ class VirtualScreenManager:
 
     def _invoke_top_level_action(self, kind: str) -> bool:
         if kind == "action_add":
-            self._run_dialog("ADD VIRTUAL SCREEN", self._action_add)
+            self._action_add()
+        elif kind == "action_apps":
+            self._action_browse_apps()
         elif kind == "action_defaults":
             self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
         elif kind == "action_help":
@@ -1088,8 +1219,45 @@ class VirtualScreenManager:
         self.controller = controller
 
     def _action_add(self) -> None:
+        """Choose an app source, then create one managed virtual display."""
+        mode = self._show_choice_menu(
+            title="ADD VIRTUAL SCREEN / APP SOURCE",
+            choices=(
+                (ICON_SEARCH, "Browse/search installed apps", "browse"),
+                (ICON_TERMINAL, "Enter exact package manually", "manual"),
+                (ICON_SCREEN, "Bare virtual display", "bare"),
+            ),
+        )
+        if mode is None:
+            return
+
+        app: str | None
+        if mode == "browse":
+            selected = self._show_app_picker("SELECT INSTALLED APP")
+            if selected is None:
+                return
+            app = selected.package
+        elif mode == "manual":
+            value: list[str | None] = [None]
+
+            def prompt_manual() -> None:
+                raw = input("Exact Android package [blank = cancel]: ").strip()
+                value[0] = validate_app(raw) if raw else None
+
+            self._run_dialog("ADD VIRTUAL SCREEN / MANUAL PACKAGE", prompt_manual)
+            if value[0] is None:
+                return
+            app = value[0]
+        else:
+            app = None
+
+        self._run_dialog(
+            "ADD VIRTUAL SCREEN / SETTINGS",
+            lambda: self._finish_add_screen(app),
+        )
+
+    def _finish_add_screen(self, app: str | None) -> None:
         try:
-            app = validate_app(input("App/package [blank = bare virtual display]: "))
             use_defaults = self._prompt_yes_no(
                 f"Use defaults ({self.defaults.size}, {self.defaults.max_fps} FPS, "
                 f"{self.defaults.bitrate_spec} bitrate)?",
@@ -1139,6 +1307,194 @@ class VirtualScreenManager:
             print(exc)
             input("\nPress Enter to return to the manager...")
 
+    def _action_browse_apps(self) -> None:
+        selected = self._show_app_picker("INSTALLED APPS / PACKAGE FINDER")
+        if selected is None:
+            return
+        kind = "system app" if selected.is_system else "user app"
+        self._show_message(
+            "INSTALLED APP",
+            f"{selected.name}\n{selected.package}\n\nType: {kind}",
+        )
+
+    def _load_installed_apps(self, *, force: bool = False) -> tuple[InstalledApp, ...]:
+        if self._installed_apps is not None and not force:
+            return self._installed_apps
+
+        terminal = self._require_terminal()
+        width, _ = terminal_dimensions()
+        terminal.draw(
+            "\n".join(
+                [
+                    f"{ANSI_BOLD}{ICON_APPS}  READING INSTALLED ANDROID APPS{ANSI_RESET}",
+                    terminal_rule(width),
+                    "",
+                    f"{ICON_HEARTBEAT} scrcpy --list-apps",
+                    "",
+                    f"{ANSI_DIM}Android app labels may take several seconds to resolve...{ANSI_RESET}",
+                ]
+            ),
+            force=True,
+        )
+        self._installed_apps = list_installed_apps(self.scrcpy)
+        return self._installed_apps
+
+    def _show_choice_menu(
+        self,
+        *,
+        title: str,
+        choices: Sequence[tuple[str, str, str]],
+    ) -> str | None:
+        terminal = self._require_terminal()
+        selected = 0
+
+        while True:
+            width, _ = terminal_dimensions()
+            lines = [
+                f"{ANSI_BOLD}{ICON_POINTER}  {title}{ANSI_RESET}",
+                terminal_rule(width),
+                "",
+            ]
+            for index, (icon, label, _value) in enumerate(choices):
+                pointer = ICON_POINTER if index == selected else " "
+                row = ellipsize(f" {pointer}  {icon} {label}", max(1, width - 2))
+                lines.append(
+                    ANSI_REVERSE + row + ANSI_RESET if index == selected else row
+                )
+            lines.extend(
+                [
+                    "",
+                    f"{ANSI_DIM}↑/↓ select   Enter confirm   Esc cancel{ANSI_RESET}",
+                ]
+            )
+            terminal.draw("\n".join(lines))
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "CTRL_C"}:
+                return None
+            if key == "UP":
+                selected = (selected - 1) % len(choices)
+            elif key == "DOWN":
+                selected = (selected + 1) % len(choices)
+            elif key == "ENTER":
+                return choices[selected][2]
+
+    def _show_app_picker(self, title: str) -> InstalledApp | None:
+        terminal = self._require_terminal()
+        try:
+            apps = self._load_installed_apps()
+        except LaunchError as exc:
+            self._show_message("APP INVENTORY FAILED", str(exc))
+            return None
+
+        query = ""
+        selected = 0
+        top = 0
+
+        while True:
+            width, height = terminal_dimensions()
+            folded = query.casefold()
+            matches = [
+                app
+                for app in apps
+                if not folded
+                or folded in app.name.casefold()
+                or folded in app.package.casefold()
+            ]
+            matches.sort(
+                key=lambda app: (
+                    not app.name.casefold().startswith(folded) if folded else False,
+                    not app.package.casefold().startswith(folded) if folded else False,
+                    app.is_system,
+                    app.name.casefold(),
+                    app.package.casefold(),
+                )
+            )
+
+            if matches:
+                selected = max(0, min(selected, len(matches) - 1))
+            else:
+                selected = 0
+
+            body_height = max(1, height - 8)
+            if selected < top:
+                top = selected
+            elif selected >= top + body_height:
+                top = selected - body_height + 1
+            max_top = max(0, len(matches) - body_height)
+            top = max(0, min(top, max_top))
+
+            filter_text = query or "(type to filter)"
+            lines = [
+                f"{ANSI_BOLD}{ICON_APPS}  {title}{ANSI_RESET}",
+                terminal_rule(width),
+                f"{ICON_SEARCH} {filter_text}",
+                f"{ANSI_DIM}{len(matches)} matches / {len(apps)} installed   "
+                f"{ICON_REFRESH} R refresh inventory{ANSI_RESET}",
+                "",
+            ]
+
+            visible = matches[top : top + body_height]
+            if not visible:
+                lines.append("  (no matching apps)")
+            for offset, app in enumerate(visible):
+                absolute = top + offset
+                pointer = ICON_POINTER if absolute == selected else " "
+                app_icon = ICON_SYSTEM_APP if app.is_system else ICON_USER_APP
+                kind = "SYS" if app.is_system else "USR"
+                prefix = f" {pointer} {app_icon} {kind}  "
+                available = max(1, width - len(prefix) - 2)
+                name_and_package = f"{app.name}  [{app.package}]"
+                row = prefix + ellipsize(name_and_package, available)
+                lines.append(
+                    ANSI_REVERSE + row + ANSI_RESET if absolute == selected else row
+                )
+
+            lines.extend(
+                [
+                    "",
+                    f"{ANSI_DIM}Type to filter · Backspace · ↑/↓ · PgUp/PgDn · "
+                    f"Enter select · R refresh · Esc cancel{ANSI_RESET}",
+                ]
+            )
+            terminal.draw("\n".join(lines))
+
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "CTRL_C"}:
+                return None
+            if key == "ENTER" and matches:
+                return matches[selected]
+            if key == "UP" and matches:
+                selected = (selected - 1) % len(matches)
+            elif key == "DOWN" and matches:
+                selected = (selected + 1) % len(matches)
+            elif key == "PAGE_UP" and matches:
+                selected = max(0, selected - body_height)
+            elif key == "PAGE_DOWN" and matches:
+                selected = min(len(matches) - 1, selected + body_height)
+            elif key == "HOME" and matches:
+                selected = 0
+            elif key == "END" and matches:
+                selected = len(matches) - 1
+            elif key == "BACKSPACE":
+                query = query[:-1]
+                selected = 0
+                top = 0
+            elif key == "r":
+                try:
+                    apps = self._load_installed_apps(force=True)
+                    selected = 0
+                    top = 0
+                except LaunchError as exc:
+                    self._show_message("APP INVENTORY FAILED", str(exc))
+            elif len(key) == 1 and key.isprintable() and key not in {"\r", "\n"}:
+                query += key
+                selected = 0
+                top = 0
+
     def _action_defaults(self) -> None:
         try:
             size = self._prompt_size("Default size", self.defaults.size)
@@ -1169,13 +1525,14 @@ class VirtualScreenManager:
         width, _ = terminal_dimensions()
         content = [
             f"{ANSI_BOLD}{ICON_HELP}  HELP / CONTROL MAP{ANSI_RESET}",
-            "─" * min(width, 100),
+            terminal_rule(width),
             "",
             f"  {ICON_POINTER} Up / Down      Select controller, screen, or manager action",
             f"  {ICON_EXPAND} Enter           Expand a process entry / invoke selected action",
             f"  {ICON_SCROLL} Left / Right    Select an expanded submenu action",
             f"  {ICON_BACK} Esc              Collapse the current submenu",
             f"  {ICON_ADD} A                Add screen",
+            f"  {ICON_APPS} F                Find installed app/package",
             f"  {ICON_SETTINGS} D                Edit defaults",
             f"  {ICON_HELP} H / ?            Help",
             f"  {ICON_QUIT} Q                Quit manager (and stop owned processes)",
@@ -1189,6 +1546,10 @@ class VirtualScreenManager:
             "  Every process is fully spooled to a temporary log file. The list",
             "  shows only an ellipsized latest line. Console history opens a",
             "  scrollable viewer over the complete output generated this session.",
+            "",
+            f"{ICON_APPS} Installed-app finder",
+            "  Uses scrcpy's Android-side app inventory to search human app labels",
+            "  and exact package names. The inventory is cached until you press R.",
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
         ]
@@ -1238,10 +1599,10 @@ class VirtualScreenManager:
                 f"{ANSI_BOLD}{ICON_TERMINAL}  {title}{ANSI_RESET}",
                 f"{ICON_HEARTBEAT} {status}    {ICON_LOG} {logical_count} logical lines    "
                 f"{ICON_SCROLL} {position}    {follow_text}",
-                "─" * min(width, 140),
+                terminal_rule(width),
             ]
             footer = [
-                "─" * min(width, 140),
+                terminal_rule(width),
                 f"{ANSI_DIM}↑/↓ line  PgUp/PgDn page  Home/End boundary  "
                 f"R refresh/follow  Esc/Enter/Q back{ANSI_RESET}",
             ]
@@ -1292,7 +1653,11 @@ class VirtualScreenManager:
         width, _ = terminal_dimensions()
         running = sum(screen.process.poll() is None for screen in self.screens.values())
         lines = [
-            f"{ANSI_BOLD}╔{'═' * min(width - 2, 98)}╗{ANSI_RESET}",
+            (
+                f"{ANSI_BOLD}╔{'═' * max(0, width - 2)}╗{ANSI_RESET}"
+                if width >= 2
+                else f"{ANSI_BOLD}╗{ANSI_RESET}"
+            ),
             f"{ANSI_BOLD}  {ICON_TERMINAL} SCRCPY VIRTUAL DISPLAY CONTROL{ANSI_RESET}",
             f"  {ICON_SCREEN} {len(self.screens)} displays / {running} running    "
             f"{ICON_SETTINGS} defaults {self.defaults.size} · "
@@ -1309,7 +1674,7 @@ class VirtualScreenManager:
             [
                 "",
                 f"{ANSI_DIM}↑/↓ select   Enter expand/invoke   ←/→ submenu   "
-                f"Esc collapse   A add   D defaults   H help   Q quit{ANSI_RESET}",
+                f"Esc collapse   A add   F apps   D defaults   H help   Q quit{ANSI_RESET}",
             ]
         )
         return "\n".join(lines)
@@ -1351,6 +1716,7 @@ class VirtualScreenManager:
 
         action_data = {
             "action_add": (ICON_ADD, "Add virtual screen"),
+            "action_apps": (ICON_APPS, "Find installed app / package"),
             "action_defaults": (ICON_SETTINGS, "Edit new-screen defaults"),
             "action_help": (ICON_HELP, "Help / architecture notes"),
             "action_quit": (ICON_QUIT, "Quit manager"),
