@@ -52,6 +52,10 @@ The working concept is an **adaptive local-contrast compositor**.
 - [19_existing_implementation_reuse_matrix_and_extra_labs.md](19_existing_implementation_reuse_matrix_and_extra_labs.md) — Ghostty, JetBrains/DWM extras, reuse/dependency matrix, licensing snapshot, and consolidated prototype strategy.
 - [20_developing_without_target_oled.md](20_developing_without_target_oled.md) — how far the project can be built without OLED hardware, nit-based safety contracts, synthetic display profiles, and what genuinely requires physical validation.
 - [21_monitor_purchase_context.md](21_monitor_purchase_context.md) — Swedish buying criteria, real physical setup, 27/32 trade, glossy/dark-room preference, refresh/value philosophy, and Mr. Samtron's tenure.
+- [22_swedish_oled_monitor_market_2026-09-30.md](22_swedish_oled_monitor_market_2026-09-30.md) — time-stamped Swedish street-price snapshot and market/value discontinuities.
+- [23_27_inch_4k_oled_candidates.md](23_27_inch_4k_oled_candidates.md) — forensic notes on the current 27-inch 4K OLED candidates and true-RGB premium.
+- [24_32_inch_4k_oled_candidates.md](24_32_inch_4k_oled_candidates.md) — forensic notes on the current 32-inch 4K OLED candidates, dual-mode models, coatings, and low-brightness behavior.
+- [25_monitor_value_curve_and_price_watch.md](25_monitor_value_curve_and_price_watch.md) — user-specific price thresholds, sale triggers, premium-RGB watch list, and purchase-day checklist.
 - [SOURCES.md](SOURCES.md) — primary/secondary source map with notes.
 
 ## One-sentence mental model
@@ -126,3 +130,18 @@ A third pass searched specifically for software and research that already implem
 - AR, subtitle, Material, Acrylic, Vibrancy, and system-bar systems repeatedly converge on the same policy: **leave the scene alone when contrast is already sufficient; reveal the smallest local support needed when it is not.**
 
 The implementation question is no longer "how do we invent every layer?". It is increasingly "which existing layers should we reuse, and where is our genuinely novel glyph-aware algorithm inserted?"
+
+
+## Monitor-buying research pass
+
+The monitor tangent is now intentionally part of this corpus because the eventual target display materially affects both development and validation.
+
+Current market conclusion as of 2026-09-30:
+
+- 27-inch 4K/240 OLED has fallen to roughly **7k SEK** in Sweden.
+- 32-inch 4K OLED has a dense **7.3–9k SEK** value band, including 240 Hz and 240/480 dual-mode panels.
+- Glossy/TrueBlack-Glossy WOLED options around 8.5–9k are unusually well aligned with the actual dark-room use case.
+- True RGB-stripe 27/32-inch OLED remains technically attractive but currently sits in a roughly **13.5–14.5k SEK launch-tax band**, making it a price-watch item rather than an automatic recommendation.
+- Minimum luminance and static-dimming behavior are first-class criteria because this user operates displays far darker than typical review assumptions.
+
+The practical strategy is now **shortlist + price triggers**, not one permanent winner: choose several acceptable models, then buy whichever hits a genuinely stupid Swedish street price.
