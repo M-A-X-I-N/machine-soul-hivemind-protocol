@@ -51,6 +51,7 @@ The working concept is an **adaptive local-contrast compositor**.
 - [18_existing_legibility_overlay_and_material_patterns.md](18_existing_legibility_overlay_and_material_patterns.md) — AR readability, subtitles, scrims, Acrylic/Vibrancy, compositor blur, and conditional legibility patterns.
 - [19_existing_implementation_reuse_matrix_and_extra_labs.md](19_existing_implementation_reuse_matrix_and_extra_labs.md) — Ghostty, JetBrains/DWM extras, reuse/dependency matrix, licensing snapshot, and consolidated prototype strategy.
 - [20_developing_without_target_oled.md](20_developing_without_target_oled.md) — how far the project can be built without OLED hardware, nit-based safety contracts, synthetic display profiles, and what genuinely requires physical validation.
+- [21_monitor_purchase_context.md](21_monitor_purchase_context.md) — Swedish buying criteria, real physical setup, 27/32 trade, glossy/dark-room preference, refresh/value philosophy, and Mr. Samtron's tenure.
 - [SOURCES.md](SOURCES.md) — primary/secondary source map with notes.
 
 ## One-sentence mental model
