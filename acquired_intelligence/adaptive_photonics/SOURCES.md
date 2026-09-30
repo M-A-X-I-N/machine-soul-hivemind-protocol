@@ -523,3 +523,155 @@ Public decoration controls are useful but do not obviously expose the full final
 ## License caution
 
 Repository licenses differ substantially (MIT, LGPL, GPL, and unclassified/asset-specific cases). The source map records projects for research. Before importing implementation code rather than merely learning from it, perform a fresh license/dependency review of the exact version/file being reused.
+
+
+# Monitor purchase research — Swedish market snapshot 2026-09-30
+
+Prices below are volatile. Prisjakt is used for Swedish price discovery/history; primary manufacturer/reviewer sources are used for actual engineering specifications.
+
+## Swedish price discovery
+
+- Dell Alienware AW2725Q  
+  https://www.prisjakt.nu/produkt.php?p=14642119
+
+- Lenovo Legion Pro 27UD-10  
+  https://www.prisjakt.nu/produkt.php?p=15421779
+
+- AOC AGON PRO AG276UZD  
+  https://www.prisjakt.nu/produkt.php?p=14829774
+
+- MSI MAG 272UP X24  
+  https://www.prisjakt.nu/produkt.php?p=15261414
+
+- Philips Evnia 32M2N8900  
+  https://www.prisjakt.nu/produkt.php?p=14567413
+
+- Gigabyte MO32U2  
+  https://www.prisjakt.nu/produkt.php?p=16632529
+
+- MSI MPG 321URX  
+  https://www.prisjakt.nu/produkt.php?p=13326290
+
+- ASUS XG32UCWMGZ campaign SKU  
+  https://www.prisjakt.nu/produkt.php?p=17123345
+
+- General Prisjakt searches were also used for LG 32GS94UX, ASRock PGO32UFS, ASUS XG32UCWG, Samsung G8 variants, and Lenovo 32UD-10.
+
+### Aggregator warning
+
+Observed metadata errors include:
+- MSI MPG 321URX incorrectly described as curved on a Prisjakt record;
+- some coating descriptions conflicting with manufacturer/reviewer material;
+- MSI MAG 322UP listing titles reporting 240 Hz while the currently indexed MSI MAG 322UP QD-OLED E16 manufacturer page says 165 Hz.
+
+Never use aggregator metadata as the final engineering source. Verify exact SKU/EAN.
+
+## ASUS 32-inch glossy WOLED
+
+- ROG Strix OLED XG32UCWG Swedish specifications  
+  https://rog.asus.com/se/monitors/27-to-31-5-inches/rog-strix-oled-xg32ucwg/spec/  
+  31.5-inch flat WOLED, TrueBlack Glossy, 4K165/FHD330, Auto KVM, DP1.4 DSC, HDMI2.1, 3-year warranty including panel burn-in.
+
+- ASUS XG32U announcement / TrueBlack Glossy / OLED Care Pro  
+  https://www.asus.com/se/news/mksxwdkf04dlg6s9/  
+  Covers XG32UCWG and XG32UCWMG; Clear Pixel Edge, Neo Proximity Sensor, dual mode, burn-in warranty.
+
+- TFTCentral XG32UCWMG review  
+  https://tftcentral.co.uk/reviews/asus-rog-strix-xg32ucwmg  
+  Measured Uniform Brightness behavior and roughly 32-nit minimum with UB enabled; glossy WOLED/ambient-black discussion.
+
+- Tom's Hardware XG32UCWMG review  
+  https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-strix-xg32ucwmg-4k-oled-gaming-monitor-review  
+  4K240/FHD480 behavior, brightness tables, HDR measurements, OLED-care/KVM details.
+
+- RTINGS XG32UCWMG review  
+  https://www.rtings.com/monitor/reviews/asus/rog-strix-oled-xg32ucwmg  
+  Sharp text, glossy clarity, WOLED black-level behavior, dual mode.
+
+## ASRock PGO32UFS
+
+- ASRock official product page  
+  https://pg.asrock.com/Monitors/PGO32UFS/  
+  Flat WOLED, 4K240/FHD480, KVM, USB-C 65W, Pixel Clean/logo dimming.
+
+- TFTCentral review  
+  https://tftcentral.co.uk/reviews/asrock-phantom-gaming-pgo32ufs  
+  Measured ~21-nit minimum, updated WOLED subpixel layout/text clarity, matte coating, burn-in warranty confirmation from ASRock.
+
+## LG 32-inch dual-mode WOLED
+
+- LG 32GS94UX product page  
+  https://www.lg.com/de/monitore/gaming/32gs94ux-b/
+
+- TFTCentral LG 32GS95UE review  
+  https://tftcentral.co.uk/reviews/lg-32gs95ue  
+  Closely related 32-inch 4K240/FHD480 WOLED platform; measured ~18–19-nit minimum, uniform SDR behavior, matte coating, text clarity.
+
+- LG Sweden warranty terms  
+  https://www.lg.com/se/support/garanti/  
+  General monitor warranty listed as 25 months; no clear monitor burn-in inclusion on the general page.
+
+## Lenovo Legion OLED monitors
+
+- Lenovo Sweden Legion monitor family  
+  https://www.lenovo.com/se/sv/legion-gaming-monitors/  
+  OLED Care Technology description.
+
+- Legion Pro 27UD-10 PSREF  
+  https://psref.lenovo.com/Product/Legion_Pro_27UD_10_Monitor?tab=spec  
+  3-year limited warranty, ports/specifications.
+
+- Legion Pro 32UD-10 PSREF  
+  https://psref.lenovo.com/syspool/Sys/PDF/Lenovo_Monitors/Lenovo_Legion_Pro_32UD_10/Lenovo_Legion_Pro_32UD_10_Spec.pdf  
+  3-year limited warranty and 4K240-capable HDMI/DP details.
+
+Important: primary material located during this pass does not explicitly state that Lenovo's limited warranty includes burn-in. Confirm before purchase.
+
+## Philips Evnia 32M2N8900
+
+- Philips Sweden product page  
+  https://www.philips.se/c-p/32M2N8900_01/4k-uhd-gaming-monitor-qd-oled-spelskaerm
+
+- Philips Sweden support page  
+  https://www.philips.se/c-p/32M2N8900_00/4k-uhd-gaming-monitor-qd-oled-gaming-monitor/kundtjanst
+
+- Swedish price page  
+  https://www.prisjakt.nu/produkt.php?p=14567413
+
+Exact regional suffix/SKU should be checked because current price listings mix /00, /01 and distributor naming.
+
+## MSI 32-inch QD-OLED
+
+- MPG 321URX Swedish price page  
+  https://www.prisjakt.nu/produkt.php?p=13326290
+
+- MSI MAG 322UP QD-OLED E16 official  
+  https://www.msi.com/Monitor/MAG-322UP-QD-OLED-E16  
+  Useful warning case: MSI's currently indexed E16 page specifies 165 Hz despite some Swedish aggregator titles saying 240 Hz.
+
+- MSI OLED Care / 3-year burn-in coverage appears explicitly across current MSI QD-OLED product material.
+
+## 2026 true RGB-stripe / premium watch
+
+- ASUS Swedish TrueBlack Glossy model list including PG32UCWM  
+  https://rog.asus.com/se/monitors-group/allmodels/?items=130448
+
+- ASUS PG32UCWM was observed around 14.4–14.5k SEK in Swedish/Amazon price listings during the snapshot.
+
+- ASUS PG27UCWM was observed around 13.49k SEK through Inet Sweden during the snapshot.
+
+- MSI announced MPG 322URDX36 with fifth-generation Penta-Tandem QD-OLED RGB stripe and multi-mode 360/520/680 Hz in 2026; recheck Swedish availability/pricing when it reaches retail.
+
+## General OLED/text/coating references reused for buying analysis
+
+- RTINGS WOLED vs QD-OLED  
+  https://www.rtings.com/monitor/learn/woled-vs-qd-oled
+
+- RTINGS glossy vs matte  
+  https://www.rtings.com/monitor/learn/glossy-vs-matte
+
+- TFTCentral RGB-stripe OLED panels  
+  https://tftcentral.co.uk/articles/oled-rgb-stripe-panels-explained-should-you-wait
+
+- TFTCentral OLED black crush / shadow detail  
+  https://tftcentral.co.uk/articles/does-oled-have-a-black-crush-problem-understanding-and-testing-oled-shadow-detail
