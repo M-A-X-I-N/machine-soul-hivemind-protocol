@@ -166,3 +166,52 @@ This reminder is intentionally underspecified and is not prompted by a current d
 Before promotion to executable work, decide what problem—if any—is actually being solved, what history/ref ranges would be affected, and whether the value justifies any disruption.
 
 This reminder authorizes no rebase, squash, reset, force-push, history rewrite, commit-message rewrite, or ref movement.
+## Non-symlink configuration deployment strategy
+
+Investigate and eventually design a configuration deployment mode for cases where Machine-Soul should track canonical configuration in the repository but **must not symlink the application's native config path**.
+
+This is deliberately only a reminder. The current configuration safety law remains file-level symlinks until a replacement/extension is explicitly designed.
+
+Potential questions for later:
+
+- which applications/files genuinely require materialized/copied/rendered deployment rather than links;
+- how drift is detected when repository edits no longer become live instantly;
+- whether apply is copy/materialize, render, import/export, or another native mechanism;
+- how ownership/provenance distinguishes a Machine-Soul materialized file from an unmanaged lookalike;
+- conflict, backup, rollback, Check, and Unapply semantics;
+- whether deployment strategy belongs in the shared application/config declaration model.
+
+Do not create one-off copy hacks merely because this reminder exists.
+
+## Implement nuanced Git/commit-history cleanup policy
+
+Replace the current intentionally conservative additive-history rule with a more precise policy that distinguishes **meaningful Git history** from incidental commit boundaries.
+
+Maintainer direction already established:
+
+- preserving meaningful historical repository states is the primary concern;
+- commit count/order is not sacred merely because events happened that way;
+- task claim / implementation / completion bookkeeping may often be representable more cleanly as fewer commits;
+- fixup/admin commits may be squash candidates when no meaningful repository state is lost;
+- large deletes, large squashes, and destructive rebases are **very strong warning signs**, but are not automatically disqualifying solely because they are large or destructive;
+- rewriting away a substantive intermediate repository state is normally unacceptable even when the final tree is unchanged;
+- published/ref topology and external references are a separate safety dimension and must be considered explicitly.
+
+Before promotion to executable work, define objective-ish review questions for squash/rebase candidates, published-ref authorization rules, recovery/backups, and how cleanup interacts with concurrent agent branches.
+
+Until that policy is deliberately implemented, existing additive/no-rewrite repository rules remain authoritative.
+
+## GitHub social preview artwork
+
+Design and set a proper GitHub social-preview image for Machine-Soul Hivemind Protocol.
+
+This deserves a dedicated visual-design chat rather than opportunistic generation during repository implementation work.
+
+Direction:
+
+- use the visual language of the maintainer's existing profile-picture **background** as the stylistic anchor;
+- make the preview feel like it belongs to the same visual universe rather than stretching/cropping the avatar itself;
+- design specifically for GitHub social-preview composition/readability;
+- iterate on concept/composition before committing the final asset or changing repository settings.
+
+When starting the dedicated image chat, use the exact current profile image as reference if available; if the image-generation surface cannot directly consume the Library artifact, have the maintainer attach that exact image rather than approximating it from memory.
