@@ -196,7 +196,7 @@ Maintainer direction already established:
 - large deletes, large squashes, and destructive rebases are **very strong warning signs**, but are not automatically disqualifying solely because they are large or destructive;
 - rewriting away a substantive intermediate repository state is normally unacceptable even when the final tree is unchanged;
 - published/ref topology and external references are a separate safety dimension and must be considered explicitly.
-
+- when designing cleanup heuristics, investigate whether richer semantic commit metadata would make squash/rebase candidates easier to identify safely. Do **not** manually duplicate touched file paths merely for this purpose: Git already owns physical path facts. If metadata is useful, prefer information Git cannot infer, such as task/workstream or semantic area; evaluate whether that also justifies simplifying the current `[Kind][Scope]` title grammar.
 Before promotion to executable work, define objective-ish review questions for squash/rebase candidates, published-ref authorization rules, recovery/backups, and how cleanup interacts with concurrent agent branches.
 
 Until that policy is deliberately implemented, existing additive/no-rewrite repository rules remain authoritative.
