@@ -78,6 +78,36 @@ Market status is not shortlist status.
 
 These are user-specific states, not objective product rankings.
 
+## Snapshot identity
+
+Snapshots are identified by their **run-start instant**, not merely the calendar date.
+
+Canonical filename form:
+
+~~~text
+YYYY-MM-DDTHHMMSS+HHMM.yaml
+~~~
+
+Example:
+
+~~~text
+2026-10-01T044527+0200.yaml
+~~~
+
+The filename intentionally omits colons so the repository remains Windows-friendly.
+
+Snapshot metadata keeps normal ISO-8601:
+
+~~~yaml
+snapshot:
+  date: 2026-10-01
+  started_at: 2026-10-01T04:45:27+02:00
+  finished_at: 2026-10-01T04:48:22+02:00
+  timezone: Europe/Stockholm
+~~~
+
+The original first-run `2026-10-01.yaml` predates this rule and remains an immutable legacy snapshot. Do not rename it and fabricate an unknown run-start time.
+
 ## Offer source kinds
 
 - `retailer_direct`

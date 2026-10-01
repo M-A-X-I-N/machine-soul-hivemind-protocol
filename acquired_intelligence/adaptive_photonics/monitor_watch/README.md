@@ -16,7 +16,7 @@ Everything needed to understand that instruction should live here or in the file
 - `sources/discovery_sources.yaml` — aggregators, price-history sites, and manufacturer-catalog discovery sources.
 - `models/monitors.yaml` — persistent monitor catalogue. Models remain here after disappearing from retail.
 - `shortlist/current.yaml` — current "in the running", price-watch, verification, and exclusion state.
-- `price_snapshots/YYYY-MM-DD.yaml` — immutable dated offer observations plus run-coverage metadata.
+- `price_snapshots/YYYY-MM-DDTHHMMSS+HHMM.yaml` — immutable timestamped offer observations plus run-coverage metadata.
 
 The human purchase criteria remain authoritative in [../21_monitor_purchase_context.md](../21_monitor_purchase_context.md).
 
@@ -60,6 +60,8 @@ Retailer pages are preferred for that retailer's current listed price. Aggregato
 - cross-checking.
 
 Contradictory observations are preserved rather than "resolved" by deleting whichever one is inconvenient.
+
+Multiple runs on the same day are expected to produce separate snapshots. Snapshot filenames use a colon-free Europe/Stockholm local timestamp so they remain friendly to Windows filesystems; full ISO-8601 timestamps live inside the YAML.
 
 ## Human value philosophy
 

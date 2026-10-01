@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-01
+updated: 2026-10-01T04:48:22+02:00
 
 models:
   dell_aw2725q:
@@ -147,6 +147,7 @@ models:
   samsung_g80sh_27:
     manufacturer: Samsung
     model: Odyssey G80SH 27
+    regional_variants: [LS27HG802SUXEN]
     size_in: 27
     resolution: 3840x2160
     shape: flat
@@ -673,3 +674,85 @@ models:
     verification: {specs: retailer_only, market: retailer_only}
     notes:
       - "Distinct from MO32U2 and MO32U24; ComputerSalg source reported 4K165 QD-OLED."
+
+  acer_ce270kx:
+    manufacturer: Acer
+    model: CE270KX
+    regional_variants: ["UM.GC0EE.X01"]
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: glare_semigloss}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4 x2", hdmi: "2.1 x2", usb_c_pd_w: 65, kvm: unknown}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: conflicting}
+    sources:
+      - https://www.acer.com/
+      - https://www.inet.se/
+    notes:
+      - "Acer primary material confirms 26.5-inch flat 4K240 QD-OLED and glare surface."
+      - "Inet lists a two-year warranty while an Acer EU store page lists three-year standard warranty; exact Swedish OLED/burn-in coverage needs verification."
+      - "EU MPN observed as UM.GC0EE.X01; regional suffixes may differ."
+
+  lg_32gx870b:
+    manufacturer: LG
+    model: UltraGear 32GX870B
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Tandem-WOLED, generation: "4th-gen", subpixel: unknown}
+    coating: {type: antiglare_low_reflection}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: "2.1", hdmi: unknown, usb_c_pd_w: 90, kvm: unknown}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, market: retailer_only}
+    sources:
+      - https://www.lg.com/
+      - https://www.inet.se/
+    notes:
+      - "High-end 4th-generation Tandem OLED; current Swedish street price is far above the value band."
+
+  asus_xg32uqdms:
+    manufacturer: ASUS
+    model: ROG Strix OLED XG32UQDMS
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "3rd-gen", subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: unknown, hdmi: unknown, usb_c_pd_w: null, kvm: unknown}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, market: retailer_only}
+    sources:
+      - https://rog.asus.com/
+      - https://www.komplett.se/
+    notes:
+      - "Includes Uniform Brightness, proximity sensing/OLED Care, and aspect-ratio controls."
+
+  asus_pa32usd:
+    manufacturer: ASUS
+    model: ProArt Display OLED PA32USD
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: unknown, hdmi: unknown, usb_c_pd_w: unknown, kvm: unknown}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: retailer_only}
+    sources:
+      - https://www.inet.se/
+    notes:
+      - "Professional 30k+ class with Thunderbolt, integrated calibration and 12G-SDI; retained for market completeness."

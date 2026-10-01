@@ -1,6 +1,16 @@
 # Price snapshots
 
-Each `YYYY-MM-DD.yaml` file is an immutable market observation.
+Each `YYYY-MM-DDTHHMMSS+HHMM.yaml` file is an immutable market observation keyed to the **run-start time** in Europe/Stockholm.
+
+The initial `2026-10-01.yaml` snapshot predates timestamped filenames and remains unchanged as a legacy first run.
+
+Filename example:
+
+~~~text
+2026-10-01T044527+0200.yaml
+~~~
+
+Full ISO timestamps with colons are stored inside the YAML.
 
 Snapshots preserve:
 

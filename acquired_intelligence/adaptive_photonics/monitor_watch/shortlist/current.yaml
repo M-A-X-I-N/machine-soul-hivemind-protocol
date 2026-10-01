@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-01
+updated: 2026-10-01T04:48:22+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -188,3 +188,29 @@ candidates:
     summary: {size_in: 31.5, panel: QD-OLED, coating: unknown, native_hz: 240}
     exclusion_reason: curved
     resurrection_condition: "Only if the flat-only requirement is explicitly changed."
+
+  acer_ce270kx:
+    status: active
+    summary: {size_in: 26.5, panel: QD-OLED, coating: glare_semigloss, native_hz: 240}
+    reasons_for:
+      - "4K240 at roughly 166-PPI-class density."
+      - "Semi-gloss/glare optical treatment aligns strongly with the dark-room clarity preference."
+      - "USB-C 65 W and a current Inet campaign index at 6,490 SEK."
+    reasons_against:
+      - "Exact Swedish warranty duration and explicit burn-in coverage are unresolved."
+      - "Campaign price should be confirmed at checkout before treating it as durable market price."
+    price_logic: {absurd_at_or_below_sek: 6500, very_strong_at_or_below_sek: 7200, interesting_at_or_below_sek: 8000}
+    unresolved:
+      - "Resolve Acer/Inet two-year versus Acer EU three-year warranty conflict."
+      - "Confirm explicit burn-in treatment for Sweden."
+
+  lg_32gx870b:
+    status: price_watch
+    summary: {size_in: 31.5, panel: Tandem-WOLED, coating: antiglare_low_reflection, native_hz: 240, dual_mode_hz: 480}
+    reasons_for:
+      - "Modern 4th-gen Tandem WOLED with 4K240/FHD480."
+      - "Strong HDR capability and useful USB-C/DP connectivity."
+    reasons_against:
+      - "Current ~17,990-SEK Swedish price is wildly outside the value band."
+      - "Coating is not the preferred glossy style."
+    price_logic: {interesting_at_or_below_sek: 10500, very_strong_at_or_below_sek: 9500}

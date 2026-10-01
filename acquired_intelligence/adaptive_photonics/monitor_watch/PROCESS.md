@@ -23,13 +23,25 @@ Repository state is authoritative over remembered chat context.
 
 Record:
 
-- local date;
+- local run-start timestamp;
 - timezone: `Europe/Stockholm`;
 - currency: SEK;
 - previous snapshot;
-- run start time when practical.
+- a filesystem-safe timestamp slug derived from run start.
 
-A completed snapshot is immutable historical observation. A later sweep creates a new dated file.
+Use full ISO-8601 inside YAML, for example:
+
+~~~text
+2026-10-01T04:45:27+02:00
+~~~
+
+Use a colon-free local timestamp in the filename:
+
+~~~text
+2026-10-01T044527+0200.yaml
+~~~
+
+A completed snapshot is immutable historical observation. Every later sweep — even minutes later on the same date — creates a new timestamped file.
 
 ## 2. Sweep required retailers directly
 
@@ -161,13 +173,15 @@ Prefer instrumented reviewers for:
 
 Represent uncertainty explicitly instead of inventing precision.
 
-## 7. Write the dated snapshot
+## 7. Write the timestamped snapshot
 
 Create:
 
 ~~~text
-price_snapshots/YYYY-MM-DD.yaml
+price_snapshots/YYYY-MM-DDTHHMMSS+HHMM.yaml
 ~~~
+
+The timestamp is the **run start** in Europe/Stockholm. Store both `started_at` and `finished_at` as full ISO-8601 metadata inside the snapshot.
 
 Include:
 
@@ -217,7 +231,7 @@ Check:
 
 - every offer/shortlist `model_id` exists in `models/monitors.yaml`;
 - every retailer ID exists in `sources/retailers.yaml`;
-- snapshot date is correct;
+- snapshot filename/run-start timestamp and ISO metadata agree;
 - required-retailer coverage reconciles;
 - old snapshots remain unchanged;
 - source URLs are retained;
