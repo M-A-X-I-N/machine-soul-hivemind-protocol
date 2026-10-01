@@ -1,0 +1,91 @@
+schema_version: 1
+updated: 2026-10-01
+
+sources:
+  prisjakt:
+    name: Prisjakt
+    kind: aggregator
+    enabled: true
+    sweep_required: true
+    url: https://www.prisjakt.nu/
+    trust:
+      price_discovery: high
+      price_history: high
+      engineering_specs: low
+    notes:
+      - Use for minimum-price and retailer/model discovery.
+      - Engineering metadata is known to contain errors.
+
+  pricerunner:
+    name: PriceRunner Sweden
+    kind: aggregator
+    enabled: true
+    sweep_required: true
+    url: https://www.pricerunner.se/
+    trust:
+      price_discovery: high
+      price_history: high
+      engineering_specs: low
+    notes:
+      - Keep required even if one retrieval tool cannot surface useful indexed results.
+
+  priceway:
+    name: Priceway
+    kind: price_history_service
+    enabled: true
+    sweep_required: false
+    url: https://priceway.se/
+    trust:
+      price_discovery: medium
+      price_history: medium
+      engineering_specs: low
+
+  priskolla:
+    name: Priskolla
+    kind: aggregator
+    enabled: true
+    sweep_required: false
+    url: https://priskolla.se/
+    trust:
+      price_discovery: medium
+      price_history: unknown
+      engineering_specs: low
+
+  sweclockers_prices:
+    name: SweClockers Priser
+    kind: aggregator
+    enabled: true
+    sweep_required: false
+    url: https://priser.sweclockers.com/
+    trust:
+      price_discovery: medium
+      price_history: medium
+      engineering_specs: low
+
+  manufacturer_catalogs:
+    name: Manufacturer Sweden/EU catalogues
+    kind: primary_discovery
+    enabled: true
+    sweep_required: true
+    url: null
+    manufacturers:
+      - ASUS
+      - Acer
+      - AOC
+      - ASRock
+      - BenQ
+      - Dell
+      - Gigabyte
+      - HP
+      - LG
+      - Lenovo
+      - MSI
+      - Philips
+      - Samsung
+    trust:
+      product_identity: high
+      engineering_specs: high
+      street_price: low
+    notes:
+      - Use to discover announced models before retail appearance.
+      - Manufacturer MSRP is not Swedish street price.

@@ -1,0 +1,210 @@
+schema_version: 1
+updated: 2026-10-01
+
+retailers:
+  inet:
+    name: Inet
+    country: SE
+    class: major_specialist
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.inet.se/
+    notes:
+      - Strong gaming-monitor catalogue and explicit stock state.
+      - Fyndvara/open-box must be recorded separately.
+
+  webhallen:
+    name: Webhallen
+    country: SE
+    class: major_specialist
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.webhallen.com/se/
+    notes:
+      - Frequent campaigns and fyndvara.
+
+  elgiganten:
+    name: Elgiganten
+    country: SE
+    class: major_electronics
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.elgiganten.se/
+    notes:
+      - Product pages expose useful EAN/MPN fields.
+      - Opened page price can differ materially from indexed search price.
+
+  power:
+    name: POWER
+    country: SE
+    class: major_electronics
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.power.se/
+    notes:
+      - Keep required even when search tooling cannot index the catalogue.
+
+  proshop:
+    name: Proshop
+    country: SE
+    class: major_online
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.proshop.se/
+    notes:
+      - Often exposes exact EAN and useful warranty text.
+      - Supplier stock is distinct from local stock.
+
+  komplett:
+    name: Komplett
+    country: SE
+    class: major_online
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.komplett.se/
+    notes:
+      - Campaign end dates matter; stale campaign pages have already been observed.
+
+  netonnet:
+    name: NetOnNet
+    country: SE
+    class: major_electronics
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.netonnet.se/
+    notes:
+      - Product pages clearly expose no-longer-sold state.
+
+  dustinhome:
+    name: Dustin Home
+    country: SE
+    class: major_online
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.dustinhome.se/
+    notes:
+      - Retain even if a research tool yields no current OLED results.
+
+  maxgaming:
+    name: MaxGaming
+    country: SE
+    class: gaming_specialist
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.maxgaming.se/
+    notes:
+      - Useful for obscure gaming brands/models absent elsewhere.
+
+  amazon_se:
+    name: Amazon.se
+    country: SE
+    class: marketplace
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.amazon.se/
+    notes:
+      - Verify seller and fulfillment.
+      - Marketplace identity must be recorded.
+
+  computersalg:
+    name: ComputerSalg
+    country: SE
+    class: online_secondary
+    enabled: true
+    sweep_required: true
+    direct_site: https://www.computersalg.se/
+    notes:
+      - Useful aggregator-discovered catalogue.
+
+  cdon:
+    name: CDON
+    country: SE
+    class: marketplace
+    enabled: true
+    sweep_required: true
+    direct_site: https://cdon.se/
+    notes:
+      - Seller identity matters.
+      - Has surfaced obscure ASRock and LC-Power OLED offers.
+
+  dell_se:
+    name: Dell Sweden
+    country: SE
+    class: manufacturer_direct
+    enabled: true
+    sweep_required: false
+    direct_site: https://www.dell.com/sv-se/
+    notes:
+      - Use for direct-store price and official warranty/specification verification.
+
+  lenovo_se:
+    name: Lenovo Sweden
+    country: SE
+    class: manufacturer_direct
+    enabled: true
+    sweep_required: false
+    direct_site: https://www.lenovo.com/se/sv/
+    notes:
+      - Useful for exact regional SKU identity.
+
+  samsung_se:
+    name: Samsung Sweden
+    country: SE
+    class: manufacturer_direct
+    enabled: true
+    sweep_required: false
+    direct_site: https://www.samsung.com/se/
+    notes:
+      - Useful for current G8 variants and warranty wording.
+
+  cs_megastore:
+    name: CS Megastore
+    country: SE
+    class: aggregator_discovered
+    enabled: true
+    sweep_required: false
+    direct_site: null
+    notes:
+      - Promote to required if repeated relevant inventory justifies it.
+
+  fcomputer:
+    name: Fcomputer
+    country: SE
+    class: aggregator_discovered
+    enabled: true
+    sweep_required: false
+    direct_site: null
+    notes:
+      - Discovered through Priskolla.
+
+  avengo:
+    name: Avengo
+    country: SE
+    class: aggregator_discovered
+    enabled: true
+    sweep_required: false
+    direct_site: null
+    notes:
+      - Discovered through Priskolla.
+
+  elektronikspecialisten:
+    name: Elektronikspecialisten
+    country: SE
+    class: aggregator_discovered
+    enabled: true
+    sweep_required: false
+    direct_site: null
+    notes:
+      - Discovered through Priskolla.
+
+  multitronic:
+    name: Multitronic
+    country: FI
+    class: nordic_cross_border
+    enabled: true
+    sweep_required: false
+    direct_site: https://www.multitronic.fi/sv/
+    notes:
+      - Swedish-language Finnish retailer.
+      - Record only when delivery/warranty to Sweden is viable.
+      - Do not mix EUR prices into SEK ranking without explicit conversion.

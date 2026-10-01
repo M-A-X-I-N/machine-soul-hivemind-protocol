@@ -1,0 +1,630 @@
+schema_version: 1
+updated: 2026-10-01
+
+models:
+  dell_aw2725q:
+    manufacturer: Dell
+    model: Alienware AW2725Q
+    regional_variants: [GAME-AW2725Q]
+    size_in: 26.7
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "4th-gen", subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: 15, kvm: false}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 30}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent, warranty: verified_primary}
+    notes: ["166-PPI class; explicit burn-in warranty."]
+
+  lenovo_27ud_10:
+    manufacturer: Lenovo
+    model: Legion Pro 27UD-10
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: Penta-Tandem, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: 3, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: conflicting}
+    notes: ["Explicit Swedish/EU burn-in coverage still needs confirmation."]
+
+  samsung_g81sf_27:
+    manufacturer: Samsung
+    model: Odyssey OLED G8 G81SF 27
+    regional_variants: [LS27FG812SUXEN]
+    size_in: 27
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: matte_glare_free}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: null, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, coating: verified_primary}
+
+  aoc_ag276uzd:
+    manufacturer: AOC
+    model: AGON PRO AG276UZD
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", hdmi: "2.1", usb_c_pd_w: 65, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary}
+
+  msi_mag272up_x24:
+    manufacturer: MSI
+    model: MAG 272UP QD-OLED X24
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 25}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent, warranty: verified_primary}
+
+  gigabyte_mo27u2:
+    manufacturer: Gigabyte
+    model: MO27U2
+    size_in: 27
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: null, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: retailer_only, warranty: verified_primary}
+
+  asus_pg27ucwm:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG27UCWM
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Tandem-OLED, generation: unknown, subpixel: rgb_stripe}
+    coating: {type: trueblack_glossy}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 25}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent}
+
+  asus_pg27ucdm:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG27UCDM
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: null, burn_in_explicit: unknown}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  benq_ex271uz:
+    manufacturer: BenQ
+    model: MOBIUZ EX271UZ
+    size_in: 27
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  asus_pa27ucdmr:
+    manufacturer: ASUS
+    model: ProArt PA27UCDMR
+    size_in: 26.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+    notes: ["Professional-price outlier retained for completeness."]
+
+  samsung_g80sh_27:
+    manufacturer: Samsung
+    model: Odyssey G80SH 27
+    size_in: 27
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: glare_free}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", hdmi: "2.1"}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  lc_power_lc_m27uo:
+    manufacturer: LC-Power
+    model: LC-M27UO
+    size_in: 27
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: aggregator_only}
+    notes: ["Obscure Prisjakt/CDON discovery requiring primary verification."]
+
+  philips_32m2n8900:
+    manufacturer: Philips
+    model: Evnia 32M2N8900
+    regional_variants: ["32M2N8900/00", "32M2N8900/01"]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: antireflective_hard_coating}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: 65, kvm: true}
+    warranty: {years: null, burn_in_explicit: conditional}
+    market_status: scarce
+    verification: {specs: verified_primary, market: conflicting}
+    notes: ["NetOnNet says no longer sold while aggregators still expose offers."]
+
+  lg_32gx850a:
+    manufacturer: LG
+    model: UltraGear 32GX850A-B
+    regional_variants: ["32GX850A-B.AEU"]
+    size_in: 31.46
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: unknown}
+    coating: {type: glossy}
+    refresh: {native_hz: 165, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: null, kvm: false}
+    warranty: {years: 2.083, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: retailer_only, warranty: verified_primary}
+    notes:
+      - "First structured-sweep discovery with unusually strong user fit."
+
+  lg_32gs94ux:
+    manufacturer: LG
+    model: UltraGear 32GS94UX
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: RGWB_like}
+    coating: {type: matte}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    warranty: {years: 2.083, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: 19}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent}
+    notes: ["Minimum measurement derives from closely related 32GS95UE-family platform; exact SKU should be rechecked."]
+
+  asrock_pgo32ufs:
+    manufacturer: ASRock
+    model: Phantom Gaming PGO32UFS
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: RGWB_like}
+    coating: {type: matte}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: 65, kvm: true}
+    warranty: {years: null, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 21}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent, warranty: verified_independent}
+
+  gigabyte_mo32u2:
+    manufacturer: Gigabyte
+    model: MO32U2
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: null, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: verified_primary, warranty: retailer_only}
+
+  gigabyte_mo32u24:
+    manufacturer: Gigabyte
+    model: MO32U24
+    regional_variants: ["MO32U24 EK"]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+    notes: ["Do not merge with MO32U2 until primary identity relationship is established."]
+
+  gigabyte_fo32u24g:
+    manufacturer: Gigabyte
+    model: AORUS ELITE FO32U24G
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Tandem-WOLED, generation: unknown, subpixel: unknown}
+    coating: {type: real_black_glossy}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: "2.1"}
+    market_status: preorder
+    verification: {specs: retailer_only}
+    notes: ["Inet listed release 2026-12-04 and preorder price 12,990 SEK."]
+
+  lenovo_32ud_10:
+    manufacturer: Lenovo
+    model: Legion Pro 32UD-10
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: 3, burn_in_explicit: unknown}
+    market_status: available
+    verification: {specs: verified_primary, warranty: conflicting}
+
+  asus_xg32ucwg:
+    manufacturer: ASUS
+    model: ROG Strix OLED XG32UCWG
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: unknown}
+    coating: {type: trueblack_glossy}
+    refresh: {native_hz: 165, dual_mode: {resolution: 1920x1080, hz: 330}}
+    connectivity: {displayport: "1.4", hdmi: "2.1", kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary}
+
+  asus_xg32ucwmg:
+    manufacturer: ASUS
+    model: ROG Strix OLED XG32UCWMG
+    regional_variants: [XG32UCWMGZ]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: unknown}
+    coating: {type: trueblack_glossy}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: 15, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 32}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent, warranty: verified_primary}
+
+  asus_xg32ucds:
+    manufacturer: ASUS
+    model: ROG Strix OLED XG32UCDS
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 165, dual_mode: null}
+    market_status: available
+    verification: {specs: aggregator_only}
+
+  asus_xg32uqwms:
+    manufacturer: ASUS
+    model: ROG Strix XG32UQWMS
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  asus_pg32ucwm:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG32UCWM
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Tandem-RGB-OLED, generation: unknown, subpixel: rgb_stripe}
+    coating: {type: trueblack_glossy}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: "2.1", hdmi: "2.1", usb_c_pd_w: 90}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: verified_primary}
+
+  asus_pg32ucdm:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG32UCDM
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "3rd-gen", subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: scarce
+    verification: {specs: retailer_only}
+
+  asus_pg32ucdmr:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG32UCDMR
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "3rd-gen", subpixel: nonstandard_rgb}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1a", hdmi: "2.1", usb_c_pd_w: 90}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  asus_pg32ucdm3:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG32UCDM Gen3
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: Gen3, subpixel: unknown}
+    coating: {type: blackshield_unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1a", hdmi: "2.1", usb_c_pd_w: 90}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  asus_pg32ucdp:
+    manufacturer: ASUS
+    model: ROG Swift OLED PG32UCDP
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: WOLED, generation: unknown, subpixel: unknown}
+    coating: {type: matte}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    market_status: scarce
+    verification: {specs: retailer_only}
+
+  msi_321urx:
+    manufacturer: MSI
+    model: MPG 321URX QD-OLED
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4a", hdmi: "2.1", usb_c_pd_w: 90, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: 30}
+    market_status: available
+    verification: {specs: verified_primary, measured: verified_independent, warranty: verified_primary}
+
+  msi_322urx:
+    manufacturer: MSI
+    model: MPG 322URX
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", hdmi: "2.1"}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: aggregator_only}
+
+  msi_321curx:
+    manufacturer: MSI
+    model: MPG 321CURX
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: curved
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: scarce
+    verification: {specs: retailer_only}
+
+  samsung_g81sf_32:
+    manufacturer: Samsung
+    model: Odyssey OLED G8 G81SF 32
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: matte_glare_free}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: null, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  samsung_g80sh_32:
+    manufacturer: Samsung
+    model: Odyssey G8 G80SH 32
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: glare_free}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", hdmi: "2.1"}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  samsung_g80sd_32:
+    manufacturer: Samsung
+    model: Odyssey OLED G8 G80SD 32
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: matte_glare_free}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: aggregator_only}
+
+  aoc_ag326ud:
+    manufacturer: AOC
+    model: AGON PRO AG326UD
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: antiglare_hard_coating}
+    refresh: {native_hz: 165, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", kvm: false}
+    warranty: {years: null, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary}
+
+  aoc_agp327uzd:
+    manufacturer: AOC
+    model: AGON PRO AGP327UZD
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: aggregator_only}
+
+  acer_x32x3:
+    manufacturer: Acer
+    model: Predator X32X3
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  acer_x32x5:
+    manufacturer: Acer
+    model: Predator X32X5
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  acer_pe320qkx:
+    manufacturer: Acer
+    model: ProCreator PE320QKXSMIIPHUZX
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: aggregator_only}
+    notes: ["Professional-price outlier retained for completeness."]
+
+  hp_omen_transcend_32:
+    manufacturer: HP
+    model: OMEN Transcend 32
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: matte}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", hdmi: "2.1"}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  benq_ex321uz:
+    manufacturer: BenQ
+    model: MOBIUZ EX321UZ
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1", kvm: true}
+    market_status: available
+    verification: {specs: retailer_only}
+
+  twisted_minds_tm32old4k240:
+    manufacturer: Twisted Minds
+    model: TM32OLD4K240
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    market_status: available
+    verification: {specs: retailer_only}
+    notes: ["Obscure dual-mode option worth retaining even while overpriced."]
+
+  dell_aw3225qf:
+    manufacturer: Dell
+    model: Alienware AW3225QF
+    size_in: 32
+    resolution: 3840x2160
+    shape: curved
+    panel: {family: QD-OLED, generation: unknown, subpixel: nonstandard_rgb}
+    coating: {type: semi_glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    warranty: {years: 3, burn_in_explicit: true}
+    market_status: available
+    verification: {specs: verified_primary}
+
+  asus_pa32ucdm:
+    manufacturer: ASUS
+    model: ProArt PA32UCDM
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 240, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only}
+    notes: ["Professional-price outlier retained for completeness."]
+
+  msi_mpg322urdx36:
+    manufacturer: MSI
+    model: MPG 322URDX36
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Penta-Tandem-QD-OLED, generation: "5th-gen", subpixel: rgb_stripe}
+    coating: {type: darkarmor_unknown}
+    refresh:
+      native_hz: 360
+      dual_mode: {resolution: 2560x1440, hz: 520}
+      additional_mode: {resolution: 1920x1080, hz: 680}
+    market_status: announced
+    verification: {specs: verified_primary}

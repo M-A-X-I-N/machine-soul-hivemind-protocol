@@ -1,0 +1,104 @@
+schema_version: 1
+
+snapshot:
+  date: 2026-10-01
+  timezone: Europe/Stockholm
+  currency: SEK
+  run_kind: initial_structured_sweep
+  previous_snapshot: null
+  notes:
+    - "First run is intentionally explicit about retrieval limitations."
+    - "Search-index results and opened retailer pages sometimes disagreed materially."
+    - "Opened retailer pages are preferred for that retailer's current listed price."
+
+coverage:
+  required_retailers_expected: 12
+  required_retailers_with_some_result: 9
+  required_retailers_failed_or_no_indexable_result: 3
+
+  retailers:
+    inet: {status: direct_retrieved, notes: ["Current/opened Dell page plus gaming-monitor catalogue retrieved."]}
+    webhallen: {status: partial_direct_retrieved, notes: ["Campaign/manufacturer catalogue retrieved; exact per-product coverage incomplete."]}
+    elgiganten: {status: direct_retrieved, notes: ["Multiple exact product pages retrieved."]}
+    power: {status: failed_no_indexable_result, notes: ["Absence of results is not zero inventory."]}
+    proshop: {status: direct_retrieved, notes: ["Exact AOC/Gigabyte/ASUS pages retrieved."]}
+    komplett: {status: partial_direct_retrieved, notes: ["XG32UCWMGZ page exposed a campaign ending 2026-09-30; stale on this run."]}
+    netonnet: {status: direct_retrieved, notes: ["MSI 321URX retrieved; several older OLED pages say no longer sold."]}
+    dustinhome: {status: failed_no_indexable_result, notes: ["Required next run."]}
+    maxgaming: {status: direct_retrieved, notes: ["Category exposed several obscure OLED models."]}
+    amazon_se: {status: aggregator_only, notes: ["Offers surfaced through price-comparison sources."]}
+    computersalg: {status: failed_no_indexable_result, notes: ["Required next run."]}
+    cdon: {status: aggregator_only, notes: ["ASRock/LC-Power surfaced through Prisjakt."]}
+
+  discovery_sources:
+    prisjakt: {status: retrieved}
+    pricerunner: {status: attempted_no_indexable_results}
+    priceway: {status: retrieved}
+    priskolla: {status: retrieved}
+    sweclockers_prices: {status: retrieved}
+    manufacturer_catalogs: {status: partial, notes: ["Existing primary research plus selected exact pages; not every manufacturer re-swept exhaustively."]}
+
+direct_offers:
+  - {model_id: samsung_g81sf_27, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 6990, shipping_sek: null, total_sek: null, stock: in_stock, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/samsung-odyssey-g8-g81sf-27-uhdqdoled240hz003ms-bildskarm/896181", freshness: direct_but_cached, notes: ["MPN LS27FG812SUXEN; EAN 8806095977300."]}
+  - {model_id: samsung_g81sf_32, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 9990, shipping_sek: null, total_sek: null, stock: unknown, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/samsung-odyssey-g8-g81sf-32-uhdqdoled240hz003ms-bildskarm/896180", freshness: direct_but_cached}
+  - {model_id: lg_32gx850a, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 8999, shipping_sek: null, total_sek: null, stock: in_stock, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/lg-ultragear-32gx850a-b-32uhdoled165hz003ms-32-gamingskarm/968900", freshness: direct_but_cached, notes: ["Indexed search had retained 6,997 SEK; opened page showed 8,999 SEK.", "Outlet offer from 6,299 SEK was not mixed into new-price comparison.", "MPN 32GX850A-B.AEU; EAN 8806096592595."]}
+  - {model_id: asus_xg32ucwmg, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 13490, stock: unknown, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/asus-rog-strix-xg32ucwmg-32-4kwoled240hz003ms-gamingskarm/1008993", freshness: direct_but_cached}
+  - {model_id: gigabyte_mo32u24, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 12990, stock: unknown, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/gigabyte-mo32u24-315-4kqd-oled240hz003ms-gamingskarm/1109387", freshness: direct_but_cached, notes: ["MPN MO32U24 EK; EAN 4719331876715."]}
+  - {model_id: asus_pg32ucdmr, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 10990, stock: unknown, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/asus-rog-swift-pg32ucdmr-32-4kqd-oled240hz003ms-gamingskarm/1008995", freshness: direct_but_cached, notes: ["EAN 4711636033855."]}
+  - {model_id: dell_aw2725q, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 8990, shipping_sek: 0, total_sek: 8990, stock: in_stock, url: "https://www.inet.se/produkt/2226914/dell-27-alienware-aw2725q-oled-4k-240-hz", freshness: direct_but_cached, notes: ["Open-box 7,499 SEK observed separately."]}
+  - {model_id: acer_x32x5, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 7990, stock: in_stock, url: "https://www.inet.se/kampanj/10664/kampanjpriser-pa-acerskarmar", freshness: recent_direct_index, notes: ["Campaign listing."]}
+  - {model_id: asus_xg32ucwmg, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 13490, stock: in_stock, url: "https://www.inet.se/kategori/1167/gamingskarm", freshness: recent_direct_index}
+  - {model_id: asus_xg32uqwms, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 10990, stock: in_stock, url: "https://www.inet.se/kategori/1167/gamingskarm", freshness: recent_direct_index, notes: ["Open-box 8,999 SEK also present."]}
+  - {model_id: gigabyte_mo32u2, retailer_id: proshop, source_kind: retailer_direct, condition: new, price_sek: 9499, shipping_sek: 0, total_sek: 9499, stock: in_stock, url: "https://www.proshop.se/Skaerm/32-GIGABYTE-MO32U2-3840x2160-UHD-240Hz-QD-OLED/3501895", freshness: direct_but_cached, notes: ["Proshop states three-year warranty including burn-in."]}
+  - {model_id: aoc_ag326ud, retailer_id: proshop, source_kind: retailer_direct, condition: new, price_sek: 7518, shipping_sek: 0, total_sek: 7518, stock: supplier_stock, url: "https://www.proshop.se/Skaerm/32-AOC-AGON-PRO-AG326UD-3840x2160-4K-165Hz-QD-OLED/3325851", freshness: direct_but_cached, notes: ["Supplier stock, 5–6 working days."]}
+  - {model_id: asus_xg32ucwmg, retailer_id: proshop, source_kind: retailer_direct, condition: new, price_sek: 9675, shipping_sek: 0, total_sek: 9675, stock: supplier_stock, url: "https://www.proshop.se/Skaerm/32-ASUS-ROG-Strix-XG32UCWMG-3840x2160-4K-240Hz-OLED-KVM-switch/3417589", freshness: direct_but_cached}
+  - {model_id: msi_321urx, retailer_id: netonnet, source_kind: retailer_direct, condition: new, price_sek: 8990, stock: in_stock, url: "https://www.netonnet.se/art/gaming/msi-mpg-321urx-qd-oled/1032958.8901/", freshness: direct_but_cached}
+  - {model_id: asus_xg32ucwmg, retailer_id: komplett, source_kind: retailer_direct, condition: new, price_sek: 8990, stock: in_stock, url: "https://www.komplett.se/product/1333145/gaming/spelutrustning/gamingskarmar/asus-rog-strix-xg32ucwmgz-oled-4k-32-gamingskarm", freshness: stale_or_expired, notes: ["Page says campaign ended 2026-09-30; do not treat as confirmed current 2026-10-01 price.", "MPN 90LM0BW0-B03371; EAN 4711636393027."]}
+  - {model_id: msi_321urx, retailer_id: webhallen, source_kind: retailer_direct, condition: new, price_sek: 9490, stock: in_stock, url: "https://www.webhallen.com/se/campaigns/3", freshness: recent_direct_index, notes: ["Campaign page showed 9,490 from 13,490."]}
+  - {model_id: twisted_minds_tm32old4k240, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 12490, stock: in_stock, url: "https://www.maxgaming.se/sv/datortillbehor/bildskarmar/datorskarm", freshness: fresh_direct_index}
+  - {model_id: acer_x32x3, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 14990, stock: in_stock, url: "https://www.maxgaming.se/sv/datortillbehor/bildskarmar/datorskarm", freshness: fresh_direct_index}
+  - {model_id: benq_ex271uz, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 11490, stock: in_stock, url: "https://www.maxgaming.se/sv/datortillbehor/bildskarmar", freshness: fresh_direct_index}
+
+aggregator_observations:
+  - {model_id: dell_aw2725q, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 6960, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=14642119", freshness: recent_aggregator, notes: ["Minimum across multiple stores; retailer behind minimum was not exposed in retrieved excerpt.", "Preserved alongside Inet direct 8,990 SEK rather than overwritten."]}
+  - {model_id: gigabyte_mo32u2, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8369, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=16632529", freshness: recent_aggregator}
+  - {model_id: aoc_ag326ud, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7518, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=13994852", freshness: recent_aggregator, notes: ["Three-month low shown as 6,490 SEK."]}
+  - {model_id: aoc_ag326ud, retailer_id: amazon_se, source_kind: aggregator, source_id: sweclockers_prices, condition: new, price_sek: 7114, shipping_sek: 0, total_sek: 7114, stock: in_stock, url: "https://priser.sweclockers.com/produkt/aoc-ag326ud-qd-oled-31-5-3840-x-2160-165-hz-0-03ms-2xhdmi-dp-usb-c-adaptive-sync", freshness: recent_aggregator, notes: ["SweClockers table also showed Proshop around 7.5k."]}
+  - {model_id: asrock_pgo32ufs, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8552, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=14847768", freshness: recent_aggregator, notes: ["Earlier research surfaced 8,321 SEK; current retrieved minimum was 8,552."]}
+  - {model_id: lg_32gx850a, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7815, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=15481205", freshness: recent_aggregator, notes: ["Prisjakt reported 13 stores and a three-month low of 6,997 SEK."]}
+  - {model_id: asus_xg32ucwmg, retailer_id: proshop, source_kind: price_history_service, source_id: priceway, condition: new, price_sek: 9675, stock: in_stock, url: "https://priceway.se/produkt/asus-asus-rog-strix-xg32ucwmg-32-3840x2160-woled-240hz-0-03ms-hdr10-2xhdmi-dp/", freshness: recent_aggregator, notes: ["Reported three-month range 9,520–13,490 SEK."]}
+  - {model_id: asus_xg32ucwmg, retailer_id: webhallen, source_kind: aggregator, source_id: priskolla, condition: new, price_sek: 10490, stock: unknown, url: "https://priskolla.se/skarmar/asus-rog-strix-xg32ucwmg.html", freshness: recent_aggregator, notes: ["Price timestamp shown as 2026-09-27."]}
+  - {model_id: philips_32m2n8900, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7448, stock: unknown, url: "https://www.prisjakt.nu/s/32-oled-monitor/", freshness: recent_aggregator, notes: ["NetOnNet says no longer sold; current seller must be identified."]}
+  - {model_id: asus_xg32ucwg, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8655, stock: unknown, url: "https://www.prisjakt.nu/s/32-oled-monitor/", freshness: recent_aggregator}
+  - {model_id: lenovo_32ud_10, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8411, stock: unknown, url: "https://www.prisjakt.nu/s/oled-32/", freshness: recent_aggregator}
+  - {model_id: msi_322urx, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 9399, stock: unknown, url: "https://www.prisjakt.nu/s/32-oled-monitor/", freshness: recent_aggregator}
+
+new_models_discovered_this_run:
+  - lg_32gx850a
+  - gigabyte_mo32u24
+  - gigabyte_fo32u24g
+  - asus_pg32ucdm3
+  - asus_xg32uqwms
+  - benq_ex321uz
+  - acer_pe320qkx
+  - samsung_g80sh_27
+  - samsung_g80sh_32
+  - lc_power_lc_m27uo
+
+new_retailers_or_sources_discovered_this_run:
+  - cs_megastore
+  - fcomputer
+  - avengo
+  - elektronikspecialisten
+  - priceway
+  - priskolla
+  - sweclockers_prices
+
+unresolved:
+  - "Identify retailer behind Prisjakt's 6,960-SEK Dell AW2725Q minimum."
+  - "Re-run POWER, Dustin Home, ComputerSalg and PriceRunner with a retrieval path that can access their current catalogues."
+  - "Verify XG32UCWMGZ versus XG32UCWMG regional/campaign differences."
+  - "Verify Swedish/EU burn-in warranty duration for ASRock PGO32UFS."
+  - "Verify current in-stock Swedish seller and regional suffix for Philips 32M2N8900."
+  - "Verify low-luminance measurements for LG 32GX850A-B."
+  - "Refresh AOC AG276UZD direct-retailer offers."

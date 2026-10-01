@@ -145,3 +145,10 @@ Current market conclusion as of 2026-09-30:
 - Minimum luminance and static-dimming behavior are first-class criteria because this user operates displays far darker than typical review assumptions.
 
 The practical strategy is now **shortlist + price triggers**, not one permanent winner: choose several acceptable models, then buy whichever hits a genuinely stupid Swedish street price.
+
+
+## Recurring monitor watch
+
+The Swedish OLED purchasing research now has a repeatable workspace under [monitor_watch/](monitor_watch/README.md).
+
+A fresh-session agent can run the watch by reading [monitor_watch/PROCESS.md](monitor_watch/PROCESS.md). The retailer registry, model catalogue, user-specific shortlist, and immutable dated price observations live there rather than being reconstructed from conversation history.
