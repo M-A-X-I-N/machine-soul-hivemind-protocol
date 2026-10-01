@@ -628,3 +628,48 @@ models:
       additional_mode: {resolution: 1920x1080, hz: 680}
     market_status: announced
     verification: {specs: verified_primary}
+
+  lg_32gs95uv:
+    manufacturer: LG
+    model: UltraGear 32GS95UV-B
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: antiglare_low_reflection}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    market_status: unavailable
+    verification: {specs: retailer_only, market: retailer_only}
+    notes:
+      - "POWER product page was retrieved in the first structured run but says the product is no longer available."
+
+  lg_32g810sa:
+    manufacturer: LG
+    model: UltraGear 32G810SA-W
+    regional_variants: ["32G810SA-W.AEU"]
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: null, dual_mode: null}
+    market_status: available
+    verification: {specs: retailer_only, market: retailer_only}
+    notes:
+      - "ComputerSalg page exposed the model and a remote-stock price, but the search index was old; refresh/spec verification required."
+
+  gigabyte_mo32u:
+    manufacturer: Gigabyte
+    model: MO32U
+    regional_variants: ["MO32U EK"]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: antiglare}
+    refresh: {native_hz: 165, dual_mode: null}
+    connectivity: {displayport: "unknown", hdmi: "unknown", usb_c_pd_w: unknown}
+    market_status: available
+    verification: {specs: retailer_only, market: retailer_only}
+    notes:
+      - "Distinct from MO32U2 and MO32U24; ComputerSalg source reported 4K165 QD-OLED."

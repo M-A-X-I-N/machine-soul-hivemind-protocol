@@ -13,21 +13,21 @@ snapshot:
 
 coverage:
   required_retailers_expected: 12
-  required_retailers_with_some_result: 9
-  required_retailers_failed_or_no_indexable_result: 3
+  required_retailers_with_some_result: 12
+  required_retailers_failed_or_no_indexable_result: 0
 
   retailers:
     inet: {status: direct_retrieved, notes: ["Current/opened Dell page plus gaming-monitor catalogue retrieved."]}
     webhallen: {status: partial_direct_retrieved, notes: ["Campaign/manufacturer catalogue retrieved; exact per-product coverage incomplete."]}
     elgiganten: {status: direct_retrieved, notes: ["Multiple exact product pages retrieved."]}
-    power: {status: failed_no_indexable_result, notes: ["Absence of results is not zero inventory."]}
+    power: {status: direct_retrieved_stale_or_unavailable, notes: ["Targeted follow-up found LG 32GS95UV-B, now marked no longer available, plus an expired Samsung G81SF 32 campaign."]}
     proshop: {status: direct_retrieved, notes: ["Exact AOC/Gigabyte/ASUS pages retrieved."]}
     komplett: {status: partial_direct_retrieved, notes: ["XG32UCWMGZ page exposed a campaign ending 2026-09-30; stale on this run."]}
     netonnet: {status: direct_retrieved, notes: ["MSI 321URX retrieved; several older OLED pages say no longer sold."]}
-    dustinhome: {status: failed_no_indexable_result, notes: ["Required next run."]}
+    dustinhome: {status: direct_retrieved_stale_index, notes: ["Targeted follow-up found Dell AW2725Q/AW3225QF catalogue entries, but search crawl age was old; prices are retained as stale observations."]}
     maxgaming: {status: direct_retrieved, notes: ["Category exposed several obscure OLED models."]}
     amazon_se: {status: aggregator_only, notes: ["Offers surfaced through price-comparison sources."]}
-    computersalg: {status: failed_no_indexable_result, notes: ["Required next run."]}
+    computersalg: {status: direct_retrieved_stale_index, notes: ["Targeted follow-up found several exact 4K OLED pages, but search crawl age was old; prices are not treated as current."]}
     cdon: {status: aggregator_only, notes: ["ASRock/LC-Power surfaced through Prisjakt."]}
 
   discovery_sources:
@@ -59,6 +59,14 @@ direct_offers:
   - {model_id: acer_x32x3, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 14990, stock: in_stock, url: "https://www.maxgaming.se/sv/datortillbehor/bildskarmar/datorskarm", freshness: fresh_direct_index}
   - {model_id: benq_ex271uz, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 11490, stock: in_stock, url: "https://www.maxgaming.se/sv/datortillbehor/bildskarmar", freshness: fresh_direct_index}
 
+
+  - {model_id: samsung_g81sf_32, retailer_id: power, source_kind: retailer_direct, condition: new, price_sek: 8790, stock: in_stock, url: "https://www.power.se/kampanj/black-friday/gaming/", freshness: stale_or_expired, notes: ["POWER campaign page stated campaign period 2026-09-01 through 2026-09-30; snapshot date is 2026-10-01."]}
+  - {model_id: dell_aw2725q, retailer_id: dustinhome, source_kind: retailer_direct, condition: new, price_sek: 9374, stock: backorder, url: "https://www.dustinhome.se/product/5011277977/g2422hs", freshness: stale_or_expired, notes: ["Dustin gaming-monitor catalogue result; indexed crawl was roughly 11 months old, so not actionable as a current price.", "Dustin article 5020051858; manufacturer article GAME-AW2725Q."]}
+  - {model_id: dell_aw3225qf, retailer_id: dustinhome, source_kind: retailer_direct, condition: new, price_sek: 12490, stock: backorder, url: "https://www.dustinhome.se/product/5011277977/g2422hs", freshness: stale_or_expired, notes: ["Curved model retained for market completeness.", "A second stale Dustin index exposed 12,990 SEK; do not interpret either as current without refreshing the retailer."]}
+  - {model_id: lg_32g810sa, retailer_id: computersalg, source_kind: retailer_direct, condition: new, price_sek: 9048, shipping_sek: 0, total_sek: 9048, stock: supplier_stock, url: "https://www.computersalg.se/i/24160995/lg-ultragear-32g810sa-w-oled-monitor-32-3840-x-2160-4k-0-03-ms", freshness: stale_or_expired, notes: ["Exact MPN 32G810SA-W.AEU; EAN 8806096349304.", "Search crawl age was roughly 1.2 years, so price is discovery/history only."]}
+  - {model_id: gigabyte_mo32u, retailer_id: computersalg, source_kind: retailer_direct, condition: new, price_sek: 10547, shipping_sek: 0, total_sek: 10547, stock: supplier_stock, url: "https://www.computersalg.se/i/24126634/gigabyte-oled-monitor-32-3840-x-2160-4k-h%C3%B6gtalare", freshness: stale_or_expired, notes: ["MPN MO32U EK; EAN 4719331862749.", "Search crawl age was roughly 1.2 years."]}
+  - {model_id: samsung_g80sd_32, retailer_id: computersalg, source_kind: retailer_direct, condition: new, price_sek: 11848, stock: unknown, url: "https://www.computersalg.se/i/21201248/samsung-odyssey-oled-g8-s32dg802su-oled-monitor-smart-spel-32-3840-x-2160-4k-240-hz-250-cd-m-1000000-1-hdr10-gaming-0-03-ms", freshness: stale_or_expired, notes: ["Old indexed page; another ComputerSalg URL for the same model exposed 12,914 SEK.", "Retain as historical/discovery data, not current market truth."]}
+
 aggregator_observations:
   - {model_id: dell_aw2725q, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 6960, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=14642119", freshness: recent_aggregator, notes: ["Minimum across multiple stores; retailer behind minimum was not exposed in retrieved excerpt.", "Preserved alongside Inet direct 8,990 SEK rather than overwritten."]}
   - {model_id: gigabyte_mo32u2, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8369, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=16632529", freshness: recent_aggregator}
@@ -84,6 +92,9 @@ new_models_discovered_this_run:
   - samsung_g80sh_27
   - samsung_g80sh_32
   - lc_power_lc_m27uo
+  - lg_32gs95uv
+  - lg_32g810sa
+  - gigabyte_mo32u
 
 new_retailers_or_sources_discovered_this_run:
   - cs_megastore
@@ -96,7 +107,8 @@ new_retailers_or_sources_discovered_this_run:
 
 unresolved:
   - "Identify retailer behind Prisjakt's 6,960-SEK Dell AW2725Q minimum."
-  - "Re-run POWER, Dustin Home, ComputerSalg and PriceRunner with a retrieval path that can access their current catalogues."
+  - "PriceRunner still produced no usable indexed results in this run."
+  - "POWER, Dustin Home and ComputerSalg were found on targeted follow-up, but several retrieved pages were stale or unavailable; future runs should refresh them directly."
   - "Verify XG32UCWMGZ versus XG32UCWMG regional/campaign differences."
   - "Verify Swedish/EU burn-in warranty duration for ASRock PGO32UFS."
   - "Verify current in-stock Swedish seller and regional suffix for Philips 32M2N8900."
