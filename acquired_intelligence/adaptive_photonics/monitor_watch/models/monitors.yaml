@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-01T04:48:22+02:00
+updated: 2026-10-03T00:55:10+02:00
 
 models:
   dell_aw2725q:
@@ -195,8 +195,8 @@ models:
     resolution: 3840x2160
     shape: flat
     panel: {family: WOLED, generation: unknown, subpixel: unknown}
-    coating: {type: glossy}
-    refresh: {native_hz: 165, dual_mode: null}
+    coating: {type: glare}
+    refresh: {native_hz: 165, dual_mode: {resolution: 1920x1080, hz: 330}}
     connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: null, kvm: false}
     warranty: {years: 2.083, burn_in_explicit: unknown}
     measured: {minimum_sdr_nits: null}
@@ -204,6 +204,7 @@ models:
     verification: {specs: retailer_only, warranty: verified_primary}
     notes:
       - "First structured-sweep discovery with unusually strong user fit."
+      - "LG Sweden explicitly confirms VESA Certified Dual-Mode: UHD 165 Hz / FHD 330 Hz and a Glare panel."
 
   lg_32gs94ux:
     manufacturer: LG
@@ -700,7 +701,8 @@ models:
 
   lg_32gx870b:
     manufacturer: LG
-    model: UltraGear 32GX870B
+    model: UltraGear 32GX870A-B
+    regional_variants: ["32GX870B retailer shorthand"]
     size_in: 31.5
     resolution: 3840x2160
     shape: flat
@@ -716,6 +718,7 @@ models:
       - https://www.lg.com/
       - https://www.inet.se/
     notes:
+      - "Stable internal ID predates primary-name correction; LG Sweden calls the product 32GX870A-B while some Swedish retailer material abbreviates it as 32GX870B."
       - "High-end 4th-generation Tandem OLED; current Swedish street price is far above the value band."
 
   asus_xg32uqdms:
@@ -756,3 +759,53 @@ models:
       - https://www.inet.se/
     notes:
       - "Professional 30k+ class with Thunderbolt, integrated calibration and 12G-SDI; retained for market completeness."
+
+  tcl_32x3a:
+    manufacturer: TCL
+    model: OLED+ 32X3A
+    regional_variants:
+      - {color: cloud_blue, ean: "5901292532062"}
+      - {color: cloud_gold, ean: "5901292532536"}
+      - {color: cloud_pink, ean: "5901292532529"}
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED+, generation: multi_layer, subpixel: matrix_pure}
+    coating: {type: anti_glare}
+    refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
+    connectivity: {displayport: conflicting, hdmi: "2.1", usb_c_pd_w: 90, kvm: unknown}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, market: retailer_only, warranty: unknown}
+    sources:
+      - https://www.tcl.com/se/sv/monitors/32x3a
+      - https://www.elgiganten.se/
+    notes:
+      - "TCL markets Matrix-Pure pixel layout specifically as reducing color fringing around text."
+      - "TCL confirms 4K240/FHD480 Dual-Mode, OLED+ multi-layer architecture and anti-glare treatment."
+      - "Elgiganten lists 11,990 SEK; cloud-blue was orderable during this run while pink/gold pages said unavailable."
+      - "DisplayPort version is conflicting in retailer/marketing material; do not rely on it until exact specification is reconciled."
+
+  philips_32m2n8900p:
+    manufacturer: Philips
+    model: Evnia 8000 32M2N8900P
+    regional_variants: ["32M2N8900P/00"]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: rgb_q_stripe}
+    coating: {type: anti_reflection_3h}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: unknown, hdmi: unknown, usb_c_pd_w: 65, kvm: true}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, market: price_history_service, warranty: unknown}
+    sources:
+      - https://www.philips.se/c-p/32M2N8900P_00/4k-uhd-gaming-monitor-qd-oled-spelskaerm
+      - https://www.evnia.philips/se/monitors/32m2n8900p_00
+    notes:
+      - "Distinct newer P variant; do not merge with 32M2N8900."
+      - "Philips specifies RGB Q-Stripe, DisplayHDR True Black 500, cooling shield, 300-nit SDR at APL 100%, KVM and USB-C 65 W."
+      - "Priceway showed about 13,990 SEK at Proshop with no stock during this run."

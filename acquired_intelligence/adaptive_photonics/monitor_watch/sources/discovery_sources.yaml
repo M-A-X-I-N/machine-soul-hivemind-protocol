@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-01
+updated: 2026-10-03T00:55:10+02:00
 
 sources:
   prisjakt:
@@ -82,6 +82,7 @@ sources:
       - MSI
       - Philips
       - Samsung
+      - TCL
     trust:
       product_identity: high
       engineering_specs: high

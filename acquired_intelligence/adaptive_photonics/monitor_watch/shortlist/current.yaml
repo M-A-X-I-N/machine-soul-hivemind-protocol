@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-01T04:48:22+02:00
+updated: 2026-10-03T00:55:10+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -20,13 +20,12 @@ criteria_summary:
 candidates:
   lg_32gx850a:
     status: active
-    summary: {size_in: 31.46, panel: WOLED, coating: glossy, native_hz: 165}
+    summary: {size_in: 31.46, panel: WOLED, coating: glare, native_hz: 165, dual_mode_hz: 330}
     reasons_for:
-      - "Flat 32-inch glossy WOLED."
-      - "4K165 is already enough for ordinary high-resolution use."
-      - "First structured sweep found a recent Swedish price of 6,997 SEK in indexed/price-history data."
+      - "Flat 32-inch glare/glossy-style WOLED."
+      - "LG primary material confirms 4K165/FHD330 Dual-Mode, which fits the pretty-game versus maximum-Hz split unusually well."
+      - "Exact Prisjakt page showed lowest new price around 7,911 SEK during this run."
     reasons_against:
-      - "No high-refresh dual mode found."
       - "Burn-in warranty wording is weaker/less explicit than ASUS/MSI/Dell."
     price_logic: {very_strong_at_or_below_sek: 7500, interesting_at_or_below_sek: 8500}
     unresolved:
@@ -130,10 +129,11 @@ candidates:
     status: active
     summary: {size_in: 27, panel: QD-OLED, coating: matte_glare_free, native_hz: 240}
     reasons_for:
-      - "Direct Elgiganten page showed 6,990 SEK."
       - "166-PPI 4K density."
+      - "The model has repeatedly occupied the cheap 27-inch 4K240 OLED tier."
     reasons_against:
       - "Matte Glare-Free coating conflicts with clarity preference."
+      - "The 6,990-SEK Elgiganten price from October 1 was not re-confirmed this run; current comparison/marketplace observations are higher."
     price_logic: {very_strong_at_or_below_sek: 7000}
 
   aoc_ag276uzd:
@@ -195,10 +195,10 @@ candidates:
     reasons_for:
       - "4K240 at roughly 166-PPI-class density."
       - "Semi-gloss/glare optical treatment aligns strongly with the dark-room clarity preference."
-      - "USB-C 65 W and a current Inet campaign index at 6,490 SEK."
+      - "USB-C 65 W; Inet exact page currently shows 7,990 SEK and healthy stock."
     reasons_against:
       - "Exact Swedish warranty duration and explicit burn-in coverage are unresolved."
-      - "Campaign price should be confirmed at checkout before treating it as durable market price."
+      - "The 6,490-SEK campaign observation from the previous run did not survive this refresh and should be treated as transient/stale rather than current."
     price_logic: {absurd_at_or_below_sek: 6500, very_strong_at_or_below_sek: 7200, interesting_at_or_below_sek: 8000}
     unresolved:
       - "Resolve Acer/Inet two-year versus Acer EU three-year warranty conflict."
@@ -214,3 +214,72 @@ candidates:
       - "Current ~17,990-SEK Swedish price is wildly outside the value band."
       - "Coating is not the preferred glossy style."
     price_logic: {interesting_at_or_below_sek: 10500, very_strong_at_or_below_sek: 9500}
+
+  asus_xg32ucwg:
+    status: active
+    summary: {size_in: 31.5, panel: WOLED, coating: trueblack_glossy, native_hz: 165, dual_mode_hz: 330}
+    reasons_for:
+      - "TrueBlack Glossy WOLED is extremely well aligned with dark-room use and text-clarity preference."
+      - "4K165/FHD330 Dual-Mode is genuinely useful rather than decorative for this gaming split."
+      - "Three-year warranty including burn-in and KVM."
+      - "Exact Prisjakt page showed about 8,455 SEK this run."
+    reasons_against:
+      - "Slower than the 240/480 XG32UCWMG sibling."
+    price_logic: {very_strong_at_or_below_sek: 8500, interesting_at_or_below_sek: 9000}
+
+  lenovo_27ud_10:
+    status: strong_watch
+    summary: {size_in: 26.5, panel: OLED, coating: unknown, native_hz: 240}
+    reasons_for:
+      - "166-PPI-class 4K240 OLED."
+      - "Prisjakt surfaced a 6,706-SEK CDON offer during this run, while fresh direct CDON sellers were around 7.3–7.4k."
+    reasons_against:
+      - "Exact coating remains insufficiently characterized."
+      - "Lenovo primary material still does not clearly state explicit burn-in coverage in the Swedish/EU warranty."
+    price_logic: {absurd_at_or_below_sek: 6800, very_strong_at_or_below_sek: 7300, interesting_at_or_below_sek: 8000}
+    unresolved:
+      - "Identify/verify the exact CDON seller behind the 6,706-SEK aggregator floor."
+      - "Resolve explicit burn-in warranty coverage."
+
+  asus_xg32ucds:
+    status: strong_watch
+    summary: {size_in: 31.5, panel: QD-OLED, coating: anti_reflection, native_hz: 165}
+    reasons_for:
+      - "32-inch 4K165 QD-OLED at a current Prisjakt floor around 7,990 SEK."
+      - "ASUS explicitly provides Uniform Brightness, Neo Proximity Sensor/OLED Care Pro and three-year warranty including panel burn-in."
+    reasons_against:
+      - "No high-refresh dual mode."
+      - "Anti-reflection surface is less aligned than TrueBlack Glossy."
+      - "ASUS own eStore is much higher at 10,995 SEK, so the 7,990 street offer needs seller verification."
+    price_logic: {very_strong_at_or_below_sek: 8000, interesting_at_or_below_sek: 8800}
+    unresolved:
+      - "Identify/verify the retailer behind the 7,990-SEK Prisjakt floor."
+
+  tcl_32x3a:
+    status: price_watch
+    summary: {size_in: 31.5, panel: OLED+, coating: anti_glare, native_hz: 240, dual_mode_hz: 480, subpixel: matrix_pure}
+    reasons_for:
+      - "4K240/FHD480 Dual-Mode."
+      - "TCL explicitly designed Matrix-Pure pixel layout to reduce text color fringing."
+      - "90-W USB-C and multi-layer OLED+ architecture."
+    reasons_against:
+      - "Current Elgiganten price is 11,990 SEK, well above excellent 8–9k alternatives."
+      - "Anti-glare rather than preferred glossy treatment."
+      - "Burn-in warranty terms remain unresolved."
+    price_logic: {interesting_at_or_below_sek: 10000, very_strong_at_or_below_sek: 9000}
+    unresolved:
+      - "Establish Swedish warranty and explicit burn-in coverage."
+      - "Reconcile DisplayPort-version conflict in retailer/marketing material."
+
+  philips_32m2n8900p:
+    status: price_watch
+    summary: {size_in: 31.5, panel: QD-OLED, coating: anti_reflection_3h, native_hz: 240, subpixel: rgb_q_stripe}
+    reasons_for:
+      - "Distinct newer variant with explicitly documented RGB Q-Stripe, True Black 500 and cooling shield."
+      - "Philips specifies 300-nit SDR at APL 100%, KVM and USB-C 65 W."
+    reasons_against:
+      - "Current Swedish price-history source is around 13,990 SEK and showed no stock."
+      - "Anti-reflection rather than preferred glossy treatment."
+    price_logic: {interesting_at_or_below_sek: 10500, very_strong_at_or_below_sek: 9500}
+    unresolved:
+      - "Confirm current Swedish retailer availability and warranty/burn-in terms."
