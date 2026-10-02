@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-03T00:55:10+02:00
+updated: 2026-10-03T01:35:42+02:00
 
 models:
   dell_aw2725q:
@@ -809,3 +809,68 @@ models:
       - "Distinct newer P variant; do not merge with 32M2N8900."
       - "Philips specifies RGB Q-Stripe, DisplayHDR True Black 500, cooling shield, 300-nit SDR at APL 100%, KVM and USB-C 65 W."
       - "Priceway showed about 13,990 SEK at Proshop with no stock during this run."
+
+  aoc_ag326uzd2:
+    manufacturer: AOC
+    model: AGON PRO AG326UZD2
+    regional_variants: ["AG326UZD2", "EAN 4038986113465"]
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "4th-gen", subpixel: unknown}
+    coating: {type: glossy_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1 UHBR20", hdmi: "2.1 x2", usb_c_pd_w: 65, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary, market: aggregator_only}
+    sources:
+      - https://www.aoc.com/se/gaming/monitors/ag326uzd2
+      - https://www.aoc.com/se/gaming/blog/agon-pro-ag326uzd2-4k-qd-oled-gamingmonitor-240hz
+    notes:
+      - "AOC specifies AntiReflection 3.0 / anti-reflective glossy finishing rather than a conventional matte surface."
+      - "AOC specifies SDR 300 nits at APL 100%, HDR 515 nits at 10% and 1000 nits at 3%."
+      - "Three-year OLED warranty explicitly includes burn-in when care requirements are followed."
+
+  msi_mpg322ur_x24:
+    manufacturer: MSI
+    model: MPG 322UR QD-OLED X24
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "4th-gen Penta Tandem", subpixel: unknown}
+    coating: {type: darkarmor_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "2.1a UHBR20", hdmi: "2.1", usb_c_pd_w: 98, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary, market: aggregator_only}
+    sources:
+      - https://se.msi.com/news/detail/The-New-31-5-inch-MPG-322UR-QD-OLED-X24-and-MAG-321UP-QD-OLED-X24-Gaming-Monitors-Are-Officially-Available-148507
+      - https://www.msi.com/Monitor/MPG-322UR-QD-OLED-X24
+    notes:
+      - "DarkArmor Film is intended to improve ambient-black retention and scratch resistance."
+      - "Uniform Luminance and AI Care Sensor are included."
+      - "Current Swedish comparison-site pricing remains well above the normal value band."
+
+  msi_mag321up_x24:
+    manufacturer: MSI
+    model: MAG 321UP QD-OLED X24
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "4th-gen Penta Tandem", subpixel: unknown}
+    coating: {type: darkarmor_antireflective}
+    refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4a", hdmi: "2.1", usb_c_pd_w: 15, kvm: false}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: unknown, market: aggregator_only}
+    sources:
+      - https://se.msi.com/news/detail/The-New-31-5-inch-MPG-322UR-QD-OLED-X24-and-MAG-321UP-QD-OLED-X24-Gaming-Monitors-Are-Officially-Available-148507
+    notes:
+      - "Shares the 4th-gen Penta-Tandem QD-OLED, DarkArmor Film and Uniform Luminance platform with the MPG model."
+      - "Lower-feature variant: 15-W USB-C and no KVM."

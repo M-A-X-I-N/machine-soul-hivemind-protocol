@@ -1,0 +1,191 @@
+schema_version: 1
+
+snapshot:
+  date: 2026-10-03
+  started_at: 2026-10-03T01:30:49+02:00
+  finished_at: 2026-10-03T01:35:42+02:00
+  timezone: Europe/Stockholm
+  currency: SEK
+  run_kind: recurring_market_watch
+  previous_snapshot: 2026-10-03T004847+0200.yaml
+  notes:
+    - "Fourth structured run, started about forty-two minutes after the prior run."
+    - "This run is a strong demonstration that same-day snapshot spacing is not noise: retailer entry points and comparison-site minima changed again."
+    - "All normal value rules plus the strict true-RGB-stripe filtered lane were refreshed."
+
+comparison_to_previous:
+  material_price_or_state_changes:
+    - model_id: acer_ce270kx
+      previous_observation: "7,990 SEK on exact Inet product page; 6,490 campaign had disappeared from the previous run."
+      current_observation: "Inet campaign page directly exposes 6,490 SEK again while exact product page still exposes 7,990 SEK."
+      interpretation: "Preserve both. Campaign/cart verification is required rather than selecting one as the single true price."
+    - model_id: lg_32gx850a
+      previous_aggregator_floor_sek: 7911
+      current_aggregator_floor_sek: 7490
+      delta_sek: -421
+      interpretation: "Crosses the existing very-strong <=7,500 threshold."
+    - model_id: philips_32m2n8900
+      previous_aggregator_floor_sek: 8365
+      current_aggregator_floor_sek: 7488
+      delta_sek: -877
+      interpretation: "Back inside the existing very-strong <=7,800 threshold, but seller/regional-SKU verification remains unresolved."
+    - model_id: asus_xg32ucwg
+      previous_aggregator_floor_sek: 8455
+      current_aggregator_floor_sek: 8548
+      delta_sek: 93
+    - model_id: asrock_pgo32ufs
+      previous_aggregator_floor_sek: 8392
+      current_aggregator_floor_sek: 8915
+      delta_sek: 523
+
+  stable_direct_checks:
+    - "Proshop AOC AG326UD remained 8,291 SEK on direct page."
+    - "Proshop ASUS XG32UCWMG remained 10,461 SEK on direct page."
+    - "NetOnNet MSI MPG 321URX remained 8,990 SEK."
+    - "ASUS strict-RGB PG27UCWM remains about 13,490 SEK."
+    - "ASUS strict-RGB PG32UCWM remains about 14,490 SEK."
+
+  discoveries:
+    - "AOC AG326UZD2 added: 31.5-inch flat fourth-generation 4K240 QD-OLED, AntiReflection 3.0 glossy finishing, KVM, 65-W USB-C and explicit three-year burn-in warranty."
+    - "MSI MPG 322UR QD-OLED X24 added: 31.5-inch fourth-generation Penta-Tandem 4K240 QD-OLED with DarkArmor, KVM and 98-W USB-C."
+    - "MSI MAG 321UP QD-OLED X24 added: lower-feature sibling with 15-W USB-C and no KVM."
+    - "Gigabyte MO27U2 promoted into the normal watch list because current ~7,790-SEK pricing makes it directly competitive."
+
+coverage:
+  required_retailers_expected: 12
+  required_retailers_with_explicit_outcome: 12
+  required_retailers_without_fresh_direct_price: 4
+
+  retailers:
+    inet:
+      status: direct_retrieved
+      notes:
+        - "CE270KX campaign page shows 6,490 SEK and 19 units during this run."
+        - "CE270KX exact product page simultaneously shows 7,990 SEK; contradiction preserved."
+    webhallen:
+      status: direct_retrieved
+      notes:
+        - "AOC AG326UD current catalogue context remains around 7,990 SEK; historical 4,990 ghost is not treated as current."
+    elgiganten:
+      status: direct_retrieved
+      notes:
+        - "TCL 32X3A remains visible around 11,990 SEK from the immediately prior/current retail index."
+    power:
+      status: attempted_no_fresh_direct_price
+      notes:
+        - "No trustworthy new current OLED price surfaced this pass."
+    proshop:
+      status: direct_retrieved
+      notes:
+        - "AOC AG326UD 8,291 SEK."
+        - "ASUS XG32UCWMG 10,461 SEK."
+    komplett:
+      status: direct_retrieved
+      notes:
+        - "PG32UCWM remains 14,490 SEK."
+        - "Old 8,990-SEK XG32UCWMGZ campaign remains expired and is not promoted."
+    netonnet:
+      status: direct_retrieved
+      notes:
+        - "MSI MPG 321URX remains 8,990 SEK and in stock."
+    dustinhome:
+      status: attempted_no_fresh_direct_price
+      notes:
+        - "No trustworthy fresh direct OLED price obtained."
+    maxgaming:
+      status: partial_direct_retrieved
+      notes:
+        - "Catalogue accessible but no materially new trusted price replaced the immediately prior snapshot."
+    amazon_se:
+      status: aggregator_only
+      notes:
+        - "AOC AG326UZD2 surfaced around 9,499 SEK through Swedish comparison-site discovery; direct marketplace seller/checkout not verified."
+    computersalg:
+      status: attempted_no_fresh_direct_price
+      notes:
+        - "No trustworthy fresh direct price obtained."
+    cdon:
+      status: marketplace_direct_retrieved
+      notes:
+        - "Lenovo 27UD-10 remains around 7,277 SEK from seller OVOLT in directly retrievable marketplace data."
+
+  discovery_sources:
+    prisjakt:
+      status: retrieved
+      notes:
+        - "Current category/search pages show LG 32GX850A ~7,490; Philips 32M2N8900 ~7,488; XG32UCWG ~8,548; ASRock PGO32UFS ~8,915; MSI 321URX 8,990."
+        - "AOC AG326UD generic pages vary around 7.4–7.99k; direct retailer pages remain preferred for store-specific truth."
+    pricerunner:
+      status: attempted_no_indexable_results
+      notes:
+        - "Still no usable results in this retrieval environment."
+    priceway:
+      status: not_rechecked
+    priskolla:
+      status: not_rechecked
+    sweclockers_prices:
+      status: not_rechecked
+    manufacturer_catalogs:
+      status: selective_refresh
+      notes:
+        - "AOC and MSI primary product/news material used to verify the three newly catalogued models."
+
+direct_offers:
+  - {model_id: acer_ce270kx, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 6490, stock: in_stock, url: "https://www.inet.se/kampanj/10664/kampanjpriser-pa-acerskarmar", freshness: fresh_direct_index, notes: ["Campaign page showed 19 units.", "Exact product page simultaneously showed 7,990 SEK; cart/checkout should arbitrate before purchase."]}
+  - {model_id: acer_ce270kx, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 7990, stock: in_stock, url: "https://www.inet.se/produkt/2229926/acer-27-ce270kx-oled-4k-240-hz-usb-c", freshness: direct_but_cached, notes: ["Same-retailer contradiction with current campaign page deliberately preserved."]}
+  - {model_id: aoc_ag326ud, retailer_id: proshop, source_kind: retailer_direct, condition: new, price_sek: 8291, shipping_sek: 0, total_sek: 8291, stock: in_stock, url: "https://www.proshop.se/Skaerm/32-AOC-AGON-PRO-AG326UD-3840x2160-4K-165Hz-QD-OLED/3325851", freshness: fresh_direct}
+  - {model_id: asus_xg32ucwmg, retailer_id: proshop, source_kind: retailer_direct, condition: new, price_sek: 10461, shipping_sek: 0, total_sek: 10461, stock: in_stock, url: "https://www.proshop.se/Skaerm/32-ASUS-ROG-Strix-XG32UCWMG-3840x2160-4K-240Hz-OLED-KVM-switch/3417589", freshness: fresh_direct}
+  - {model_id: msi_321urx, retailer_id: netonnet, source_kind: retailer_direct, condition: new, price_sek: 8990, stock: in_stock, url: "https://www.netonnet.se/art/gaming/msi-mpg-321urx-qd-oled/1032958.8901/", freshness: recent_direct}
+  - {model_id: lenovo_27ud_10, retailer_id: cdon, source_kind: marketplace, condition: new, price_sek: 7277, stock: in_stock, url: "https://cdon.se/produkt/lenovo-legion-pro-27ud-10-0c9c6eb3a5d25a2b/", freshness: recent_direct_index, notes: ["Seller OVOLT."]}
+  - {model_id: asus_pg32ucwm, retailer_id: komplett, source_kind: retailer_direct, condition: new, price_sek: 14490, stock: unknown, url: "https://www.komplett.se/", freshness: recent_direct_index}
+  - {model_id: asus_pg27ucwm, retailer_id: null, source_kind: aggregator, condition: new, price_sek: 13490, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: recent_aggregator}
+
+aggregator_observations:
+  - {model_id: lg_32gx850a, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7490, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar?106039=106050&7044=60", freshness: fresh_aggregator}
+  - {model_id: philips_32m2n8900, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7488, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar?brand=12", freshness: fresh_aggregator}
+  - {model_id: asus_xg32ucwg, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8548, stock: in_stock, url: "https://www.prisjakt.nu/s/31-x-5/", freshness: fresh_aggregator}
+  - {model_id: asrock_pgo32ufs, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8915, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar?brand=1294", freshness: fresh_aggregator}
+  - {model_id: msi_321urx, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8990, stock: in_stock, url: "https://www.prisjakt.nu/s/31-x-5/", freshness: fresh_aggregator}
+  - {model_id: asus_xg32ucds, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7990, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar?106039=106050&7044=60", freshness: fresh_aggregator}
+  - {model_id: gigabyte_mo27u2, retailer_id: inet, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7790, stock: in_stock, url: "https://www.prisjakt.nu/produkt.php?p=14642119", freshness: recent_aggregator}
+  - {model_id: aoc_ag326ud, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7405, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar", freshness: fresh_aggregator, notes: ["Direct retailer offers checked separately; generic minimum is discovery context."]}
+  - {model_id: aoc_ag326uzd2, retailer_id: amazon_se, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 9499, stock: unknown, url: "https://www.prisjakt.nu/", freshness: recent_aggregator, notes: ["Price discovered through Swedish comparison search; direct Amazon seller/checkout not verified."]}
+  - {model_id: msi_mpg322ur_x24, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 12088, stock: in_stock, url: "https://www.prisjakt.nu/kategori.php?k=392&offset=168", freshness: recent_aggregator, notes: ["Other generic Prisjakt pages exposed materially higher ~14.7k; preserve range rather than pretending one is universal."]}
+  - {model_id: msi_mag321up_x24, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 12071, stock: unknown, url: "https://www.prisjakt.nu/", freshness: recent_aggregator}
+  - {model_id: asus_pg27ucwm, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 13490, stock: in_stock, url: "https://www.prisjakt.nu/c/datorskarmar?brand=518&offset=28", freshness: fresh_aggregator}
+  - {model_id: asus_pg32ucwm, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 14490, stock: in_stock, url: "https://www.prisjakt.nu/s/hdmi-4k/", freshness: fresh_aggregator}
+
+new_models_discovered_this_run:
+  - aoc_ag326uzd2
+  - msi_mpg322ur_x24
+  - msi_mag321up_x24
+
+new_retailers_or_sources_discovered_this_run: []
+
+shortlist_changes:
+  added_strong_watch:
+    - gigabyte_mo27u2
+    - aoc_ag326uzd2
+  added_price_watch:
+    - msi_mpg322ur_x24
+  added_rejected_for_now:
+    - msi_mag321up_x24
+  price_threshold_crossings:
+    - "LG 32GX850A moved to roughly 7,490 SEK, crossing its <=7,500 very-strong threshold."
+    - "Philips 32M2N8900 moved back to roughly 7,488 SEK, crossing its <=7,800 threshold but remains needs_verification."
+    - "Acer CE270KX's 6,490 campaign resurfaced, crossing its <=6,500 absurd threshold if cart/checkout honors it."
+  true_rgb_stripe_lane:
+    status: unchanged
+    notes:
+      - "PG27UCWM remains about 13,490 SEK."
+      - "PG32UCWM remains about 14,490 SEK."
+      - "MSI MPG 322URDX36 still lacks established Swedish retail pricing/availability."
+      - "All strict-RGB entries remain price_watch under the normal value rules."
+
+unresolved:
+  - "Confirm Acer CE270KX 6,490-SEK campaign price in cart/checkout versus simultaneous 7,990 exact product page."
+  - "Identify exact seller behind LG 32GX850A 7,490-SEK comparison floor before purchase."
+  - "Identify exact seller and regional suffix behind Philips 32M2N8900 7,488-SEK floor; retain needs_verification."
+  - "Verify direct Swedish seller/checkout for AOC AG326UZD2 around 9,499 SEK."
+  - "Resolve current exact Swedish seller behind MSI MPG 322UR X24's roughly 12.1k floor and MAG 321UP X24's roughly 12.1k floor."
+  - "PriceRunner still produces no usable results in this retrieval environment."

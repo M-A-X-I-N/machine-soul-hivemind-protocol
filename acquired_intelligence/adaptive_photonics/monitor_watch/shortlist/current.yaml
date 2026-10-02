@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-03T00:55:10+02:00
+updated: 2026-10-03T01:35:42+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -87,7 +87,7 @@ candidates:
     reasons_for:
       - "Flat 32-inch glare/glossy-style WOLED."
       - "LG primary material confirms 4K165/FHD330 Dual-Mode, which fits the pretty-game versus maximum-Hz split unusually well."
-      - "Exact Prisjakt page showed lowest new price around 7,911 SEK during this run."
+      - "Current Prisjakt category data is around 7,490 SEK, crossing the pre-written very-strong threshold."
     reasons_against:
       - "Burn-in warranty wording is weaker/less explicit than ASUS/MSI/Dell."
     price_logic: {very_strong_at_or_below_sek: 7500, interesting_at_or_below_sek: 8500}
@@ -159,7 +159,7 @@ candidates:
     status: needs_verification
     summary: {size_in: 31.5, panel: QD-OLED, coating: antireflective_hard_coating, native_hz: 240}
     reasons_for:
-      - "Aggregator pricing remains in the roughly 7.4k class."
+      - "Current Prisjakt category data is again around 7.48k, inside the pre-written very-strong price threshold."
       - "KVM and 65-W USB-C."
     reasons_against:
       - "NetOnNet now says no longer sold."
@@ -258,10 +258,11 @@ candidates:
     reasons_for:
       - "4K240 at roughly 166-PPI-class density."
       - "Semi-gloss/glare optical treatment aligns strongly with the dark-room clarity preference."
-      - "USB-C 65 W; Inet exact page currently shows 7,990 SEK and healthy stock."
+      - "USB-C 65 W."
+      - "Inet's campaign page is again directly exposing 6,490 SEK during this run, while the exact product page simultaneously exposes 7,990 SEK."
     reasons_against:
       - "Exact Swedish warranty duration and explicit burn-in coverage are unresolved."
-      - "The 6,490-SEK campaign observation from the previous run did not survive this refresh and should be treated as transient/stale rather than current."
+      - "Same-retailer campaign/product-page price disagreement means 6,490 should be confirmed at cart/checkout before purchase."
     price_logic: {absurd_at_or_below_sek: 6500, very_strong_at_or_below_sek: 7200, interesting_at_or_below_sek: 8000}
     unresolved:
       - "Resolve Acer/Inet two-year versus Acer EU three-year warranty conflict."
@@ -346,3 +347,53 @@ candidates:
     price_logic: {interesting_at_or_below_sek: 10500, very_strong_at_or_below_sek: 9500}
     unresolved:
       - "Confirm current Swedish retailer availability and warranty/burn-in terms."
+
+  gigabyte_mo27u2:
+    status: strong_watch
+    summary: {size_in: 27, panel: QD-OLED, coating: semi_glossy_antireflective, native_hz: 240}
+    reasons_for:
+      - "27-inch 4K240 at roughly 166-PPI-class density."
+      - "Semi-glossy/anti-reflective QD-OLED treatment fits the dark-room clarity preference better than matte options."
+      - "KVM and explicit three-year burn-in warranty."
+      - "Current Prisjakt context identifies an Inet offer around 7,790 SEK."
+    reasons_against:
+      - "No dual-mode ultra-high-refresh mode."
+      - "At similar money, 32-inch models may offer better physical-size value."
+    price_logic: {very_strong_at_or_below_sek: 7800, interesting_at_or_below_sek: 8500}
+
+  aoc_ag326uzd2:
+    status: strong_watch
+    summary: {size_in: 31.5, panel: QD-OLED, coating: glossy_antireflective, native_hz: 240}
+    reasons_for:
+      - "Fourth-generation 32-inch 4K240 QD-OLED."
+      - "AOC explicitly describes AntiReflection 3.0 / glossy finishing intended to reduce matte haze."
+      - "KVM, 65-W USB-C and explicit three-year burn-in coverage."
+      - "Full-field SDR specification is 300 nits, higher than many current OLEDs."
+    reasons_against:
+      - "Current Swedish comparison pricing is still around the mid-9k range, so it needs to prove the panel/coating upgrade over cheaper 7.5–8.5k options."
+      - "No dual-mode 480-Hz mode."
+    price_logic: {interesting_at_or_below_sek: 10000, very_strong_at_or_below_sek: 9000}
+
+  msi_mpg322ur_x24:
+    status: price_watch
+    summary: {size_in: 31.5, panel: "4th-gen Penta-Tandem QD-OLED", coating: darkarmor_antireflective, native_hz: 240}
+    reasons_for:
+      - "New-generation QD-OLED platform with DarkArmor, Uniform Luminance and AI Care Sensor."
+      - "KVM, 98-W USB-C and 4K240."
+      - "Three-year warranty."
+    reasons_against:
+      - "Current Swedish comparison pricing is roughly 12k+ and therefore poor value versus excellent 8–10k options."
+      - "No dual-mode 480-Hz mode."
+      - "Anti-reflective DarkArmor needs real optical/text comparison against preferred glossy WOLED."
+    price_logic: {interesting_at_or_below_sek: 10500, very_strong_at_or_below_sek: 9500}
+
+  msi_mag321up_x24:
+    status: rejected_for_now
+    summary: {size_in: 31.5, panel: "4th-gen Penta-Tandem QD-OLED", coating: darkarmor_antireflective, native_hz: 240}
+    reasons_for:
+      - "Same new-generation QD-OLED/DarkArmor/Uniform-Luminance platform."
+    reasons_against:
+      - "Current Swedish pricing is roughly 12k while cheaper models already provide 4K240 OLED."
+      - "15-W USB-C and no KVM make it less compelling than the MPG sibling if the prices are close."
+      - "No dual-mode 480-Hz mode."
+    price_logic: {resurrect_at_or_below_sek: 9500, very_strong_at_or_below_sek: 8500}
