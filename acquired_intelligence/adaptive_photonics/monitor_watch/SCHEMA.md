@@ -78,6 +78,35 @@ Market status is not shortlist status.
 
 These are user-specific states, not objective product rankings.
 
+## Money-no-object lanes
+
+The shortlist may contain **orthogonal preference lanes** in addition to normal purchase-status entries.
+
+The first defined lane is:
+
+~~~yaml
+money_no_object_true_rgb:
+  purpose: ...
+  rules:
+    price_is_disqualifying: false
+    price_is_ranking_factor: false
+    strict_subpixel_requirement: rgb_stripe
+  current_order:
+    - model_id: ...
+      lane_status: current_pick
+~~~
+
+Semantics:
+
+- normal hard requirements still apply unless the lane explicitly overrides them;
+- price and value-for-money remain recorded, but are ignored for ordering inside this lane;
+- availability still matters because "best thing to buy now" and "interesting announced future thing" are different states;
+- the same model can simultaneously be `price_watch` in the normal shortlist and `current_pick` in a money-no-object lane;
+- lane ordering is intentionally user-specific and may change when preferences change;
+- strict technology lanes must define exactly what qualifies. Do not collapse adjacent vendor-specific layouts into a category merely because their marketing uses similar words.
+
+For the strict true-RGB lane, `rgb_stripe` means a conventional/explicit true RGB stripe arrangement. Layouts such as `rgb_q_stripe` and `matrix_pure` remain adjacent-interest technologies unless separately promoted.
+
 ## Snapshot identity
 
 Snapshots are identified by their **run-start instant**, not merely the calendar date.

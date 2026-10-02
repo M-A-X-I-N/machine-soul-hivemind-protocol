@@ -17,6 +17,61 @@ criteria_summary:
     - explicit burn-in warranty
     - predictable static-dimming behavior
 
+
+money_no_object_true_rgb:
+  purpose: "If price/value suddenly stops mattering, choose among strict true/conventional RGB-stripe OLEDs using the same non-price preferences as the normal shortlist."
+  rules:
+    inherit_normal_hard_requirements: true
+    price_is_disqualifying: false
+    price_is_ranking_factor: false
+    availability_is_relevant: true
+    strict_subpixel_requirement: rgb_stripe
+    notes:
+      - "This lane is orthogonal to the normal shortlist. A monitor may be price_watch normally and still be the preferred money-no-object option."
+      - "Do not silently broaden 'true RGB stripe' to vendor-specific adjacent layouts such as Philips RGB Q-Stripe or TCL Matrix-Pure."
+      - "Prices remain recorded in market snapshots; they simply do not determine ordering here."
+  current_order:
+    - model_id: asus_pg32ucwm
+      lane_status: current_pick
+      fit_summary: "Best current fit if money stops mattering."
+      reasons:
+        - "31.5-inch size matches the current lean toward 32 inches while retaining 4K density."
+        - "True Tandem RGB OLED with conventional RGB stripe directly optimizes text/fine-line clarity."
+        - "TrueBlack Glossy is almost ideal for the dark-room environment."
+        - "4K240/FHD480 Dual Mode matches both cinematic/high-resolution and cursed-low-resolution/high-Hz gaming."
+        - "Three-year warranty including burn-in, OLED Care Pro, Neo Proximity Sensor and 90-W USB-C."
+      caveats:
+        - "Current Swedish pricing remains launch-tax territory in the normal value lane."
+        - "Minimum-luminance behavior still deserves direct measurement/verification for this unusually dim user."
+
+    - model_id: asus_pg27ucwm
+      lane_status: maximum_ppi_alternative
+      fit_summary: "Choose instead when maximum code/text density matters more than the 32-inch size preference."
+      reasons:
+        - "Same core True Tandem RGB / TrueBlack Glossy / 4K240/FHD480 concept in 26.5 inches."
+        - "Roughly 166-PPI class makes it the strongest current strict-RGB option for tiny text."
+        - "Three-year warranty and ASUS OLED Care Pro."
+      caveats:
+        - "Smaller physical size than the current 32-inch lean."
+        - "Normal value lane still treats it as badly overpriced."
+
+    - model_id: msi_mpg322urdx36
+      lane_status: future_challenger
+      fit_summary: "Potential future usurper; do not call it the buy-now choice until Swedish retail availability and independent behavior are established."
+      reasons:
+        - "31.5-inch fifth-generation Penta-Tandem QD-OLED with explicit RGB Stripe layout."
+        - "4K360 / 1440p520 / FHD680 triple mode is unusually aligned with competitive-shooter behavior."
+        - "DarkArmor film is intended to improve ambient-black retention and scratch resistance."
+      caveats:
+        - "Currently announced rather than established Swedish retail stock in the catalogue."
+        - "Real coating quality, minimum luminance, firmware behavior, warranty and street price remain unresolved."
+
+  adjacent_text_focused_layouts_not_in_strict_lane:
+    - model_id: philips_32m2n8900p
+      reason: "Philips calls this RGB Q-Stripe; interesting for text, but do not equate it with the strict conventional RGB-stripe category."
+    - model_id: tcl_32x3a
+      reason: "TCL Matrix-Pure explicitly targets text fringing, but it is a different pixel-layout concept."
+
 candidates:
   lg_32gx850a:
     status: active
