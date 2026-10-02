@@ -78,34 +78,34 @@ Market status is not shortlist status.
 
 These are user-specific states, not objective product rankings.
 
-## Money-no-object lanes
+## Filtered preference lanes
 
-The shortlist may contain **orthogonal preference lanes** in addition to normal purchase-status entries.
+The shortlist may contain **orthogonal filtered lanes** in addition to the normal purchase-status list.
 
 The first defined lane is:
 
 ~~~yaml
-money_no_object_true_rgb:
+true_rgb_stripe_lane:
   purpose: ...
   rules:
-    price_is_disqualifying: false
-    price_is_ranking_factor: false
+    inherit_all_normal_purchase_rules: true
+    price_and_value_rules_apply_normally: true
     strict_subpixel_requirement: rgb_stripe
-  current_order:
-    - model_id: ...
-      lane_status: current_pick
+  candidates:
+    model_id:
+      status: price_watch
 ~~~
 
 Semantics:
 
-- normal hard requirements still apply unless the lane explicitly overrides them;
-- price and value-for-money remain recorded, but are ignored for ordering inside this lane;
-- availability still matters because "best thing to buy now" and "interesting announced future thing" are different states;
-- the same model can simultaneously be `price_watch` in the normal shortlist and `current_pick` in a money-no-object lane;
-- lane ordering is intentionally user-specific and may change when preferences change;
-- strict technology lanes must define exactly what qualifies. Do not collapse adjacent vendor-specific layouts into a category merely because their marketing uses similar words.
+- all normal purchase rules apply unless a lane explicitly adds or tightens a requirement;
+- price/value logic continues to apply normally;
+- the same model can appear in the normal shortlist and a filtered lane;
+- lane membership means "passes the extra filter", not "recommended regardless of price";
+- normal statuses such as `active`, `strong_watch`, `price_watch`, `needs_verification` and `excluded_requirement` are reused inside the lane;
+- strict technology filters must define exactly what qualifies.
 
-For the strict true-RGB lane, `rgb_stripe` means a conventional/explicit true RGB stripe arrangement. Layouts such as `rgb_q_stripe` and `matrix_pure` remain adjacent-interest technologies unless separately promoted.
+For the strict true-RGB lane, `rgb_stripe` means a conventional/explicit true RGB stripe arrangement. Layouts such as `rgb_q_stripe` and `matrix_pure` remain adjacent-interest technologies unless the requirement is explicitly broadened.
 
 ## Snapshot identity
 

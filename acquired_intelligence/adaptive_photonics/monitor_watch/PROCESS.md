@@ -210,18 +210,17 @@ Rules:
 - curved products remain catalogued but excluded while flat-only is a requirement;
 - price changes can promote/demote interest without changing model facts.
 
-### Money-no-object lane refresh
+### Filtered-lane refresh
 
-If `shortlist/current.yaml` defines one or more orthogonal money-no-object lanes:
+If `shortlist/current.yaml` defines one or more orthogonal filtered lanes:
 
-1. evaluate them using the normal non-price requirements;
-2. ignore purchase price as a ranking/disqualification factor inside that lane;
-3. still record current price in the normal market snapshot;
-4. distinguish `current_pick`, alternatives, and announced/future challengers;
-5. preserve strict technology definitions — e.g. do not treat RGB Q-Stripe or Matrix-Pure as conventional true RGB stripe unless the lane definition is explicitly changed;
-6. allow the same monitor to remain `price_watch` in the normal lane while ranking highly in the money-no-object lane.
-
-A market-watch report should mention any change in the lane's preferred ordering.
+1. inherit the normal purchase rules unless the lane explicitly overrides them;
+2. apply the lane's extra hard requirement(s);
+3. keep normal price/value logic fully active unless the lane explicitly says otherwise;
+4. reuse the normal shortlist statuses inside the lane;
+5. preserve strict technology definitions — e.g. RGB Q-Stripe or Matrix-Pure do not satisfy a strict conventional RGB-stripe requirement;
+6. allow the same monitor to appear in the normal shortlist and one or more filtered lanes;
+7. mention promotions/demotions inside filtered lanes when a market-watch run changes them.
 
 ## 9. Report only meaningful movement
 
@@ -232,7 +231,7 @@ Summarize:
 - large price movements
 - crossed buy/watch thresholds
 - shortlist promotions/demotions
-- money-no-object lane ordering changes
+- filtered-lane promotions/demotions
 - suspicious or stale listings
 - verification conflicts
 - genuinely stupid deals
