@@ -67,6 +67,11 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("pull_request:", text)
         self.assertIn("workflow_dispatch:", text)
         self.assertIn("cron: '9 6 * * *'", text)
+        self.assertIn(
+            "Checks/groups: all, none, or a comma-separated registered selection",
+            text,
+        )
+        self.assertNotIn("Checks/groups: all, none, auto", text)
         self.assertIn("runs-on: ubuntu-slim", text)
         self.assertIn("actions: read", text)
         self.assertIn("contents: read", text)
