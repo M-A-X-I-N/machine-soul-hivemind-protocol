@@ -112,7 +112,7 @@ Classification contract:
 
 - Central CI/control files (`.github/workflows/**`, selector/history modules, their tests) select all registered checks.
 - Narrowly allowlisted inert Markdown/text under docs/task/agent-memory surfaces selects no downstream check unless a known control/test surface explicitly consumes it.
-- Python source changes always select `codeql-python`; repository/runtime Python surfaces select both OS Python suites, with additional app/install/session/matrix checks added only by known relevance rules.
+- Python source changes always select `codeql-python`; `annexation_procedures/**.py` selects all non-fresh Linux/Windows integration checks because those shells/wrappers consume the shared runtime, while install/bootstrap surfaces additionally select both fresh-clone checks.
 - Actions workflow changes select `codeql-actions`; validation/control workflow changes select all blocking checks plus both CodeQL checks.
 - Install/bootstrap/fresh-machine surfaces select their relevant install/fresh checks plus language analysis.
 - Unknown/unclassified paths select all checks.
@@ -260,7 +260,7 @@ Commit summary: `[CI][Validation] Share runners across selected checks`
 - Top-level triggers: push `main`, PR targeting `main`, `workflow_dispatch`, schedule `9 6 * * *`.
 - Policy job: `runs-on: ubuntu-slim`, `permissions: {contents: read, actions: read}`, checkout `fetch-depth: 0`.
 - Policy outputs: per-runner selected-check JSON + booleans for runner provisioning + `codeql_python` / `codeql_actions` + validity/selection diagnostic outputs.
-- Manual input retains `sets` for compatibility but its description becomes checks/groups/auto/all/none.
+- Manual input retains `sets` for compatibility and accepts explicit checks/groups plus `all`/`none`; `auto` is rejected fail-safe because manual dispatch has no event diff to classify.
 - `codeql.yml` becomes `workflow_call` only with required `language` input constrained by caller to `python` or `actions`.
 - Caller CodeQL jobs grant `contents: read` and `security-events: write`; policy job never receives `security-events: write`.
 - Invalid policy may fail the policy job while `always()` downstream conditions still launch the fail-safe check set from already-written outputs.
