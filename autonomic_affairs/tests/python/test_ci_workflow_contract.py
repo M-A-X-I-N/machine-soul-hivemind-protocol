@@ -61,6 +61,50 @@ class WorkflowContractTests(unittest.TestCase):
                     text,
                 )
 
+    def test_top_level_workflow_is_the_only_event_entrypoint(self):
+        text = self.text("machine_soul_validation.yml")
+        self.assertIn("push:", text)
+        self.assertIn("pull_request:", text)
+        self.assertIn("workflow_dispatch:", text)
+        self.assertIn("cron: '9 6 * * *'", text)
+        self.assertIn("runs-on: ubuntu-slim", text)
+        self.assertIn("actions: read", text)
+        self.assertIn("contents: read", text)
+        self.assertIn("fetch-depth: 0", text)
+        for job in (
+            "linux",
+            "windows",
+            "fresh-linux",
+            "fresh-windows",
+            "codeql-python",
+            "codeql-actions",
+        ):
+            self.assertIn(f"  {job}:\n", text)
+        self.assertIn("checks_json:", text)
+        self.assertIn("security-events: write", text)
+
+    def test_codeql_workflow_is_callable_only_and_language_scoped(self):
+        text = self.text("codeql.yml")
+        self.assertIn("workflow_call:", text)
+        self.assertIn("language:", text)
+        self.assertIn(
+            "name: Check codeql-${{ inputs.language }}",
+            text,
+        )
+        self.assertIn("actions/checkout@v7", text)
+        self.assertIn("build-mode: none", text)
+        self.assertIn(
+            'category: "/language:${{ inputs.language }}"',
+            text,
+        )
+        for trigger in (
+            "  push:",
+            "  pull_request:",
+            "  schedule:",
+            "  workflow_dispatch:",
+        ):
+            self.assertNotIn(trigger, text)
+
 
 if __name__ == "__main__":
     unittest.main()
