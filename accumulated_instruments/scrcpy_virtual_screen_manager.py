@@ -1518,45 +1518,6 @@ def win32_client_rect_on_screen(hwnd: int) -> tuple[int, int, int, int] | None:
     )
 
 
-def win32_set_window_rect(hwnd: int, rect: tuple[int, int, int, int]) -> bool:
-    """Move/resize a top-level window without activating it."""
-    if os.name != "nt":
-        return False
-
-    import ctypes
-    from ctypes import wintypes
-
-    user32 = ctypes.windll.user32
-    user32.SetWindowPos.argtypes = [
-        wintypes.HWND,
-        wintypes.HWND,
-        ctypes.c_int,
-        ctypes.c_int,
-        ctypes.c_int,
-        ctypes.c_int,
-        wintypes.UINT,
-    ]
-    user32.SetWindowPos.restype = wintypes.BOOL
-
-    x, y, width, height = rect
-    # HWND_TOP plus SWP_NOACTIVATE keeps grouped scrcpy windows above the
-    # organizer without stealing keyboard focus from the terminal.
-    HWND_TOP = 0
-    SWP_NOACTIVATE = 0x0010
-    SWP_SHOWWINDOW = 0x0040
-    return bool(
-        user32.SetWindowPos(
-            hwnd,
-            HWND_TOP,
-            int(x),
-            int(y),
-            max(1, int(width)),
-            max(1, int(height)),
-            SWP_NOACTIVATE | SWP_SHOWWINDOW,
-        )
-    )
-
-
 def win32_strip_window_frame(hwnd: int) -> tuple[int, int] | None:
     """Remove caption/resizing chrome and return the exact original styles."""
     if os.name != "nt":
@@ -1950,48 +1911,6 @@ class OrganizerWindow:
                 0,
                 0,
             )
-
-    def place_behind(self, foreground_hwnd: int) -> None:
-        """
-        Place the organizer immediately behind one group member.
-
-        Member windows are moved to HWND_TOP in deterministic sequence during a
-        layout pass. The first member processed therefore becomes the lowest
-        member in that little stack. Putting the organizer directly behind that
-        window keeps the whole group together in z-order without pinning the
-        organizer beneath unrelated applications.
-        """
-        hwnd = self._current_hwnd()
-        if hwnd is None or os.name != "nt":
-            return
-
-        import ctypes
-        from ctypes import wintypes
-
-        user32 = ctypes.windll.user32
-        user32.SetWindowPos.argtypes = [
-            wintypes.HWND,
-            wintypes.HWND,
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            wintypes.UINT,
-        ]
-        user32.SetWindowPos.restype = wintypes.BOOL
-
-        SWP_NOSIZE = 0x0001
-        SWP_NOMOVE = 0x0002
-        SWP_NOACTIVATE = 0x0010
-        user32.SetWindowPos(
-            hwnd,
-            foreground_hwnd,
-            0,
-            0,
-            0,
-            0,
-            SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE,
-        )
 
     def close(self) -> None:
         """Request native-window shutdown and briefly wait for its UI thread."""
@@ -2749,6 +2668,14 @@ class VirtualScreenManager:
             actions.append(
                 SubmenuAction("ungroup", "Remove from group", ICON_GROUP)
             )
+        if screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
+            actions.append(
+                SubmenuAction(
+                    "adaptive_status",
+                    "Adaptive status",
+                    ICON_INFO,
+                )
+            )
         if screen.process.poll() is None:
             actions.append(SubmenuAction("stop", "Stop screen", ICON_STOP))
         else:
@@ -2794,6 +2721,36 @@ class VirtualScreenManager:
         if item.kind != "screen" or item.screen_id is None:
             return
         screen = self.screens[item.screen_id]
+
+        if action.action_id == "adaptive_status":
+            display_id = (
+                str(screen.virtual_display_id)
+                if screen.virtual_display_id is not None
+                else "(discovering)"
+            )
+            applied = (
+                str(screen.adaptive_applied_size)
+                if screen.adaptive_applied_size is not None
+                else "(not applied yet)"
+            )
+            target = describe_display_policy(screen.request)
+            detail = [
+                f"Display ID : {display_id}",
+                f"Policy     : {target}",
+                f"Applied    : {applied}",
+                f"ADB        : {self.adb or '(not found)'}",
+            ]
+            if screen.adaptive_error:
+                detail.extend(["", f"Last error: {screen.adaptive_error}"])
+            elif screen.group_id is None:
+                detail.extend(
+                    [
+                        "",
+                        "Live adaptive resizing is group-driven for now.",
+                    ]
+                )
+            self._show_message("ADAPTIVE DISPLAY STATUS", "\n".join(detail))
+            return
 
         if action.action_id == "ungroup":
             self._remove_screen_from_group(screen.screen_id)
@@ -2902,7 +2859,9 @@ class VirtualScreenManager:
             if screen.process.poll() is not None or screen.virtual_display_id is not None:
                 continue
 
-            display_id = parse_scrcpy_virtual_display_id(screen.process.tail(80))
+            display_id = parse_scrcpy_virtual_display_id(
+                screen.process.read_all_lines()
+            )
             if display_id is None:
                 continue
 
@@ -3974,6 +3933,7 @@ class VirtualScreenManager:
             "  host stretching; the configured scalar caps either rendered dimension.",
             "  Live adaptation is group-driven for now; an ungrouped adaptive screen",
             "  starts at native portrait aspect and stays there until grouped.",
+            "  Adaptive screens expose a submenu status view with display id/result/error.",
             "  Closing it disbands the group; screens remain alive and independent.",
             "  Moving/activating uses one atomic member+organizer z-order transaction.",
             "  Groups automatically dissolve when fewer than two members remain.",
