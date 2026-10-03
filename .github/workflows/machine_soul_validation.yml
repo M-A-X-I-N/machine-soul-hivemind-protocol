@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       sets:
-        description: 'Checks/groups: all, none, auto, or a comma-separated registered selection'
+        description: 'Checks/groups: all, none, or a comma-separated registered selection'
         required: false
         default: all
         type: string
