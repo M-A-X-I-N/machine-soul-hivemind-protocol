@@ -1,51 +1,29 @@
-name: "CodeQL Advanced"
+name: CodeQL analysis
 
-# CodeQL is deferred security analysis, separate from Machine-Soul blocking validation.
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: '30 0 * * 0'
-  workflow_dispatch:
-
-# Supersede stale analysis only within the same event/ref lifecycle. In particular,
-# a scheduled main scan must not cancel a push-triggered main scan.
-concurrency:
-  group: codeql-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      language:
+        description: CodeQL language to analyze
+        required: true
+        type: string
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Check codeql-${{ inputs.language }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: actions
-            build-mode: none
-          - language: python
-            build-mode: none
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-
-      # Keep one stable high-precision/default security policy until repository
-      # evidence justifies custom queries, packs, filters, or a config sidecar.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-
+          languages: ${{ inputs.language }}
+          build-mode: none
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/language:${{ inputs.language }}"
