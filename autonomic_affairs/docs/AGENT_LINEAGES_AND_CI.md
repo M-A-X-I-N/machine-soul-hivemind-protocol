@@ -52,84 +52,120 @@ Normal substantive development should prefer the lineage namespace. This is not 
 
 ## Validation philosophy
 
-The goal is to reduce **wasted CI**, not CI usage. Run validation whenever it has useful information value, including repeated intermediate checks when they materially improve confidence or regression localization.
+The goal is to reduce **wasted CI**, not CI usage. Validation should run whenever it has useful information value, while checks that have no relevance to the changed state should not consume runner work merely because they share an operating system.
 
-Selection is explicit. Changed paths are not an authority and must not route CI.
+The centralized policy engine distinguishes three layers:
 
-## Registered blocking validation sets
+1. **Evidence** — event SHAs, Git diffs, commit/control metadata, and prior successful run history.
+2. **Checks** — the logical validations that are actually relevant.
+3. **Runner groups** — Linux, Windows, fresh-clone, and CodeQL jobs onto which compatible selected checks are coalesced.
 
-The initial registered blocking validation sets are:
+Changed paths are conservative evidence for automatic selection. They are not trusted to suppress validation when classification is unknown or evidence is incomplete: uncertainty selects the complete registered check set.
 
-- `linux` — Linux Python/model and Linux application/install/session/matrix validation.
-- `windows` — Windows Python/model and Windows application/POSIX/install validation.
-- `fresh-linux` — Linux fresh-clone application validation.
-- `fresh-windows` — Windows fresh-clone application validation.
+## Registered checks and runner groups
 
-`all` means all registered blocking sets; it is an alias, not a fifth set.
+Blocking check IDs:
 
-## Main integration
+- `linux-python`
+- `linux-applications`
+- `linux-install`
+- `linux-session`
+- `linux-matrix`
+- `windows-python`
+- `windows-applications`
+- `windows-posix`
+- `windows-install`
+- `fresh-linux`
+- `fresh-windows`
 
-A push to `main` runs all registered blocking validation sets by default.
+Deferred security-analysis check IDs:
 
-The pushed tip commit may override the default with a commit trailer:
+- `codeql-python`
+- `codeql-actions`
+
+`linux` and `windows` are convenience aliases that expand to their current OS check families. `all` means every registered check; `none` means no downstream check; `auto` explicitly requests automatic classification.
+
+Selection happens at check granularity. Compatible Linux checks share one Linux job, compatible Windows checks share one Windows job, and so on. A selected runner does not imply every check runnable there must execute.
+
+## Centralized event routing
+
+`.github/workflows/machine_soul_validation.yml` is the sole checked-in CI event entry point:
+
+- push to `main`;
+- pull request targeting `main`;
+- `workflow_dispatch`;
+- daily schedule `9 6 * * *` (06:09 UTC).
+
+The downstream Linux, Windows, fresh-clone, and CodeQL workflows are callable execution machinery only.
+
+Ordinary pushes to non-main branches, including `agent/**`, remain quiet. Manual dispatch targets the selected ref and uses explicit selection; it does not invent an automatic diff range.
+
+### Pushes and pull requests
+
+For an existing-branch push, automatic evidence is the event `before..after` range. For a PR, automatic evidence is the three-dot base/head range using the merge base.
+
+The policy engine validates the introduced commit/control metadata when the range can be established. Forced pushes, missing objects, missing merge bases, unclassified files, and similar ambiguity fail safe to the complete check set rather than silently suppressing work.
+
+A valid explicit `CI:` line on the pushed/PR head overrides automatic classification:
 
 ```text
+CI: auto
 CI: all
 CI: none
-CI: shared,windows
+CI: linux,windows
+CI: linux-python,codeql-python
 ```
 
-The dispatcher owns the exact registered set names. Whitespace is normalized and duplicate set names are harmless. Unknown or malformed selectors fail safe: the selector control job reports failure while all registered validation sets still run, so a typo can never silently reduce validation.
+Whitespace/duplicates normalize. `all`, `none`, and `auto` must be standalone. Multiple `CI:` lines, unknown names, empty tokens, or other malformed selectors make the policy job fail visibly while its already-emitted fail-safe outputs select every registered check.
 
-When multiple commits arrive in one push, the pushed `main` tip controls that integration event.
-
-For a commit that should instantiate no normal checked-in push workflow at all, native GitHub trailer syntax may be used:
+Native GitHub trailer syntax remains the harder bypass:
 
 ```text
 skip-checks: true
 ```
 
-This is especially suitable for pure coordination/bookkeeping. It is a hard bypass, distinct from the dispatcher-level `CI:` selector. `CI: none` still runs the small selector/control job so GitHub records the intentional decision; use `skip-checks: true` when even that control-plane run would be wasteful.
+`CI: none` still instantiates the small policy job so GitHub records the decision. Correctly formatted native `skip-checks: true` prevents the checked-in push/PR workflow from starting at all. A skipped event does not permanently mark its tree as covered; scheduled reconciliation may later run stale checks.
 
-## Non-main development
+## Scheduled coverage reconciliation
 
-Ordinary pushes to non-main branches, including `agent/**`, do not automatically launch normal blocking validation.
+The policy workflow runs daily at 06:09 UTC and asks which checks current default-branch HEAD still lacks meaningful successful coverage for.
 
-Validation can be explicitly dispatched against any chosen ref/agent branch. The caller may request all registered sets or a useful subset. Intermediate CI is encouraged whenever it is valuable; it is simply not automatic per commit.
+For ordinary blocking checks:
+
+1. exact-HEAD success covers the check;
+2. an older successful SHA can continue to cover current HEAD when no path relevant to that check changed afterward;
+3. if a relevant path changed, the check becomes due;
+4. missing run history, an unreachable old SHA, or comparison ambiguity makes the affected check due.
+
+Skipped/failed/cancelled steps do not count as successful coverage. Stable `Check <check-id>` step identities are the historical check keys.
+
+CodeQL deliberately uses stricter exact-HEAD coverage, independently for Python and Actions:
+
+- no successful run on current HEAD → run now;
+- current HEAD younger than 168 hours → due when the language's last success on that HEAD is at least 24 hours old;
+- current HEAD at least 168 hours old → due when the language's last success on that HEAD is at least 168 hours old.
+
+Thus an actively changing default branch receives daily CodeQL rescans, while a quiet HEAD settles to weekly cadence without requiring a separate weekly workflow.
 
 ## Blocking and deferred CI
 
-Blocking validation is the advancement gate for implementation work.
+Blocking checks remain the advancement gate for implementation work.
 
-Explicitly deferred repository analysis may remain pending after blocking validation succeeds. While that happens, the task enters:
+CodeQL launch selection is centralized in the same policy engine, but CodeQL remains **deferred security analysis**. Its stable policy remains:
+
+- languages `python` and `actions`;
+- `build-mode: none`;
+- default high-precision/default security query suite;
+- stable result category `/language:<language>`;
+- least-privilege upload permissions scoped to the CodeQL call jobs.
+
+If blocking validation succeeds while completion-required CodeQL is still pending, use:
 
 ```text
 AWAITING_DEFERRED_CI
 ```
 
-A task in that state may yield active implementation to the next task, but it cannot become `COMPLETE` until its required deferred checks succeed.
-
-Within an ordered workstream, later tasks must not be marked `COMPLETE` past an unresolved earlier `AWAITING_DEFERRED_CI` task. A substantive deferred-analysis failure reopens/blocks the originating work and prevents later completion until resolved. Infrastructure-only failures are retried or investigated without being misclassified as code defects.
-
-Specific analysis products remain separately classified; the lifecycle state is intentionally product-agnostic.
-
-### CodeQL advanced analysis
-
-CodeQL is the repository's **deferred security-analysis** workflow, not a registered blocking validation set.
-
-Its normal routing is deliberately separate from the Machine-Soul blocking dispatcher:
-
-- pushes to `main` run CodeQL automatically;
-- pull requests targeting `main` run CodeQL automatically;
-- the default branch receives a weekly scheduled full scan so updated CodeQL queries/models can find newly understood issues without source changes;
-- ordinary non-main pushes, including `agent/**`, remain quiet;
-- `workflow_dispatch` permits deliberate analysis of a selected ref/agent branch.
-
-The blocking `CI:` commit selector controls only the Machine-Soul validation dispatcher. It does **not** select, subset, or suppress CodeQL. Native GitHub `skip-checks: true`, when formatted according to GitHub's trailer rules, is the shared hard bypass for push/pull-request workflows and therefore also suppresses push-triggered CodeQL.
-
-CodeQL uses one stable automatic analysis policy: the default high-precision security query suite for the explicitly registered `python` and `actions` languages. Do not introduce event-specific query profiles, additional persistent analysis categories, source-path exclusions, custom packs/models, or a separate CodeQL config file without a concrete repository need.
-
-CodeQL success is completion-required when a task's final substantive tree is subject to CodeQL. Blocking validation may allow advancement while that analysis remains pending; use `AWAITING_DEFERRED_CI` when the distinction survives long enough to matter.
+A task in that state may yield active implementation to the next task, but it cannot become `COMPLETE` until its required deferred checks succeed. Within an ordered workstream, later tasks must not be marked `COMPLETE` past an unresolved earlier deferred task. Substantive deferred-analysis failures reopen/block originating work; infrastructure-only failures are retried or investigated separately.
 
 ## Frozen work
 
