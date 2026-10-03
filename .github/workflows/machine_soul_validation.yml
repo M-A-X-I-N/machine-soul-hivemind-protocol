@@ -2,59 +2,128 @@ name: Machine-Soul validation
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
+  schedule:
+    - cron: '9 6 * * *'
   workflow_dispatch:
     inputs:
       sets:
-        description: 'Validation sets: all, none, or a comma-separated registered subset'
+        description: 'Checks/groups: all, none, auto, or a comma-separated registered selection'
         required: false
         default: all
         type: string
 
+concurrency:
+  group: machine-soul-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  select:
-    runs-on: ubuntu-latest
+  policy:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      actions: read
     outputs:
       linux: ${{ steps.selector.outputs.linux }}
+      linux_checks: ${{ steps.selector.outputs.linux_checks }}
       windows: ${{ steps.selector.outputs.windows }}
-      fresh-linux: ${{ steps.selector.outputs.fresh-linux }}
-      fresh-windows: ${{ steps.selector.outputs.fresh-windows }}
+      windows_checks: ${{ steps.selector.outputs.windows_checks }}
+      fresh_linux: ${{ steps.selector.outputs.fresh_linux }}
+      fresh_linux_checks: ${{ steps.selector.outputs.fresh_linux_checks }}
+      fresh_windows: ${{ steps.selector.outputs.fresh_windows }}
+      fresh_windows_checks: ${{ steps.selector.outputs.fresh_windows_checks }}
+      codeql_python: ${{ steps.selector.outputs.codeql_python }}
+      codeql_actions: ${{ steps.selector.outputs.codeql_actions }}
       valid: ${{ steps.selector.outputs.valid }}
       selection: ${{ steps.selector.outputs.selection }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Resolve validation selection
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Resolve CI policy
         id: selector
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
-          TIP_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          FORCED_PUSH: ${{ github.event.forced }}
           MANUAL_SELECTOR: ${{ inputs.sets }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          POLICY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
+          TIP_COMMIT_MESSAGE="$(git show -s --format=%B "$POLICY_HEAD_SHA" 2>/dev/null || true)"
           python autonomic_affairs/ci_validation_selector.py \
             --event "$EVENT_NAME" \
             --commit-message "$TIP_COMMIT_MESSAGE" \
             --manual-selector "$MANUAL_SELECTOR" \
+            --before "$BEFORE_SHA" \
+            --after "$AFTER_SHA" \
+            --base "$PR_BASE_SHA" \
+            --head "$POLICY_HEAD_SHA" \
+            --forced "$FORCED_PUSH" \
+            --repository "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --default-branch "$DEFAULT_BRANCH" \
             --github-output "$GITHUB_OUTPUT"
 
   linux:
-    needs: select
-    if: ${{ always() && needs.select.outputs.linux == 'true' }}
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.linux == 'true' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/machine_soul_validation_linux.yml
+    with:
+      checks_json: ${{ needs.policy.outputs.linux_checks }}
 
   windows:
-    needs: select
-    if: ${{ always() && needs.select.outputs.windows == 'true' }}
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.windows == 'true' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/machine_soul_validation_windows.yml
+    with:
+      checks_json: ${{ needs.policy.outputs.windows_checks }}
 
   fresh-linux:
-    needs: select
-    if: ${{ always() && needs.select.outputs.fresh-linux == 'true' }}
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.fresh_linux == 'true' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/machine_soul_validation_fresh_linux.yml
+    with:
+      checks_json: ${{ needs.policy.outputs.fresh_linux_checks }}
 
   fresh-windows:
-    needs: select
-    if: ${{ always() && needs.select.outputs.fresh-windows == 'true' }}
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.fresh_windows == 'true' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/machine_soul_validation_fresh_windows.yml
+    with:
+      checks_json: ${{ needs.policy.outputs.fresh_windows_checks }}
+
+  codeql-python:
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.codeql_python == 'true' }}
+    permissions:
+      contents: read
+      security-events: write
+    uses: ./.github/workflows/codeql.yml
+    with:
+      language: python
+
+  codeql-actions:
+    needs: policy
+    if: ${{ always() && needs.policy.outputs.codeql_actions == 'true' }}
+    permissions:
+      contents: read
+      security-events: write
+    uses: ./.github/workflows/codeql.yml
+    with:
+      language: actions
