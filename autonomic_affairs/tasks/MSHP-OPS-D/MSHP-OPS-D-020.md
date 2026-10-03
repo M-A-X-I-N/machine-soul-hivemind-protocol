@@ -8,18 +8,19 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 
 - Use `workspace/centralized_ci_policy_engine.md` as the authoritative design input.
 - Evolve the existing `autonomic_affairs/ci_validation_selector.py` into the policy engine rather than creating competing selector logic.
-- Use one top-level workflow as the policy/event control plane for:
+- Use one top-level selector/policy workflow as the **only entry point** for repository CI execution:
   - pushes to `main`;
   - pull requests targeting `main`;
   - `workflow_dispatch`;
-  - the existing weekly CodeQL schedule.
+  - a daily scheduled reconciliation at `0 6 * * *` (06:00 UTC).
+- Keep downstream blocking-validation and CodeQL workflows callable-only (`workflow_call`) so event routing and selection logic exist in one place.
 - Run the policy job on `ubuntu-slim`.
 - Keep ordinary non-main pushes quiet.
 - Compute automatic event change evidence using local Git with event-authoritative SHAs:
   - existing main push: two-dot `before` → `after`;
   - pull request: three-dot base → head / merge-base semantics;
   - manual dispatch: no automatic range; require explicit selection/default all;
-  - schedule: select the two CodeQL units only.
+  - schedule: run reconciliation against current default-branch `HEAD`, using prior successful unit/job history plus the same unit relevance classifier used by ordinary automatic selection.
 - Fail safe to the complete downstream unit set when:
   - required Git objects/ranges cannot be established;
   - a push is forced or otherwise structurally ambiguous;
@@ -37,7 +38,7 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 - Refactor current CodeQL execution into reusable downstream language analysis so Python and Actions can be selected independently.
 - Preserve CodeQL:
   - deferred lifecycle semantics;
-  - weekly security rescan;
+  - adaptive scheduled rescanning from the daily 06:00 UTC selector entry point;
   - default query suite;
   - `build-mode: none`;
   - stable per-language categories;
@@ -45,6 +46,22 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
   - normal selected-ref manual execution;
   - quiet ordinary non-main pushes.
 - Keep `security-events: write` limited to CodeQL call jobs/work rather than the policy job.
+- Give the selector job enough read-only GitHub API access to inspect its own prior workflow runs/jobs; prefer the built-in `GITHUB_TOKEN` with least privilege (including `actions: read` and `contents: read`) rather than persistent state or a custom secret.
+- Implement scheduled **coverage reconciliation** per downstream unit:
+  - inspect only prior **successful** executions of that unit;
+  - ignore the currently running selector run when looking backward;
+  - if no usable prior success exists, consider the unit uncovered and run it;
+  - for non-CodeQL validation units, an older successful SHA still covers current `main` when the diff from that SHA to current `HEAD` contains **no path relevant to that unit** according to the same classifier/relevance mapping used for push/PR selection;
+  - if relevant files changed since that unit's last successful covered SHA, run the unit;
+  - if prior-run history, job identity, or comparison evidence is unavailable/ambiguous, fail safe by running the affected unit rather than assuming coverage.
+- Implement scheduled CodeQL reconciliation independently for `codeql-python` and `codeql-actions`:
+  - first find the most recent successful execution of that CodeQL unit on the **current main HEAD SHA**;
+  - if no successful execution exists on current HEAD, run that CodeQL unit immediately;
+  - otherwise determine the age of current main HEAD using repository commit time and the age of that unit's last successful execution on HEAD;
+  - while current main HEAD is younger than `24 * 7` hours, the unit is due when its last successful execution on HEAD is at least 24 hours old;
+  - once current main HEAD is at least `24 * 7` hours old, the unit is due when its last successful execution on HEAD is at least `24 * 7` hours old;
+  - evaluate the two CodeQL units separately so success/failure of one does not falsely cover the other.
+- Treat scheduled reconciliation as independent from historical event overrides: `CI: none` or native `skip-checks: true` may suppress an event-triggered run, but they do not permanently mark affected validation as covered; the daily scheduler may later run units whose relevant state remains uncovered.
 - Implement conservative automatic classification at minimum for:
   - narrowly allowlisted inert documentation/control text;
   - Python/runtime implementation;
@@ -74,7 +91,7 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 - Do not use Actions `paths:` / `paths-ignore:` as the CI policy engine.
 - Do not silently skip validation for unclassified files.
 - Do not make CodeQL advancement-blocking merely because launch policy is centralized.
-- Do not drop the weekly CodeQL rescan.
+- Do not drop periodic CodeQL rescanning; replace the fixed weekly-only trigger with the adaptive daily/weekly reconciliation policy above.
 - Do not add lower-precision CodeQL query suites, custom queries, path exclusions, model packs, or resource tuning without new evidence.
 - Do not add GitHub ruleset configuration in this task; current repository/plan evidence does not justify depending on metadata rulesets.
 - Do not add automatic non-main push CI.
@@ -86,7 +103,10 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 - The policy job runs on `ubuntu-slim`.
 - Push and PR change ranges match documented two-dot/three-dot semantics and fail safe when evidence is unavailable.
 - Manual dispatch uses explicit selection rather than inventing an automatic diff.
-- Weekly schedule launches only Python and Actions CodeQL units.
+- Push, PR, manual, and scheduled execution all enter through the same top-level selector/policy workflow.
+- The schedule is registered as `0 6 * * *` (06:00 UTC) and runs reconciliation rather than blindly launching downstream work.
+- Each CodeQL unit runs immediately when current main HEAD lacks successful coverage, then runs every 24 hours while HEAD is younger than 168 hours and every 168 hours once HEAD is at least 168 hours old.
+- Non-CodeQL units are considered covered across unrelated commits when no unit-relevant files changed after their last successful covered SHA, and are rerun when relevant state changed.
 - Docs-only changes can produce no downstream runners when confidently classified.
 - Python/runtime changes select Linux + Windows + Python CodeQL without fresh-clone validation unless fresh-machine semantics are implicated.
 - Install/bootstrap changes select all four blocking sets plus relevant CodeQL.
@@ -124,6 +144,9 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
   - manual selected-ref execution.
 - Verify downstream runner provisioning from the actual job graph/logs, not only selector output text.
 - Verify CodeQL Python and Actions can still succeed independently and upload under stable categories.
-- Verify the weekly schedule remains registered after consolidation.
+- Verify the daily `0 6 * * *` schedule remains registered after consolidation and executes against default-branch HEAD.
+- Verify scheduled reconciliation can discover prior successful jobs through GitHub run/job history and does not count the current in-progress run.
+- Verify CodeQL's 24-hour/168-hour age transitions and current-HEAD requirement deterministically.
+- Verify a prior successful non-CodeQL unit remains covered across unrelated changes but becomes due after a relevant change.
 - Verify ordinary non-main pushes remain quiet.
 - Re-read `AGENTS.md`, `.agents/WORKFLOW.md`, and `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md` together after cutover for contradictions.
