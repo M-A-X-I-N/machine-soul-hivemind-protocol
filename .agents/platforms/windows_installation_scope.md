@@ -5,7 +5,7 @@ Durable findings from `MSHP-INST-A-020` (2026-09-28).
 - WinGet supports `--scope user|machine` on install and scope filtering on list/uninstall/upgrade.
 - WinGet settings distinguish `preferences.scope` (ordering/fallback) from `requirements.scope` (filter/fail). Ambient preferences must not define Machine-Soul scope.
 - WinGet manifests may provide user and machine installer nodes. Elevation requirement is a different dimension from install scope.
-- Current MSHP WinGet mutation/discovery is unscoped and therefore insufficient for dual-scope ownership.
+- MSHP-INST-B-040 subsequently made WinGet managed mutation/discovery explicitly scope-aware, including required `--scope`, independent user/machine discovery, and post-install scope verification. The earlier unscoped limitation is historical.
 - MSI has real per-user/per-machine contexts; current HKCU/HKLM ARP discovery handles current-user versus machine but not complete other-user inventory.
 - AppX/MSIX installed packages are user-profile registrations. Provisioned packages for future users are a separate image concept, not ordinary `MACHINE` scope.
 - Non-current-account user-scoped mutation is unsupported until a proven target-user execution mechanism exists.
