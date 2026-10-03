@@ -2,6 +2,11 @@ name: Machine-Soul validation set — fresh-linux
 
 on:
   workflow_call:
+    inputs:
+      checks_json:
+        description: Selected fresh-Linux check IDs as a JSON array
+        required: true
+        type: string
 
 jobs:
   fresh-clone-linux:
@@ -12,7 +17,8 @@ jobs:
         run: |
           git clone "https://github.com/${GITHUB_REPOSITORY}.git" "${RUNNER_TEMP}/fresh-soul"
           git -C "${RUNNER_TEMP}/fresh-soul" checkout "${GITHUB_SHA}"
-      - name: Validate from fresh clone
+      - name: Check fresh-linux
+        if: ${{ contains(fromJSON(inputs.checks_json), 'fresh-linux') }}
         shell: bash
         run: |
           cd "${RUNNER_TEMP}/fresh-soul"
