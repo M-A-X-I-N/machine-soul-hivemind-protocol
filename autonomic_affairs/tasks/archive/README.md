@@ -75,3 +75,12 @@ The terminal `MSHP-OPS-C` block preserves lineage-authority hardening, active cl
 ## MSHP-OPS-D
 
 The terminal `MSHP-OPS-D` block preserves the centralized CI-policy investigation, implementation plan/execution evidence, and final selector/shared-runner/CodeQL cutover validation.
+
+
+## MSHP-HOUSEKEEPING-A
+
+The terminal `MSHP-HOUSEKEEPING-A` block records the repository-wide cleanup checkpoint that froze unrelated work, archived every terminal task block, canonicalized retired task-system naming, audited current repository consistency, and performed a cautious full pass over agent memory/instructions.
+
+Its workspace preserves the initial inventory plus the repository-consistency and agent-memory audit reports. High-confidence findings were promoted into current task/archive policy, navigation, README wording, and agent-memory guidance before the block archived itself.
+
+The separate reminder **Standardize baseline agent infrastructure across repositories** remained intentionally unpromoted/unexecuted at housekeeping completion.
