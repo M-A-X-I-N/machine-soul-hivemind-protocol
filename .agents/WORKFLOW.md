@@ -62,17 +62,19 @@ Git history is the historical record of old claims. Remove released/completed cl
 
 ## CI selection and deferred validation
 
-CI is chosen for validation value, not to minimize runner usage.
+CI is chosen for validation value while avoiding unnecessary runner provisioning.
 
-- Pushes to `main` default to all registered blocking validation sets.
-- A main tip may use a `CI:` commit trailer to select `all`, `none`, or a comma-separated subset of registered validation-set names. For a multi-commit push, the pushed tip controls the integration event.
-- The `CI:` selector applies only to the Machine-Soul blocking dispatcher. CodeQL is a separate deferred workflow and is not selected/suppressed by `CI:`; use native `skip-checks: true` only when a push/PR should instantiate neither workflow.
-- Native `skip-checks: true` remains an explicit hard bypass for commits that should instantiate no normal checked-in push workflow at all, such as pure bookkeeping. GitHub requires the trailer section to be preceded by **two empty lines** and requires `skip-checks` to be the last trailer; one ordinary blank line is not sufficient. When constructing commit messages programmatically, preserve that spacing exactly.
-- Non-main pushes, including `agent/**`, do not run normal blocking validation automatically.
-- Explicit/manual validation may target any branch/ref and request all or selected registered validation sets whenever an intermediate checkpoint is worth testing.
-- Do not infer CI selection from changed paths.
+- `.github/workflows/machine_soul_validation.yml` is the sole checked-in CI event entry point for pushes to `main`, PRs targeting `main`, manual dispatch, and the daily schedule.
+- Automatic push/PR selection uses changed paths as **conservative evidence**, not unquestioned authority. Known relevance selects logical checks; unknown paths, missing/ambiguous Git evidence, or control-plane uncertainty fail safe to the complete registered check set.
+- Check selection is finer-grained than runner provisioning. Compatible selected checks share the same Linux/Windows/fresh-clone runner job; an unrelated check must not run merely because another check needs that OS.
+- A pushed/PR head may use one `CI:` line: `auto`, `all`, `none`, exact registered check IDs, or documented convenience groups such as `linux` / `windows`. Valid explicit intent overrides automatic path classification. Malformed/unknown selectors fail visibly while selecting every registered check.
+- `CI:` covers both blocking checks and deferred CodeQL checks. CodeQL launch routing is centralized even though its lifecycle remains deferred.
+- Native `skip-checks: true` remains the harder GitHub-level bypass when a push/PR should instantiate no checked-in workflow at all. GitHub requires the trailer section to be preceded by **two empty lines** and requires `skip-checks` to be the last trailer; preserve that spacing exactly.
+- Ordinary non-main pushes, including `agent/**`, stay quiet. Manual validation can target a selected ref and uses explicit selection rather than inventing an automatic diff.
+- The daily schedule is `9 6 * * *` (06:09 UTC) and reconciles missing coverage on default-branch HEAD. Ordinary checks may carry successful coverage across unrelated commits; CodeQL requires exact-HEAD success and runs every 24 hours while HEAD is younger than 168 hours, then every 168 hours.
+- The selector validates repository commit/control metadata across the introduced push/PR commit range when evidence is available.
 
-Malformed or unknown selectors must fail safe: they must not silently suppress validation.
+The current registered check IDs are `linux-python`, `linux-applications`, `linux-install`, `linux-session`, `linux-matrix`, `windows-python`, `windows-applications`, `windows-posix`, `windows-install`, `fresh-linux`, `fresh-windows`, `codeql-python`, and `codeql-actions`.
 
 `AWAITING_DEFERRED_CI` means implementation and advancement-blocking CI are complete, but explicitly deferred repository analysis is still pending. Such a task may yield active work to the next task, but cannot become `COMPLETE` until required deferred checks succeed. Later tasks in the same ordered workstream must not be marked `COMPLETE` past an unresolved earlier deferred task. Substantive deferred-analysis failures reopen/block originating work; infrastructure-only failures are retried/investigated separately.
 
