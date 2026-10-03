@@ -307,6 +307,8 @@ class ManagedScreen:
     started_monotonic: float = field(default_factory=time.monotonic)
     group_id: int | None = None
     window_handle: int | None = None
+    original_window_style: int | None = None
+    original_window_ex_style: int | None = None
 
     @property
     def status(self) -> str:
@@ -355,11 +357,12 @@ class AppLaunch:
 
 @dataclass(frozen=True, slots=True)
 class MenuItem:
-    """One selectable top-level interactive list entry."""
+    """One selectable manager row: controller, group, screen, or action."""
 
     key: str
     kind: str
     screen_id: int | None = None
+    group_id: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1468,6 +1471,208 @@ def win32_set_window_rect(hwnd: int, rect: tuple[int, int, int, int]) -> bool:
     )
 
 
+def win32_strip_window_frame(hwnd: int) -> tuple[int, int] | None:
+    """Remove caption/resizing chrome and return the exact original styles."""
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    get_long = user32.GetWindowLongPtrW
+    set_long = user32.SetWindowLongPtrW
+    get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+    get_long.restype = ctypes.c_ssize_t
+    set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+    set_long.restype = ctypes.c_ssize_t
+
+    GWL_STYLE = -16
+    GWL_EXSTYLE = -20
+    WS_CAPTION = 0x00C00000
+    WS_THICKFRAME = 0x00040000
+    WS_MINIMIZEBOX = 0x00020000
+    WS_MAXIMIZEBOX = 0x00010000
+    WS_SYSMENU = 0x00080000
+
+    style = int(get_long(hwnd, GWL_STYLE))
+    ex_style = int(get_long(hwnd, GWL_EXSTYLE))
+    stripped = style & ~(
+        WS_CAPTION
+        | WS_THICKFRAME
+        | WS_MINIMIZEBOX
+        | WS_MAXIMIZEBOX
+        | WS_SYSMENU
+    )
+    if stripped != style:
+        set_long(hwnd, GWL_STYLE, stripped)
+
+        user32.SetWindowPos.argtypes = [
+            wintypes.HWND,
+            wintypes.HWND,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            wintypes.UINT,
+        ]
+        user32.SetWindowPos.restype = wintypes.BOOL
+        SWP_NOSIZE = 0x0001
+        SWP_NOMOVE = 0x0002
+        SWP_NOZORDER = 0x0004
+        SWP_NOACTIVATE = 0x0010
+        SWP_FRAMECHANGED = 0x0020
+        user32.SetWindowPos(
+            hwnd,
+            0,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOSIZE
+            | SWP_NOMOVE
+            | SWP_NOZORDER
+            | SWP_NOACTIVATE
+            | SWP_FRAMECHANGED,
+        )
+
+    return style, ex_style
+
+
+def win32_restore_window_frame(hwnd: int, style: int, ex_style: int) -> bool:
+    """Restore exact top-level window styles saved before grouping."""
+    if os.name != "nt":
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    set_long = user32.SetWindowLongPtrW
+    set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+    set_long.restype = ctypes.c_ssize_t
+
+    GWL_STYLE = -16
+    GWL_EXSTYLE = -20
+    set_long(hwnd, GWL_STYLE, style)
+    set_long(hwnd, GWL_EXSTYLE, ex_style)
+
+    user32.SetWindowPos.argtypes = [
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    ]
+    user32.SetWindowPos.restype = wintypes.BOOL
+    SWP_NOSIZE = 0x0001
+    SWP_NOMOVE = 0x0002
+    SWP_NOZORDER = 0x0004
+    SWP_NOACTIVATE = 0x0010
+    SWP_FRAMECHANGED = 0x0020
+    return bool(
+        user32.SetWindowPos(
+            hwnd,
+            0,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOSIZE
+            | SWP_NOMOVE
+            | SWP_NOZORDER
+            | SWP_NOACTIVATE
+            | SWP_FRAMECHANGED,
+        )
+    )
+
+
+def win32_apply_group_window_batch(
+    organizer_hwnd: int,
+    screen_windows: Sequence[
+        tuple[int, tuple[int, int, int, int] | None]
+    ],
+) -> bool:
+    """
+    Atomically apply geometry and a complete contiguous group z-order stack.
+
+    The first screen becomes the highest member; each following screen is
+    directly behind it, and the organizer is directly behind the last member.
+    """
+    if os.name != "nt" or not screen_windows:
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.BeginDeferWindowPos.argtypes = [ctypes.c_int]
+    user32.BeginDeferWindowPos.restype = wintypes.HANDLE
+    user32.DeferWindowPos.argtypes = [
+        wintypes.HANDLE,
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    ]
+    user32.DeferWindowPos.restype = wintypes.HANDLE
+    user32.EndDeferWindowPos.argtypes = [wintypes.HANDLE]
+    user32.EndDeferWindowPos.restype = wintypes.BOOL
+
+    HWND_TOP = 0
+    SWP_NOSIZE = 0x0001
+    SWP_NOMOVE = 0x0002
+    SWP_NOACTIVATE = 0x0010
+    SWP_SHOWWINDOW = 0x0040
+
+    hdwp = user32.BeginDeferWindowPos(len(screen_windows) + 1)
+    if not hdwp:
+        return False
+
+    insert_after = HWND_TOP
+    for hwnd, rect in screen_windows:
+        if rect is None:
+            x = y = width = height = 0
+            flags = SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW
+        else:
+            x, y, width, height = rect
+            flags = SWP_NOACTIVATE | SWP_SHOWWINDOW
+
+        hdwp = user32.DeferWindowPos(
+            hdwp,
+            hwnd,
+            insert_after,
+            int(x),
+            int(y),
+            max(1, int(width)),
+            max(1, int(height)),
+            flags,
+        )
+        if not hdwp:
+            return False
+        insert_after = hwnd
+
+    hdwp = user32.DeferWindowPos(
+        hdwp,
+        organizer_hwnd,
+        insert_after,
+        0,
+        0,
+        0,
+        0,
+        SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+    )
+    if not hdwp:
+        return False
+
+    return bool(user32.EndDeferWindowPos(hdwp))
+
+
 def _fit_ratio_inside_cell(
     cell_x: int,
     cell_y: int,
@@ -1727,6 +1932,10 @@ class OrganizerWindow:
     def _current_member_count(self) -> int:
         with self._member_lock:
             return self._member_count
+
+    def window_handle(self) -> int | None:
+        """Return the current native organizer HWND, if available."""
+        return self._current_hwnd()
 
     def _current_hwnd(self) -> int | None:
         with self._window_lock:
@@ -2244,6 +2453,7 @@ class VirtualScreenManager:
         self._installed_apps: tuple[InstalledApp, ...] | None = None
         self.groups: dict[int, ManagedGroup] = {}
         self.next_group_id = 1
+        self.collapsed_groups: set[int] = set()
         self._group_events: queue.SimpleQueue[GroupWindowEvent] = queue.SimpleQueue()
 
     def run(self) -> int:
@@ -2275,9 +2485,34 @@ class VirtualScreenManager:
 
     def _menu_items(self) -> list[MenuItem]:
         items = [MenuItem("controller", "controller")]
+        grouped_screen_ids: set[int] = set()
+
+        for group_id in sorted(self.groups):
+            group = self.groups[group_id]
+            items.append(
+                MenuItem(
+                    f"group:{group_id}",
+                    "group",
+                    group_id=group_id,
+                )
+            )
+            grouped_screen_ids.update(group.screen_ids)
+            if group_id not in self.collapsed_groups:
+                items.extend(
+                    MenuItem(
+                        f"screen:{screen_id}",
+                        "screen",
+                        screen_id=screen_id,
+                        group_id=group_id,
+                    )
+                    for screen_id in sorted(group.screen_ids)
+                    if screen_id in self.screens
+                )
+
         items.extend(
             MenuItem(f"screen:{screen_id}", "screen", screen_id)
             for screen_id in sorted(self.screens)
+            if screen_id not in grouped_screen_ids
         )
         items.extend(
             [
@@ -2312,6 +2547,20 @@ class VirtualScreenManager:
         if key in {"h", "?"} and self.expanded_key is None:
             self._show_help()
             return False
+
+        if selected.kind == "group" and selected.group_id is not None:
+            if key == "LEFT":
+                self.collapsed_groups.add(selected.group_id)
+                return False
+            if key == "RIGHT":
+                self.collapsed_groups.discard(selected.group_id)
+                return False
+            if key == "ENTER":
+                if selected.group_id in self.collapsed_groups:
+                    self.collapsed_groups.discard(selected.group_id)
+                else:
+                    self.collapsed_groups.add(selected.group_id)
+                return False
 
         if key == "UP":
             self.selected_index = (self.selected_index - 1) % len(items)
@@ -2479,6 +2728,54 @@ class VirtualScreenManager:
             return self.screens[item.screen_id].process
         return None
 
+    def _set_screen_group_frame(self, screen: ManagedScreen, grouped: bool) -> None:
+        """Strip or restore one scrcpy window frame as membership changes."""
+        if os.name != "nt":
+            return
+
+        if not win32_is_window(screen.window_handle):
+            screen.window_handle = win32_visible_window_for_pid(screen.process.pid or 0)
+        hwnd = screen.window_handle
+        if hwnd is None:
+            return
+
+        if grouped:
+            if screen.original_window_style is not None:
+                return
+            original = win32_strip_window_frame(hwnd)
+            if original is not None:
+                screen.original_window_style, screen.original_window_ex_style = original
+            return
+
+        if (
+            screen.original_window_style is not None
+            and screen.original_window_ex_style is not None
+        ):
+            win32_restore_window_frame(
+                hwnd,
+                screen.original_window_style,
+                screen.original_window_ex_style,
+            )
+        screen.original_window_style = None
+        screen.original_window_ex_style = None
+
+    def _collect_group_screens(self, group: ManagedGroup) -> list[ManagedScreen] | None:
+        """Resolve live member HWNDs and ensure borderless grouped chrome."""
+        screens: list[ManagedScreen] = []
+        for screen_id in sorted(group.screen_ids):
+            screen = self.screens.get(screen_id)
+            if screen is None or screen.process.poll() is not None:
+                continue
+            if not win32_is_window(screen.window_handle):
+                screen.window_handle = win32_visible_window_for_pid(
+                    screen.process.pid or 0
+                )
+            if screen.window_handle is None:
+                return None
+            self._set_screen_group_frame(screen, True)
+            screens.append(screen)
+        return screens
+
     def _maintain_groups(self) -> None:
         """Consume organizer events, remove dead members, and retry pending layouts."""
         while True:
@@ -2522,82 +2819,44 @@ class VirtualScreenManager:
                     group.pending_rect = None
 
     def _raise_group(self, group: ManagedGroup) -> bool:
-        """Raise all member screens together, leaving the organizer beneath them."""
-        screens: list[ManagedScreen] = []
-        for screen_id in sorted(group.screen_ids):
-            screen = self.screens.get(screen_id)
-            if screen is None or screen.process.poll() is not None:
-                continue
-
-            if not win32_is_window(screen.window_handle):
-                screen.window_handle = win32_visible_window_for_pid(
-                    screen.process.pid or 0
-                )
-            if screen.window_handle is None:
-                return False
-            screens.append(screen)
-
-        if len(screens) < 2:
+        """Raise every member and organizer as one contiguous z-order island."""
+        screens = self._collect_group_screens(group)
+        organizer_hwnd = group.organizer.window_handle()
+        if screens is None or len(screens) < 2 or organizer_hwnd is None:
             return False
 
-        success = True
-        for screen in screens:
-            assert screen.window_handle is not None
-            if not win32_raise_window(screen.window_handle):
-                success = False
-
-        if success and screens[0].window_handle is not None:
-            group.organizer.place_behind(screens[0].window_handle)
-
-        return success
+        windows = [
+            (screen.window_handle, None)
+            for screen in screens
+            if screen.window_handle is not None
+        ]
+        return win32_apply_group_window_batch(organizer_hwnd, windows)
 
     def _layout_group(self, group: ManagedGroup) -> bool:
-        """Apply the best current portrait layout to every member window."""
+        """Atomically move and restack every member inside the organizer."""
         rect = group.pending_rect or group.last_rect
         if rect is None:
             return False
 
-        screens: list[ManagedScreen] = []
-        for screen_id in sorted(group.screen_ids):
-            screen = self.screens.get(screen_id)
-            if screen is None or screen.process.poll() is not None:
-                continue
-
-            if not win32_is_window(screen.window_handle):
-                screen.window_handle = win32_visible_window_for_pid(
-                    screen.process.pid or 0
-                )
-            if screen.window_handle is None:
-                return False
-            screens.append(screen)
-
-        if len(screens) < 2:
+        screens = self._collect_group_screens(group)
+        organizer_hwnd = group.organizer.window_handle()
+        if screens is None or len(screens) < 2 or organizer_hwnd is None:
             return False
 
         layout = calculate_group_layout(rect, screens)
         if len(layout) != len(screens):
             return False
 
-        success = True
+        windows: list[tuple[int, tuple[int, int, int, int] | None]] = []
         for screen in screens:
+            if screen.window_handle is None:
+                return False
             target = layout.get(screen.screen_id)
-            if target is None or screen.window_handle is None:
-                success = False
-                continue
-            if not win32_set_window_rect(screen.window_handle, target):
-                screen.window_handle = None
-                success = False
+            if target is None:
+                return False
+            windows.append((screen.window_handle, target))
 
-        if success and screens[0].window_handle is not None:
-            # The organizer is normally the active window while the operator is
-            # dragging/resizing it. Member windows above were deliberately moved
-            # to HWND_TOP in sorted order, making the first one the lowest member
-            # in the resulting stack. Put the organizer directly behind that
-            # member, not at the global bottom of the desktop, so unrelated apps
-            # cannot wedge themselves between the organizer and its screens.
-            group.organizer.place_behind(screens[0].window_handle)
-
-        return success
+        return win32_apply_group_window_batch(organizer_hwnd, windows)
 
     def _action_create_group(self) -> None:
         """Select running ungrouped screens and create one geometry organizer."""
@@ -2638,8 +2897,11 @@ class VirtualScreenManager:
         self.groups[group_id] = group
         self.next_group_id += 1
 
+        self.collapsed_groups.discard(group_id)
         for screen_id in selected_ids:
-            self.screens[screen_id].group_id = group_id
+            screen = self.screens[screen_id]
+            screen.group_id = group_id
+            self._set_screen_group_frame(screen, True)
 
     def _show_group_picker(
         self,
@@ -2743,6 +3005,7 @@ class VirtualScreenManager:
             return
 
         group_id = screen.group_id
+        self._set_screen_group_frame(screen, False)
         screen.group_id = None
         group = self.groups.get(group_id)
         if group is None:
@@ -2760,12 +3023,14 @@ class VirtualScreenManager:
     def _dissolve_group(self, group_id: int) -> None:
         """Release members and close one organizer without stopping scrcpy."""
         group = self.groups.pop(group_id, None)
+        self.collapsed_groups.discard(group_id)
         if group is None:
             return
 
         for screen_id in group.screen_ids:
             screen = self.screens.get(screen_id)
             if screen is not None and screen.group_id == group_id:
+                self._set_screen_group_frame(screen, False)
                 screen.group_id = None
 
         group.organizer.close()
@@ -3500,8 +3765,10 @@ class VirtualScreenManager:
             f"{ICON_GROUP} Organizer groups (Windows)",
             "  Create Group selects two or more running ungrouped screens.",
             "  A normal resizable organizer window becomes their geometry master.",
+            "  Grouped scrcpy windows become borderless and appear under an expandable",
+            "  Group row in the manager; their original frame styles are restored.",
             "  Closing it disbands the group; screens remain alive and independent.",
-            "  Activating the organizer raises all member screens together above it.",
+            "  Moving/activating uses one atomic member+organizer z-order transaction.",
             "  Groups automatically dissolve when fewer than two members remain.",
             "",
             f"{ICON_APPS} Installed-app finder",
@@ -3714,6 +3981,20 @@ class VirtualScreenManager:
             )
             return self._render_process_block(item, row, latest, selected, width)
 
+        if item.kind == "group" and item.group_id is not None:
+            group = self.groups.get(item.group_id)
+            if group is None:
+                return []
+            collapsed = item.group_id in self.collapsed_groups
+            group_expander = ICON_EXPAND if collapsed else ICON_COLLAPSE
+            member_count = len(group.screen_ids)
+            member_word = "screen" if member_count == 1 else "screens"
+            row = (
+                f" {pointer} {group_expander} {ICON_GROUP} Group {item.group_id:02d}"
+                f"    {member_count} {member_word}"
+            )
+            return [self._style_selected(ellipsize(row, width), selected)]
+
         if item.kind == "screen" and item.screen_id is not None:
             screen = self.screens[item.screen_id]
             pid = screen.process.pid or 0
@@ -3724,15 +4005,19 @@ class VirtualScreenManager:
                 else "(bare virtual display)"
             )
             icon = ICON_RUNNING if screen.process.poll() is None else ICON_STOPPED
-            group_badge = (
-                f"G{screen.group_id:02d} "
-                if screen.group_id is not None
-                else ""
-            )
+            if item.group_id is not None and item.group_id in self.groups:
+                siblings = sorted(self.groups[item.group_id].screen_ids)
+                branch = "╰─" if siblings and screen.screen_id == siblings[-1] else "├─"
+                prefix = (
+                    f" {pointer}   {branch} {expander} "
+                    f"{ICON_SCREEN} {screen.screen_id:02d} "
+                )
+            else:
+                prefix = f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d} "
+
             row = (
-                f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d} "
-                f"{group_badge:>4} "
-                f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
+                prefix
+                + f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
                 f"{describe_display_policy(screen.request)} {screen.request.max_fps}fps "
                 f"{screen.bitrate.display_value}  {app}"
             )
