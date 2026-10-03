@@ -37,3 +37,13 @@ Task 7 probe: explicit `CI: none` checkpoint; expected successful policy record 
 Task 7 probe: malformed `CI: linux,banana` checkpoint; expected visible policy failure while fail-safe outputs still select every registered check.
 
 Task 7 probe: native `skip-checks: true` checkpoint; expected no checked-in push workflow run.
+
+Task 7 real-Actions evidence:
+- Cutover HEAD `1c950356cc4ec859d902440803f944c073c53663`, run `37160055625`: one top-level Machine-Soul run only; policy used container-backed Ubuntu 24.04 with `actions: read` + `contents: read`, selected all 13 checks from `source=path-classifier`; one Linux job, one Windows job, two fresh-clone jobs, and two CodeQL jobs all succeeded. No independent CodeQL run was created.
+- Docs-only HEAD `7698f6de6ab306e54e74057b5569ca093072d2fc`, run `37160154223`: policy selected `none` from `source=path-classifier`; every downstream call was skipped.
+- Explicit subset HEAD `f3f2c382df4c8f88bdc9df79010509824229869a`, run `37160211068`: only the Linux runner was provisioned; `Check linux-python` succeeded and the four other Linux checks were skipped; all other runner groups skipped.
+- Explicit none HEAD `d3c3fd7cf44068dbe2ac92b9cb87658dd7279e0a`, run `37160253564`: policy selected `none` from `source=commit-trailer`; all downstream calls skipped.
+- Invalid selector HEAD `91f4f73415e78715c7be133eb9ecc8f8c4d39a1d`, run `37160279353`: policy failed visibly on unknown group `banana`, emitted all 13 checks, and every downstream blocking/CodeQL job succeeded.
+- Native bypass HEAD `784fb3419ab500551a5e08a6933b58f3c306e824`: correctly formatted `skip-checks: true` produced no Actions run.
+- Scheduled registration is present as `9 6 * * *`; unit tests cover 24h/168h cadence and real cutover job history proves stable called-workflow step/job identities are visible to the Actions jobs API.
+- Manual selected-ref dispatch remains unexercised because the connected GitHub tool exposes inspection/rerun but no workflow-dispatch mutation; the workflow input contract is covered statically. This is a harness limitation, not a substituted test.
