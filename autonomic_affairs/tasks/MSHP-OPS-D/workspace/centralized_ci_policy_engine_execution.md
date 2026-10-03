@@ -29,3 +29,5 @@ Task 5: complete (commits 7cc5514..3d42b4a, tests: `python -m unittest autonomic
 Task 6: complete (commits 3d42b4a..42d2db5; validation: branch-specific contradiction scan across `AGENTS.md`, `.agents/WORKFLOW.md`, `.agents/GITHUB_ACTIONS_CONTROL.md`, and `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md` found none of the superseded explicit-only/current-policy statements).
 
 Task 7 probe: docs-only automatic-selection checkpoint; expected policy-only run with no downstream checks.
+
+Task 7 probe: explicit `CI: linux-python` checkpoint; expected one Linux runner with only the linux-python logical check selected.
