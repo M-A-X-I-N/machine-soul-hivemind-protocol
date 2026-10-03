@@ -47,3 +47,11 @@ Task 7 real-Actions evidence:
 - Native bypass HEAD `784fb3419ab500551a5e08a6933b58f3c306e824`: correctly formatted `skip-checks: true` produced no Actions run.
 - Scheduled registration is present as `9 6 * * *`; unit tests cover 24h/168h cadence and real cutover job history proves stable called-workflow step/job identities are visible to the Actions jobs API.
 - Manual selected-ref dispatch remains unexercised because the connected GitHub tool exposes inspection/rerun but no workflow-dispatch mutation; the workflow input contract is covered statically. This is a harness limitation, not a substituted test.
+
+Final review: self-review (no subagent tool; the installed reviewer supporting file was unavailable through the skill surface).
+
+Final: fixed Python test-source under-selection — `test_python_test_change_also_selects_python_codeql` RED→GREEN; Python test changes now select both OS Python suites + `codeql-python`.
+Final: fixed ambiguous manual `auto` — `test_manual_dispatch_rejects_auto_as_ambiguous` and workflow contract RED→GREEN; manual dispatch now rejects `auto` fail-safe to all checks and the UI no longer advertises it.
+Final: fixed shared-runtime integration under-selection — `test_runtime_python_selects_all_nonfresh_os_checks_and_codeql` RED→GREEN; ordinary `annexation_procedures/**.py` changes select all non-fresh Linux/Windows checks + Python CodeQL without adding runner groups beyond Linux/Windows/CodeQL.
+Final: suite after fix pass — focused selector/history/workflow contract `47/47` pass.
+Final: minor (deferred): `GitHubActionsHistory.recent_runs()` materializes the complete paginated run history before coverage resolution; safe/fail-conservative today, but a bounded recent-history scan could reduce API work as repository history grows.
