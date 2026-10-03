@@ -8,7 +8,7 @@ Effective configuration verification is operation/strategy-oriented: first-class
 
 The tracks are intentionally not forced into matching task shapes. They converge only at a read-only orchestrator status surface after each underlying atomic operation is proven.
 
-The detailed task roadmap is MSHP-DISC-B. Raw investigation traceability remains in the DISC-A workspace until archival.
+The detailed task roadmap was MSHP-DISC-B. Raw investigation traceability is preserved in the archived DISC-A workspace.
 
 
 ## Implemented convergence — MSHP-DISC-B
