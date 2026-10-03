@@ -14,4 +14,4 @@ Durable findings from `MSHP-DEV-A-100` (2026-09-28):
 - Native npm packages may require Python/MSVC/other build prerequisites; report missing prerequisites rather than silently annexing them.
 - An initial useful npm capability may manage explicitly selected global CLI inventories bound to exact Node/backend/prefix environments while leaving project dependencies alone.
 
-Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/npm.md`.
+Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/npm.md`.

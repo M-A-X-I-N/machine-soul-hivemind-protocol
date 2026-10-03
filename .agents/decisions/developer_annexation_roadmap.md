@@ -13,4 +13,4 @@ Durable decision from `MSHP-DEV-A-120` (2026-09-28):
 - .NET/JDK/Rust/Go and lower-priority runtimes remain initiative gaps rather than zombie tasks.
 - Install-only annexation remains a valid first-class capability independent from configuration management.
 
-Detailed roadmap lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/developer_annexation_roadmap.md`.
+Detailed roadmap lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/developer_annexation_roadmap.md`.

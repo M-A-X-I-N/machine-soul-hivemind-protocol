@@ -12,4 +12,4 @@ Durable findings from `MSHP-DEV-A-030` (2026-09-28):
 - Uninstall one version must be exact and must handle selected/default ownership explicitly.
 - Compare direct versioned prefixes versus Scoop-backed acquisition against Python/Node before creating generic runtime machinery.
 
-Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/lua_multiversion.md`.
+Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/lua_multiversion.md`.
