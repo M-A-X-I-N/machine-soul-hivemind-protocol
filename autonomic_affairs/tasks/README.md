@@ -12,7 +12,7 @@ For a known task ID:
 2. if it is no longer active, look under [`archive/`](archive/);
 3. use the archive navigation for legacy formats or historical exceptions.
 
-New-style active tasks normally use `tasks/<block-id>/<task-id>.md`. A completed block that cycles out moves intact to `tasks/archive/<block-id>/`. Task IDs never change merely because storage moves.
+New-style non-terminal tasks normally use `tasks/<block-id>/<task-id>.md`. Once every task in a block is terminal (`COMPLETE`, `CANCELLED`, or `SUPERSEDED`), the block moves intact to `tasks/archive/<block-id>/`. Task IDs never change merely because storage moves.
 
 The legacy `V2-*` series predates per-task files and is preserved monolithically under `archive/V2/`.
 
@@ -44,4 +44,4 @@ Workspace material is tracked temporary/intermediate knowledge. It is distinct f
 
 ## Archival
 
-The active scheduling index keeps all incomplete work and the configured recent completed-block context. Older completed blocks move intact under `archive/`; their rows leave the active index. Archival preserves structure rather than merging specs and notes into a growing document.
+The active scheduling index keeps non-terminal work only. When every task in a block is terminal, move the block intact under `archive/` and remove its rows from the active index. Archival preserves structure rather than merging specs and notes into a growing document; no rolling completed-block context is retained in the active task surface.

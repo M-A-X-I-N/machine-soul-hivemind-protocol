@@ -1,6 +1,6 @@
 # Agent task archive
 
-This directory preserves completed task material that has cycled out of the active scheduling view.
+This directory preserves terminal task blocks that have left the active scheduling view. A block belongs here once every task in it is terminal (`COMPLETE`, `CANCELLED`, or `SUPERSEDED`).
 
 Archived new-style blocks retain their directory structure, including any block/task-scoped `workspace/`. Task IDs remain permanent identities even though their paths move.
 
@@ -46,3 +46,32 @@ Its research workspace remains preserved with the archived block.
 ## MSHP-DISC-B
 
 The completed `MSHP-DISC-B` block implemented typed discovery assessments, Linux/native-Windows/Windows-POSIX installation discovery, `verify_config`, shell/native/Oh My Posh verification, and integrated three-dimensional status reporting.
+
+
+## MSHP-DEV-A
+
+The terminal `MSHP-DEV-A` block preserves the completed developer-environment investigation and synthesis work covering editors, runtimes, multiversion behavior, and runtime package ecosystems.
+
+## MSHP-DEV-B
+
+The terminal `MSHP-DEV-B` block preserves the completed first implementation/research phase for developer annexation, including editor installation, native toolchain discovery, multiversion runtimes, package environments, and integrated lifecycle validation.
+
+## MSHP-OPS-A
+
+The terminal `MSHP-OPS-A` block preserves the original agent-lineage/selective-CI control-plane design, reusable validation extraction, dispatcher implementation, and validation experiments. Later OPS-D policy supersedes portions of its live routing design; this block remains historical evidence.
+
+## MSHP-OPS-B
+
+The terminal `MSHP-OPS-B` block preserves the CodeQL advanced-analysis investigation and the earlier separate deferred-analysis integration. Later OPS-D policy supersedes the separate-routing design while retaining relevant evidence.
+
+## MSHP-APPS-A
+
+The terminal `MSHP-APPS-A` block preserves the Windows configuration-candidate investigation that feeds the still-open `MSHP-WIN-CONFIG` initiative.
+
+## MSHP-OPS-C
+
+The terminal `MSHP-OPS-C` block preserves lineage-authority hardening, active claims, task-ledger readability, top-level directory contracts, and the `agent_tasks` to `tasks` migration.
+
+## MSHP-OPS-D
+
+The terminal `MSHP-OPS-D` block preserves the centralized CI-policy investigation, implementation plan/execution evidence, and final selector/shared-runner/CodeQL cutover validation.

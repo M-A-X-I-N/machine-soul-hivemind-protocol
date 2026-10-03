@@ -25,6 +25,12 @@ If a change is isolated from any larger active block and is obviously one natura
 
 Do not use this exception to bypass task state for work that is already part of an active task/block, has meaningful sequencing/dependencies, spans multiple checkpoints, or could plausibly be interrupted between distinct decisions.
 
+### Terminal block archival
+
+The active task surface contains non-terminal work only. Once every task in a block is terminal (`COMPLETE`, `CANCELLED`, or `SUPERSEDED`), move that block directory intact under `autonomic_affairs/tasks/archive/<block-id>/` and remove its rows from the active scheduling index. Preserve task IDs and block/task-scoped workspaces. Never archive a block that still contains a non-terminal task.
+
+When the final task in a block performs the archival itself, release its Active claim and remove the block rows as part of the same terminal checkpoint so no terminal block remains falsely active.
+
 ## Agent lineages and working branches
 
 Normal substantive development should occur in a recoverable agent lineage namespace unless a direct `main` change is naturally simpler.
