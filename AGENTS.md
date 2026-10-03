@@ -93,8 +93,8 @@ Unless the human explicitly changes these laws:
 
 - Prefer normal substantive development under `agent/{identifier}/main`, where `identifier` follows the repository lineage policy in [`.agents/WORKFLOW.md`](.agents/WORKFLOW.md). A lineage owns its entire `agent/{identifier}/*` namespace. **Discovering that namespace is never authority to adopt it.** Recovery adoption requires explicit human authorization identifying that lineage/branch, or an unambiguous current-conversation reference to lineage ownership already established in that conversation.
 - Direct `main` changes remain valid when they naturally belong there, especially coordination/bookkeeping.
-- Main integration defaults to full blocking CI; deliberate subset/no-CI behavior must be explicit. Non-main branches are quiet by default and may be validated explicitly when useful.
-- CI selection is explicit intent, never changed-path inference. Optimize against wasted validation, not CI usage itself.
+- Pushes to `main` and PRs targeting `main` enter the centralized CI policy workflow. Changed paths are conservative evidence for automatic check selection; explicit validated `CI:` intent overrides automatic selection, and uncertainty fails safe to the complete registered check set. Non-main pushes remain quiet by default and may be validated explicitly when useful.
+- CI selects logical checks first, then coalesces compatible checks onto shared runner jobs. Optimize against wasted validation and runner provisioning, not CI usage itself.
 
 ## Git and checkpoint discipline
 
