@@ -1885,6 +1885,10 @@ def calculate_adaptive_fill_layout(
         for row_size, row_height in zip(row_sizes, row_heights):
             cell_widths = [total_width // row_size] * row_size
             cell_widths[-1] += total_width - sum(cell_widths)
+            if any(cell_width <= 0 for cell_width in cell_widths):
+                layout = {}
+                score = math.inf
+                break
 
             cell_x = x0
             for cell_width in cell_widths:
@@ -2173,6 +2177,7 @@ class OrganizerWindow:
         WM_MOVE = 0x0003
         WM_SIZE = 0x0005
         WM_TIMER = 0x0113
+        SIZE_MINIMIZED = 1
         WM_GETMINMAXINFO = 0x0024
         WM_APP_UPDATE_TITLE = 0x8001
 
@@ -2325,7 +2330,14 @@ class OrganizerWindow:
             wparam: int,
             lparam: int,
         ) -> int:
-            if message in {WM_MOVE, WM_SIZE}:
+            if message == WM_SIZE:
+                if wparam == SIZE_MINIMIZED:
+                    user32.KillTimer(hwnd, TIMER_LAYOUT)
+                    return 0
+                schedule_geometry(hwnd)
+                return 0
+
+            if message == WM_MOVE:
                 schedule_geometry(hwnd)
                 return 0
 
@@ -3276,6 +3288,10 @@ class VirtualScreenManager:
         rect = group.pending_rect or group.last_rect
         if rect is None:
             return False
+        if rect[2] <= 1 or rect[3] <= 1:
+            # Windows may transiently expose a tiny client rect while minimizing.
+            # Keep the last real geometry and wait for a usable restore event.
+            return True
 
         screens = self._collect_group_screens(group)
         organizer_hwnd = group.organizer.window_handle()
