@@ -44,6 +44,8 @@ Do not create empty taxonomy merely for appearance. Add subdirectories when ther
 
 Prefer updating an existing note over creating a competing note on the same subject. Mark uncertainty and how knowledge was obtained.
 
+Dated `investigations/`, migration records, and historical decision snapshots are **on-demand references**, not startup context. Do not preload them merely because they exist. Prefer current source/tests and human-facing architecture for implemented behavior, then use agent notes or archived task workspaces when rationale, platform scar tissue, or recovery evidence is actually relevant.
+
 ## Fresh-session reading order
 
 1. `../AGENTS.md`
