@@ -125,6 +125,7 @@ from autonomic_affairs.ci_validation_selector import (
     git_changed_paths,
     resolve_automatic_event,
     validate_commit_summary,
+    _write_github_output,
 )
 
 
@@ -256,6 +257,51 @@ class GitRangeTests(unittest.TestCase):
 
 
 class MetadataAndEventTests(unittest.TestCase):
+    def test_github_output_contains_group_json_and_codeql_flags(self):
+        with tempfile.TemporaryDirectory() as raw:
+            output = Path(raw) / "output"
+            _write_github_output(
+                output,
+                PolicySelection(
+                    ("linux-python", "linux-session", "codeql-actions"),
+                    True,
+                    "test",
+                ),
+            )
+            values = dict(
+                line.split("=", 1)
+                for line in output.read_text(encoding="utf-8").splitlines()
+            )
+            self.assertEqual("true", values["linux"])
+            self.assertEqual(
+                '["linux-python","linux-session"]',
+                values["linux_checks"],
+            )
+            self.assertEqual("false", values["windows"])
+            self.assertEqual("true", values["codeql_actions"])
+            self.assertEqual("false", values["codeql_python"])
+
+    def test_multi_commit_push_rejects_invalid_intermediate_summary(self):
+        helper = GitRangeTests()
+        temp, root = helper._repo()
+        with temp:
+            (root / "base.md").write_text("base", encoding="utf-8")
+            base = helper._commit(root, "[Test] Base")
+            (root / "middle.md").write_text("middle", encoding="utf-8")
+            helper._commit(root, "not repository grammar")
+            (root / "tip.md").write_text("tip", encoding="utf-8")
+            head = helper._commit(root, "[Fix] Valid tip")
+            selection = resolve_automatic_event(
+                "push",
+                commit_message="[Fix] Valid tip",
+                before=base,
+                after=head,
+                cwd=root,
+            )
+            self.assertFalse(selection.valid)
+            self.assertEqual(EXPECTED_CHECKS, selection.selected)
+            self.assertEqual("commit-metadata", selection.source)
+
     def test_commit_summary_grammar(self):
         for summary in ("[Feature][CI] Add policy", "[Fix] Repair thing"):
             with self.subTest(summary=summary):
