@@ -27,6 +27,35 @@ Repository state and tracked durable documentation are authoritative over rememb
 
 Do not create competing task ledgers.
 
+## Top-level directory contract
+
+These names are deliberately thematic and are therefore **not self-explanatory**. Treat this table as the binding placement contract for new repository material.
+
+| Domain | Belongs here | Does **not** belong here |
+|---|---|---|
+| `abandoned_artifacts/` | Superseded, deprecated, failed, recently decommissioned, or otherwise inactive material that may still contain useful history/fragments and is not yet ready to live only in Git history. | Current/authoritative implementation, ordinary backups, active experiments, or canonical archives that already have a defined home. |
+| `accumulated_instruments/` | Standalone reusable tools, utilities, diagnostics, converters, repair scripts, and small programs worth keeping with this repository but not intrinsically part of Machine-Soul annexation/assimilation. | Application lifecycle/configuration machinery, active prototypes, or knowledge-only notes. |
+| `acquired_intelligence/` | Durable technical knowledge, references, discoveries, platform/application behavior, expensive-to-rediscover facts, and scar tissue that are useful beyond one active task/project decision. | Agent operating procedure, live task workspaces, canonical project architecture, executable tools, or machine-local scratch data. |
+| `annexation_procedures/` | Executable machinery that acquires, installs, discovers, reconciles, removes, or otherwise manages machine/application/runtime state as part of Machine-Soul. | Canonical desired configuration content, unrelated standalone utilities, or experimental scratch that has not earned production status. |
+| `arcane_experiments/` | **Tracked** prototypes, proof-of-concepts, reverse-engineering attempts, temporary harnesses, and uncertain ideas still being tested before promotion. | Stable production machinery, durable knowledge after conclusions are known, or ignored machine-local scratch state. |
+| `assembled_assets/` | Inert or primarily static reusable resources: icons, wallpapers, images, templates, exported visual resources, configuration-adjacent static files, redistributable font-related material, and reusable skeletons. | Executable code, learned knowledge, canonical behavioral configuration, or active experiments. |
+| `assimilation_directives/` | Canonical tracked desired behavior/configuration that answers **how an assimilated machine/application should behave**. | Install/discovery/orchestration code, generic tools, or static assets that are merely consumed by directives. |
+| `autonomic_affairs/` | Repository/project self-management and control-plane material: tasks/claims/Dispatch, reminders, initiatives, project docs, repository tests, CI-control helpers, and related governance. | Machine-targeted application configuration, machine annexation code, generic standalone utilities, or unrelated reference knowledge. |
+| `.agents/` | Required agent procedure plus durable agent-facing memory whose rediscovery would be wasteful: workflow/recovery guidance, verified quirks, investigations, decisions, and navigation help. | Live scheduling/claims, temporary task workspace material, human-facing canonical architecture, secrets, or machine-local mutable state. |
+| `.github/` | GitHub-defined repository automation/configuration such as Actions workflows and other GitHub platform files whose location is externally dictated. | General scripts merely because CI happens to call them, project docs, or agent memory. |
+| `scratch/` | **Ignored, machine-local mutable state**: backups, deployment state, local env/secrets, temporary files, logs, caches, and disposable local work. | Anything that must survive cloning, anything relied upon as repository truth, or tracked experiments intended to survive context/machine loss. |
+
+Classification shortcuts:
+
+- if it is still being poked to discover what it is, prefer `arcane_experiments/`;
+- if it became a reusable standalone tool, promote it to `accumulated_instruments/`;
+- if the enduring result is knowledge rather than code, promote it to `acquired_intelligence/` or the narrower authoritative docs/agent-memory location when applicable;
+- if it is static material consumed by something else, prefer `assembled_assets/`;
+- if it is obsolete but still too valuable/recent to discard into Git history alone, use `abandoned_artifacts/`;
+- if it is machine-local and need not survive a clone, use ignored `scratch/` rather than any tracked domain.
+
+Misclassification is recoverable. Silent deletion or duplicated competing authority is worse.
+
 ## Knowledge retention policy
 
 Agents are explicitly **encouraged to add or update files under `.agents/` without asking permission first** when useful knowledge has meaningful rediscovery cost.
