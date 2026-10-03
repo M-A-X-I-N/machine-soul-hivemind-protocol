@@ -2,6 +2,11 @@ name: Machine-Soul validation set — fresh-windows
 
 on:
   workflow_call:
+    inputs:
+      checks_json:
+        description: Selected fresh-Windows check IDs as a JSON array
+        required: true
+        type: string
 
 jobs:
   fresh-clone-windows:
@@ -12,7 +17,8 @@ jobs:
         run: |
           git clone "https://github.com/$env:GITHUB_REPOSITORY.git" "$env:RUNNER_TEMP\fresh-soul"
           git -C "$env:RUNNER_TEMP\fresh-soul" checkout "$env:GITHUB_SHA"
-      - name: Validate from fresh clone
+      - name: Check fresh-windows
+        if: ${{ contains(fromJSON(inputs.checks_json), 'fresh-windows') }}
         shell: powershell
         run: |
           Set-Location "$env:RUNNER_TEMP\fresh-soul"
