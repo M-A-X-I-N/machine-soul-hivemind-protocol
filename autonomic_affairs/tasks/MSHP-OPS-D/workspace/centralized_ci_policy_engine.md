@@ -244,7 +244,7 @@ For ordinary validation units, coverage is relevance-aware:
 6. if any relevant path changed, run the unit;
 7. if prior-run history or comparison evidence is missing/ambiguous, run the unit.
 
-Example: a Markdown-specific validation unit should not become stale merely because ten Python files changed after its last success. Conversely, a Markdown change relevant to that unit invalidates its prior coverage.
+Example: a Markdown-specific validation check should not become stale merely because ten Python files changed after its last success. Conversely, a Markdown change relevant to that check invalidates its prior coverage.
 
 For CodeQL, deliberately use stricter exact-HEAD coverage rather than relevance-aware carry-forward. Evaluate `codeql-python` and `codeql-actions` independently:
 
