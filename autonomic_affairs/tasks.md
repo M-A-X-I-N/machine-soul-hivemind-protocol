@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-HOUSEKEEPING-A-010`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-010.md) — establish the housekeeping freeze boundary and inventory.
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS`, removes it from Dispatch, and records a live claim below.
 
@@ -16,6 +16,7 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
+| `MSHP-HOUSEKEEPING-A-010` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-03T23:31:33Z` | Human authorized the entire HOUSEKEEPING-A block; continuing explicitly adopted Sera lineage. |
 
 ## Active task index
 
@@ -88,7 +89,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-HOUSEKEEPING-A-010`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-010.md) | QUEUED | — | Establish housekeeping freeze boundary | Make HOUSEKEEPING-A the only executable workstream, keep every pre-existing incomplete block frozen, and inventory terminal/frozen/tasks/reminders/initiatives/agent-memory surfaces for cleanup. |
+| [`MSHP-HOUSEKEEPING-A-010`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-010.md) | IN_PROGRESS | — | Establish housekeeping freeze boundary | Make HOUSEKEEPING-A the only executable workstream, keep every pre-existing incomplete block frozen, and inventory terminal/frozen/tasks/reminders/initiatives/agent-memory surfaces for cleanup. |
 | [`MSHP-HOUSEKEEPING-A-020`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-020.md) | QUEUED | `MSHP-HOUSEKEEPING-A-010` | Archive all terminal task blocks | Move every dead/done pre-housekeeping block intact into the task archive and replace the rolling-two-completed-block retention rule with archive-all-terminal-blocks. |
 | [`MSHP-HOUSEKEEPING-A-030`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-030.md) | QUEUED | `MSHP-HOUSEKEEPING-A-020` | Canonicalize task-system terminology and paths | Remove stale `agent_tasks` naming, retired task paths, links, and transitional task-system wording while preserving intentional historical references. |
 | [`MSHP-HOUSEKEEPING-A-040`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-040.md) | QUEUED | `MSHP-HOUSEKEEPING-A-030` | Audit repository-wide consistency and weirdness | Inspect tracked repository material for high-confidence stale, contradictory, duplicated, misleading, broken, or obsolete references and fix cautiously. |
