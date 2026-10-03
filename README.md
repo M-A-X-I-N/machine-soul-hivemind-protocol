@@ -4,7 +4,7 @@ A cross-host machine-assimilation repository for reproducing desired machine sta
 
 The active development/experimental iteration lives on **main**.
 
-The former `experimental/v2` line produced the current Python/declarative architecture and is being promoted into `main` as the ordinary working branch. A future large redesign may split the then-current iteration back onto versioned branches if there is an actual reason to do so.
+The former `experimental/v2` line produced the current Python/declarative architecture and was promoted into `main` as the ordinary working branch. A future large redesign may split the then-current iteration back onto versioned branches if there is an actual reason to do so.
 
 - `experimental/v1` preserves the original repository iteration.
 - `main` is the current implementation/development branch.

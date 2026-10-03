@@ -13,4 +13,4 @@ Durable findings from `MSHP-DEV-A-060` (2026-09-28):
 - Cross-runtime managers such as mise remain relevant to `MSHP-DEV-A-070`, but this survey does not select one. Native ecosystem managers/backends may still be better for some runtimes.
 - No new executable runtime tasks should be created from this survey alone. The synthesis/roadmap task can promote only the candidates justified by combined evidence.
 
-Detailed bounded survey lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/additional_runtime_candidates.md`.
+Detailed bounded survey lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/additional_runtime_candidates.md`.
