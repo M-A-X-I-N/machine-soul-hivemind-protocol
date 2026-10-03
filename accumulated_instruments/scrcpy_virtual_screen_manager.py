@@ -125,6 +125,7 @@ DEFAULT_ADAPTIVE_MAX_SIZE = 960
 
 DISPLAY_MODE_FIXED = "fixed"
 DISPLAY_MODE_CAPPED_ADAPTIVE = "capped_adaptive"
+DISPLAY_MODE_STOCK_FLEX_TEST = "stock_flex_test"
 
 AUTO_BITRATE_REFERENCE_WIDTH = 288
 AUTO_BITRATE_REFERENCE_HEIGHT = 640
@@ -557,7 +558,11 @@ def parse_app_launch_spec(value: str, *, name: str | None = None) -> AppLaunch:
 
 def validate_display_mode(value: str) -> str:
     """Normalize one supported virtual-display sizing policy."""
-    if value not in {DISPLAY_MODE_FIXED, DISPLAY_MODE_CAPPED_ADAPTIVE}:
+    if value not in {
+        DISPLAY_MODE_FIXED,
+        DISPLAY_MODE_CAPPED_ADAPTIVE,
+        DISPLAY_MODE_STOCK_FLEX_TEST,
+    }:
         raise ConfigurationError(f"Unsupported display mode: {value!r}")
     return value
 
@@ -618,6 +623,8 @@ def describe_display_policy(defaults: ScreenDefaults | ScreenRequest) -> str:
     """Compact human-readable sizing-policy summary for the TUI."""
     if defaults.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
         return f"adaptive≤{defaults.adaptive_max_size}px"
+    if defaults.display_mode == DISPLAY_MODE_STOCK_FLEX_TEST:
+        return f"stock-flex:{defaults.size}"
     return str(defaults.size)
 
 
@@ -813,6 +820,12 @@ def command_for_display(
         "--render-fit=stretched",
         "--display-ime-policy=local",
     ]
+
+    if request.display_mode == DISPLAY_MODE_STOCK_FLEX_TEST:
+        # Deliberately stock and uncapped: this mode exists only to test whether
+        # scrcpy's own client-driven flex-display loop behaves correctly before
+        # any grouping, ADB overrides, or custom server changes are involved.
+        command.append("--flex-display")
 
     if request.app is not None:
         command.append(f"--start-app={request.app.start_spec}")
@@ -3258,12 +3271,17 @@ class VirtualScreenManager:
         eligible = [
             screen
             for screen in self.screens.values()
-            if screen.process.poll() is None and screen.group_id is None
+            if (
+                screen.process.poll() is None
+                and screen.group_id is None
+                and screen.request.display_mode != DISPLAY_MODE_STOCK_FLEX_TEST
+            )
         ]
         if len(eligible) < 2:
             self._show_message(
                 "NOT ENOUGH UNGROUPED SCREENS",
-                "Create at least two running ungrouped screens first.",
+                "Create at least two running ungrouped group-compatible screens first. "
+                "Stock-flex test screens are intentionally excluded.",
             )
             return
 
@@ -3972,12 +3990,21 @@ class VirtualScreenManager:
                     ("fps", "Max FPS", str(max_fps)),
                     ("bitrate", "Video bitrate", bitrate_spec),
                 ]
-            else:
+            elif display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
                 initial_size = adaptive_initial_size(adaptive_max_size)
                 field_rows = [
                     ("mode", "Display mode", "Capped adaptive (experimental)"),
                     ("adaptive_max", "Max dimension", f"{adaptive_max_size} px"),
                     ("initial", "Initial native-aspect size", str(initial_size)),
+                    ("fps", "Max FPS", str(max_fps)),
+                    ("bitrate", "Video bitrate", bitrate_spec),
+                ]
+            else:
+                assert display_mode == DISPLAY_MODE_STOCK_FLEX_TEST
+                field_rows = [
+                    ("mode", "Display mode", "Stock flex (EXTRA EXPERIMENTAL)"),
+                    ("size", "Initial display size", str(fixed_size)),
+                    ("initial", "Behavior", "stock --flex-display, uncapped"),
                     ("fps", "Max FPS", str(max_fps)),
                     ("bitrate", "Video bitrate", bitrate_spec),
                 ]
@@ -4044,11 +4071,14 @@ class VirtualScreenManager:
 
             field_id = rows[selected][0]
             if field_id == "mode" and key in {"ENTER", "LEFT", "RIGHT"}:
-                display_mode = (
-                    DISPLAY_MODE_CAPPED_ADAPTIVE
-                    if display_mode == DISPLAY_MODE_FIXED
-                    else DISPLAY_MODE_FIXED
+                modes = (
+                    DISPLAY_MODE_FIXED,
+                    DISPLAY_MODE_CAPPED_ADAPTIVE,
+                    DISPLAY_MODE_STOCK_FLEX_TEST,
                 )
+                current_index = modes.index(display_mode)
+                delta = -1 if key == "LEFT" else 1
+                display_mode = modes[(current_index + delta) % len(modes)]
                 selected = 0
                 continue
 
@@ -4169,6 +4199,11 @@ class VirtualScreenManager:
             "  Each scrcpy window becomes a native owned top-level window of the group",
             "  organizer. Windows therefore owns minimize/restore and z-order behavior",
             "  instead of the manager repeatedly forcing independent window stacks.",
+            "  Stock flex (EXTRA EXPERIMENTAL) is intentionally single-window only:",
+            "  it launches stock scrcpy with --flex-display, no max-size cap, no ADB",
+            "  resize override, and cannot be added to a group. Resize it manually to",
+            "  test scrcpy's native client->Android->stream resize loop in isolation.",
+            "",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
