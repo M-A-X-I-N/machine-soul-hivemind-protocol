@@ -17,7 +17,8 @@ No concrete agent/tooling benefit was found for retaining the `agent_` prefix. T
 At C-050 design time:
 
 - the task system contains 101 tracked files and 22 directory/tree entries beneath the old task root, plus the root ledger file;
-- repository code search finds 39 files containing `agent_tasks` references;
+- repository code search finds 39 files containing concrete `agent_tasks` path/name references;
+- a broader terminology sweep finds 72 files containing some form of `agent-task`, `Agent Tasks`, or similar wording; these include substantial historical material and therefore require classification rather than blind replacement;
 - no Python, CI workflow, or other executable parser was found that depends on the current path or on one monolithic task table;
 - affected reference classes are startup/recovery docs, task-system navigation, `.agents` memory/investigations, initiatives/reminders, current task specifications, and archived historical task documents.
 
