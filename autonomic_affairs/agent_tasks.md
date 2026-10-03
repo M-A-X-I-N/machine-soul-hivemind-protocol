@@ -20,6 +20,10 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 ## Active task index
 
+Task rows are grouped by block for readability. Every block uses the same authoritative scheduling schema; headings are presentation only and do not change task identity, dependency, state, claim, or Dispatch semantics.
+
+### MSHP-DEV-A
+
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
 | [`MSHP-DEV-A-010`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-010.md) | COMPLETE | — | Investigate VS Code annexation | Map VS Code installation, configuration, profiles, extensions, sync, and ownership boundaries for Machine-Soul. |
@@ -34,6 +38,11 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 | [`MSHP-DEV-A-100`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-100.md) | COMPLETE | `MSHP-DEV-A-050` | Investigate npm annexation | Map npm installation, Node-version binding, global package scope/prefix, package inventory, and version-manager interactions. |
 | [`MSHP-DEV-A-110`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-110.md) | COMPLETE | `MSHP-DEV-A-070`, `MSHP-DEV-A-080`, `MSHP-DEV-A-090`, `MSHP-DEV-A-100` | Synthesize runtime package-manager findings | Compare LuaRocks, pip, and npm and identify reusable package-environment/inventory concepts without prematurely implementing unsupported ecosystems. |
 | [`MSHP-DEV-A-120`](agent_tasks/MSHP-DEV-A/MSHP-DEV-A-120.md) | COMPLETE | `MSHP-DEV-A-010`, `MSHP-DEV-A-020`, `MSHP-DEV-A-070`, `MSHP-DEV-A-110` | Synthesize developer annexation roadmap | Produce evidence-based implementation tasks and structured initiative gaps for editors, IDEs, runtimes, version managers, and runtime package ecosystems. |
+
+### MSHP-DEV-B
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-DEV-B-010`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-010.md) | COMPLETE | `MSHP-DEV-A-120` | Promote install-only developer editor annexation | Add USER-scoped VS Code and JetBrains Toolbox installation lifecycle without inventing editor configuration or plugin state. |
 | [`MSHP-DEV-B-020`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-020.md) | COMPLETE | `MSHP-DEV-A-120` | Investigate Windows native toolchain annexation | Map Visual Studio/Build Tools, MSVC toolsets, Windows SDKs, components, coexistence, discovery, and safe automation before implementation taskification. |
 | [`MSHP-DEV-B-025`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-025.md) | COMPLETE | `MSHP-DEV-B-020` | Implement Windows native toolchain discovery and component ownership | Discover exact Visual Studio/Build Tools instances and conservatively reconcile explicitly owned component IDs inside adopted instances without provisioning a product implicitly. |
@@ -45,21 +54,51 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 | [`MSHP-DEV-B-080`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-080.md) | COMPLETE | `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-070` | Implement pip and npm package backends | Prove the package-environment model across exact Python environments and Node/backend npm global prefixes. |
 | [`MSHP-DEV-B-090`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-090.md) | COMPLETE | `MSHP-DEV-B-060`, `MSHP-DEV-B-070` | Implement LuaRocks package backend | Bind desired rock inventories to exact Lua runtime + tree environments with native prerequisite safety. |
 | [`MSHP-DEV-B-100`](agent_tasks/MSHP-DEV-B/MSHP-DEV-B-100.md) | COMPLETE | `MSHP-DEV-B-010`, `MSHP-DEV-B-040`, `MSHP-DEV-B-050`, `MSHP-DEV-B-060`, `MSHP-DEV-B-080`, `MSHP-DEV-B-090` | Integrate developer runtime and package lifecycle | Validate editor install-only, multiversion runtimes, runtime-bound package environments, lifecycle ordering, docs, and initiative coverage end to end. |
+
+### MSHP-OPS-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-OPS-A-010`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-010.md) | COMPLETE | — | Codify agent-lineage and selective-CI policy | Define recoverable agent identities/branch namespaces, explicit CI-selection semantics, deferred-CI lifecycle state, and freeze/thaw rules before changing automation. |
 | [`MSHP-OPS-A-020`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-020.md) | COMPLETE | `MSHP-OPS-A-010` | Refactor repository validation into reusable sets | Preserve the current validation surface while extracting coherent reusable validation sets with stable names and no path-based routing. |
 | [`MSHP-OPS-A-030`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-030.md) | COMPLETE | `MSHP-OPS-A-020` | Implement explicit CI dispatcher and selectors | Make main default to full validation, allow explicit main subsets/none, keep non-main pushes quiet, and permit explicit validation of arbitrary agent refs. |
 | [`MSHP-OPS-A-040`](agent_tasks/MSHP-OPS-A/MSHP-OPS-A-040.md) | COMPLETE | `MSHP-OPS-A-030` | Validate CI control plane and thaw developer work | Prove the branch/selector/deferred-CI behavior end to end, cut over without duplicate runners, and restore the frozen DEV-B checkpoint. |
+
+### MSHP-OPS-B
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-OPS-B-010`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-010.md) | COMPLETE | — | Investigate CodeQL advanced-analysis configuration | Map the current advanced-mode workflow and supported CodeQL/Actions control surface, experimentally verify material behavior, recommend an MSHP-native architecture, and taskify only evidence-backed follow-up work. |
 | [`MSHP-OPS-B-020`](agent_tasks/MSHP-OPS-B/MSHP-OPS-B-020.md) | COMPLETE | `MSHP-OPS-B-010` | Integrate advanced CodeQL with selective-CI policy | Keep CodeQL as separate deferred analysis while adding manual ref dispatch, scoped concurrency, least-privilege permissions, and explicit policy alignment without unnecessary query/config complexity. |
+
+### MSHP-APPS-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-APPS-A-010`](agent_tasks/MSHP-APPS-A/MSHP-APPS-A-010.md) | COMPLETE | — | Investigate Windows config candidates | Inventory Windows-integrated and common Microsoft applications with stable user-manageable configuration surfaces that may deserve Machine-Soul configuration entries. |
+
+### MSHP-WINGET-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-WINGET-A-010`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | FROZEN | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
 | [`MSHP-WINGET-A-020`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | FROZEN | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
+
+### MSHP-OPS-C
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-OPS-C-010`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-010.md) | COMPLETE | — | Harden lineage recovery authority | Make branch discoverability insufficient for lineage adoption; require explicit human recovery authority and stop on unexpected unrelated lineage work. |
 | [`MSHP-OPS-C-020`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-020.md) | COMPLETE | `MSHP-OPS-C-010` | Add active task claims to the task ledger | Add a live ownership/claim section inside the task ledger, define claim/release semantics, and make claims coordination locks rather than recovery credentials. |
 | [`MSHP-OPS-C-030`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-030.md) | IN_PROGRESS | `MSHP-OPS-C-020` | Improve task-ledger block readability | Reorganize the ledger into visually distinct task-block sections without breaking task lookup, parsers, archival rules, or Dispatch semantics. |
 | [`MSHP-OPS-C-040`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-040.md) | QUEUED | `MSHP-OPS-C-010` | Codify top-level directory contract | Make the meme-named repository domains unambiguous to agents by defining what belongs and does not belong in every top-level control/content directory. |
 | [`MSHP-OPS-C-050`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-050.md) | QUEUED | `MSHP-OPS-C-020`, `MSHP-OPS-C-030` | Design the agent_tasks to tasks migration | Inventory every path/link/parser/recovery dependency and design a recoverable migration from `agent_tasks` naming to generic `tasks` naming. |
 | [`MSHP-OPS-C-060`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-060.md) | QUEUED | `MSHP-OPS-C-040`, `MSHP-OPS-C-050` | Migrate agent_tasks naming to tasks | Perform and validate the repository-wide task-path/name migration with recoverable checkpoints and no dangling references or ambiguous recovery behavior. |
+
+### MSHP-OPS-D
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
 | [`MSHP-OPS-D-010`](agent_tasks/MSHP-OPS-D/MSHP-OPS-D-010.md) | QUEUED | — | Investigate centralized CI policy engine | Design a single conservative control-plane job that validates control metadata, inspects event/diff evidence, applies explicit overrides, and selects blocking validation plus CodeQL work without provisioning every downstream runner. |
 
 
