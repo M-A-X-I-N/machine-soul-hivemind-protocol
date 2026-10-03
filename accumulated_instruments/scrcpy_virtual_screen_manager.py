@@ -1521,6 +1521,47 @@ def win32_client_rect_on_screen(hwnd: int) -> tuple[int, int, int, int] | None:
     )
 
 
+def win32_window_rect(hwnd: int) -> tuple[int, int, int, int] | None:
+    """Return one top-level Win32 outer rectangle as x, y, width, height."""
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.GetWindowRect.argtypes = [
+        wintypes.HWND,
+        ctypes.POINTER(wintypes.RECT),
+    ]
+    user32.GetWindowRect.restype = wintypes.BOOL
+
+    rect = wintypes.RECT()
+    if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        return None
+
+    return (
+        int(rect.left),
+        int(rect.top),
+        max(1, int(rect.right - rect.left)),
+        max(1, int(rect.bottom - rect.top)),
+    )
+
+
+def win32_is_minimized(hwnd: int | None) -> bool:
+    """Return whether a Win32 top-level window is currently minimized."""
+    if os.name != "nt" or hwnd is None:
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.IsIconic.argtypes = [wintypes.HWND]
+    user32.IsIconic.restype = wintypes.BOOL
+    return bool(user32.IsIconic(hwnd))
+
+
 def win32_strip_window_frame(hwnd: int) -> tuple[int, int] | None:
     """Remove caption/resizing chrome and return the exact original styles."""
     if os.name != "nt":
@@ -1714,13 +1755,22 @@ def win32_apply_group_geometry(
     ],
 ) -> bool:
     """
-    Move/resize group members atomically without touching z-order.
+    Enforce grouped member geometry without touching z-order.
 
-    The organizer/member owner relationship is the source of truth for z-order,
-    activation and minimize/restore behavior. Geometry code must not fight it.
+    Only HWNDs that have actually drifted from their organizer-assigned rectangle
+    are moved. This lets the manager continuously correct scrcpy's own automatic
+    window resizing without generating resize traffic when everything is stable.
     """
     if os.name != "nt" or not screen_windows:
         return False
+
+    drifted = [
+        (hwnd, rect)
+        for hwnd, rect in screen_windows
+        if win32_window_rect(hwnd) != rect
+    ]
+    if not drifted:
+        return True
 
     import ctypes
     from ctypes import wintypes
@@ -1746,11 +1796,11 @@ def win32_apply_group_geometry(
     SWP_NOACTIVATE = 0x0010
     SWP_SHOWWINDOW = 0x0040
 
-    hdwp = user32.BeginDeferWindowPos(len(screen_windows))
+    hdwp = user32.BeginDeferWindowPos(len(drifted))
     if not hdwp:
         return False
 
-    for hwnd, rect in screen_windows:
+    for hwnd, rect in drifted:
         x, y, width, height = rect
         hdwp = user32.DeferWindowPos(
             hdwp,
@@ -3197,23 +3247,23 @@ class VirtualScreenManager:
                     self._remove_screen_from_group(screen_id)
 
             group = self.groups.get(group_id)
-            if group is not None and group.last_rect is not None:
-                now = time.monotonic()
-                if any(
-                    (
-                        self.screens.get(screen_id) is not None
-                        and self.screens[screen_id].adaptive_settle_until > now
-                    )
-                    for screen_id in group.screen_ids
-                ):
-                    group.pending_rect = group.last_rect
+            if group is None or group.last_rect is None:
+                continue
 
-            if group is not None and group.pending_rect is not None:
-                if self._layout_group(group):
-                    group.pending_rect = None
+            organizer_hwnd = group.organizer.window_handle()
+            if organizer_hwnd is None or win32_is_minimized(organizer_hwnd):
+                # Native owner semantics intentionally hide/restore member
+                # windows with a minimized organizer. Do not fight Windows.
+                continue
+
+            # Group membership means the organizer owns member geometry for the
+            # group's entire lifetime. Recalculate every manager tick and let
+            # win32_apply_group_geometry() no-op when every HWND already matches.
+            if self._layout_group(group):
+                group.pending_rect = None
 
     def _layout_group(self, group: ManagedGroup) -> bool:
-        """Atomically move and restack every member inside the organizer."""
+        """Enforce every live member's organizer-assigned rectangle."""
         rect = group.pending_rect or group.last_rect
         if rect is None:
             return False
@@ -4167,8 +4217,9 @@ class VirtualScreenManager:
             "  Grouped scrcpy windows become borderless and appear under an expandable",
             "  Group row in the manager; their original frame styles are restored.",
             "  Each scrcpy window becomes a native owned top-level window of the group",
-            "  organizer. Windows therefore owns minimize/restore and z-order behavior",
-            "  instead of the manager repeatedly forcing independent window stacks.",
+            "  organizer. Windows therefore owns minimize/restore and z-order behavior.",
+            "  While visible, the organizer also owns member geometry continuously:",
+            "  scrcpy self-resizes are corrected on the next manager tick (~169 ms).",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
