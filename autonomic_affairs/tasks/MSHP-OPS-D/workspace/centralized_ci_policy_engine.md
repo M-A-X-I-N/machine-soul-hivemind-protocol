@@ -149,23 +149,28 @@ Local Git is preferred over depending solely on the compare/PR-files REST endpoi
 
 Use full-enough checkout/fetch. If the needed commits/merge base cannot be obtained, select the safe superset.
 
-### Downstream work units
+### Checks versus runner groups
 
-Treat these as independently selectable policy units:
+The policy engine should select at **check granularity**, then coalesce selected checks onto runner groups.
 
-Blocking:
+Current runner groups are useful execution containers:
 
-- `linux`
-- `windows`
-- `fresh-linux`
-- `fresh-windows`
+- Linux;
+- Windows;
+- fresh Linux;
+- fresh Windows;
+- CodeQL Python;
+- CodeQL Actions.
 
-Deferred security:
+But the current Linux and Windows workflows each bundle several logically distinct checks. Automatic/scheduled policy must not equate "this runner is required" with "every check runnable on this runner is relevant".
 
-- `codeql-python`
-- `codeql-actions`
+Implementation should inventory the current commands/steps into stable machine-recognizable check IDs with explicit relevance predicates. The selector computes the set of due checks first, then derives the minimum practical runner jobs and passes each runner the subset of checks it should actually execute.
 
-`all` is the union of all six units.
+This preserves runner efficiency without making unrelated checks piggyback on relevant ones. For example, a future Markdown/link checker sharing Linux should remain skipped when ten Python files change, while Python checks on the same Linux runner execute normally.
+
+Coarse names such as `linux`, `windows`, `fresh-linux`, and `fresh-windows` may remain documented convenience groups for explicit overrides, but they expand into check IDs rather than serving as the canonical automatic coverage state.
+
+`codeql-python` and `codeql-actions` are naturally already check-sized and remain independently selectable.
 
 CodeQL remains deferred in lifecycle semantics even though its launch decision comes from the same controller.
 
@@ -308,9 +313,9 @@ A later eligible metadata ruleset could reject malformed commit summaries before
 
 ## Conservative automatic classifier
 
-The classifier should be a deterministic union of matched risk classes.
+The classifier should be a deterministic union of matched **check IDs**. Runner groups are derived only after check selection.
 
-A path may contribute multiple classes. Unknown/unclassified paths select the safe superset.
+A path may contribute multiple check families. Unknown/unclassified paths select the complete registered check set.
 
 ### Class: inert documentation/control text
 
@@ -376,7 +381,7 @@ Do not infer platform exclusivity from filename vibes or incidental current impl
 
 Automatic result:
 
-- all six downstream units.
+- the complete registered check set.
 
 This is the classifier's most important invariant.
 
@@ -384,16 +389,16 @@ This is the classifier's most important invariant.
 
 Do not create a bespoke persistent CI-state database unless implementation proves it necessary.
 
-GitHub's Actions API exposes workflow-run history keyed by workflow/head SHA, and workflow-job records expose stable job names, `head_sha`, conclusion, and completion timestamps. The selector can therefore derive recent successful unit coverage from Actions history. Use the built-in `GITHUB_TOKEN` with least-privilege `actions: read` / `contents: read` access.
+GitHub's Actions API exposes workflow-run history keyed by workflow/head SHA, and workflow-job records expose job names, `head_sha`, conclusion, completion timestamps, and step status/conclusion. The selector can therefore derive recent successful check coverage from Actions history even when multiple checks share one runner job, provided implementation gives executed check steps stable machine-recognizable names. Use the built-in `GITHUB_TOKEN` with least-privilege `actions: read` / `contents: read` access.
 
 Because the top-level selector itself is the only event entry point, historical unit identity must be stable and machine-recognizable. Do not infer unit identity from arbitrary display text; establish deterministic job/unit names as part of implementation.
 
 When looking backward:
 
 - ignore the current in-progress workflow run;
-- use only successful unit executions as coverage;
-- if history pagination/retention means no usable success can be established, treat the unit as uncovered;
-- if an old successful SHA is no longer comparable/reachable in the fetched history, fail safe by running the affected unit.
+- use only successful executed checks as coverage; skipped steps do not count as a successful execution of that check;
+- if history pagination/retention means no usable success can be established, treat the check as uncovered;
+- if an old successful SHA is no longer comparable/reachable in the fetched history, fail safe by selecting the affected check.
 
 This is deliberately reconstructable state: repository history + GitHub Actions history remain the authority.
 
@@ -403,14 +408,14 @@ For automatic push/PR events:
 
 1. validate metadata;
 2. build event change range;
-3. classify each changed path;
-4. union all required units;
-5. if classification/evidence is incomplete, replace union with `all`;
+3. classify each changed path into required check IDs;
+4. union all required checks and derive runner groups;
+5. if classification/evidence is incomplete, replace the check set with `all`;
 6. parse tip/head `CI:`;
-7. if no override or `auto`, use automatic union;
-8. if valid explicit override, use it exactly;
+7. if no override or `auto`, use the automatic check union;
+8. if valid explicit override, expand it deterministically to check IDs and use it exactly;
 9. if invalid override, mark controller failed and select `all`;
-10. launch downstream jobs from controller outputs.
+10. coalesce selected checks into runner jobs and launch them from controller outputs.
 
 Explicit override is authoritative because it records human/agent intent, but malformed override is never allowed to reduce work.
 
