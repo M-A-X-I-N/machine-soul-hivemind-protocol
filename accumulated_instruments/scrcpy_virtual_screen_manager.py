@@ -1935,9 +1935,15 @@ def calculate_group_layout(
     if count == 0:
         return {}
 
-    if all(
-        screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
-        for screen in screens
+    if (
+        all(
+            screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
+            for screen in screens
+        )
+        or all(
+            screen.request.display_mode == DISPLAY_MODE_STOCK_FLEX_TEST
+            for screen in screens
+        )
     ):
         return calculate_adaptive_fill_layout(bounds, screens)
 
@@ -3282,17 +3288,14 @@ class VirtualScreenManager:
             if (
                 screen.process.poll() is None
                 and screen.group_id is None
-                and screen.request.display_mode not in {
-                    DISPLAY_MODE_STOCK_FLEX_TEST,
-                    DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST,
-                }
+                and screen.request.display_mode != DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST
             )
         ]
         if len(eligible) < 2:
             self._show_message(
                 "NOT ENOUGH UNGROUPED SCREENS",
                 "Create at least two running ungrouped group-compatible screens first. "
-                "Stock-flex test screens are intentionally excluded.",
+                "The capped stock-flex comparison mode remains intentionally excluded.",
             )
             return
 
@@ -4220,13 +4223,13 @@ class VirtualScreenManager:
             "  Each scrcpy window becomes a native owned top-level window of the group",
             "  organizer. Windows therefore owns minimize/restore and z-order behavior",
             "  instead of the manager repeatedly forcing independent window stacks.",
-            "  Stock flex (EXTRA EXPERIMENTAL) is intentionally single-window only:",
-            "  it launches stock scrcpy with --flex-display, no max-size cap, no ADB",
-            "  resize override, and cannot be added to a group. Resize it manually to",
-            "  test scrcpy's native client->Android->stream resize loop in isolation.",
-            "  Stock flex + cap is the A/B partner: same path, but adds stock --max-size",
-            "  so any distortion appearing only after the cap is crossed isolates the",
-            "  current scrcpy constraint semantics.",
+            "  Stock flex (EXTRA EXPERIMENTAL) launches stock scrcpy with",
+            "  --flex-display, no max-size cap, and no ADB resize override.",
+            "  It can now be grouped experimentally: the organizer only resizes the",
+            "  Win32 HWND, then scrcpy itself must propagate that geometry to Android.",
+            "  Homogeneous stock-flex groups use gapless exact tiling.",
+            "  Stock flex + cap remains single-window-only as the A/B partner: same",
+            "  scrcpy path, but adds stock --max-size to isolate cap semantics.",
             "",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
