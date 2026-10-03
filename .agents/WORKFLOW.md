@@ -31,7 +31,16 @@ Normal substantive development should occur in a recoverable agent lineage names
 
 A lineage identifier is `{name}_YYMMDD-HHmmss`: a four-letter lowercase ASCII female, neutral, or fantasy-style human-readable name plus its UTC creation timestamp. Prefer an initial not already in active/recent use when practical; do not maintain a canonical name registry.
 
-The lineage owns `agent/{identifier}/*`; its canonical working branch is `agent/{identifier}/main`. It may create additional branches anywhere inside that namespace. A replacement chat/agent continuing the same work adopts the existing lineage instead of creating a new identity merely because the transport/session changed.
+The lineage owns `agent/{identifier}/*`; its canonical working branch is `agent/{identifier}/main`. It may create additional branches anywhere inside that namespace.
+
+A transport/session interruption does not itself require a new lineage, but **lineage discovery is not recovery authority**. A different chat/agent may adopt an existing lineage only when either:
+
+1. the human explicitly requests recovery/adoption of that specific lineage or branch; or
+2. the current conversation already established ownership of that lineage and the human gives an unambiguous continuation/recovery instruction referring to that established work.
+
+Merely finding an `agent/**` branch, an apparently abandoned task, an `IN_PROGRESS` state, or future claim metadata is never sufficient authority. An unrelated agent may inspect such state and may ask whether recovery is desired, but must not mutate the lineage or present itself as that lineage without authorization.
+
+After authorized recovery, compare the actual lineage head/history with the expected checkpoint before writing. If unexpected unrelated work has appeared in the namespace, stop adoption and reconcile with the human instead of overwriting, merging through, or silently treating the foreign work as part of the recovered lineage.
 
 Cross-agent coordination, task bookkeeping, and similarly natural repository-control changes may still land directly on `main`.
 
@@ -55,7 +64,13 @@ Malformed or unknown selectors must fail safe: they must not silently suppress v
 
 ## Interrupted-session recovery
 
+Recovery has two separate questions: **what happened?** and **who is authorized to continue a lineage?** Repository inspection answers the first; it does not answer the second.
+
 Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/agent_tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.
+
+Inspecting an existing lineage for recovery evidence is always allowed. Mutating/adopting it requires the authority rules in **Agent lineages and working branches** above. If no such authority exists, ask whether the human wants that specific lineage recovered rather than recovering it automatically.
+
+Even with recovery authority, stop if the branch contains unexpected unrelated commits relative to the expected checkpoint. Preserve those commits and resolve ownership/divergence explicitly; do not force-move or absorb them merely to resume the expected work.
 
 Prefer recovering already-created correct Git objects over recreating them manually.
 

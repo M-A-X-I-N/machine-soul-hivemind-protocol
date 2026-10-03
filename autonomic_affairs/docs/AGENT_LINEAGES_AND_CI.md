@@ -16,7 +16,11 @@ An agent work lineage uses:
 - The timestamp is the lineage creation time in UTC with second precision and never changes.
 - The complete identifier, not the name alone, is the lineage identity.
 
-A chat/session interruption does not create a new lineage. A recovery agent may adopt the existing identifier when continuing the same work.
+A chat/session interruption does not create a new lineage. However, the existence of a lineage branch is **not** authority to adopt it. Recovery adoption requires explicit human authorization naming that lineage/branch, or an unambiguous continuation instruction in a conversation where ownership of that lineage was already established.
+
+An unrelated agent may inspect an existing lineage and ask whether recovery is desired, but must not mutate or adopt it autonomously. Task state or claim metadata can coordinate ownership but does not confer recovery authority.
+
+After authorized adoption, the agent must verify the actual lineage head against the expected checkpoint. Unexpected unrelated work is a stop condition requiring explicit reconciliation; it must not be silently absorbed, overwritten, or used as evidence that the recovering agent now owns that work.
 
 ## Branch ownership
 
