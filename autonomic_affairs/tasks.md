@@ -16,7 +16,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| `MSHP-OPS-D-020` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-03T22:15:15Z` | Human authorized with `Go next!`; continuing explicitly adopted Sera lineage. |
 
 ## Active task index
 
@@ -100,7 +99,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
 | [`MSHP-OPS-D-010`](tasks/MSHP-OPS-D/MSHP-OPS-D-010.md) | COMPLETE | — | Investigate centralized CI policy engine | Design a single conservative control-plane job that validates control metadata, inspects event/diff evidence, applies explicit overrides, and selects blocking validation plus CodeQL work without provisioning every downstream runner. |
-| [`MSHP-OPS-D-020`](tasks/MSHP-OPS-D/MSHP-OPS-D-020.md) | IN_PROGRESS | `MSHP-OPS-D-010` | Implement centralized CI policy engine | Replace split blocking/CodeQL routing with one fail-safe policy job that classifies event diffs, honors validated unified overrides, and provisions only justified blocking and deferred analysis units. |
+| [`MSHP-OPS-D-020`](tasks/MSHP-OPS-D/MSHP-OPS-D-020.md) | COMPLETE | `MSHP-OPS-D-010` | Implement centralized CI policy engine | Replaced split blocking/CodeQL routing with one fail-safe policy workflow that classifies event diffs, honors validated unified overrides, coalesces compatible checks onto shared runners, and reconciles deferred/scheduled coverage. |
 
 
 ## Task contract
