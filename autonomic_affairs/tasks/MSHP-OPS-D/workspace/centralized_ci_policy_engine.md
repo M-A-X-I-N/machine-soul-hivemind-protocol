@@ -232,17 +232,17 @@ which is 06:09 UTC using ordinary POSIX cron semantics.
 
 GitHub schedules execute against the latest commit on the default branch. GitHub also documents that scheduled workflows can be delayed during high load, particularly around the start of an hour; keep the human-facing policy as 06:09 UTC while treating exact wall-clock start as best-effort platform scheduling rather than a hard real-time guarantee.
 
-The selector should inspect its own prior successful downstream job history and ask which validation units are still meaningfully **covered** for current `main`.
+The selector should inspect its own prior successful downstream job history and ask which validation checks are still meaningfully **covered** for current `main`.
 
-For ordinary validation units, coverage is relevance-aware:
+For ordinary validation checks, coverage is relevance-aware:
 
-1. find the most recent successful execution of the unit;
-2. if it ran successfully on current `HEAD`, it is covered;
+1. find the most recent successful execution of the check;
+2. if that check ran successfully on current `HEAD`, it is covered;
 3. if it ran on an older SHA, diff that SHA to current `HEAD`;
 4. feed those changed paths through the same unit-relevance mapping used for push/PR classification;
-5. if no changed path is relevant to that unit, the older success still covers current `main`;
-6. if any relevant path changed, run the unit;
-7. if prior-run history or comparison evidence is missing/ambiguous, run the unit.
+5. if no changed path is relevant to that check, the older success still covers current `main`;
+6. if any relevant path changed, run the check;
+7. if prior-run history or comparison evidence is missing/ambiguous, run the check.
 
 Example: a Markdown-specific validation check should not become stale merely because ten Python files changed after its last success. Conversely, a Markdown change relevant to that check invalidates its prior coverage.
 
@@ -282,14 +282,14 @@ Rules:
 
 - no `CI:` line on automatic push/PR events means `auto`;
 - `auto` explicitly requests classifier output;
-- `all` selects all six downstream units;
-- `none` selects no downstream unit, but the controller still runs;
-- an explicit list selects exactly the named registered units;
+- `all` selects all registered checks;
+- `none` selects no downstream check, but the controller still runs;
+- an explicit list selects exactly the named registered checks and/or documented convenience groups after deterministic expansion;
 - whitespace and duplicate handling may remain normalized;
 - `all`, `none`, and `auto` must be standalone;
 - multiple `CI:` lines are invalid;
 - unknown/malformed values are invalid;
-- invalid control metadata logs a clear error, returns controller failure, and emits **all six units** so a typo cannot suppress validation/security analysis.
+- invalid control metadata logs a clear error, returns controller failure, and emits the **complete registered check set** so a typo cannot suppress validation/security analysis.
 
 Native `skip-checks: true` remains the harder bypass when even the controller should not instantiate. Its GitHub-native push/PR behavior remains separate from `CI: none`.
 
@@ -441,7 +441,7 @@ Supersede these OPS-A-era rules:
 - "Pushes to main default to all blocking sets."
   - Replace with automatic conservative classification.
 - "`CI:` controls only blocking validation."
-  - Replace with the unified six-unit policy override.
+  - Replace with the unified check-level policy override.
 - "PRs default to all blocking sets."
   - Replace with conservative PR three-dot classification.
 - "Do not infer CI selection from changed paths."
@@ -452,7 +452,7 @@ Supersede these OPS-B-era rules:
 - "CodeQL normal routing is deliberately separate from the Machine-Soul blocking dispatcher."
   - Replace with centralized launch policy while retaining deferred lifecycle semantics.
 - "`CI:` does not select/subset/suppress CodeQL."
-  - Replace with unified unit selection.
+  - Replace with unified check-level selection.
 - separate CodeQL top-level push/PR/manual routing.
   - Replace with CodeQL as reusable downstream work plus top-level schedule policy.
 
