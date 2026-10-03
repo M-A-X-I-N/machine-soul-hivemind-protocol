@@ -15,3 +15,5 @@ Pre-flight: Task 6 documentation consumes implemented interfaces only; no confli
 Pre-flight: Task 7 consumes all prior outputs; no additional implementation interface.
 
 Task 1: Ruling: add `automatic: bool = False` to `PolicySelection` — `CI: auto` and `CI: none` both otherwise normalize to an empty selected tuple and cannot be distinguished without abusing `source`; cost if wrong: one extra stable policy field carried through later interfaces.
+
+Task 1: complete (commits 7625326..8430ffe, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_validation_selector -v` → 10/10 pass).
