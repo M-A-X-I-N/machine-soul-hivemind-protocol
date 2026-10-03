@@ -2763,18 +2763,16 @@ class VirtualScreenManager:
             self._show_help()
             return False
 
-        if selected.kind == "group" and selected.group_id is not None:
+        if (
+            selected.kind == "group"
+            and selected.group_id is not None
+            and self.expanded_key != selected.key
+        ):
             if key == "LEFT":
                 self.collapsed_groups.add(selected.group_id)
                 return False
             if key == "RIGHT":
                 self.collapsed_groups.discard(selected.group_id)
-                return False
-            if key == "ENTER":
-                if selected.group_id in self.collapsed_groups:
-                    self.collapsed_groups.discard(selected.group_id)
-                else:
-                    self.collapsed_groups.add(selected.group_id)
                 return False
 
         if key == "UP":
@@ -2834,6 +2832,26 @@ class VirtualScreenManager:
         return False
 
     def _submenu_actions(self, item: MenuItem) -> list[SubmenuAction]:
+        if item.kind == "group" and item.group_id is not None:
+            group = self.groups.get(item.group_id)
+            if group is None:
+                return []
+            running_members = [
+                self.screens[screen_id]
+                for screen_id in sorted(group.screen_ids)
+                if screen_id in self.screens
+                and self.screens[screen_id].process.poll() is None
+            ]
+            if not running_members:
+                return []
+            return [
+                SubmenuAction(
+                    "restart_group_current_size",
+                    "Restart all at current size",
+                    ICON_RESTART,
+                )
+            ]
+
         if item.kind == "controller":
             actions = [
                 SubmenuAction(
@@ -2909,6 +2927,16 @@ class VirtualScreenManager:
                 self._ensure_controller()
             except LaunchError as exc:
                 self._show_message("CONTROLLER START FAILED", str(exc))
+            return
+
+        if (
+            action.action_id == "restart_group_current_size"
+            and item.kind == "group"
+            and item.group_id is not None
+        ):
+            self.expanded_key = None
+            self.submenu_index = 0
+            self._restart_group_at_current_sizes(item.group_id)
             return
 
         if item.kind != "screen" or item.screen_id is None:
@@ -3416,6 +3444,160 @@ class VirtualScreenManager:
             elif key == "ENTER":
                 if len(checked) >= 2:
                     return sorted(checked)
+
+    def _restart_group_at_current_sizes(self, group_id: int) -> None:
+        """
+        Restart every live group member using its current assigned cell size.
+
+        App-backed screens are deliberately relaunched with scrcpy's +PACKAGE
+        clean-start form so applications that cache their render surface during
+        startup initialize against the group's current geometry.
+        """
+        group = self.groups.get(group_id)
+        if group is None:
+            return
+
+        rect = group.pending_rect or group.last_rect
+        if rect is None:
+            self._show_message(
+                "GROUP RESTART NOT READY",
+                f"Group {group_id:02d} has not reported stable geometry yet.",
+            )
+            return
+
+        screens = [
+            self.screens[screen_id]
+            for screen_id in sorted(group.screen_ids)
+            if screen_id in self.screens
+            and self.screens[screen_id].process.poll() is None
+        ]
+        if not screens:
+            self._show_message(
+                "GROUP RESTART NOT AVAILABLE",
+                f"Group {group_id:02d} has no running screens.",
+            )
+            return
+
+        layout = calculate_group_layout(rect, screens)
+        if len(layout) != len(screens):
+            self._show_message(
+                "GROUP RESTART FAILED",
+                "Could not calculate a complete current group layout.",
+            )
+            return
+
+        organizer_hwnd = group.organizer.window_handle()
+        if organizer_hwnd is None:
+            self._show_message(
+                "GROUP RESTART FAILED",
+                "The group organizer window is not available.",
+            )
+            return
+
+        failures: list[str] = []
+        restarted = 0
+
+        for old_screen in screens:
+            target = layout.get(old_screen.screen_id)
+            if target is None:
+                failures.append(
+                    f"Screen {old_screen.screen_id:02d}: no assigned group rectangle"
+                )
+                continue
+
+            target_size = DisplaySize(
+                max(1, target[2]),
+                max(1, target[3]),
+            )
+            if old_screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
+                # The legacy ADB-adaptive mode should initialize at the same
+                # capped Android geometry it would request for this host cell.
+                target_size = adaptive_size_for_host(
+                    target[2],
+                    target[3],
+                    old_screen.request.adaptive_max_size,
+                )
+
+            app = old_screen.request.app
+            if app is not None:
+                app = AppLaunch(app.app, clean_start=True)
+
+            request = ScreenRequest(
+                size=target_size,
+                max_fps=old_screen.request.max_fps,
+                bitrate_spec=old_screen.request.bitrate_spec,
+                app=app,
+                display_mode=old_screen.request.display_mode,
+                adaptive_max_size=old_screen.request.adaptive_max_size,
+            )
+
+            new_process: ObservedProcess | None = None
+            try:
+                command, bitrate = command_for_display(
+                    self.scrcpy,
+                    request,
+                    managed_screen_id=old_screen.screen_id,
+                    interactive_managed=True,
+                )
+                new_process = ObservedProcess(
+                    command,
+                    label=f"screen {old_screen.screen_id:02d} restart",
+                    log_path=old_screen.process.log_path,
+                )
+                previous_foreground = win32_foreground_window()
+                new_process.start()
+                new_process.startup_probe()
+                new_hwnd = win32_capture_spawned_window_without_focus_theft(
+                    new_process.pid or 0,
+                    previous_foreground,
+                )
+                if new_hwnd is None:
+                    raise LaunchError("replacement scrcpy window was not discovered")
+
+                # Only retire the old session after its replacement is known-good.
+                old_screen.process.request_stop()
+
+                replacement = ManagedScreen(
+                    screen_id=old_screen.screen_id,
+                    request=request,
+                    bitrate=bitrate,
+                    process=new_process,
+                    group_id=group_id,
+                    window_handle=new_hwnd,
+                )
+                self.screens[old_screen.screen_id] = replacement
+
+                self._set_screen_group_frame(replacement, True)
+                if not self._set_screen_group_owner(
+                    replacement,
+                    organizer_hwnd,
+                    True,
+                ):
+                    raise LaunchError("replacement window could not be attached to group")
+
+                restarted += 1
+            except (ConfigurationError, LaunchError) as exc:
+                if new_process is not None and new_process.poll() is None:
+                    new_process.request_stop()
+                failures.append(
+                    f"Screen {old_screen.screen_id:02d}: {exc}"
+                )
+
+        # Reassert the same organizer geometry once all replacements exist.
+        if group.last_rect is not None:
+            group.pending_rect = group.last_rect
+            self._layout_group(group)
+            group.pending_rect = None
+
+        if failures:
+            self._show_message(
+                "GROUP RESTART PARTIAL",
+                (
+                    f"Restarted {restarted}/{len(screens)} screens at their current sizes."
+                    "\n\n"
+                    + "\n".join(failures)
+                ),
+            )
 
     def _remove_screen_from_group(self, screen_id: int) -> None:
         """Remove one screen and dissolve its group when fewer than two remain."""
@@ -4227,6 +4409,9 @@ class VirtualScreenManager:
             "  Stock flex + cap (SPICY EXPERIMENTAL) uses the exact same path but adds",
             "  stock --max-size. Both may be grouped; homogeneous groups use identical",
             "  gapless exact tiling and the organizer only resizes Win32 HWNDs.",
+            "  A group action can restart every member using its current assigned cell",
+            "  size as --new-display; app-backed members use +PACKAGE clean-start so",
+            "  resize-hostile apps can initialize their render surfaces at that size.",
             "  This keeps the cap itself as the meaningful experimental variable.",
             "",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
@@ -4462,7 +4647,19 @@ class VirtualScreenManager:
                 f" {pointer} {group_expander} {ICON_GROUP} Group {item.group_id:02d}"
                 f"    {member_count} {member_word}"
             )
-            return [self._style_selected(ellipsize(row, width), selected)]
+            output = [self._style_selected(ellipsize(row, width), selected)]
+            if expanded:
+                actions = self._submenu_actions(item)
+                if actions:
+                    rendered_actions = []
+                    for index, action in enumerate(actions):
+                        label = f" {action.icon} {action.label} "
+                        if index == self.submenu_index:
+                            label = ANSI_REVERSE + label + ANSI_RESET
+                        rendered_actions.append(label)
+                    submenu = "       ╰─ " + "   ".join(rendered_actions)
+                    output.append(ellipsize_ansi_safe(submenu, width))
+            return output
 
         if item.kind == "screen" and item.screen_id is not None:
             screen = self.screens[item.screen_id]
