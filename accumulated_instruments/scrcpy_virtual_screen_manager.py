@@ -146,6 +146,9 @@ GROUP_WINDOW_INITIAL_HEIGHT = 700
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
+SCRCPY_NEW_DISPLAY_PATTERN = re.compile(
+    r"New display:\s+\d+x\d+/\d+\s+\(id=(?P<display_id>\d+)\)"
+)
 ANDROID_PACKAGE_PATTERN = re.compile(
     r"(?P<package>[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)$"
 )
@@ -309,6 +312,9 @@ class ManagedScreen:
     window_handle: int | None = None
     original_window_style: int | None = None
     original_window_ex_style: int | None = None
+    virtual_display_id: int | None = None
+    adaptive_applied_size: DisplaySize | None = None
+    adaptive_error: str | None = None
 
     @property
     def status(self) -> str:
@@ -570,6 +576,32 @@ def adaptive_initial_size(max_size: int) -> DisplaySize:
     return DisplaySize(width, height)
 
 
+def adaptive_size_for_host(width: int, height: int, max_size: int) -> DisplaySize:
+    """
+    Match host aspect exactly while bounding either Android dimension by max_size.
+
+    Host dimensions larger than the cap therefore become uniform PC-side
+    enlargement rather than unequal x/y stretching.
+    """
+    cap = validate_adaptive_max_size(max_size)
+    host_width = max(1, int(width))
+    host_height = max(1, int(height))
+    scale = min(1.0, cap / max(host_width, host_height))
+    return DisplaySize(
+        max(1, round(host_width * scale)),
+        max(1, round(host_height * scale)),
+    )
+
+
+def parse_scrcpy_virtual_display_id(lines: Sequence[str]) -> int | None:
+    """Extract the newest virtual display id announced by scrcpy."""
+    for line in reversed(lines):
+        match = SCRCPY_NEW_DISPLAY_PATTERN.search(line)
+        if match is not None:
+            return int(match.group("display_id"))
+    return None
+
+
 def effective_default_size(defaults: ScreenDefaults) -> DisplaySize:
     """Return the framebuffer size used when launching from current defaults."""
     if defaults.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
@@ -699,6 +731,58 @@ def resolve_scrcpy_executable() -> str:
             "environment variable to its executable path."
         )
     return executable
+
+
+def resolve_adb_executable(scrcpy: str) -> str | None:
+    """Best-effort locate adb without making fixed-display mode depend on it."""
+    configured = os.environ.get("ADB")
+    if configured:
+        return configured
+
+    scrcpy_path = Path(scrcpy)
+    if scrcpy_path.parent != Path("."):
+        sibling_name = "adb.exe" if os.name == "nt" else "adb"
+        sibling = scrcpy_path.with_name(sibling_name)
+        if sibling.is_file():
+            return str(sibling)
+
+    return shutil.which("adb")
+
+
+def adb_override_display_size(
+    adb: str,
+    display_id: int,
+    size: DisplaySize,
+) -> tuple[bool, str]:
+    """Apply one Android WindowManager size override to a specific display."""
+    command = [
+        adb,
+        "shell",
+        "wm",
+        "size",
+        str(size),
+        "-d",
+        str(display_id),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=4.0,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return False, str(exc)
+
+    output = (completed.stdout or "").strip()
+    if completed.returncode != 0:
+        return False, output or f"adb exited with code {completed.returncode}"
+    return True, output
 
 
 def command_for_display(
@@ -2451,6 +2535,22 @@ class VirtualScreenManager:
         self._log_directory = tempfile.TemporaryDirectory(prefix="scrcpy-screen-manager-")
         self.log_root = Path(self._log_directory.name)
         self._installed_apps: tuple[InstalledApp, ...] | None = None
+        self.adb = resolve_adb_executable(scrcpy)
+        self._adaptive_condition = threading.Condition()
+        self._adaptive_targets: dict[int, DisplaySize] = {}
+        self._adaptive_results: queue.SimpleQueue[
+            tuple[int, DisplaySize, bool, str]
+        ] = queue.SimpleQueue()
+        self._adaptive_stop = False
+        self._adaptive_thread: threading.Thread | None = None
+        if self.adb is not None:
+            self._adaptive_thread = threading.Thread(
+                target=self._adaptive_resize_worker,
+                name="scrcpy-adaptive-resize",
+                daemon=True,
+            )
+            self._adaptive_thread.start()
+
         self.groups: dict[int, ManagedGroup] = {}
         self.next_group_id = 1
         self.collapsed_groups: set[int] = set()
@@ -2462,6 +2562,7 @@ class VirtualScreenManager:
             with TerminalUI() as terminal:
                 self.terminal = terminal
                 while True:
+                    self._maintain_adaptive_displays()
                     self._maintain_groups()
                     items = self._menu_items()
                     self.selected_index = min(self.selected_index, max(0, len(items) - 1))
@@ -2728,6 +2829,89 @@ class VirtualScreenManager:
             return self.screens[item.screen_id].process
         return None
 
+    def _adaptive_resize_worker(self) -> None:
+        """Coalesce potentially-slow adb display-resize calls off the TUI thread."""
+        assert self.adb is not None
+
+        while True:
+            with self._adaptive_condition:
+                while not self._adaptive_targets and not self._adaptive_stop:
+                    self._adaptive_condition.wait()
+                if self._adaptive_stop:
+                    return
+                screen_id = next(iter(self._adaptive_targets))
+                target = self._adaptive_targets.pop(screen_id)
+
+            screen = self.screens.get(screen_id)
+            if (
+                screen is None
+                or screen.process.poll() is not None
+                or screen.virtual_display_id is None
+            ):
+                continue
+
+            success, detail = adb_override_display_size(
+                self.adb,
+                screen.virtual_display_id,
+                target,
+            )
+            self._adaptive_results.put((screen_id, target, success, detail))
+
+    def _queue_adaptive_resize(
+        self,
+        screen: ManagedScreen,
+        target: DisplaySize,
+    ) -> None:
+        """Queue only the newest requested Android geometry for one screen."""
+        if screen.request.display_mode != DISPLAY_MODE_CAPPED_ADAPTIVE:
+            return
+        if screen.virtual_display_id is None:
+            return
+        if self.adb is None:
+            screen.adaptive_error = "adb not found"
+            return
+        if screen.adaptive_applied_size == target:
+            return
+
+        with self._adaptive_condition:
+            self._adaptive_targets[screen.screen_id] = target
+            self._adaptive_condition.notify()
+
+    def _maintain_adaptive_displays(self) -> None:
+        """Discover display ids and consume background resize results."""
+        while True:
+            try:
+                screen_id, target, success, detail = self._adaptive_results.get_nowait()
+            except queue.Empty:
+                break
+
+            screen = self.screens.get(screen_id)
+            if screen is None:
+                continue
+            if success:
+                screen.adaptive_applied_size = target
+                screen.adaptive_error = None
+            else:
+                screen.adaptive_error = detail or "wm size override failed"
+
+        for screen in self.screens.values():
+            if screen.request.display_mode != DISPLAY_MODE_CAPPED_ADAPTIVE:
+                continue
+            if screen.process.poll() is not None or screen.virtual_display_id is not None:
+                continue
+
+            display_id = parse_scrcpy_virtual_display_id(screen.process.tail(80))
+            if display_id is None:
+                continue
+
+            screen.virtual_display_id = display_id
+            screen.adaptive_applied_size = screen.request.size
+
+            if screen.group_id is not None:
+                group = self.groups.get(screen.group_id)
+                if group is not None and group.last_rect is not None:
+                    group.pending_rect = group.last_rect
+
     def _set_screen_group_frame(self, screen: ManagedScreen, grouped: bool) -> None:
         """Strip or restore one scrcpy window frame as membership changes."""
         if os.name != "nt":
@@ -2855,6 +3039,14 @@ class VirtualScreenManager:
             if target is None:
                 return False
             windows.append((screen.window_handle, target))
+
+            if screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
+                android_size = adaptive_size_for_host(
+                    target[2],
+                    target[3],
+                    screen.request.adaptive_max_size,
+                )
+                self._queue_adaptive_resize(screen, android_size)
 
         return win32_apply_group_window_batch(organizer_hwnd, windows)
 
@@ -3006,6 +3198,11 @@ class VirtualScreenManager:
 
         group_id = screen.group_id
         self._set_screen_group_frame(screen, False)
+        if (
+            screen.process.poll() is None
+            and screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
+        ):
+            self._queue_adaptive_resize(screen, screen.request.size)
         screen.group_id = None
         group = self.groups.get(group_id)
         if group is None:
@@ -3114,6 +3311,15 @@ class VirtualScreenManager:
     def _finish_add_screen(self, request: ScreenRequest) -> None:
         """Launch an already-confirmed request; the wizard owns all interaction."""
         try:
+            if (
+                request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
+                and self.adb is None
+            ):
+                raise LaunchError(
+                    "Capped adaptive mode requires adb. The manager could not find "
+                    "ADB or a sibling adb executable next to scrcpy."
+                )
+
             self._ensure_controller()
 
             screen_id = self.next_screen_id
@@ -3767,6 +3973,9 @@ class VirtualScreenManager:
             "  A normal resizable organizer window becomes their geometry master.",
             "  Grouped scrcpy windows become borderless and appear under an expandable",
             "  Group row in the manager; their original frame styles are restored.",
+            "  Capped-adaptive screens experimentally use per-display Android wm size",
+            "  overrides so group allocations can change Android aspect without uneven",
+            "  host stretching; the configured scalar caps either rendered dimension.",
             "  Closing it disbands the group; screens remain alive and independent.",
             "  Moving/activating uses one atomic member+organizer z-order transaction.",
             "  Groups automatically dissolve when fewer than two members remain.",
@@ -4019,7 +4228,13 @@ class VirtualScreenManager:
                 prefix
                 + f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
                 f"{describe_display_policy(screen.request)} {screen.request.max_fps}fps "
-                f"{screen.bitrate.display_value}  {app}"
+                f"{screen.bitrate.display_value}"
+                + (
+                    f" {ANSI_FG_RED}ADAPT!{ANSI_RESET}"
+                    if screen.adaptive_error
+                    else ""
+                )
+                + f"  {app}"
             )
             latest = screen.process.latest_line or "(no console output yet)"
             return self._render_process_block(item, row, latest, selected, width)
@@ -4097,6 +4312,12 @@ class VirtualScreenManager:
     def _shutdown(self) -> None:
         for group_id in list(self.groups):
             self._dissolve_group(group_id)
+
+        with self._adaptive_condition:
+            self._adaptive_stop = True
+            self._adaptive_condition.notify_all()
+        if self._adaptive_thread is not None:
+            self._adaptive_thread.join(timeout=1.0)
 
         running = [screen for screen in self.screens.values() if screen.process.poll() is None]
         for screen in running:
