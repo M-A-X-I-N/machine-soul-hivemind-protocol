@@ -1800,6 +1800,103 @@ def _fit_ratio_inside_cell(
     return x, y, width, height
 
 
+def calculate_adaptive_fill_layout(
+    bounds: tuple[int, int, int, int],
+    screens: Sequence[ManagedScreen],
+) -> dict[int, tuple[int, int, int, int]]:
+    """
+    Tile an all-adaptive group over the complete organizer client rectangle.
+
+    Every candidate row partition consumes 100% of the available area. Since
+    adaptive Android geometry can match the resulting cell aspect, the remaining
+    choice is purely organizational: prefer the partition whose cell aspect is
+    closest to the screens' native/requested portrait aspect.
+    """
+    x0, y0, total_width, total_height = bounds
+    count = len(screens)
+    if count == 0 or total_width <= 0 or total_height <= 0:
+        return {}
+
+    preferred_ratios = [
+        max(0.05, screen.request.size.width / screen.request.size.height)
+        for screen in screens
+    ]
+    preferred_ratio = sum(preferred_ratios) / len(preferred_ratios)
+
+    best_score = math.inf
+    best_layout: dict[int, tuple[int, int, int, int]] = {}
+
+    for row_count in range(1, count + 1):
+        base = count // row_count
+        remainder = count % row_count
+        if base == 0:
+            continue
+
+        row_sizes = [
+            base + (1 if row_index < remainder else 0)
+            for row_index in range(row_count)
+        ]
+
+        # Give rows heights proportional to the height that would make their
+        # equally-wide cells match the preferred portrait ratio, then normalize
+        # those heights to consume the organizer exactly.
+        ideal_heights = [
+            total_width / row_size / preferred_ratio
+            for row_size in row_sizes
+        ]
+        ideal_height_sum = sum(ideal_heights)
+        if ideal_height_sum <= 0:
+            continue
+
+        row_heights = [
+            max(1, round(total_height * ideal / ideal_height_sum))
+            for ideal in ideal_heights
+        ]
+        row_heights[-1] += total_height - sum(row_heights)
+        if any(height <= 0 for height in row_heights):
+            continue
+
+        layout: dict[int, tuple[int, int, int, int]] = {}
+        score = 0.0
+        screen_cursor = 0
+        row_y = y0
+
+        for row_size, row_height in zip(row_sizes, row_heights):
+            cell_widths = [total_width // row_size] * row_size
+            cell_widths[-1] += total_width - sum(cell_widths)
+
+            cell_x = x0
+            for cell_width in cell_widths:
+                screen = screens[screen_cursor]
+                screen_cursor += 1
+
+                rect = (
+                    cell_x,
+                    row_y,
+                    max(1, cell_width),
+                    max(1, row_height),
+                )
+                layout[screen.screen_id] = rect
+
+                cell_ratio = cell_width / max(1, row_height)
+                native_ratio = max(
+                    0.05,
+                    screen.request.size.width / screen.request.size.height,
+                )
+                # Symmetric multiplicative distortion metric. A ratio twice as
+                # wide and one half as wide receive the same penalty.
+                score += math.log(cell_ratio / native_ratio) ** 2
+                cell_x += cell_width
+
+            row_y += row_height
+
+        if score < best_score:
+            best_score = score
+            best_layout = layout
+
+    return best_layout
+
+
 def calculate_group_layout(
     bounds: tuple[int, int, int, int],
     screens: Sequence[ManagedScreen],
@@ -1816,6 +1913,12 @@ def calculate_group_layout(
     count = len(screens)
     if count == 0:
         return {}
+
+    if all(
+        screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
+        for screen in screens
+    ):
+        return calculate_adaptive_fill_layout(bounds, screens)
 
     best_score = -1
     best_layout: dict[int, tuple[int, int, int, int]] = {}
@@ -2050,6 +2153,7 @@ class OrganizerWindow:
         CW_USEDEFAULT = -2147483648
         SW_SHOW = 5
         COLOR_APPWORKSPACE = 12
+        ORGANIZER_BACKGROUND_COLOR = 0x00181818
         IDC_ARROW = 32512
 
         wndproc_type = ctypes.WINFUNCTYPE(
@@ -2093,6 +2197,12 @@ class OrganizerWindow:
         user32.LoadCursorW.restype = wintypes.HCURSOR
         user32.GetSysColorBrush.argtypes = [ctypes.c_int]
         user32.GetSysColorBrush.restype = wintypes.HBRUSH
+
+        gdi32 = ctypes.windll.gdi32
+        gdi32.CreateSolidBrush.argtypes = [wintypes.DWORD]
+        gdi32.CreateSolidBrush.restype = wintypes.HBRUSH
+        gdi32.DeleteObject.argtypes = [wintypes.HANDLE]
+        gdi32.DeleteObject.restype = wintypes.BOOL
 
         user32.RegisterClassExW.argtypes = [ctypes.POINTER(WindowClass)]
         user32.RegisterClassExW.restype = ctypes.c_ushort
@@ -2234,6 +2344,11 @@ class OrganizerWindow:
 
             return int(user32.DefWindowProcW(hwnd, message, wparam, lparam))
 
+        background_brush = gdi32.CreateSolidBrush(ORGANIZER_BACKGROUND_COLOR)
+        owns_background_brush = bool(background_brush)
+        if not background_brush:
+            background_brush = user32.GetSysColorBrush(COLOR_APPWORKSPACE)
+
         window_class = WindowClass()
         window_class.cbSize = ctypes.sizeof(WindowClass)
         window_class.style = 0
@@ -2243,13 +2358,15 @@ class OrganizerWindow:
         window_class.hInstance = hinstance
         window_class.hIcon = None
         window_class.hCursor = user32.LoadCursorW(None, IDC_ARROW)
-        window_class.hbrBackground = user32.GetSysColorBrush(COLOR_APPWORKSPACE)
+        window_class.hbrBackground = background_brush
         window_class.lpszMenuName = None
         window_class.lpszClassName = class_name
         window_class.hIconSm = None
 
         atom = user32.RegisterClassExW(ctypes.byref(window_class))
         if not atom:
+            if owns_background_brush:
+                gdi32.DeleteObject(background_brush)
             raise ctypes.WinError()
 
         hwnd: int | None = None
@@ -2302,6 +2419,8 @@ class OrganizerWindow:
             if hwnd is not None and user32.IsWindow(hwnd):
                 user32.DestroyWindow(hwnd)
             user32.UnregisterClassW(class_name, hinstance)
+            if owns_background_brush:
+                gdi32.DeleteObject(background_brush)
 
 
 # =============================================================================
@@ -4053,6 +4172,8 @@ class VirtualScreenManager:
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
+            "  When every member is adaptive, the layout becomes gapless exact tiling:",
+            "  cells consume the entire organizer and Android adopts each cell aspect.",
             "  Live adaptation is group-driven for now; an ungrouped adaptive screen",
             "  starts at native portrait aspect and stays there until grouped.",
             "  Adaptive screens expose a submenu status view with display id/result/error.",
