@@ -72,3 +72,18 @@ Checkpoint A may temporarily refer to future paths on the agent branch; do not i
 ## Validation target
 
 A fresh-context agent should be able to read `AGENTS.md`, follow the new `autonomic_affairs/tasks.md` path, inspect Dispatch/Active claims, resolve active or archived task IDs through `autonomic_affairs/tasks/README.md`, and recover authorized work without encountering a live reference to the old task-system path.
+## C-060 completion validation
+
+Validated on the coherent renamed tree after the filesystem cutover and historical-design fixup:
+
+- `autonomic_affairs/tasks.md` exists; the former `autonomic_affairs/agent_tasks.md` path does not;
+- `autonomic_affairs/tasks/` exists; no path containing `agent_tasks` remains in the current recursive tree;
+- all 41 unique live Markdown task links emitted by the ledger resolve to paths present in the current tree;
+- required startup/recovery surfaces (`AGENTS.md`, `.agents/README.md`, `.agents/WORKFLOW.md`, root `README.md`, and `autonomic_affairs/README.md`) contain no live `agent_tasks.md` / `agent_tasks/` references;
+- the only intentionally retained old-path wording found by the stale-reference sweep is historical prose in archived task-system material, e.g. `MSHP-META-A-020`, which documents the old contract that actually existed;
+- the C-050 migration workspace was restored after an over-broad preparatory replacement had temporarily turned its old→new examples into self-referential `tasks → tasks` text;
+- both `MSHP-WINGET-A` tasks remain `FROZEN`;
+- `MSHP-OPS-D-010` remains `QUEUED` and undispatched;
+- Active claims continued to identify only `MSHP-OPS-C-060` / `sera_261003-192400` until this completion checkpoint.
+
+Fresh-start walkthrough result: a new agent can now follow `AGENTS.md` → `.agents/WORKFLOW.md` → `autonomic_affairs/tasks.md` → linked active/archived task storage under `autonomic_affairs/tasks/README.md` without encountering a live dependency on the former task-system path.
