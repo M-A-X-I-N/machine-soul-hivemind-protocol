@@ -119,6 +119,10 @@ DEFAULT_WIDTH = 288
 DEFAULT_HEIGHT = 640
 DEFAULT_MAX_FPS = 60
 DEFAULT_BITRATE_SPEC = "auto"
+DEFAULT_ADAPTIVE_MAX_SIZE = 960
+
+DISPLAY_MODE_FIXED = "fixed"
+DISPLAY_MODE_CAPPED_ADAPTIVE = "capped_adaptive"
 
 AUTO_BITRATE_REFERENCE_WIDTH = 288
 AUTO_BITRATE_REFERENCE_HEIGHT = 640
@@ -267,6 +271,8 @@ class ScreenDefaults:
     size: DisplaySize
     max_fps: int
     bitrate_spec: str
+    display_mode: str = DISPLAY_MODE_FIXED
+    adaptive_max_size: int = DEFAULT_ADAPTIVE_MAX_SIZE
 
 
 @dataclass(frozen=True, slots=True)
@@ -276,7 +282,9 @@ class ScreenRequest:
     size: DisplaySize
     max_fps: int
     bitrate_spec: str
-    app: str | None = None
+    app: "AppLaunch | None" = None
+    display_mode: str = DISPLAY_MODE_FIXED
+    adaptive_max_size: int = DEFAULT_ADAPTIVE_MAX_SIZE
 
 
 @dataclass(frozen=True, slots=True)
@@ -322,15 +330,26 @@ class InstalledApp:
 
 
 @dataclass(frozen=True, slots=True)
-class AppPickerSelection:
-    """Installed app plus optional scrcpy clean-start launch policy."""
+class AppLaunch:
+    """Stable app identity plus the launch behavior requested for a new screen."""
 
     app: InstalledApp
     clean_start: bool = False
 
     @property
+    def package(self) -> str:
+        return self.app.package
+
+    @property
+    def display_label(self) -> str:
+        """Human title that never leaks scrcpy's '+' launch-control prefix."""
+        if self.app.name and self.app.name != self.app.package:
+            return f"{self.app.name} [{self.app.package}]"
+        return f"[{self.app.package}]"
+
+    @property
     def start_spec(self) -> str:
-        """Return the exact value expected by scrcpy --start-app."""
+        """Exact value expected by scrcpy --start-app."""
         return ("+" if self.clean_start else "") + self.app.package
 
 
@@ -485,7 +504,7 @@ def resolve_bitrate(spec: str, size: DisplaySize | None) -> ResolvedBitrate:
 
 
 def validate_app(app: str | None) -> str | None:
-    """Normalize an optional exact Android package name."""
+    """Normalize an optional exact Android package name or +PACKAGE launch spec."""
     if app is None:
         return None
 
@@ -495,6 +514,86 @@ def validate_app(app: str | None) -> str | None:
     if any(character.isspace() for character in stripped):
         raise ConfigurationError(f"App/package must not contain whitespace: {app!r}")
     return stripped
+
+
+def parse_app_launch_spec(value: str, *, name: str | None = None) -> AppLaunch:
+    """Separate scrcpy's '+' clean-start control prefix from package identity."""
+    normalized = validate_app(value)
+    if normalized is None:
+        raise ConfigurationError("An Android package is required.")
+
+    clean_start = normalized.startswith("+")
+    package = normalized[1:] if clean_start else normalized
+    if not package:
+        raise ConfigurationError("Clean-start '+' must be followed by a package name.")
+    if ANDROID_PACKAGE_PATTERN.fullmatch(package) is None:
+        raise ConfigurationError(
+            f"Invalid Android package {package!r}; expected a dotted package name."
+        )
+
+    return AppLaunch(
+        app=InstalledApp(
+            name=name or package,
+            package=package,
+            is_system=False,
+        ),
+        clean_start=clean_start,
+    )
+
+
+def validate_display_mode(value: str) -> str:
+    """Normalize one supported virtual-display sizing policy."""
+    if value not in {DISPLAY_MODE_FIXED, DISPLAY_MODE_CAPPED_ADAPTIVE}:
+        raise ConfigurationError(f"Unsupported display mode: {value!r}")
+    return value
+
+
+def validate_adaptive_max_size(value: int) -> int:
+    """Reject unusable adaptive resolution caps."""
+    if value < 64:
+        raise ConfigurationError("Adaptive max dimension must be at least 64 px.")
+    if value > 8192:
+        raise ConfigurationError("Adaptive max dimension above 8192 px is almost certainly a typo.")
+    return value
+
+
+def adaptive_initial_size(max_size: int) -> DisplaySize:
+    """Scale the native/default portrait aspect to one maximum dimension."""
+    cap = validate_adaptive_max_size(max_size)
+    native = DisplaySize(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+    scale = cap / max(native.width, native.height)
+    width = max(1, round(native.width * scale))
+    height = max(1, round(native.height * scale))
+    return DisplaySize(width, height)
+
+
+def effective_default_size(defaults: ScreenDefaults) -> DisplaySize:
+    """Return the framebuffer size used when launching from current defaults."""
+    if defaults.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
+        return adaptive_initial_size(defaults.adaptive_max_size)
+    return defaults.size
+
+
+def describe_display_policy(defaults: ScreenDefaults | ScreenRequest) -> str:
+    """Compact human-readable sizing-policy summary for the TUI."""
+    if defaults.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE:
+        return f"adaptive≤{defaults.adaptive_max_size}px"
+    return str(defaults.size)
+
+
+def request_from_defaults(
+    defaults: ScreenDefaults,
+    app: AppLaunch | None,
+) -> ScreenRequest:
+    """Create a launch request without letting app identity alter display settings."""
+    return ScreenRequest(
+        size=effective_default_size(defaults),
+        max_fps=defaults.max_fps,
+        bitrate_spec=defaults.bitrate_spec,
+        app=app,
+        display_mode=defaults.display_mode,
+        adaptive_max_size=defaults.adaptive_max_size,
+    )
 
 
 def parse_scrcpy_app_list(output: str) -> tuple[InstalledApp, ...]:
@@ -624,7 +723,7 @@ def command_for_display(
     ]
 
     if request.app is not None:
-        command.append(f"--start-app={request.app}")
+        command.append(f"--start-app={request.app.start_spec}")
 
     if bitrate.scrcpy_value is not None:
         command.append(f"--video-bit-rate={bitrate.scrcpy_value}")
@@ -640,7 +739,7 @@ def command_for_display(
             ]
         )
         if managed_screen_id is not None:
-            label = request.app or "virtual display"
+            label = request.app.display_label if request.app is not None else "virtual display"
             command.append(f"--window-title=scrcpy [{managed_screen_id:02d}] {label}")
     else:
         command.extend(
@@ -2208,7 +2307,7 @@ class VirtualScreenManager:
             self._action_create_group()
             return False
         if key == "d" and self.expanded_key is None:
-            self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
+            self._action_defaults()
             return False
         if key in {"h", "?"} and self.expanded_key is None:
             self._show_help()
@@ -2263,7 +2362,7 @@ class VirtualScreenManager:
         elif kind == "action_apps":
             self._action_browse_apps()
         elif kind == "action_defaults":
-            self._run_dialog("NEW-SCREEN DEFAULTS", self._action_defaults)
+            self._action_defaults()
         elif kind == "action_help":
             self._show_help()
         elif kind == "action_quit":
@@ -2301,6 +2400,14 @@ class VirtualScreenManager:
         if screen.process.poll() is None:
             actions.append(SubmenuAction("stop", "Stop screen", ICON_STOP))
         else:
+            if screen.request.app is not None:
+                actions.append(
+                    SubmenuAction(
+                        "start_new",
+                        "Start app in new screen…",
+                        ICON_RESTART,
+                    )
+                )
             actions.append(SubmenuAction("remove", "Remove record", ICON_REMOVE))
         return actions
 
@@ -2319,7 +2426,7 @@ class VirtualScreenManager:
                     if item.kind == "controller"
                     else (
                         f"SCREEN {item.screen_id:02d} / "
-                        f"{self.screens[item.screen_id].request.app or 'bare virtual display'}"
+                        f"{self.screens[item.screen_id].request.app.display_label if self.screens[item.screen_id].request.app is not None else 'bare virtual display'}"
                     )
                 )
                 self._show_log_viewer(title=title, process=process)
@@ -2350,6 +2457,13 @@ class VirtualScreenManager:
                     "FORCED TERMINATION",
                     f"Screen {screen.screen_id:02d} required the forced termination fallback.",
                 )
+            return
+
+        if action.action_id == "start_new":
+            assert screen.request.app is not None
+            self.expanded_key = None
+            self.submenu_index = 0
+            self._action_add(preselected_app=screen.request.app)
             return
 
         if action.action_id == "remove":
@@ -2566,7 +2680,11 @@ class VirtualScreenManager:
                 hovered = absolute == selected_index
                 pointer = ICON_POINTER if hovered else " "
                 mark = "x" if screen.screen_id in checked else " "
-                app = screen.request.app or "(bare virtual display)"
+                app = (
+                    screen.request.app.display_label
+                    if screen.request.app is not None
+                    else "(bare virtual display)"
+                )
                 row = ellipsize(
                     f" {pointer} [{mark}] {ICON_SCREEN} "
                     f"Screen {screen.screen_id:02d}  {app}",
@@ -2667,69 +2785,70 @@ class VirtualScreenManager:
         controller.startup_probe()
         self.controller = controller
 
-    def _action_add(self) -> None:
-        """Choose an app source, then create one managed virtual display."""
-        mode = self._show_choice_menu(
-            title="ADD VIRTUAL SCREEN / APP SOURCE",
-            choices=(
-                (ICON_SEARCH, "Browse/search installed apps", "browse"),
-                (ICON_TERMINAL, "Enter exact package manually", "manual"),
-                (ICON_SCREEN, "Bare virtual display", "bare"),
-            ),
+    def _action_add(self, preselected_app: AppLaunch | None = None) -> None:
+        """Select an app, edit launch settings in-TUI, then create one screen."""
+        app = preselected_app
+
+        if app is None:
+            mode = self._show_choice_menu(
+                title="ADD VIRTUAL SCREEN / APP SOURCE",
+                choices=(
+                    (ICON_SEARCH, "Browse/search installed apps", "browse"),
+                    (ICON_TERMINAL, "Enter exact package manually", "manual"),
+                    (ICON_SCREEN, "Bare virtual display", "bare"),
+                ),
+            )
+            if mode is None:
+                return
+
+            if mode == "browse":
+                selected = self._show_app_picker(
+                    "SELECT INSTALLED APP",
+                    allow_clean_start=True,
+                )
+                if selected is None:
+                    return
+                app = selected
+            elif mode == "manual":
+                raw = self._show_text_value_editor(
+                    title="ADD VIRTUAL SCREEN / MANUAL PACKAGE",
+                    label="Package",
+                    current="",
+                    validator=lambda value: parse_app_launch_spec(value),
+                    hint="Prefix with + for a clean start. Esc cancels.",
+                )
+                if raw is None or not raw.strip():
+                    return
+                launch = parse_app_launch_spec(raw)
+                if self._installed_apps is not None:
+                    known = next(
+                        (
+                            candidate
+                            for candidate in self._installed_apps
+                            if candidate.package == launch.package
+                        ),
+                        None,
+                    )
+                    if known is not None:
+                        launch = AppLaunch(known, clean_start=launch.clean_start)
+                app = launch
+            else:
+                app = None
+
+        edited = self._show_screen_settings_editor(
+            title="CREATE VIRTUAL SCREEN",
+            initial=self.defaults,
+            submit_label="Create screen",
+            app=app,
         )
-        if mode is None:
+        if edited is None:
             return
 
-        app: str | None
-        if mode == "browse":
-            selected = self._show_app_picker(
-                "SELECT INSTALLED APP",
-                allow_clean_start=True,
-            )
-            if selected is None:
-                return
-            app = selected.start_spec
-        elif mode == "manual":
-            value: list[str | None] = [None]
+        self._finish_add_screen(request_from_defaults(edited, app))
 
-            def prompt_manual() -> None:
-                raw = input("Exact Android package [blank = cancel]: ").strip()
-                value[0] = validate_app(raw) if raw else None
-
-            self._run_dialog("ADD VIRTUAL SCREEN / MANUAL PACKAGE", prompt_manual)
-            if value[0] is None:
-                return
-            app = value[0]
-        else:
-            app = None
-
-        self._run_dialog(
-            "ADD VIRTUAL SCREEN / SETTINGS",
-            lambda: self._finish_add_screen(app),
-        )
-
-    def _finish_add_screen(self, app: str | None) -> None:
+    def _finish_add_screen(self, request: ScreenRequest) -> None:
+        """Launch an already-confirmed request; the wizard owns all interaction."""
         try:
-            use_defaults = self._prompt_yes_no(
-                f"Use defaults ({self.defaults.size}, {self.defaults.max_fps} FPS, "
-                f"{self.defaults.bitrate_spec} bitrate)?",
-                default=True,
-            )
-
-            request = ScreenRequest(
-                size=self.defaults.size,
-                max_fps=self.defaults.max_fps,
-                bitrate_spec=self.defaults.bitrate_spec,
-                app=app,
-            )
-            if not use_defaults:
-                request = ScreenRequest(
-                    size=self._prompt_size("Size", request.size),
-                    max_fps=self._prompt_fps("Max FPS", request.max_fps),
-                    bitrate_spec=self._prompt_bitrate("Bitrate", request.bitrate_spec),
-                    app=app,
-                )
-
             self._ensure_controller()
 
             screen_id = self.next_screen_id
@@ -2760,15 +2879,8 @@ class VirtualScreenManager:
                 window_handle=window_handle,
             )
             self.next_screen_id += 1
-            print()
-            print(f"{ICON_RUNNING} Screen {screen_id:02d} launched successfully.")
-            print(printable_command(command))
-            input("\nPress Enter to return to the manager...")
         except (ConfigurationError, LaunchError) as exc:
-            print()
-            print(f"{ICON_STOPPED} ADD FAILED")
-            print(exc)
-            input("\nPress Enter to return to the manager...")
+            self._show_message("ADD FAILED", str(exc))
 
     def _action_browse_apps(self) -> None:
         selected = self._show_app_picker("INSTALLED APPS / PACKAGE FINDER")
@@ -2849,7 +2961,7 @@ class VirtualScreenManager:
         title: str,
         *,
         allow_clean_start: bool = False,
-    ) -> AppPickerSelection | None:
+    ) -> AppLaunch | None:
         """
         Live installed-app browser with three keyboard-focus regions.
 
@@ -3076,7 +3188,7 @@ class VirtualScreenManager:
                 continue
 
             if key == "ENTER" and matches:
-                return AppPickerSelection(
+                return AppLaunch(
                     app=matches[selected],
                     clean_start=clean_start if allow_clean_start else False,
                 )
@@ -3099,17 +3211,249 @@ class VirtualScreenManager:
             elif key == "END" and matches:
                 selected = len(matches) - 1
 
+    def _show_text_value_editor(
+        self,
+        *,
+        title: str,
+        label: str,
+        current: str,
+        validator: Callable[[str], object],
+        hint: str = "",
+    ) -> str | None:
+        """Framed raw-key text editor used instead of legacy input() prompts."""
+        terminal = self._require_terminal()
+        value = current
+        error = ""
+        replace_on_type = bool(current)
+
+        while True:
+            width, height = terminal_dimensions()
+            inner_width = max(1, width - 2)
+            display_value = value or "(empty)"
+            field = f" {label}: {display_value}"
+            if error:
+                validation_line = f"{ANSI_FG_RED}{ICON_STOPPED} {error}{ANSI_RESET}"
+            else:
+                validation_line = f"{ANSI_DIM}{hint}{ANSI_RESET}" if hint else ""
+
+            lines = [
+                f" {ANSI_BOLD}{ANSI_FG_CYAN}{ICON_SETTINGS} {title}{ANSI_RESET}",
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
+                "",
+                ANSI_REVERSE + ellipsize(field, inner_width) + ANSI_RESET,
+                "",
+                validation_line,
+                "",
+                f"{ANSI_DIM}Type to replace/edit · Backspace · Enter accept · Esc cancel{ANSI_RESET}",
+            ]
+            terminal.draw(compose_terminal_frame(lines, width, height))
+
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "CTRL_C"}:
+                return None
+            if key == "ENTER":
+                try:
+                    validator(value)
+                except (ConfigurationError, ValueError) as exc:
+                    error = str(exc)
+                    continue
+                return value
+            if key == "BACKSPACE":
+                value = value[:-1]
+                replace_on_type = False
+                error = ""
+                continue
+            if key == "SPACE":
+                typed = " "
+            elif len(key) == 1 and key.isprintable():
+                typed = key
+            else:
+                continue
+
+            if replace_on_type:
+                value = typed
+                replace_on_type = False
+            else:
+                value += typed
+            error = ""
+
+    def _show_screen_settings_editor(
+        self,
+        *,
+        title: str,
+        initial: ScreenDefaults,
+        submit_label: str,
+        app: AppLaunch | None = None,
+    ) -> ScreenDefaults | None:
+        """Full-screen cancellable settings editor shared by Add and Defaults."""
+        terminal = self._require_terminal()
+
+        display_mode = validate_display_mode(initial.display_mode)
+        fixed_size = initial.size
+        adaptive_max_size = validate_adaptive_max_size(initial.adaptive_max_size)
+        max_fps = validate_max_fps(initial.max_fps)
+        bitrate_spec = normalize_bitrate_spec(initial.bitrate_spec)
+        selected = 0
+
+        while True:
+            if display_mode == DISPLAY_MODE_FIXED:
+                field_rows = [
+                    ("mode", "Display mode", "Fixed framebuffer"),
+                    ("size", "Framebuffer size", str(fixed_size)),
+                    ("fps", "Max FPS", str(max_fps)),
+                    ("bitrate", "Video bitrate", bitrate_spec),
+                ]
+            else:
+                initial_size = adaptive_initial_size(adaptive_max_size)
+                field_rows = [
+                    ("mode", "Display mode", "Capped adaptive (experimental)"),
+                    ("adaptive_max", "Max dimension", f"{adaptive_max_size} px"),
+                    ("initial", "Initial native-aspect size", str(initial_size)),
+                    ("fps", "Max FPS", str(max_fps)),
+                    ("bitrate", "Video bitrate", bitrate_spec),
+                ]
+
+            rows = field_rows + [
+                ("submit", submit_label, ""),
+                ("cancel", "Cancel", ""),
+            ]
+            selected = max(0, min(selected, len(rows) - 1))
+
+            width, height = terminal_dimensions()
+            inner_width = max(1, width - 2)
+            lines = [
+                f" {ANSI_BOLD}{ANSI_FG_CYAN}{ICON_SETTINGS} {title}{ANSI_RESET}",
+                f"{ANSI_FG_CYAN}{terminal_rule(inner_width)}{ANSI_RESET}",
+            ]
+            if app is not None:
+                launch_mode = "clean start" if app.clean_start else "normal start"
+                lines.append(
+                    f" {ICON_APPS} {app.display_label}   {ANSI_DIM}{launch_mode}{ANSI_RESET}"
+                )
+            else:
+                lines.append(f" {ANSI_DIM}No app preselected / bare display{ANSI_RESET}")
+            lines.append("")
+
+            for index, (field_id, label, value) in enumerate(rows):
+                hovered = index == selected
+                pointer = ICON_POINTER if hovered else " "
+                if field_id == "submit":
+                    raw = f" {pointer} {ICON_RUNNING} {label}"
+                elif field_id == "cancel":
+                    raw = f" {pointer} {ICON_BACK} {label}"
+                elif field_id == "initial":
+                    raw = f" {pointer}   {label:<26} {value}  (derived)"
+                else:
+                    raw = f" {pointer}   {label:<26} {value}"
+                rendered = ellipsize(raw, inner_width)
+                lines.append(
+                    ANSI_REVERSE + rendered + ANSI_RESET if hovered else rendered
+                )
+
+            lines.extend(
+                [
+                    "",
+                    f"{ANSI_DIM}↑/↓ select · Enter edit/confirm · ←/→ change mode · Esc cancel{ANSI_RESET}",
+                ]
+            )
+            terminal.draw(compose_terminal_frame(lines, width, height))
+
+            key = terminal.read_key(UI_REFRESH_SECONDS)
+            if key is None:
+                continue
+            if key in {"ESC", "CTRL_C"}:
+                return None
+            if key == "UP":
+                selected = (selected - 1) % len(rows)
+                continue
+            if key == "DOWN":
+                selected = (selected + 1) % len(rows)
+                continue
+
+            field_id = rows[selected][0]
+            if field_id == "mode" and key in {"ENTER", "LEFT", "RIGHT"}:
+                display_mode = (
+                    DISPLAY_MODE_CAPPED_ADAPTIVE
+                    if display_mode == DISPLAY_MODE_FIXED
+                    else DISPLAY_MODE_FIXED
+                )
+                selected = 0
+                continue
+
+            if key != "ENTER":
+                continue
+
+            if field_id == "cancel":
+                return None
+            if field_id == "submit":
+                return ScreenDefaults(
+                    size=fixed_size,
+                    max_fps=max_fps,
+                    bitrate_spec=bitrate_spec,
+                    display_mode=display_mode,
+                    adaptive_max_size=adaptive_max_size,
+                )
+            if field_id == "initial":
+                continue
+            if field_id == "size":
+                value = self._show_text_value_editor(
+                    title=title,
+                    label="Framebuffer size",
+                    current=str(fixed_size),
+                    validator=DisplaySize.parse,
+                    hint="WIDTHxHEIGHT, for example 288x640",
+                )
+                if value is not None:
+                    fixed_size = DisplaySize.parse(value)
+                continue
+            if field_id == "adaptive_max":
+                value = self._show_text_value_editor(
+                    title=title,
+                    label="Max dimension",
+                    current=str(adaptive_max_size),
+                    validator=lambda text: validate_adaptive_max_size(int(text)),
+                    hint="Maximum Android-rendered width or height in pixels",
+                )
+                if value is not None:
+                    try:
+                        adaptive_max_size = validate_adaptive_max_size(int(value))
+                    except ValueError:
+                        pass
+                continue
+            if field_id == "fps":
+                value = self._show_text_value_editor(
+                    title=title,
+                    label="Max FPS",
+                    current=str(max_fps),
+                    validator=lambda text: validate_max_fps(int(text)),
+                )
+                if value is not None:
+                    try:
+                        max_fps = validate_max_fps(int(value))
+                    except ValueError:
+                        pass
+                continue
+            if field_id == "bitrate":
+                value = self._show_text_value_editor(
+                    title=title,
+                    label="Video bitrate",
+                    current=bitrate_spec,
+                    validator=normalize_bitrate_spec,
+                    hint="auto, 4M, 2500K, …",
+                )
+                if value is not None:
+                    bitrate_spec = normalize_bitrate_spec(value)
+
     def _action_defaults(self) -> None:
-        try:
-            size = self._prompt_size("Default size", self.defaults.size)
-            max_fps = self._prompt_fps("Default max FPS", self.defaults.max_fps)
-            bitrate = self._prompt_bitrate("Default bitrate", self.defaults.bitrate_spec)
-            self.defaults = ScreenDefaults(size=size, max_fps=max_fps, bitrate_spec=bitrate)
-            print(f"\n{ICON_SETTINGS} New-screen defaults updated.")
-            input("\nPress Enter to return to the manager...")
-        except ConfigurationError as exc:
-            print(f"\n{ICON_STOPPED} DEFAULT UPDATE FAILED\n{exc}")
-            input("\nPress Enter to return to the manager...")
+        edited = self._show_screen_settings_editor(
+            title="EDIT NEW-SCREEN DEFAULTS",
+            initial=self.defaults,
+            submit_label="Save defaults",
+        )
+        if edited is not None:
+            self.defaults = edited
 
     def _run_dialog(self, title: str, action: Callable[[], None]) -> None:
         terminal = self._require_terminal()
@@ -3167,6 +3511,9 @@ class VirtualScreenManager:
             "  updates results without Enter, and highlights matched text.",
             "  During Add Screen, + toggles scrcpy clean-start mode; when enabled,",
             "  the selected package is force-stopped before launch on the new display.",
+            "  App identity and clean-start state are stored separately, so '+' never",
+            "  leaks into display titles. Exited app screens can start the same app",
+            "  through the normal new-screen wizard without reusing old display settings.",
             "  The inventory is cached until Ctrl+R refreshes it.",
             "",
             f"{ANSI_DIM}Press Esc, Enter, Q, or H to return.{ANSI_RESET}",
@@ -3289,7 +3636,7 @@ class VirtualScreenManager:
                 f"{len(self.screens)} displays / {running} running"
                 f"    {ANSI_FG_MAGENTA}{ICON_GROUP}{ANSI_RESET} {len(self.groups)} groups"
                 f"    {ANSI_FG_YELLOW}{ICON_SETTINGS}{ANSI_RESET} defaults "
-                f"{self.defaults.size} · {self.defaults.max_fps} FPS · "
+                f"{describe_display_policy(self.defaults)} · {self.defaults.max_fps} FPS · "
                 f"{self.defaults.bitrate_spec}"
             )
             footer = (
@@ -3301,7 +3648,7 @@ class VirtualScreenManager:
                 f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
                 f"{running}/{len(self.screens)} running   "
                 f"{ANSI_FG_YELLOW}{ICON_SETTINGS}{ANSI_RESET} "
-                f"{self.defaults.size} · {self.defaults.max_fps}fps · "
+                f"{describe_display_policy(self.defaults)} · {self.defaults.max_fps}fps · "
                 f"{self.defaults.bitrate_spec}"
             )
             footer = " ↑/↓ select · Enter · Esc · A add · G group · F apps · D defaults · H help · Q quit"
@@ -3309,7 +3656,7 @@ class VirtualScreenManager:
             status = (
                 f" {ANSI_FG_GREEN}{ICON_SCREEN}{ANSI_RESET} "
                 f"{running}/{len(self.screens)}   "
-                f"{self.defaults.size} {self.defaults.max_fps}fps"
+                f"{describe_display_policy(self.defaults)} {self.defaults.max_fps}fps"
             )
             footer = " ↑↓ Enter Esc  A G F D H Q"
 
@@ -3371,7 +3718,11 @@ class VirtualScreenManager:
             screen = self.screens[item.screen_id]
             pid = screen.process.pid or 0
             age = self._format_age(screen.age_seconds)
-            app = screen.request.app or "(bare virtual display)"
+            app = (
+                screen.request.app.display_label
+                if screen.request.app is not None
+                else "(bare virtual display)"
+            )
             icon = ICON_RUNNING if screen.process.poll() is None else ICON_STOPPED
             group_badge = (
                 f"G{screen.group_id:02d} "
@@ -3382,7 +3733,7 @@ class VirtualScreenManager:
                 f" {pointer} {expander} {ICON_SCREEN} {screen.screen_id:02d} "
                 f"{group_badge:>4} "
                 f"{icon} {screen.status:<8} pid={pid:<7} {age:<8} "
-                f"{screen.request.size} {screen.request.max_fps}fps "
+                f"{describe_display_policy(screen.request)} {screen.request.max_fps}fps "
                 f"{screen.bitrate.display_value}  {app}"
             )
             latest = screen.process.latest_line or "(no console output yet)"
@@ -3550,11 +3901,12 @@ def run_direct(
     app = validate_app(app)
 
     if app is not None:
+        launch = parse_app_launch_spec(app)
         request = ScreenRequest(
             size=size,
             max_fps=max_fps,
             bitrate_spec=bitrate_spec,
-            app=app,
+            app=launch,
         )
         command, bitrate = command_for_display(scrcpy, request)
         mode = "virtual display"
@@ -3693,6 +4045,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     size=size,
                     max_fps=max_fps,
                     bitrate_spec=bitrate_spec,
+                    display_mode=DISPLAY_MODE_FIXED,
+                    adaptive_max_size=DEFAULT_ADAPTIVE_MAX_SIZE,
                 ),
             )
             return manager.run()
