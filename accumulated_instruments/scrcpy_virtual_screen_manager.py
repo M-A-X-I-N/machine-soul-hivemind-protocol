@@ -82,10 +82,12 @@ capacity without waiting for user input.
 
 On Windows, running virtual screens may optionally be collected into lightweight
 organizer groups. The organizer is a dependency-free native Win32 window created
-with ctypes; it does not reparent or embed scrcpy windows. Its client rectangle
-is debounced and used to move/resize ordinary scrcpy top-level windows with
-bounded portrait aspect-ratio wiggle. Closing an organizer disbands its group
-without stopping any screen.
+with ctypes; it does not reparent or embed scrcpy windows. Group members become
+temporarily borderless and are moved/restacked as one atomic z-order batch.
+Groups are explicit expandable sections in the terminal UI. New-screen/default
+settings use a cancellable full-screen editor instead of line-oriented prompts.
+Capped-adaptive group members may additionally request per-display Android
+geometry changes while keeping a scalar maximum render dimension.
 """
 
 from __future__ import annotations
@@ -2520,7 +2522,7 @@ class TerminalUI:
 
 
 class VirtualScreenManager:
-    """Keyboard-driven 90s-terminal manager for multiple scrcpy processes."""
+    """Full-screen keyboard-driven manager for multiple scrcpy processes."""
 
     def __init__(self, scrcpy: str, defaults: ScreenDefaults) -> None:
         self.scrcpy = scrcpy
@@ -3926,12 +3928,6 @@ class VirtualScreenManager:
         if edited is not None:
             self.defaults = edited
 
-    def _run_dialog(self, title: str, action: Callable[[], None]) -> None:
-        terminal = self._require_terminal()
-        with terminal.line_mode():
-            terminal.clear_for_dialog(title)
-            action()
-
     def _show_message(self, title: str, message: str) -> None:
         terminal = self._require_terminal()
         with terminal.line_mode():
@@ -3976,6 +3972,8 @@ class VirtualScreenManager:
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
+            "  Live adaptation is group-driven for now; an ungrouped adaptive screen",
+            "  starts at native portrait aspect and stays there until grouped.",
             "  Closing it disbands the group; screens remain alive and independent.",
             "  Moving/activating uses one atomic member+organizer z-order transaction.",
             "  Groups automatically dissolve when fewer than two members remain.",
@@ -4338,35 +4336,6 @@ class VirtualScreenManager:
         if self.terminal is None:
             raise RuntimeError("Interactive terminal is not active.")
         return self.terminal
-
-    def _prompt_size(self, label: str, current: DisplaySize) -> DisplaySize:
-        text = input(f"{label} [{current}]: ").strip()
-        return current if not text else DisplaySize.parse(text)
-
-    def _prompt_fps(self, label: str, current: int) -> int:
-        text = input(f"{label} [{current}]: ").strip()
-        if not text:
-            return current
-        if not text.isdigit():
-            raise ConfigurationError(f"{label} must be an integer.")
-        return validate_max_fps(int(text))
-
-    def _prompt_bitrate(self, label: str, current: str) -> str:
-        text = input(f"{label} [{current}]: ").strip()
-        return current if not text else normalize_bitrate_spec(text)
-
-    @staticmethod
-    def _prompt_yes_no(prompt: str, *, default: bool) -> bool:
-        suffix = "[Y/n]" if default else "[y/N]"
-        while True:
-            text = input(f"{prompt} {suffix} ").strip().lower()
-            if not text:
-                return default
-            if text in {"y", "yes"}:
-                return True
-            if text in {"n", "no"}:
-                return False
-            print("Please answer y or n.")
 
     @staticmethod
     def _format_age(seconds: int) -> str:
