@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-OPS-C-010`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-010.md)
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS` and removes it from Dispatch.
 
@@ -46,7 +46,7 @@ Dispatch is an ordered authorization/priority list, not a lifecycle state. Only 
 | [`MSHP-APPS-A-010`](agent_tasks/MSHP-APPS-A/MSHP-APPS-A-010.md) | COMPLETE | — | Investigate Windows config candidates | Inventory Windows-integrated and common Microsoft applications with stable user-manageable configuration surfaces that may deserve Machine-Soul configuration entries. |
 | [`MSHP-WINGET-A-010`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | FROZEN | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
 | [`MSHP-WINGET-A-020`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | FROZEN | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
-| [`MSHP-OPS-C-010`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-010.md) | QUEUED | — | Harden lineage recovery authority | Make branch discoverability insufficient for lineage adoption; require explicit human recovery authority and stop on unexpected unrelated lineage work. |
+| [`MSHP-OPS-C-010`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-010.md) | IN_PROGRESS | — | Harden lineage recovery authority | Make branch discoverability insufficient for lineage adoption; require explicit human recovery authority and stop on unexpected unrelated lineage work. |
 | [`MSHP-OPS-C-020`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-020.md) | QUEUED | `MSHP-OPS-C-010` | Add active task claims to the task ledger | Add a live ownership/claim section inside the task ledger, define claim/release semantics, and make claims coordination locks rather than recovery credentials. |
 | [`MSHP-OPS-C-030`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-030.md) | QUEUED | `MSHP-OPS-C-020` | Improve task-ledger block readability | Reorganize the ledger into visually distinct task-block sections without breaking task lookup, parsers, archival rules, or Dispatch semantics. |
 | [`MSHP-OPS-C-040`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-040.md) | QUEUED | `MSHP-OPS-C-010` | Codify top-level directory contract | Make the meme-named repository domains unambiguous to agents by defining what belongs and does not belong in every top-level control/content directory. |
