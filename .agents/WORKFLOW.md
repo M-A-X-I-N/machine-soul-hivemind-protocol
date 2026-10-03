@@ -6,11 +6,11 @@ For repository-changing work:
 
 1. inspect the active branch/current state;
 2. read `../autonomic_affairs/agent_tasks.md`, inspect Dispatch, and open the linked detailed task specification;
-3. when claiming dispatched work, change its index state to `IN_PROGRESS` and remove it from Dispatch;
+3. when claiming dispatched work, atomically change its index state to `IN_PROGRESS`, remove it from Dispatch, and add/update its row in **Active claims** with the authorized lineage and canonical branch;
 4. keep each checkpoint narrow enough to explain and revert independently;
 5. run the smallest validation that genuinely proves the changed surface;
 6. commit/push meaningful completed work promptly;
-7. when a task completes, set it to `COMPLETE`, then populate Dispatch with the next authorized/eligible work in priority order;
+7. when a task completes, set it to `COMPLETE`, remove its Active-claims row, then populate Dispatch with the next authorized/eligible work in priority order;
 8. persist expensive reusable discoveries under `.agents/`.
 
 Do not leave substantial completed work only in an ephemeral tool session.
@@ -43,6 +43,22 @@ Merely finding an `agent/**` branch, an apparently abandoned task, an `IN_PROGRE
 After authorized recovery, compare the actual lineage head/history with the expected checkpoint before writing. If unexpected unrelated work has appeared in the namespace, stop adoption and reconcile with the human instead of overwriting, merging through, or silently treating the foreign work as part of the recovered lineage.
 
 Cross-agent coordination, task bookkeeping, and similarly natural repository-control changes may still land directly on `main`.
+
+### Active task claims
+
+`autonomic_affairs/agent_tasks.md` contains an **Active claims** section separate from task tables. A claim is a live coordination lock saying which authorized lineage currently owns execution of a task.
+
+Claim lifecycle:
+
+- claiming normally means `QUEUED → IN_PROGRESS`, removal from Dispatch, and claim-row creation in the same checkpoint;
+- `IN_PROGRESS`, `BLOCKED`, and `AWAITING_DEFERRED_CI` may retain their claim while that lineage still owns continuation;
+- freezing active work normally releases its claim unless the human/agent explicitly records that the freeze retains exclusive ownership;
+- `COMPLETE`, `CANCELLED`, and `SUPERSEDED` tasks must not keep active claims;
+- explicit handoff changes the claim only after the receiving lineage is authorized under the recovery/adoption rules.
+
+A claim is **never** authority to adopt that lineage. If a claim appears stale, inconsistent with task state, points at a missing/diverged branch, or conflicts with current conversation authority, inspect and reconcile it; do not silently delete it, steal it, or treat it as permission to recover.
+
+Git history is the historical record of old claims. Remove released/completed claim rows instead of maintaining a second permanent claim archive.
 
 ## CI selection and deferred validation
 

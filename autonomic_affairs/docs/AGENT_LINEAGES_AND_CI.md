@@ -38,6 +38,16 @@ agent/{identifier}/main
 
 Additional branches inside that namespace are unrestricted apart from normal Git ref validity.
 
+## Active task claims
+
+The authoritative task ledger contains a live **Active claims** section outside task tables. Each row identifies the task, authorized lineage, canonical branch, claim time, and any short coordination note.
+
+Claims are exclusive coordination markers for active execution, not lineage-recovery credentials. Finding a claim does not authorize another chat/agent to become that lineage.
+
+Claims normally persist through `IN_PROGRESS`, `BLOCKED`, and `AWAITING_DEFERRED_CI` while the same lineage owns continuation. A task frozen from active work normally releases its claim unless retained ownership is made explicit. Terminal states do not keep active claims.
+
+Suspected stale or inconsistent claims are reconciliation problems: inspect task state and branch history and obtain/confirm authority rather than stealing or silently deleting the claim.
+
 Normal substantive development should prefer the lineage namespace. This is not a prohibition on direct `main` work: coordination state, task bookkeeping, policy/control-plane changes, and other small changes whose natural home is `main` may land there directly.
 
 ## Validation philosophy
