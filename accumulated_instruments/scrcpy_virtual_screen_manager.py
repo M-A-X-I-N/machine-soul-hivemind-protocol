@@ -1944,6 +1944,10 @@ def calculate_group_layout(
             screen.request.display_mode == DISPLAY_MODE_STOCK_FLEX_TEST
             for screen in screens
         )
+        or all(
+            screen.request.display_mode == DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST
+            for screen in screens
+        )
     ):
         return calculate_adaptive_fill_layout(bounds, screens)
 
@@ -3285,17 +3289,12 @@ class VirtualScreenManager:
         eligible = [
             screen
             for screen in self.screens.values()
-            if (
-                screen.process.poll() is None
-                and screen.group_id is None
-                and screen.request.display_mode != DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST
-            )
+            if screen.process.poll() is None and screen.group_id is None
         ]
         if len(eligible) < 2:
             self._show_message(
                 "NOT ENOUGH UNGROUPED SCREENS",
-                "Create at least two running ungrouped group-compatible screens first. "
-                "The capped stock-flex comparison mode remains intentionally excluded.",
+                "Create at least two running ungrouped screens first.",
             )
             return
 
@@ -4024,7 +4023,7 @@ class VirtualScreenManager:
             else:
                 assert display_mode == DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST
                 field_rows = [
-                    ("mode", "Display mode", "Stock flex + cap (EXTRA EXPERIMENTAL)"),
+                    ("mode", "Display mode", "Stock flex + cap (SPICY EXPERIMENTAL)"),
                     ("size", "Initial display size", str(fixed_size)),
                     ("adaptive_max", "Stock --max-size", f"{adaptive_max_size} px"),
                     ("initial", "Behavior", "stock --flex-display + --max-size"),
@@ -4225,11 +4224,10 @@ class VirtualScreenManager:
             "  instead of the manager repeatedly forcing independent window stacks.",
             "  Stock flex (EXTRA EXPERIMENTAL) launches stock scrcpy with",
             "  --flex-display, no max-size cap, and no ADB resize override.",
-            "  It can now be grouped experimentally: the organizer only resizes the",
-            "  Win32 HWND, then scrcpy itself must propagate that geometry to Android.",
-            "  Homogeneous stock-flex groups use gapless exact tiling.",
-            "  Stock flex + cap remains single-window-only as the A/B partner: same",
-            "  scrcpy path, but adds stock --max-size to isolate cap semantics.",
+            "  Stock flex + cap (SPICY EXPERIMENTAL) uses the exact same path but adds",
+            "  stock --max-size. Both may be grouped; homogeneous groups use identical",
+            "  gapless exact tiling and the organizer only resizes Win32 HWNDs.",
+            "  This keeps the cap itself as the meaningful experimental variable.",
             "",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
