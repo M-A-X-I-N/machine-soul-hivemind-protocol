@@ -75,6 +75,7 @@ _CONTROL_PATHS = frozenset({
     "autonomic_affairs/tests/python/test_ci_workflow_contract.py",
 })
 _BLOCKING_CHECKS = REGISTERED_CHECKS[:-2]
+_NONFRESH_OS_CHECKS = REGISTERED_CHECKS[0:9]
 _INSTALL_MARKERS = (
     "/install.py",
     "installation_",
@@ -263,9 +264,9 @@ def _checks_for_path(path: str) -> tuple[str, ...] | None:
         if normalized.startswith("annexation_procedures/"):
             if any(marker in normalized for marker in _INSTALL_MARKERS):
                 return (*_BLOCKING_CHECKS, "codeql-python")
-            return ("linux-python", "windows-python", "codeql-python")
+            return (*_NONFRESH_OS_CHECKS, "codeql-python")
         if normalized.startswith("autonomic_affairs/tests/python/"):
-            return ("linux-python", "windows-python")
+            return ("linux-python", "windows-python", "codeql-python")
         return ("codeql-python",)
 
     return None
@@ -427,7 +428,14 @@ def resolve_automatic_event(
     """Resolve explicit intent or conservative automatic event evidence."""
 
     if event_name == "workflow_dispatch":
-        return parse_selector(manual_selector, source="manual-dispatch")
+        selection = parse_selector(manual_selector, source="manual-dispatch")
+        if selection.automatic:
+            return _all_invalid(
+                "manual-dispatch",
+                "manual dispatch requires an explicit check/group selection; "
+                "'auto' has no event diff to classify",
+            )
+        return selection
     if event_name == "schedule":
         return PolicySelection(
             REGISTERED_CHECKS,
