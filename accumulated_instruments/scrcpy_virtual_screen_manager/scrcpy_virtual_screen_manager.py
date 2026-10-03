@@ -122,6 +122,8 @@ DEFAULT_HEIGHT = 640
 DEFAULT_MAX_FPS = 60
 DEFAULT_BITRATE_SPEC = "auto"
 DEFAULT_ADAPTIVE_MAX_SIZE = 960
+AUDIO_ISOLATION_SERVER_FILENAME = "scrcpy-server-v4.1-audio-isolated"
+AUDIO_ISOLATION_SERVER_ENV = "SCRCPY_AUDIO_ISOLATION_SERVER"
 
 DISPLAY_MODE_FIXED = "fixed"
 DISPLAY_MODE_CAPPED_ADAPTIVE = "capped_adaptive"
@@ -729,6 +731,26 @@ def list_installed_apps(scrcpy: str) -> tuple[InstalledApp, ...]:
 # =============================================================================
 
 
+def resolve_audio_isolation_server() -> str | None:
+    """Locate the optional patched scrcpy 4.1 server used for per-app audio."""
+    configured = os.environ.get(AUDIO_ISOLATION_SERVER_ENV)
+    if configured:
+        candidate = Path(configured).expanduser()
+        if not candidate.is_file():
+            raise ConfigurationError(
+                f"{AUDIO_ISOLATION_SERVER_ENV} points to a missing file: {candidate}"
+            )
+        return str(candidate.resolve())
+
+    candidate = (
+        Path(__file__).resolve().parent
+        / "scrcpy_server"
+        / "out"
+        / AUDIO_ISOLATION_SERVER_FILENAME
+    )
+    return str(candidate) if candidate.is_file() else None
+
+
 def resolve_scrcpy_executable() -> str:
     """
     Locate scrcpy.
@@ -807,6 +829,7 @@ def command_for_display(
     *,
     managed_screen_id: int | None = None,
     interactive_managed: bool = False,
+    audio_isolation: bool = False,
 ) -> tuple[list[str], ResolvedBitrate]:
     """
     Construct one virtual-display command.
@@ -834,6 +857,11 @@ def command_for_display(
         command.append("--flex-display")
         if request.display_mode == DISPLAY_MODE_STOCK_FLEX_CAPPED_TEST:
             command.append(f"--max-size={request.adaptive_max_size}")
+
+    if audio_isolation and request.app is not None:
+        # The patched v4.1 server hooks the subsequent START_APP control message,
+        # resolves that package's Android UID, and retargets playback capture.
+        command.append("--audio-source=playback")
 
     if request.app is not None:
         command.append(f"--start-app={request.app.start_spec}")
@@ -1187,10 +1215,18 @@ class ObservedProcess:
     session duration.
     """
 
-    def __init__(self, command: Sequence[str], *, label: str, log_path: Path) -> None:
+    def __init__(
+        self,
+        command: Sequence[str],
+        *,
+        label: str,
+        log_path: Path,
+        env_overrides: dict[str, str] | None = None,
+    ) -> None:
         self.command = list(command)
         self.label = label
         self.log_path = log_path
+        self.env_overrides = dict(env_overrides or {})
         self._lock = threading.Lock()
         self._process: subprocess.Popen[str] | None = None
         self._reader: threading.Thread | None = None
@@ -1233,6 +1269,9 @@ class ObservedProcess:
         if os.name == "nt":
             creationflags |= subprocess.CREATE_NEW_PROCESS_GROUP
 
+        environment = os.environ.copy()
+        environment.update(self.env_overrides)
+
         try:
             self._process = subprocess.Popen(
                 self.command,
@@ -1244,6 +1283,7 @@ class ObservedProcess:
                 errors="replace",
                 bufsize=1,
                 creationflags=creationflags,
+                env=environment,
             )
         except OSError as exc:
             raise LaunchError(
@@ -2661,6 +2701,7 @@ class VirtualScreenManager:
         self._log_directory = tempfile.TemporaryDirectory(prefix="scrcpy-screen-manager-")
         self.log_root = Path(self._log_directory.name)
         self._installed_apps: tuple[InstalledApp, ...] | None = None
+        self.audio_isolation_server = resolve_audio_isolation_server()
         self.adb = resolve_adb_executable(scrcpy)
         self._adaptive_condition = threading.Condition()
         self._adaptive_targets: dict[int, DisplaySize] = {}
@@ -2681,6 +2722,25 @@ class VirtualScreenManager:
         self.next_group_id = 1
         self.collapsed_groups: set[int] = set()
         self._group_events: queue.SimpleQueue[GroupWindowEvent] = queue.SimpleQueue()
+
+    def _screen_process_environment(
+        self,
+        request: ScreenRequest,
+        screen_id: int,
+    ) -> dict[str, str]:
+        """Per-screen environment for SDL mixer naming and optional server override."""
+        label = request.app.display_label if request.app is not None else "virtual display"
+        environment = {
+            # SDL3 uses SDL_APP_NAME as application metadata for integrations such
+            # as desktop volume controls. Keep it aligned with our window title.
+            "SDL_APP_NAME": f"scrcpy [{screen_id:02d}] {label}",
+        }
+        if self.audio_isolation_server is not None and request.app is not None:
+            environment["SCRCPY_SERVER_PATH"] = self.audio_isolation_server
+        return environment
+
+    def _audio_isolation_enabled(self, request: ScreenRequest) -> bool:
+        return self.audio_isolation_server is not None and request.app is not None
 
     def run(self) -> int:
         """Run until the operator selects Quit or sends Ctrl+C."""
@@ -3554,11 +3614,16 @@ class VirtualScreenManager:
                     request,
                     managed_screen_id=old_screen.screen_id,
                     interactive_managed=True,
+                    audio_isolation=self._audio_isolation_enabled(request),
                 )
                 new_process = ObservedProcess(
                     command,
                     label=f"screen {old_screen.screen_id:02d} restart",
                     log_path=old_screen.process.log_path,
+                    env_overrides=self._screen_process_environment(
+                        request,
+                        old_screen.screen_id,
+                    ),
                 )
                 previous_foreground = win32_foreground_window()
                 new_process.start()
@@ -3753,11 +3818,13 @@ class VirtualScreenManager:
                 request,
                 managed_screen_id=screen_id,
                 interactive_managed=True,
+                audio_isolation=self._audio_isolation_enabled(request),
             )
             process = ObservedProcess(
                 command,
                 label=f"screen {screen_id:02d}",
                 log_path=self.log_root / f"screen_{screen_id:02d}.log",
+                env_overrides=self._screen_process_environment(request, screen_id),
             )
             previous_foreground = win32_foreground_window()
             process.start()
@@ -4430,6 +4497,22 @@ class VirtualScreenManager:
             "  resize-hostile apps can initialize their render surfaces at that size.",
             "  This keeps the cap itself as the meaningful experimental variable.",
             "",
+            f"{ICON_INFO} Optional per-app audio isolation",
+            (
+                "  Patched scrcpy 4.1 server: "
+                + (
+                    self.audio_isolation_server
+                    if self.audio_isolation_server is not None
+                    else "(not built; using stock whole-device audio)"
+                )
+            ),
+            "  When present, app-backed screens use --audio-source=playback and",
+            "  SCRCPY_SERVER_PATH. The patched server learns the package from scrcpy's",
+            "  START_APP control message and filters Android playback by that app UID.",
+            "  Android 13+ is required and apps may opt out of playback capture.",
+            "  SDL_APP_NAME is also set per child to restore useful mixer labels where",
+            "  the SDL3/Windows audio backend honors application metadata.",
+            "",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
@@ -4705,6 +4788,11 @@ class VirtualScreenManager:
                 + (
                     f" {ANSI_FG_RED}ADAPT!{ANSI_RESET}"
                     if screen.adaptive_error
+                    else ""
+                )
+                + (
+                    f" {ANSI_FG_MAGENTA}AUD-ISO{ANSI_RESET}"
+                    if self._audio_isolation_enabled(screen.request)
                     else ""
                 )
                 + f"  {app}"

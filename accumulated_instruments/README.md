@@ -7,3 +7,10 @@ Put tools, programs, or scripts here when they are useful/important enough to pr
 The Machine-Soul deployment runtime, application declarations/wrappers, and broad manager belong under `annexation_procedures/`, not here.
 
 Do not invent contents merely to justify this directory's existence.
+
+
+## Preserved tools
+
+- [scrcpy_virtual_screen_manager/](scrcpy_virtual_screen_manager/) — interactive
+  multi-virtual-display scrcpy manager, Windows organizer/grouping experiments,
+  and optional patched-server per-app audio isolation.
