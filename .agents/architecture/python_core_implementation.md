@@ -7,7 +7,7 @@ Important reuse/debugging facts:
 - Python `os.symlink` passed the real hosted-Windows lifecycle tests; do not retain PowerShell symlink creation unless a different proven environment requires a primitive.
 - Windows `os.readlink` can return NT substitution paths (extended `\\?\` form). Normalize equivalent DOS/UNC/extended spellings before comparing link identity.
 - Deployment-state identity is keyed from the logical declared destination, not whatever alternate spelling a platform API returns after inspection.
-- New config/install state is JSON, but readers intentionally accept the legacy Linux line/base64 format and legacy platform hash paths while migration is active.
+- New config/install state is JSON, but readers intentionally retain compatibility with the legacy Linux line/base64 format and legacy platform hash paths so pre-migration ownership/backup state remains recoverable.
 - Apply owns per-target backup/restore/verification and checkout-relocation repair; multi-file apply rolls back earlier changed targets when a later target fails.
 - A correct-looking expected symlink without ownership state is not enough for Python Unapply; it reports `ownership_unproven` instead of deleting it.
 - Apt and WinGet are shared strategy handlers. Pre-existing installs remain unmanaged and are never silently claimed for uninstall.
