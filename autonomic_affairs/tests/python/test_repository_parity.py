@@ -51,15 +51,10 @@ class RepositoryParityTests(unittest.TestCase):
                 self.assertEqual([], runtime_non_python)
 
     def test_native_process_scripts_are_not_production_policy_engines(self) -> None:
-        ignored_roots = {
-            self.root / "autonomic_affairs" / "tests",
-            self.root / "assimilation_directives",
-        }
+        annexation = self.root / "annexation_procedures"
         offenders = []
         for suffix in ("*.sh", "*.ps1"):
-            for path in self.root.rglob(suffix):
-                if any(root == path or root in path.parents for root in ignored_roots):
-                    continue
+            for path in annexation.rglob(suffix):
                 offenders.append(path.relative_to(self.root).as_posix())
 
         self.assertEqual([], sorted(offenders))
