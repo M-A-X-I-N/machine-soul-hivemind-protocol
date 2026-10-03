@@ -20,7 +20,7 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
   - existing main push: two-dot `before` → `after`;
   - pull request: three-dot base → head / merge-base semantics;
   - manual dispatch: no automatic range; require explicit selection/default all;
-  - schedule: run reconciliation against current default-branch `HEAD`, using prior successful unit/job history plus the same unit relevance classifier used by ordinary automatic selection.
+  - schedule: run reconciliation against current default-branch `HEAD`, using prior successful check/job history plus the same check relevance mapping used by ordinary automatic selection.
 - Fail safe to the complete downstream unit set when:
   - required Git objects/ranges cannot be established;
   - a push is forced or otherwise structurally ambiguous;
@@ -46,7 +46,7 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
   - quiet ordinary non-main pushes.
 - Keep `security-events: write` limited to CodeQL call jobs/work rather than the policy job.
 - Give the selector job enough read-only GitHub API access to inspect its own prior workflow runs/jobs; prefer the built-in `GITHUB_TOKEN` with least privilege (including `actions: read` and `contents: read`) rather than persistent state or a custom secret.
-- Implement scheduled **coverage reconciliation** per downstream unit:
+- Implement scheduled **coverage reconciliation** per downstream check:
   - inspect only prior **successful** executions of that unit;
   - ignore the currently running selector run when looking backward;
   - if no usable prior success exists, consider the unit uncovered and run it;
