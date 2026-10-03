@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-HOUSEKEEPING-A-010`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-010.md) — establish the housekeeping freeze boundary and inventory.
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS`, removes it from Dispatch, and records a live claim below.
 
@@ -82,6 +82,18 @@ Task rows are grouped by block for readability. Every block uses the same author
 |---|---|---|---|---|
 | [`MSHP-WINGET-A-010`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | FROZEN | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
 | [`MSHP-WINGET-A-020`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | FROZEN | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
+
+
+### MSHP-HOUSEKEEPING-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
+| [`MSHP-HOUSEKEEPING-A-010`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-010.md) | QUEUED | — | Establish housekeeping freeze boundary | Make HOUSEKEEPING-A the only executable workstream, keep every pre-existing incomplete block frozen, and inventory terminal/frozen/tasks/reminders/initiatives/agent-memory surfaces for cleanup. |
+| [`MSHP-HOUSEKEEPING-A-020`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-020.md) | QUEUED | `MSHP-HOUSEKEEPING-A-010` | Archive all terminal task blocks | Move every dead/done pre-housekeeping block intact into the task archive and replace the rolling-two-completed-block retention rule with archive-all-terminal-blocks. |
+| [`MSHP-HOUSEKEEPING-A-030`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-030.md) | QUEUED | `MSHP-HOUSEKEEPING-A-020` | Canonicalize task-system terminology and paths | Remove stale `agent_tasks` naming, retired task paths, links, and transitional task-system wording while preserving intentional historical references. |
+| [`MSHP-HOUSEKEEPING-A-040`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-040.md) | QUEUED | `MSHP-HOUSEKEEPING-A-030` | Audit repository-wide consistency and weirdness | Inspect tracked repository material for high-confidence stale, contradictory, duplicated, misleading, broken, or obsolete references and fix cautiously. |
+| [`MSHP-HOUSEKEEPING-A-050`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-050.md) | QUEUED | `MSHP-HOUSEKEEPING-A-040` | Audit agent memory and instruction hygiene | Cautiously review all agent-facing memory/instructions for stale, duplicated, contradictory, or unnecessarily burdensome context, retaining uncertain material. |
+| [`MSHP-HOUSEKEEPING-A-060`](tasks/MSHP-HOUSEKEEPING-A/MSHP-HOUSEKEEPING-A-060.md) | QUEUED | `MSHP-HOUSEKEEPING-A-050` | Close and self-archive housekeeping | Revalidate the cleaned repository, archive HOUSEKEEPING-A itself, release all housekeeping coordination state, and leave the next reminder candidate unstarted. |
 
 ### MSHP-OPS-C
 
