@@ -15,4 +15,4 @@ Durable findings from `MSHP-DEV-A-110` (2026-09-28):
 - Credentials/tokens remain outside tracked state; native build toolchains are prerequisites, not silent package side effects.
 - Final implementation taskification is deliberately deferred to `MSHP-DEV-A-120` so runtime and package-environment primitives/backends can be sequenced as one roadmap.
 
-Detailed synthesis lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/package_environment_synthesis.md`.
+Detailed synthesis lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/package_environment_synthesis.md`.

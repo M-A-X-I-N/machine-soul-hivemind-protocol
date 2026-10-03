@@ -10,4 +10,4 @@ Durable findings from `MSHP-DEV-A-020` (2026-09-28):
 - Rider layer-based settings require product-specific treatment; do not assume one generic whole-directory JetBrains config strategy.
 - Rider/IntelliJ expose CLI plugin installation by plugin ID. Combined with VS Code evidence, plugins/extensions likely deserve a reusable package-inventory concept rather than file config.
 
-Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/jetbrains.md`.
+Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/jetbrains.md`.
