@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Resolve Machine-Soul CI check selection and runner coalescing."""
+"""Resolve Machine-Soul CI policy from explicit intent and repository evidence."""
 
 from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
+import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -43,12 +46,20 @@ RUNNER_GROUP_CHECKS: dict[str, tuple[str, ...]] = {
 _CI_TRAILER = re.compile(r"^CI:\s*(.*)\s*$", re.MULTILINE)
 _STANDALONE_SELECTORS = frozenset({"all", "none", "auto"})
 _APPROVED_KINDS = (
-    "Feature", "Fix", "Research", "Documentation", "Test", "CI",
-    "Build", "Refactor", "Chore", "CBA",
+    "Feature",
+    "Fix",
+    "Research",
+    "Documentation",
+    "Test",
+    "CI",
+    "Build",
+    "Refactor",
+    "Chore",
+    "CBA",
 )
 _COMMIT_SUMMARY = re.compile(
-    r"^\\[(?:" + "|".join(_APPROVED_KINDS) + r")\\]"
-    r"(?:\\[[^]\\r\\n]+\\])? [^\\r\\n]+$"
+    r"^\[(?:" + "|".join(_APPROVED_KINDS) + r")\]"
+    r"(?:\[[^]\r\n]+\])? [^\r\n]+$"
 )
 _CONTROL_PATHS = frozenset({
     ".github/workflows/machine_soul_validation.yml",
@@ -61,6 +72,7 @@ _CONTROL_PATHS = frozenset({
     "autonomic_affairs/ci_validation_history.py",
     "autonomic_affairs/tests/python/test_ci_validation_selector.py",
     "autonomic_affairs/tests/python/test_ci_validation_history.py",
+    "autonomic_affairs/tests/python/test_ci_workflow_contract.py",
 })
 _BLOCKING_CHECKS = REGISTERED_CHECKS[:-2]
 _INSTALL_MARKERS = (
@@ -94,6 +106,10 @@ class PolicySelection:
     source: str
     error: str | None = None
     automatic: bool = False
+
+
+class PolicyEvidenceError(RuntimeError):
+    """Raised when automatic policy evidence cannot be established safely."""
 
 
 def _all_invalid(source: str, error: str) -> PolicySelection:
@@ -130,8 +146,7 @@ def parse_selector(
     if any(not token for token in tokens):
         return _all_invalid(source, f"empty check token in {value!r}")
 
-    mixed_standalone = sorted(_STANDALONE_SELECTORS.intersection(tokens))
-    if mixed_standalone:
+    if _STANDALONE_SELECTORS.intersection(tokens):
         return _all_invalid(
             source,
             "'all', 'none', and 'auto' must be used alone rather than mixed "
@@ -154,8 +169,7 @@ def parse_selector(
             "unknown check/group(s): " + ", ".join(sorted(unknown)),
         )
 
-    normalized = tuple(name for name in REGISTERED_CHECKS if name in expanded)
-    return PolicySelection(normalized, True, source)
+    return PolicySelection(_ordered_checks(expanded), True, source)
 
 
 def runner_groups_for_checks(checks: Iterable[str]) -> dict[str, tuple[str, ...]]:
@@ -167,11 +181,6 @@ def runner_groups_for_checks(checks: Iterable[str]) -> dict[str, tuple[str, ...]
         for group, members in RUNNER_GROUP_CHECKS.items()
         if any(check in requested for check in members)
     }
-
-
-
-class PolicyEvidenceError(RuntimeError):
-    """Raised when automatic policy evidence cannot be established safely."""
 
 
 def validate_commit_summary(summary: str) -> str | None:
@@ -295,6 +304,10 @@ def _run_git(args: list[str], *, cwd: Path | str | None = None) -> str:
     return result.stdout
 
 
+def _verify_commit(sha: str, *, cwd: Path | str | None = None) -> None:
+    _run_git(["rev-parse", "--verify", f"{sha}^{{commit}}"], cwd=cwd)
+
+
 def git_changed_paths(
     base: str,
     head: str,
@@ -306,8 +319,8 @@ def git_changed_paths(
 
     if not base or not head:
         raise PolicyEvidenceError("missing Git range endpoint")
-    _run_git(["rev-parse", "--verify", f"{base}^{{commit}}"], cwd=cwd)
-    _run_git(["rev-parse", "--verify", f"{head}^{{commit}}"], cwd=cwd)
+    _verify_commit(base, cwd=cwd)
+    _verify_commit(head, cwd=cwd)
     if three_dot:
         _run_git(["merge-base", base, head], cwd=cwd)
     separator = "..." if three_dot else ".."
@@ -333,6 +346,50 @@ def git_changed_paths(
     return tuple(paths)
 
 
+def git_commit_summaries(
+    base: str,
+    head: str,
+    *,
+    three_dot: bool = False,
+    cwd: Path | str | None = None,
+) -> tuple[str, ...]:
+    """Return summaries introduced by one push or PR range."""
+
+    if not base or not head:
+        raise PolicyEvidenceError("missing Git range endpoint")
+    _verify_commit(base, cwd=cwd)
+    _verify_commit(head, cwd=cwd)
+    range_base = base
+    if three_dot:
+        range_base = _run_git(["merge-base", base, head], cwd=cwd).strip()
+        if not range_base:
+            raise PolicyEvidenceError("Git merge-base returned no commit")
+    raw = _run_git(
+        ["log", "--format=%s", f"{range_base}..{head}"],
+        cwd=cwd,
+    )
+    return tuple(line for line in raw.splitlines() if line)
+
+
+def _invalid_range_summary(
+    base: str,
+    head: str,
+    *,
+    three_dot: bool = False,
+    cwd: Path | str | None = None,
+) -> str | None:
+    for summary in git_commit_summaries(
+        base,
+        head,
+        three_dot=three_dot,
+        cwd=cwd,
+    ):
+        error = validate_commit_summary(summary)
+        if error:
+            return f"{error}: {summary!r}"
+    return None
+
+
 def selector_from_commit_message(
     message: str,
     *,
@@ -353,7 +410,6 @@ def selector_from_commit_message(
             "multiple CI: selectors found in the pushed tip commit",
         )
     return parse_selector(matches[0], source="commit-trailer")
-
 
 
 def resolve_automatic_event(
@@ -394,11 +450,31 @@ def resolve_automatic_event(
         commit_message,
         default_auto=True,
     )
-    if not selector.valid or not selector.automatic:
+    if not selector.valid:
         return selector
 
     if event_name == "push":
-        if forced or not before or not after or set(before) == {"0"}:
+        structurally_usable = (
+            not forced
+            and bool(before)
+            and bool(after)
+            and set(before) != {"0"}
+        )
+        if structurally_usable:
+            try:
+                metadata_error = _invalid_range_summary(
+                    before,
+                    after,
+                    cwd=cwd,
+                )
+            except PolicyEvidenceError:
+                metadata_error = None
+            if metadata_error:
+                return _all_invalid("commit-metadata", metadata_error)
+
+        if not selector.automatic:
+            return selector
+        if not structurally_usable:
             return PolicySelection(
                 REGISTERED_CHECKS,
                 True,
@@ -421,6 +497,21 @@ def resolve_automatic_event(
             classified.error,
         )
 
+    if base and head:
+        try:
+            metadata_error = _invalid_range_summary(
+                base,
+                head,
+                three_dot=True,
+                cwd=cwd,
+            )
+        except PolicyEvidenceError:
+            metadata_error = None
+        if metadata_error:
+            return _all_invalid("commit-metadata", metadata_error)
+
+    if not selector.automatic:
+        return selector
     if not base or not head:
         return PolicySelection(
             REGISTERED_CHECKS,
@@ -449,13 +540,14 @@ def resolve_automatic_event(
         classified.error,
     )
 
+
 def resolve_event_selection(
     event_name: str,
     *,
     commit_message: str = "",
     manual_selector: str = "",
 ) -> PolicySelection:
-    """Resolve current explicit intent while automatic routing is added later."""
+    """Compatibility wrapper for explicit-only callers."""
 
     if event_name == "push":
         return selector_from_commit_message(commit_message)
@@ -468,19 +560,30 @@ def resolve_event_selection(
     )
 
 
+def _json_array(values: Iterable[str]) -> str:
+    return json.dumps(list(values), separators=(",", ":"))
+
+
 def _write_github_output(path: Path, selection: PolicySelection) -> None:
     groups = runner_groups_for_checks(selection.selected)
-    lines = [
-        *(
-            f"{name}={'true' if name in groups else 'false'}"
-            for name in ("linux", "windows", "fresh-linux", "fresh-windows")
-        ),
+    lines: list[str] = []
+    for group in ("linux", "windows", "fresh-linux", "fresh-windows"):
+        safe = group.replace("-", "_")
+        members = groups.get(group, ())
+        lines.append(f"{safe}={'true' if members else 'false'}")
+        lines.append(f"{safe}_checks={_json_array(members)}")
+    for check_id in ("codeql-python", "codeql-actions"):
+        safe = check_id.replace("-", "_")
+        lines.append(
+            f"{safe}={'true' if check_id in selection.selected else 'false'}"
+        )
+    lines.extend((
         f"valid={'true' if selection.valid else 'false'}",
         "selection=" + (
             ",".join(selection.selected) if selection.selected else "none"
         ),
         f"source={selection.source}",
-    ]
+    ))
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -489,17 +592,88 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--event", required=True)
     parser.add_argument("--commit-message", default="")
     parser.add_argument("--manual-selector", default="")
+    parser.add_argument("--before", default="")
+    parser.add_argument("--after", default="")
+    parser.add_argument("--base", default="")
+    parser.add_argument("--head", default="")
+    parser.add_argument("--forced", default="false")
+    parser.add_argument(
+        "--repository",
+        default=os.environ.get("GITHUB_REPOSITORY", ""),
+    )
+    parser.add_argument(
+        "--run-id",
+        type=int,
+        default=int(os.environ.get("GITHUB_RUN_ID", "0") or 0),
+    )
+    parser.add_argument("--default-branch", default="main")
     parser.add_argument("--github-output", type=Path)
     return parser
 
 
+def _scheduled_selection(args: argparse.Namespace) -> PolicySelection:
+    from autonomic_affairs.ci_validation_history import (
+        GitHubActionsHistory,
+        HistoryEvidenceError,
+        reconcile_scheduled_checks,
+    )
+
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if not token or not args.repository or not args.run_id or not args.head:
+        return PolicySelection(
+            REGISTERED_CHECKS,
+            True,
+            "schedule-history-fallback",
+            error="missing Actions history identity/token",
+        )
+    try:
+        committed_at_raw = _run_git(
+            ["show", "-s", "--format=%cI", args.head]
+        ).strip()
+        committed_at = datetime.fromisoformat(
+            committed_at_raw.replace("Z", "+00:00")
+        )
+        history = GitHubActionsHistory(
+            args.repository,
+            token,
+            args.run_id,
+        )
+        return reconcile_scheduled_checks(
+            history,
+            current_run_id=args.run_id,
+            default_branch=args.default_branch,
+            current_head_sha=args.head,
+            current_head_committed_at=committed_at,
+            now=datetime.now(timezone.utc),
+        )
+    except (
+        HistoryEvidenceError,
+        PolicyEvidenceError,
+        ValueError,
+    ) as exc:
+        return PolicySelection(
+            REGISTERED_CHECKS,
+            True,
+            "schedule-history-fallback",
+            error=str(exc),
+        )
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    selection = resolve_event_selection(
-        args.event,
-        commit_message=args.commit_message,
-        manual_selector=args.manual_selector,
-    )
+    if args.event == "schedule":
+        selection = _scheduled_selection(args)
+    else:
+        selection = resolve_automatic_event(
+            args.event,
+            commit_message=args.commit_message,
+            manual_selector=args.manual_selector,
+            before=args.before,
+            after=args.after,
+            base=args.base,
+            head=args.head,
+            forced=str(args.forced).lower() == "true",
+        )
 
     print(
         "validation selection:",
@@ -510,7 +684,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         ),
     )
     if selection.error:
-        print("selector error:", selection.error)
+        print("selector note:", selection.error)
 
     if args.github_output:
         _write_github_output(args.github_output, selection)
