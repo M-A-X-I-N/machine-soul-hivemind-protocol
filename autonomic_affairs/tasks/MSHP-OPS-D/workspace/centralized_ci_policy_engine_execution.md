@@ -13,3 +13,5 @@ Pre-flight: Task 4 reusable workflow inputs/stable step names → Tasks 3/5/7; s
 Pre-flight: Task 5 sole entrypoint/callable CodeQL → Task 7; real GitHub validation proves event graph and no duplicate routing.
 Pre-flight: Task 6 documentation consumes implemented interfaces only; no conflicting code interface.
 Pre-flight: Task 7 consumes all prior outputs; no additional implementation interface.
+
+Task 1: Ruling: add `automatic: bool = False` to `PolicySelection` — `CI: auto` and `CI: none` both otherwise normalize to an empty selected tuple and cannot be distinguished without abusing `source`; cost if wrong: one extra stable policy field carried through later interfaces.
