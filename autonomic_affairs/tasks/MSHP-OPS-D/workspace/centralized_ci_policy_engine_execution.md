@@ -35,3 +35,5 @@ Task 7 probe: explicit `CI: linux-python` checkpoint; expected one Linux runner 
 Task 7 probe: explicit `CI: none` checkpoint; expected successful policy record with no downstream runner provisioning.
 
 Task 7 probe: malformed `CI: linux,banana` checkpoint; expected visible policy failure while fail-safe outputs still select every registered check.
+
+Task 7 probe: native `skip-checks: true` checkpoint; expected no checked-in push workflow run.
