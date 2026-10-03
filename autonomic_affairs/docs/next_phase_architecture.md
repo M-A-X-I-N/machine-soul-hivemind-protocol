@@ -35,7 +35,7 @@ This namespace is for material about the repository itself rather than configura
 The executable-work ledger is:
 
 ```text
-autonomic_affairs/agent_tasks.md
+autonomic_affairs/tasks.md
 ```
 
 "Agent tasks" means work that has been thought through enough to be theoretically executable. It is intentionally narrower than possible future concepts such as roadmap, objectives, or reminders. Those concepts may get separate artifacts later if they become useful.

@@ -66,7 +66,7 @@ The investigation should distinguish:
 
 Do not implement Skills merely because the mechanism exists.
 
-Revisit this after the canonical task schema is established so any task-execution Skill can target the real `agent_tasks.md` contract rather than a transitional format.
+Revisit this after the canonical task schema is established so any task-execution Skill can target the real `tasks.md` contract rather than a transitional format.
 
 ## Agent-facing repository memory hygiene
 

@@ -43,7 +43,7 @@ The installation-scope block is complete for current WinGet/Apt mutation, so man
 
 `MSHP-APPS-A-010` completed the research/classification. No implementation task is currently promoted because the strong candidates require maintainer-selected canonical desired state first.
 
-Task state remains authoritative in [`../agent_tasks.md`](../agent_tasks.md).
+Task state remains authoritative in [`../tasks.md`](../tasks.md).
 
 ## Promotion / closure criteria
 

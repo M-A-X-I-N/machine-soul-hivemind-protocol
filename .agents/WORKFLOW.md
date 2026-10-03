@@ -5,7 +5,7 @@
 For repository-changing work:
 
 1. inspect the active branch/current state;
-2. read `../autonomic_affairs/agent_tasks.md`, inspect Dispatch, and open the linked detailed task specification;
+2. read `../autonomic_affairs/tasks.md`, inspect Dispatch, and open the linked detailed task specification;
 3. when claiming dispatched work, atomically change its index state to `IN_PROGRESS`, remove it from Dispatch, and add/update its row in **Active claims** with the authorized lineage and canonical branch;
 4. keep each checkpoint narrow enough to explain and revert independently;
 5. run the smallest validation that genuinely proves the changed surface;
@@ -46,7 +46,7 @@ Cross-agent coordination, task bookkeeping, and similarly natural repository-con
 
 ### Active task claims
 
-`autonomic_affairs/agent_tasks.md` contains an **Active claims** section separate from task tables. A claim is a live coordination lock saying which authorized lineage currently owns execution of a task.
+`autonomic_affairs/tasks.md` contains an **Active claims** section separate from task tables. A claim is a live coordination lock saying which authorized lineage currently owns execution of a task.
 
 Claim lifecycle:
 
@@ -82,7 +82,7 @@ Malformed or unknown selectors must fail safe: they must not silently suppress v
 
 Recovery has two separate questions: **what happened?** and **who is authorized to continue a lineage?** Repository inspection answers the first; it does not answer the second.
 
-Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/agent_tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/agent_tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.
+Do not assume the last narrated action reached the repository. Inspect branch heads/history, compare `../autonomic_affairs/tasks.md` plus the relevant task specification with actual commits/files, and resolve a known task ID through `../autonomic_affairs/tasks/README.md` when it may already be archived. Distinguish committed work from orphaned/reasoning-only work and validate recovered state before continuing.
 
 Inspecting an existing lineage for recovery evidence is always allowed. Mutating/adopting it requires the authority rules in **Agent lineages and working branches** above. If no such authority exists, ask whether the human wants that specific lineage recovered rather than recovering it automatically.
 
@@ -96,7 +96,7 @@ When information conflicts, prefer the source that owns the subject:
 
 1. tracked configuration/source for implemented behavior;
 2. human-facing architecture/policy docs for durable design;
-3. `autonomic_affairs/agent_tasks.md` for scheduling/state/Dispatch and `autonomic_affairs/agent_tasks/` for active/archived execution specifications plus temporary task workspaces;
+3. `autonomic_affairs/tasks.md` for scheduling/state/Dispatch and `autonomic_affairs/tasks/` for active/archived execution specifications plus temporary task workspaces;
 4. `autonomic_affairs/initiatives/` for structured non-executable unfinished intent/debt relevant to the active work;
 5. root `AGENTS.md` for concise operating rules;
 6. `.agents/` for supporting agent workflow/context/discoveries.
@@ -131,4 +131,4 @@ Initiatives are structured context, not executable work.
 
 Consult an initiative when the active task/spec links it or when a newly discovered gap appears to be intentionally deferred structured work rather than a casual idea. Do not add initiatives to Dispatch, claim them, or infer authorization from them.
 
-Use `autonomic_affairs/reminders.md` for lightweight "do not forget" ideas, `autonomic_affairs/initiatives/` for recognized multi-phase unfinished intent/debt, and `autonomic_affairs/agent_tasks.md` plus task specs for bounded executable work.
+Use `autonomic_affairs/reminders.md` for lightweight "do not forget" ideas, `autonomic_affairs/initiatives/` for recognized multi-phase unfinished intent/debt, and `autonomic_affairs/tasks.md` plus task specs for bounded executable work.

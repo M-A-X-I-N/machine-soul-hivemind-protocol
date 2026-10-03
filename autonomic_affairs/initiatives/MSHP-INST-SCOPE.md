@@ -74,7 +74,7 @@ Current implementation block:
 
 The first five are implemented; B-060 records integration closure and the handoff back to application-config research.
 
-Task state, dependencies, and Dispatch remain authoritative in [`../agent_tasks.md`](../agent_tasks.md); this list is contextual only.
+Task state, dependencies, and Dispatch remain authoritative in [`../tasks.md`](../tasks.md); this list is contextual only.
 
 ## Promotion / closure criteria
 

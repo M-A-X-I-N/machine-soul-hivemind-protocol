@@ -11,4 +11,4 @@ Durable findings from `MSHP-INST-A-020` (2026-09-28).
 - Non-current-account user-scoped mutation is unsupported until a proven target-user execution mechanism exists.
 - Current OMP WinGet manifest 31.3.0 is AppX/MSIX and omits manifest `Scope:`; use it as a validation/regression case for explicit `--scope user` plus native PACKAGE_USER verification.
 
-Detailed sources/scenarios live in `autonomic_affairs/agent_tasks/MSHP-INST-A/workspace/windows_scope.md`.
+Detailed sources/scenarios live in `autonomic_affairs/tasks/MSHP-INST-A/workspace/windows_scope.md`.

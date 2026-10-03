@@ -2,7 +2,7 @@
 
 Durable implementation notes distilled from MSHP-DISC-A-030.
 
-The detailed source/research matrix remains in `autonomic_affairs/agent_tasks/MSHP-DISC-A/workspace/effective_configuration.md` until the block archives.
+The detailed source/research matrix remains in `autonomic_affairs/tasks/MSHP-DISC-A/workspace/effective_configuration.md` until the block archives.
 
 ## Reusable strategy direction
 

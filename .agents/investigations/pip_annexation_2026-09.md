@@ -14,4 +14,4 @@ Durable findings from `MSHP-DEV-A-090` (2026-09-28):
 - Index credentials may live in URLs, netrc, or keyrings. Never store credentials/tokens in tracked Machine-Soul configuration.
 - When a venv sees system site packages, distinguish environment-local installed packages from inherited visible packages.
 
-Detailed research lives in `autonomic_affairs/agent_tasks/MSHP-DEV-A/workspace/pip.md`.
+Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/pip.md`.

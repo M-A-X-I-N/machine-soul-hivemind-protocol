@@ -9,4 +9,4 @@ Durable findings from `MSHP-DEV-A-010` (2026-09-28):
 - Settings Sync overlaps Machine-Soul ownership across settings, shortcuts, snippets, tasks, UI, extensions, profiles, and newer customization categories. Choose one owner per category; do not silently fight Sync.
 - Installation-only annexation is independently useful and does not require assimilation directives.
 
-Detailed research lives in `autonomic_affairs/agent_tasks/MSHP-DEV-A/workspace/vscode.md`.
+Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/vscode.md`.

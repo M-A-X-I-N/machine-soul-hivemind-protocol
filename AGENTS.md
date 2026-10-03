@@ -2,13 +2,13 @@
 
 This repository annexes machines into the Machine Soul across multiple hosts, platforms, users, shells, terminals, runtimes, tools, and applications. Configuration is one managed capability, not the definition of support.
 
-Keep this file concise. Detailed agent procedure and persisted context live under [`.agents/`](.agents/). The authoritative executable-work ledger is [`autonomic_affairs/agent_tasks.md`](autonomic_affairs/agent_tasks.md).
+Keep this file concise. Detailed agent procedure and persisted context live under [`.agents/`](.agents/). The authoritative executable-work ledger is [`autonomic_affairs/tasks.md`](autonomic_affairs/tasks.md).
 
 ## Before substantive work
 
 1. Read this file.
 2. Read [`.agents/README.md`](.agents/README.md) and [`.agents/WORKFLOW.md`](.agents/WORKFLOW.md).
-3. Read [`autonomic_affairs/agent_tasks.md`](autonomic_affairs/agent_tasks.md), inspect **Dispatch**, and open the linked task specification before substantive work unless the human redirects work.
+3. Read [`autonomic_affairs/tasks.md`](autonomic_affairs/tasks.md), inspect **Dispatch**, and open the linked task specification before substantive work unless the human redirects work.
 4. Inspect the current repository/branch state before assuming remembered chat state is current.
 5. Read only the application/host/platform notes relevant to the active task.
 
@@ -16,13 +16,13 @@ Repository state and tracked durable documentation are authoritative over rememb
 
 ## Source-of-truth ownership
 
-- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling metadata, Dispatch, and the live **Active claims** coordination section; `autonomic_affairs/agent_tasks/` owns active task specifications, temporary task workspaces, and structured archived task material. Task IDs remain stable even when completed blocks move into `agent_tasks/archive/`.
+- `autonomic_affairs/tasks.md` owns executable-work scheduling metadata, Dispatch, and the live **Active claims** coordination section; `autonomic_affairs/tasks/` owns active task specifications, temporary task workspaces, and structured archived task material. Task IDs remain stable even when completed blocks move into `tasks/archive/`.
 - `autonomic_affairs/reminders.md` owns deliberately non-executable future ideas. Reminders are not authorization and must not be silently executed/promoted.
 - `autonomic_affairs/initiatives/` owns structured, intentionally unfinished work/debt that is more concrete than a reminder but is still non-executable. Initiatives are context, never Dispatch authorization.
 - `assimilation_directives/` owns canonical tracked desired configuration/behavioral content when such content exists. A supported annexation target does not need an assimilation directive.
 - Human-facing architecture/policy documentation owns durable project design.
 - `.agents/` owns agent procedure plus durable, useful agent memory that would be wasteful to rediscover.
-- Task workspaces under `autonomic_affairs/agent_tasks/` own tracked temporary/intermediate knowledge needed across task or context boundaries; they are not permanent agent memory and are not mandatory reading unless relevant.
+- Task workspaces under `autonomic_affairs/tasks/` own tracked temporary/intermediate knowledge needed across task or context boundaries; they are not permanent agent memory and are not mandatory reading unless relevant.
 - `scratch/` is machine-local mutable state and is Git-ignored.
 
 Do not create competing task ledgers.
@@ -105,7 +105,7 @@ Unless the human explicitly changes these laws:
 - Push meaningful completed checkpoints promptly.
 - Use the smallest validation that genuinely proves the changed surface.
 - If a task exposes a genuine architecture/design ambiguity that prevents safe progress, stop and ask rather than silently choosing for the human.
-- Update `autonomic_affairs/agent_tasks.md` whenever executable-work state, dependencies, summaries, or Dispatch ordering changes.
+- Update `autonomic_affairs/tasks.md` whenever executable-work state, dependencies, summaries, or Dispatch ordering changes.
 - Do not manufacture a task for an isolated repository change that is obviously one natural commit and is not part of a larger work block; perform, validate, and commit it directly. Tasks primarily exist to preserve executable intent across context/session boundaries.
 - If a task discovers durable reusable knowledge, update `.agents/` in the same checkpoint or immediately after it.
 

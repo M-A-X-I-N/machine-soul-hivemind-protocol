@@ -63,7 +63,7 @@ Use an initiative when the thought is:
 
 > This is recognized unfinished project intent/debt with enough known structure that future agents should understand what is deliberately incomplete.
 
-Use [`../agent_tasks.md`](../agent_tasks.md) and task specs when the thought is:
+Use [`../tasks.md`](../tasks.md) and task specs when the thought is:
 
 > This bounded work is sufficiently specified and authorized for execution through Dispatch.
 

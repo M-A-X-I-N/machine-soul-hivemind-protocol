@@ -6,11 +6,11 @@ Current contents:
 
 - `docs/` — human-facing architecture, contracts, support notes, and extension guidance.
 - `tests/` — repository validation and behavioral test suites.
-- `agent_tasks.md` — compact scheduling/state/Dispatch index.
-- `agent_tasks/` — active full task specifications, temporary tracked task workspaces, task-system navigation, and the structured archive under `agent_tasks/archive/`.
+- `tasks.md` — compact scheduling/state/Dispatch index.
+- `tasks/` — active full task specifications, temporary tracked task workspaces, task-system navigation, and the structured archive under `tasks/archive/`.
 - `reminders.md` — non-executable ideas awaiting enough discussion/refinement to become tasks.
 
-`agent_tasks.md` is the authoritative ledger for work that has been specified well enough to be theoretically executable by an agent. It is not a catch-all roadmap: longer-horizon roadmap items, objectives, and reminders are separate concepts and should only gain their own artifacts when useful.
+`tasks.md` is the authoritative ledger for work that has been specified well enough to be theoretically executable by an agent. It is not a catch-all roadmap: longer-horizon roadmap items, objectives, and reminders are separate concepts and should only gain their own artifacts when useful.
 
 Root artifacts with conventional or tool-defined placement remain at root, including `AGENTS.md`, `README.md`, dotfiles, and `.github/`.
 

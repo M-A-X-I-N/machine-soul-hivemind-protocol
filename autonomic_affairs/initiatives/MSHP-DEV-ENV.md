@@ -58,7 +58,7 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
 ## Related executable tasks
 
-`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the completed first implementation/research phase. Mutable state and dependencies remain authoritative in [`../agent_tasks.md`](../agent_tasks.md).
+`MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the completed first implementation/research phase. Mutable state and dependencies remain authoritative in [`../tasks.md`](../tasks.md).
 
 ## Promotion / closure criteria
 

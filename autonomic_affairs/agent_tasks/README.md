@@ -1,6 +1,6 @@
-# Agent task storage
+# Task storage
 
-This directory contains the durable task specifications and tracked working context behind the compact scheduling index at [`../agent_tasks.md`](../agent_tasks.md).
+This directory contains the durable task specifications and tracked working context behind the compact scheduling index at [`../tasks.md`](../tasks.md).
 
 ## Task lookup
 
@@ -12,7 +12,7 @@ For a known task ID:
 2. if it is no longer active, look under [`archive/`](archive/);
 3. use the archive navigation for legacy formats or historical exceptions.
 
-New-style active tasks normally use `agent_tasks/<block-id>/<task-id>.md`. A completed block that cycles out moves intact to `agent_tasks/archive/<block-id>/`. Task IDs never change merely because storage moves.
+New-style active tasks normally use `tasks/<block-id>/<task-id>.md`. A completed block that cycles out moves intact to `tasks/archive/<block-id>/`. Task IDs never change merely because storage moves.
 
 The legacy `V2-*` series predates per-task files and is preserved monolithically under `archive/V2/`.
 
@@ -23,9 +23,9 @@ Workspaces hold intermediate knowledge that must survive task boundaries or agen
 Typical shapes are:
 
 ```text
-agent_tasks/<block-id>/workspace/
-agent_tasks/<block-id>/workspace/<task-id>/
-agent_tasks/<workstream-prefix>/workspace/
+tasks/<block-id>/workspace/
+tasks/<block-id>/workspace/<task-id>/
+tasks/<workstream-prefix>/workspace/
 ```
 
 The last form is for knowledge intentionally shared across multiple blocks, for example `MSHP-THING-B` and `MSHP-THING-F`. Exact nesting is a convention, not a schema.

@@ -30,7 +30,7 @@ The human-facing target architecture is documented in [`../../autonomic_affairs/
 - `AGENTS.md` stays at root for agent discovery.
 - Dotfiles/tool-defined roots may stay at root.
 - Repository meta material moves toward `autonomic_affairs/`.
-- The executable-work ledger is `autonomic_affairs/agent_tasks.md`.
+- The executable-work ledger is `autonomic_affairs/tasks.md`.
 - Agent tasks mean sufficiently specified/executable work; future roadmap/objectives/reminders are semantically separate concepts.
 
 ## Historical design note

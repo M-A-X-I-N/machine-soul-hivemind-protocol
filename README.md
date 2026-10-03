@@ -8,7 +8,7 @@ The former `experimental/v2` line produced the current Python/declarative archit
 
 - `experimental/v1` preserves the original repository iteration.
 - `main` is the current implementation/development branch.
-- `autonomic_affairs/agent_tasks.md` is the compact scheduling/Dispatch index for executable agent work; `autonomic_affairs/agent_tasks/` contains active specifications, temporary workspaces, and structured archived task history.
+- `autonomic_affairs/tasks.md` is the compact scheduling/Dispatch index for executable agent work; `autonomic_affairs/tasks/` contains active specifications, temporary workspaces, and structured archived task history.
 
 ## Core model
 
@@ -95,6 +95,6 @@ Run it without a workflow for the interactive menu, or use its workflow options 
 
 - AGENTS.md defines stable agent rules.
 - .agents/ is living agent memory.
-- `autonomic_affairs/agent_tasks.md` owns executable-work scheduling, state, and Dispatch.
+- `autonomic_affairs/tasks.md` owns executable-work scheduling, state, and Dispatch.
 
 Agents are explicitly encouraged to preserve expensive-to-rediscover project knowledge under .agents/.

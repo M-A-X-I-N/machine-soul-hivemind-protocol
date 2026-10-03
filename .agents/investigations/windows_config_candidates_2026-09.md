@@ -13,4 +13,4 @@ Durable findings from `MSHP-APPS-A-010` (2026-09-28):
 
 Strong candidates are intentionally not executable yet because their canonical desired content has not been supplied. They are tracked in `autonomic_affairs/initiatives/MSHP-WIN-CONFIG.md`.
 
-Detailed sources/matrix live in `autonomic_affairs/agent_tasks/MSHP-APPS-A/workspace/windows_config_candidates.md`.
+Detailed sources/matrix live in `autonomic_affairs/tasks/MSHP-APPS-A/workspace/windows_config_candidates.md`.

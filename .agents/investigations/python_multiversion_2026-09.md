@@ -11,4 +11,4 @@ Durable findings from `MSHP-DEV-A-040` (2026-09-28):
 - Updating/replacing managed runtimes removes modifications/global packages inside that runtime, so package inventories must remain a separate later decision.
 - uv, pyenv-win, and mise remain useful alternatives, but the official manager is the strongest host-level Windows CPython annexation backend unless cross-runtime synthesis finds a compelling shared-manager reason otherwise.
 
-Detailed research lives in `autonomic_affairs/agent_tasks/MSHP-DEV-A/workspace/python_multiversion.md`.
+Detailed research lives in `autonomic_affairs/tasks/MSHP-DEV-A/workspace/python_multiversion.md`.
