@@ -33,3 +33,5 @@ Task 7 probe: docs-only automatic-selection checkpoint; expected policy-only run
 Task 7 probe: explicit `CI: linux-python` checkpoint; expected one Linux runner with only the linux-python logical check selected.
 
 Task 7 probe: explicit `CI: none` checkpoint; expected successful policy record with no downstream runner provisioning.
+
+Task 7 probe: malformed `CI: linux,banana` checkpoint; expected visible policy failure while fail-safe outputs still select every registered check.
