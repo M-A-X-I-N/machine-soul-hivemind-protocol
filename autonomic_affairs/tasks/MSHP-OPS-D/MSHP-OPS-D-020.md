@@ -21,7 +21,7 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
   - pull request: three-dot base → head / merge-base semantics;
   - manual dispatch: no automatic range; require explicit selection/default all;
   - schedule: run reconciliation against current default-branch `HEAD`, using prior successful check/job history plus the same check relevance mapping used by ordinary automatic selection.
-- Fail safe to the complete downstream unit set when:
+- Fail safe to the complete registered check set when:
   - required Git objects/ranges cannot be established;
   - a push is forced or otherwise structurally ambiguous;
   - a path is not recognized by the classifier;
@@ -47,13 +47,13 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 - Keep `security-events: write` limited to CodeQL call jobs/work rather than the policy job.
 - Give the selector job enough read-only GitHub API access to inspect its own prior workflow runs/jobs; prefer the built-in `GITHUB_TOKEN` with least privilege (including `actions: read` and `contents: read`) rather than persistent state or a custom secret.
 - Implement scheduled **coverage reconciliation** per downstream check:
-  - inspect only prior **successful** executions of that unit;
+  - inspect only prior **successful** executions of that check;
   - ignore the currently running selector run when looking backward;
-  - if no usable prior success exists, consider the unit uncovered and run it;
+  - if no usable prior success exists, consider the check uncovered and run it;
   - for non-CodeQL validation **checks**, an older successful SHA still covers current `main` when the diff from that SHA to current `HEAD` contains **no path relevant to that check** according to the same classifier/relevance mapping used for push/PR selection;
   - if relevant files changed since that check's last successful covered SHA, select that check;
   - after check selection, coalesce due checks into the smallest practical set of runner jobs;
-  - if prior-run history, job identity, or comparison evidence is unavailable/ambiguous, fail safe by running the affected unit rather than assuming coverage.
+  - if prior-run history, job identity, or comparison evidence is unavailable/ambiguous, fail safe by running the affected check rather than assuming coverage.
 - Implement scheduled CodeQL reconciliation independently for `codeql-python` and `codeql-actions`:
   - first find the most recent successful execution of that CodeQL unit on the **current main HEAD SHA**;
   - if no successful execution exists on current HEAD, run that CodeQL unit immediately;
@@ -109,14 +109,14 @@ Implement the evidence-backed centralized CI architecture from `workspace/centra
 - Non-CodeQL checks are considered covered across unrelated commits when no check-relevant files changed after their last successful covered SHA, and are selected again when relevant state changed.
 - Unrelated checks sharing the same runner environment remain skipped; a Python-only change must not implicitly execute an unrelated Markdown/docs checker merely because both are runnable on Linux.
 - Docs-only changes can produce no downstream runners when confidently classified.
-- Python/runtime changes select Linux + Windows + Python CodeQL without fresh-clone validation unless fresh-machine semantics are implicated.
-- Install/bootstrap changes select all four blocking sets plus relevant CodeQL.
-- Central Actions/policy changes conservatively select all four blocking sets plus both CodeQL units.
+- Python/runtime changes select the relevant Linux/Windows checks plus Python CodeQL, without fresh-clone checks unless fresh-machine semantics are implicated.
+- Install/bootstrap changes select the relevant install/fresh-clone checks across the required runner groups plus relevant CodeQL.
+- Central Actions/policy changes conservatively select the complete blocking check set plus both CodeQL checks.
 - Unknown files or malformed policy metadata select the complete registered check set and visibly fail the controller where appropriate.
 - Valid `CI:` overrides are authoritative across blocking and CodeQL units.
 - `CI: none` still records a successful policy decision while provisioning no downstream runner.
 - Native `skip-checks: true` remains distinct and functional.
-- CodeQL remains deferred and retains weekly/manual behavior, categories, query policy, build mode, and least-privilege permissions.
+- CodeQL remains deferred and retains adaptive scheduled/manual behavior, categories, query policy, build mode, and least-privilege permissions.
 - Current authoritative docs contain no surviving contradiction that says changed paths can never influence CI or that `CI:` cannot select CodeQL.
 - One integration event does not duplicate blocking or CodeQL execution.
 
