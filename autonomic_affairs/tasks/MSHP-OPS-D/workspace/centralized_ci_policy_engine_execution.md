@@ -31,3 +31,5 @@ Task 6: complete (commits 3d42b4a..42d2db5; validation: branch-specific contradi
 Task 7 probe: docs-only automatic-selection checkpoint; expected policy-only run with no downstream checks.
 
 Task 7 probe: explicit `CI: linux-python` checkpoint; expected one Linux runner with only the linux-python logical check selected.
+
+Task 7 probe: explicit `CI: none` checkpoint; expected successful policy record with no downstream runner provisioning.
