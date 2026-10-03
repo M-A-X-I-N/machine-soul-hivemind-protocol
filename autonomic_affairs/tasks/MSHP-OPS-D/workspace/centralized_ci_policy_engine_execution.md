@@ -17,3 +17,6 @@ Pre-flight: Task 7 consumes all prior outputs; no additional implementation inte
 Task 1: Ruling: add `automatic: bool = False` to `PolicySelection` — `CI: auto` and `CI: none` both otherwise normalize to an empty selected tuple and cannot be distinguished without abusing `source`; cost if wrong: one extra stable policy field carried through later interfaces.
 
 Task 1: complete (commits 7625326..8430ffe, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_validation_selector -v` → 10/10 pass).
+
+Task 2: Ruling: defer the plan's full-repository Python-suite run to Task 7 real GitHub validation — this harness exposes no workflow-dispatch mutation and its sandbox cannot clone GitHub; changing branch-trigger policy just to manufacture the run would contaminate the feature under test. Cost if wrong: repository-wide coupling can surface later at the real cutover instead of this checkpoint.
+Task 2: complete (commits 7a02bc6..d8f3fc5, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_validation_selector -v` → 25/25 pass; full-suite gate deferred by ruling above).
