@@ -315,6 +315,7 @@ class ManagedScreen:
     window_handle: int | None = None
     original_window_style: int | None = None
     original_window_ex_style: int | None = None
+    original_window_owner: int | None = None
     virtual_display_id: int | None = None
     adaptive_applied_size: DisplaySize | None = None
     adaptive_error: str | None = None
@@ -1638,19 +1639,85 @@ def win32_restore_window_frame(hwnd: int, style: int, ex_style: int) -> bool:
     )
 
 
-def win32_apply_group_window_batch(
-    organizer_hwnd: int,
+def win32_set_window_owner(
+    hwnd: int,
+    owner_hwnd: int,
+) -> tuple[bool, int]:
+    """
+    Make a top-level window owned by another top-level window.
+
+    This is Win32 ownership, not child-window reparenting. Owned windows remain
+    independent top-level windows but Windows keeps them above their owner and
+    hides/restores them with the owner when it is minimized/restored.
+    """
+    if os.name != "nt":
+        return False, 0
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    get_long = user32.GetWindowLongPtrW
+    set_long = user32.SetWindowLongPtrW
+    get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+    get_long.restype = ctypes.c_ssize_t
+    set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+    set_long.restype = ctypes.c_ssize_t
+
+    GWLP_HWNDPARENT = -8
+    previous_owner = int(get_long(hwnd, GWLP_HWNDPARENT))
+    set_long(hwnd, GWLP_HWNDPARENT, int(owner_hwnd))
+    current_owner = int(get_long(hwnd, GWLP_HWNDPARENT))
+    return current_owner == int(owner_hwnd), previous_owner
+
+
+def win32_restore_window_owner(hwnd: int, owner_hwnd: int) -> bool:
+    """Restore the exact owner a top-level window had before grouping."""
+    if os.name != "nt":
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    get_long = user32.GetWindowLongPtrW
+    set_long = user32.SetWindowLongPtrW
+    get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+    get_long.restype = ctypes.c_ssize_t
+    set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+    set_long.restype = ctypes.c_ssize_t
+
+    GWLP_HWNDPARENT = -8
+    set_long(hwnd, GWLP_HWNDPARENT, int(owner_hwnd))
+    return int(get_long(hwnd, GWLP_HWNDPARENT)) == int(owner_hwnd)
+
+
+def win32_window_owner(hwnd: int) -> int:
+    """Return the Win32 owner HWND of one top-level window, or zero."""
+    if os.name != "nt":
+        return 0
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    get_long = user32.GetWindowLongPtrW
+    get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+    get_long.restype = ctypes.c_ssize_t
+    GWLP_HWNDPARENT = -8
+    return int(get_long(hwnd, GWLP_HWNDPARENT))
+
+
+def win32_apply_group_geometry(
     screen_windows: Sequence[
-        tuple[int, tuple[int, int, int, int] | None]
+        tuple[int, tuple[int, int, int, int]]
     ],
-    *,
-    first_insert_after: int = 0,
 ) -> bool:
     """
-    Atomically apply geometry and a complete contiguous group z-order stack.
+    Move/resize group members atomically without touching z-order.
 
-    The first screen becomes the highest member; each following screen is
-    directly behind it, and the organizer is directly behind the last member.
+    The organizer/member owner relationship is the source of truth for z-order,
+    activation and minimize/restore behavior. Geometry code must not fight it.
     """
     if os.name != "nt" or not screen_windows:
         return False
@@ -1675,83 +1742,30 @@ def win32_apply_group_window_batch(
     user32.EndDeferWindowPos.argtypes = [wintypes.HANDLE]
     user32.EndDeferWindowPos.restype = wintypes.BOOL
 
-    SWP_NOSIZE = 0x0001
-    SWP_NOMOVE = 0x0002
+    SWP_NOZORDER = 0x0004
     SWP_NOACTIVATE = 0x0010
     SWP_SHOWWINDOW = 0x0040
 
-    hdwp = user32.BeginDeferWindowPos(len(screen_windows) + 1)
+    hdwp = user32.BeginDeferWindowPos(len(screen_windows))
     if not hdwp:
         return False
 
-    insert_after = first_insert_after
     for hwnd, rect in screen_windows:
-        if rect is None:
-            x = y = width = height = 0
-            flags = SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW
-        else:
-            x, y, width, height = rect
-            flags = SWP_NOACTIVATE | SWP_SHOWWINDOW
-
+        x, y, width, height = rect
         hdwp = user32.DeferWindowPos(
             hdwp,
             hwnd,
-            insert_after,
+            0,
             int(x),
             int(y),
             max(1, int(width)),
             max(1, int(height)),
-            flags,
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW,
         )
         if not hdwp:
             return False
-        insert_after = hwnd
-
-    hdwp = user32.DeferWindowPos(
-        hdwp,
-        organizer_hwnd,
-        insert_after,
-        0,
-        0,
-        0,
-        0,
-        SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
-    )
-    if not hdwp:
-        return False
 
     return bool(user32.EndDeferWindowPos(hdwp))
-
-
-def win32_promote_group_window_batch(
-    organizer_hwnd: int,
-    screen_windows: Sequence[
-        tuple[int, tuple[int, int, int, int] | None]
-    ],
-) -> bool:
-    """
-    Reliably raise a group containing windows owned by several processes.
-
-    HWND_TOP alone can be constrained by foreground-activation rules for foreign
-    process windows. Pulse the whole stack into TOPMOST, then immediately back
-    into NOTOPMOST. This leaves the organizer active for dragging while putting
-    every screen above it and above unrelated ordinary windows.
-    """
-    HWND_TOPMOST = -1
-    HWND_NOTOPMOST = -2
-
-    if not win32_apply_group_window_batch(
-        organizer_hwnd,
-        screen_windows,
-        first_insert_after=HWND_TOPMOST,
-    ):
-        return False
-
-    return win32_apply_group_window_batch(
-        organizer_hwnd,
-        screen_windows,
-        first_insert_after=HWND_NOTOPMOST,
-    )
 
 
 def _fit_ratio_inside_cell(
@@ -2024,7 +2038,6 @@ class OrganizerWindow:
         WM_DESTROY = 0x0002
         WM_MOVE = 0x0003
         WM_SIZE = 0x0005
-        WM_ACTIVATE = 0x0006
         WM_TIMER = 0x0113
         WM_GETMINMAXINFO = 0x0024
         WM_APP_UPDATE_TITLE = 0x8001
@@ -2175,14 +2188,6 @@ class OrganizerWindow:
                 schedule_geometry(hwnd)
                 return 0
 
-            if message == WM_ACTIVATE:
-                WA_INACTIVE = 0
-                activation_state = int(wparam) & 0xFFFF
-                if activation_state != WA_INACTIVE and not self._stop_event.is_set():
-                    self._events.put(
-                        GroupWindowEvent(self.group_id, "activated")
-                    )
-
             if message == WM_TIMER and wparam == TIMER_LAYOUT:
                 user32.KillTimer(hwnd, TIMER_LAYOUT)
                 if not self._stop_event.is_set():
@@ -2212,9 +2217,13 @@ class OrganizerWindow:
 
             if message == WM_CLOSE:
                 if not self._stop_event.is_set():
+                    # Do not destroy an owner while scrcpy windows are still
+                    # attached to it. Ask the manager to dissolve first; its
+                    # close() call sets _stop_event after ownership is restored.
                     self._events.put(
                         GroupWindowEvent(self.group_id, "closed")
                     )
+                    return 0
                 user32.DestroyWindow(hwnd)
                 return 0
 
@@ -2954,8 +2963,63 @@ class VirtualScreenManager:
         screen.original_window_style = None
         screen.original_window_ex_style = None
 
+    def _set_screen_group_owner(
+        self,
+        screen: ManagedScreen,
+        organizer_hwnd: int,
+        grouped: bool,
+    ) -> bool:
+        """Attach/detach the scrcpy top-level window using native Win32 ownership."""
+        if os.name != "nt":
+            return True
+
+        if not win32_is_window(screen.window_handle):
+            screen.window_handle = win32_visible_window_for_pid(screen.process.pid or 0)
+        hwnd = screen.window_handle
+        if hwnd is None:
+            return False
+
+        if grouped:
+            if screen.original_window_owner is None:
+                success, previous_owner = win32_set_window_owner(
+                    hwnd,
+                    organizer_hwnd,
+                )
+                if not success:
+                    return False
+                screen.original_window_owner = previous_owner
+                return True
+
+            if win32_window_owner(hwnd) != organizer_hwnd:
+                success, _ignored_previous = win32_set_window_owner(
+                    hwnd,
+                    organizer_hwnd,
+                )
+                return success
+            return True
+
+        if screen.original_window_owner is not None:
+            win32_restore_window_owner(
+                hwnd,
+                screen.original_window_owner,
+            )
+        screen.original_window_owner = None
+        return True
+
+    def _release_screen_group_window(self, screen: ManagedScreen) -> None:
+        """Restore ownership before frame chrome when a member leaves a group."""
+        if screen.original_window_owner is not None and win32_is_window(screen.window_handle):
+            self._set_screen_group_owner(screen, 0, False)
+        else:
+            screen.original_window_owner = None
+        self._set_screen_group_frame(screen, False)
+
     def _collect_group_screens(self, group: ManagedGroup) -> list[ManagedScreen] | None:
-        """Resolve live member HWNDs and ensure borderless grouped chrome."""
+        """Resolve live members and bind them to the organizer as owned windows."""
+        organizer_hwnd = group.organizer.window_handle()
+        if organizer_hwnd is None:
+            return None
+
         screens: list[ManagedScreen] = []
         for screen_id in sorted(group.screen_ids):
             screen = self.screens.get(screen_id)
@@ -2967,7 +3031,14 @@ class VirtualScreenManager:
                 )
             if screen.window_handle is None:
                 return None
+
             self._set_screen_group_frame(screen, True)
+            if not self._set_screen_group_owner(
+                screen,
+                organizer_hwnd,
+                True,
+            ):
+                return None
             screens.append(screen)
         return screens
 
@@ -2986,8 +3057,6 @@ class VirtualScreenManager:
             if event.kind == "geometry" and event.rect is not None:
                 group.last_rect = event.rect
                 group.pending_rect = event.rect
-            elif event.kind == "activated":
-                self._raise_group(group)
             elif event.kind == "closed":
                 self._dissolve_group(event.group_id)
             elif event.kind == "error":
@@ -3024,20 +3093,6 @@ class VirtualScreenManager:
                 if self._layout_group(group):
                     group.pending_rect = None
 
-    def _raise_group(self, group: ManagedGroup) -> bool:
-        """Raise every member and organizer as one contiguous z-order island."""
-        screens = self._collect_group_screens(group)
-        organizer_hwnd = group.organizer.window_handle()
-        if screens is None or len(screens) < 2 or organizer_hwnd is None:
-            return False
-
-        windows = [
-            (screen.window_handle, None)
-            for screen in screens
-            if screen.window_handle is not None
-        ]
-        return win32_promote_group_window_batch(organizer_hwnd, windows)
-
     def _layout_group(self, group: ManagedGroup) -> bool:
         """Atomically move and restack every member inside the organizer."""
         rect = group.pending_rect or group.last_rect
@@ -3053,7 +3108,7 @@ class VirtualScreenManager:
         if len(layout) != len(screens):
             return False
 
-        windows: list[tuple[int, tuple[int, int, int, int] | None]] = []
+        windows: list[tuple[int, tuple[int, int, int, int]]] = []
         for screen in screens:
             if screen.window_handle is None:
                 return False
@@ -3070,7 +3125,7 @@ class VirtualScreenManager:
                 )
                 self._queue_adaptive_resize(screen, android_size)
 
-        return win32_apply_group_window_batch(organizer_hwnd, windows)
+        return win32_apply_group_geometry(windows)
 
     def _action_create_group(self) -> None:
         """Select running ungrouped screens and create one geometry organizer."""
@@ -3219,7 +3274,7 @@ class VirtualScreenManager:
             return
 
         group_id = screen.group_id
-        self._set_screen_group_frame(screen, False)
+        self._release_screen_group_window(screen)
         if (
             screen.process.poll() is None
             and screen.request.display_mode == DISPLAY_MODE_CAPPED_ADAPTIVE
@@ -3249,7 +3304,7 @@ class VirtualScreenManager:
         for screen_id in group.screen_ids:
             screen = self.screens.get(screen_id)
             if screen is not None and screen.group_id == group_id:
-                self._set_screen_group_frame(screen, False)
+                self._release_screen_group_window(screen)
                 screen.group_id = None
 
         group.organizer.close()
@@ -3992,16 +4047,16 @@ class VirtualScreenManager:
             "  A normal resizable organizer window becomes their geometry master.",
             "  Grouped scrcpy windows become borderless and appear under an expandable",
             "  Group row in the manager; their original frame styles are restored.",
+            "  Each scrcpy window becomes a native owned top-level window of the group",
+            "  organizer. Windows therefore owns minimize/restore and z-order behavior",
+            "  instead of the manager repeatedly forcing independent window stacks.",
             "  Capped-adaptive screens experimentally use per-display Android wm size",
             "  overrides so group allocations can change Android aspect without uneven",
             "  host stretching; the configured scalar caps either rendered dimension.",
             "  Live adaptation is group-driven for now; an ungrouped adaptive screen",
             "  starts at native portrait aspect and stays there until grouped.",
             "  Adaptive screens expose a submenu status view with display id/result/error.",
-            "  Closing it disbands the group; screens remain alive and independent.",
-            "  Moving uses one atomic member+organizer z-order transaction. Activating",
-            "  pulses the whole stack through TOPMOST, then immediately NOTOPMOST,",
-            "  so foreign scrcpy windows reliably rise without becoming always-on-top.",
+            "  Closing first restores member ownership/styles, then destroys the organizer.",
             "  Groups automatically dissolve when fewer than two members remain.",
             "",
             f"{ICON_APPS} Installed-app finder",
