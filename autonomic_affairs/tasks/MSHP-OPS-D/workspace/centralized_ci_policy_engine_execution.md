@@ -22,3 +22,6 @@ Task 2: Ruling: defer the plan's full-repository Python-suite run to Task 7 real
 Task 2: complete (commits 7a02bc6..d8f3fc5, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_validation_selector -v` → 25/25 pass; full-suite gate deferred by ruling above).
 
 Task 3: complete (commits 52dba54..d27ecb2, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_validation_history autonomic_affairs.tests.python.test_ci_validation_selector -v` → 38/38 pass; full-suite gate remains deferred by Task 2 harness ruling).
+
+Task 4: complete (commits c94b4e9..7cc5514, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_workflow_contract autonomic_affairs.tests.python.test_ci_validation_history autonomic_affairs.tests.python.test_ci_validation_selector -v` → 41/41 pass; full-suite gate deferred by Task 2 harness ruling).
+Task 5: complete (commits 7cc5514..3d42b4a, tests: `python -m unittest autonomic_affairs.tests.python.test_ci_workflow_contract autonomic_affairs.tests.python.test_ci_validation_selector autonomic_affairs.tests.python.test_ci_validation_history -v` → 45/45 pass; real-Actions/full-suite gate remains Task 7).
