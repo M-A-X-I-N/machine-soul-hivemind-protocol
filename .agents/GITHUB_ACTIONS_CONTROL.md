@@ -1,8 +1,19 @@
 # GitHub Actions control-plane observations
 
+> **Historical evidence:** the OPS-A dispatcher behavior below was verified and remains useful test evidence, but its routing policy is superseded by MSHP-OPS-D. Current policy lives in `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md` and `.agents/WORKFLOW.md`.
+
+## Current control-plane model
+
+- One top-level Machine-Soul policy workflow owns push-to-main, PR-to-main, manual, and `9 6 * * *` scheduled entry.
+- Changed paths are conservative automatic evidence; explicit valid `CI:` selection is authoritative; uncertainty fails safe to all registered checks.
+- Selection is check-level, then compatible checks are coalesced onto shared runner jobs.
+- CodeQL Python/Actions are selected by the same policy engine but retain deferred lifecycle semantics.
+- Scheduled reconciliation derives coverage from repository history plus GitHub Actions run/job/step history; no separate persistent CI-state database is authoritative.
+
+
 Verified while implementing MSHP-OPS-A in lineage `lyra_260928-230718`.
 
-## Validation sets and dispatcher
+## Superseded OPS-A validation sets and dispatcher
 
 Registered blocking validation sets are `linux`, `windows`, `fresh-linux`, and `fresh-windows`.
 
@@ -22,4 +33,4 @@ The checked-in dispatcher uses one small selector job, then conditionally calls 
 
 The currently available GitHub connector can inspect Actions runs/jobs/logs and rerun existing jobs, but it does not directly expose creation of a `workflow_dispatch` event. MSHP-OPS-A verified the event indirectly with a temporary GitHub Actions probe using the repository `GITHUB_TOKEN`; the probe workflow was then removed from its branch.
 
-Do not work around connector limitations by weakening branch trigger policy or by adding changed-path routing.
+Do not work around connector limitations by weakening branch trigger policy. The old prohibition on changed-path routing is superseded: current OPS-D policy deliberately uses changed paths as conservative evidence with fail-safe fallback.
