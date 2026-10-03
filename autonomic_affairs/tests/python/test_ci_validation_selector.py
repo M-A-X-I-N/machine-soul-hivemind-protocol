@@ -135,8 +135,28 @@ class PathClassificationTests(unittest.TestCase):
         self.assertTrue(selection.valid)
         self.assertEqual((), selection.selected)
 
-    def test_runtime_python_selects_cross_platform_python_and_codeql(self):
+    def test_runtime_python_selects_all_nonfresh_os_checks_and_codeql(self):
         selection = checks_for_paths(("annexation_procedures/runtime.py",))
+        self.assertEqual(
+            (
+                "linux-python",
+                "linux-applications",
+                "linux-install",
+                "linux-session",
+                "linux-matrix",
+                "windows-python",
+                "windows-applications",
+                "windows-posix",
+                "windows-install",
+                "codeql-python",
+            ),
+            selection.selected,
+        )
+
+    def test_python_test_change_also_selects_python_codeql(self):
+        selection = checks_for_paths((
+            "autonomic_affairs/tests/python/test_runtime_core.py",
+        ))
         self.assertEqual(
             ("linux-python", "windows-python", "codeql-python"),
             selection.selected,
@@ -169,7 +189,19 @@ class PathClassificationTests(unittest.TestCase):
             ".github/workflows/release.yml",
         ))
         self.assertEqual(
-            ("linux-python", "windows-python", "codeql-python", "codeql-actions"),
+            (
+                "linux-python",
+                "linux-applications",
+                "linux-install",
+                "linux-session",
+                "linux-matrix",
+                "windows-python",
+                "windows-applications",
+                "windows-posix",
+                "windows-install",
+                "codeql-python",
+                "codeql-actions",
+            ),
             selection.selected,
         )
 
@@ -309,6 +341,16 @@ class MetadataAndEventTests(unittest.TestCase):
         for summary in ("Feature: nope", "[Banana] Nope", "[Fix][] Nope", "[Fix]"):
             with self.subTest(summary=summary):
                 self.assertIsNotNone(validate_commit_summary(summary))
+
+    def test_manual_dispatch_rejects_auto_as_ambiguous(self):
+        selection = resolve_automatic_event(
+            "workflow_dispatch",
+            manual_selector="auto",
+        )
+        self.assertFalse(selection.valid)
+        self.assertEqual(EXPECTED_CHECKS, selection.selected)
+        self.assertEqual("manual-dispatch", selection.source)
+        self.assertIn("explicit", selection.error)
 
     def test_forced_push_auto_falls_back_to_all(self):
         selection = resolve_automatic_event(
