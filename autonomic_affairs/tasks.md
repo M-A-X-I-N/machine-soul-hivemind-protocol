@@ -16,6 +16,7 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
+| `MSHP-OPS-D-010` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-03T21:40:39Z` | Human-authorized continuation; existing Sera lineage explicitly adopted. |
 
 ## Active task index
 
@@ -98,7 +99,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-OPS-D-010`](tasks/MSHP-OPS-D/MSHP-OPS-D-010.md) | QUEUED | — | Investigate centralized CI policy engine | Design a single conservative control-plane job that validates control metadata, inspects event/diff evidence, applies explicit overrides, and selects blocking validation plus CodeQL work without provisioning every downstream runner. |
+| [`MSHP-OPS-D-010`](tasks/MSHP-OPS-D/MSHP-OPS-D-010.md) | IN_PROGRESS | — | Investigate centralized CI policy engine | Design a single conservative control-plane job that validates control metadata, inspects event/diff evidence, applies explicit overrides, and selects blocking validation plus CodeQL work without provisioning every downstream runner. |
 
 
 ## Task contract
