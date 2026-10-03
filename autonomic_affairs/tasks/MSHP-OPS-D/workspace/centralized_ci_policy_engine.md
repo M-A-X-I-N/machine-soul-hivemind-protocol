@@ -127,7 +127,7 @@ Recommended triggers, all on this **single entry-point workflow**:
 - `push` to `main`;
 - `pull_request` targeting `main`;
 - `workflow_dispatch`;
-- daily `schedule` at `0 6 * * *` (06:00 UTC).
+- daily `schedule` at `9 6 * * *` (06:09 UTC).
 
 Do not add ordinary non-main push triggers. Downstream blocking-validation and CodeQL workflows should be callable-only; push/PR/manual/schedule routing belongs exclusively to the selector/policy workflow.
 
@@ -225,12 +225,12 @@ The schedule is a **daily reconciliation event**, not a blind CodeQL trigger.
 It runs at:
 
 ```cron
-0 6 * * *
+9 6 * * *
 ```
 
-which is 06:00 UTC using ordinary POSIX cron semantics.
+which is 06:09 UTC using ordinary POSIX cron semantics.
 
-GitHub schedules execute against the latest commit on the default branch. GitHub also documents that scheduled workflows can be delayed during high load, particularly around the start of an hour; keep the human-facing policy as 06:00 UTC while treating exact wall-clock start as best-effort platform scheduling rather than a hard real-time guarantee.
+GitHub schedules execute against the latest commit on the default branch. GitHub also documents that scheduled workflows can be delayed during high load, particularly around the start of an hour; keep the human-facing policy as 06:09 UTC while treating exact wall-clock start as best-effort platform scheduling rather than a hard real-time guarantee.
 
 The selector should inspect its own prior successful downstream job history and ask which validation units are still meaningfully **covered** for current `main`.
 
@@ -513,7 +513,7 @@ It should:
 3. convert the top-level validation workflow into the unified policy workflow on `ubuntu-slim`;
 4. preserve the four reusable blocking workflows;
 5. refactor CodeQL into reusable downstream language analysis callable from the policy workflow;
-6. make the top-level selector the sole scheduled entry point at `0 6 * * *`, with adaptive CodeQL cadence and relevance-aware ordinary validation reconciliation;
+6. make the top-level selector the sole scheduled entry point at `9 6 * * *`, with adaptive CodeQL cadence and relevance-aware ordinary validation reconciliation;
 7. update `.agents/WORKFLOW.md`, root `AGENTS.md` if needed, and `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md`;
 8. validate real GitHub behavior for representative docs-only, Python, workflow/control, explicit subset, invalid override, `none`, manual, and CodeQL schedule/manual semantics where practical;
 9. cut over without duplicate workflows or double scans.
