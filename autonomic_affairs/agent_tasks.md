@@ -16,7 +16,7 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| [`MSHP-OPS-C-020`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-020.md) | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-03T19:24:00Z` | Claimed under explicit whole-block authorization in the current conversation. |
+| [`MSHP-OPS-C-030`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-030.md) | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-03T19:30:00Z` | Continued under explicit whole-block authorization in the current conversation. |
 
 ## Active task index
 
@@ -55,8 +55,8 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 | [`MSHP-WINGET-A-010`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | FROZEN | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
 | [`MSHP-WINGET-A-020`](agent_tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | FROZEN | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
 | [`MSHP-OPS-C-010`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-010.md) | COMPLETE | — | Harden lineage recovery authority | Make branch discoverability insufficient for lineage adoption; require explicit human recovery authority and stop on unexpected unrelated lineage work. |
-| [`MSHP-OPS-C-020`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-020.md) | IN_PROGRESS | `MSHP-OPS-C-010` | Add active task claims to the task ledger | Add a live ownership/claim section inside the task ledger, define claim/release semantics, and make claims coordination locks rather than recovery credentials. |
-| [`MSHP-OPS-C-030`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-030.md) | QUEUED | `MSHP-OPS-C-020` | Improve task-ledger block readability | Reorganize the ledger into visually distinct task-block sections without breaking task lookup, parsers, archival rules, or Dispatch semantics. |
+| [`MSHP-OPS-C-020`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-020.md) | COMPLETE | `MSHP-OPS-C-010` | Add active task claims to the task ledger | Add a live ownership/claim section inside the task ledger, define claim/release semantics, and make claims coordination locks rather than recovery credentials. |
+| [`MSHP-OPS-C-030`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-030.md) | IN_PROGRESS | `MSHP-OPS-C-020` | Improve task-ledger block readability | Reorganize the ledger into visually distinct task-block sections without breaking task lookup, parsers, archival rules, or Dispatch semantics. |
 | [`MSHP-OPS-C-040`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-040.md) | QUEUED | `MSHP-OPS-C-010` | Codify top-level directory contract | Make the meme-named repository domains unambiguous to agents by defining what belongs and does not belong in every top-level control/content directory. |
 | [`MSHP-OPS-C-050`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-050.md) | QUEUED | `MSHP-OPS-C-020`, `MSHP-OPS-C-030` | Design the agent_tasks to tasks migration | Inventory every path/link/parser/recovery dependency and design a recoverable migration from `agent_tasks` naming to generic `tasks` naming. |
 | [`MSHP-OPS-C-060`](agent_tasks/MSHP-OPS-C/MSHP-OPS-C-060.md) | QUEUED | `MSHP-OPS-C-040`, `MSHP-OPS-C-050` | Migrate agent_tasks naming to tasks | Perform and validate the repository-wide task-path/name migration with recoverable checkpoints and no dangling references or ambiguous recovery behavior. |
