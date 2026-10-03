@@ -1,5 +1,7 @@
 # Legacy runtime migration audit
 
+> **Historical migration record:** the Python/declarative migration is complete. This note preserves the rationale and parity checklist that led to retirement of the parallel shell/PowerShell policy runtime; current runtime shape is summarized in `python_core_implementation.md` and `../decisions/python_migration_complete.md`.
+
 V2-57 mapped the shell/PowerShell implementation to the Python architecture. Canonical detail is in `autonomic_affairs/docs/LEGACY_MIGRATION_MAP.md`.
 
 High-value conclusions:
@@ -16,4 +18,4 @@ High-value conclusions:
 - preserve behavior tests, not legacy implementation chains;
 - stale `TASKS.md` root search and concrete-machine adapter fallbacks are deletion targets.
 
-V2-58 builds alongside legacy code. Retirement belongs later after parity.
+V2-58 originally built alongside legacy code; V2-61 later retired the legacy policy/forwarding scripts after parity.
