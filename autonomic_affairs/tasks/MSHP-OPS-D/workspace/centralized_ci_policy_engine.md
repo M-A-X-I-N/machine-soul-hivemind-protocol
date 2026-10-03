@@ -122,14 +122,14 @@ References:
 
 Use one top-level workflow as the event/control plane.
 
-Recommended triggers:
+Recommended triggers, all on this **single entry-point workflow**:
 
 - `push` to `main`;
 - `pull_request` targeting `main`;
 - `workflow_dispatch`;
-- weekly `schedule`.
+- daily `schedule` at `0 6 * * *` (06:00 UTC).
 
-Do not add ordinary non-main push triggers.
+Do not add ordinary non-main push triggers. Downstream blocking-validation and CodeQL workflows should be callable-only; push/PR/manual/schedule routing belongs exclusively to the selector/policy workflow.
 
 The first job is `policy`, running on `ubuntu-slim`.
 
@@ -215,14 +215,48 @@ The selected ref continues to come from GitHub's manual workflow ref selector.
 
 #### Schedule
 
-The schedule is not a source-change event.
+The schedule is a **daily reconciliation event**, not a blind CodeQL trigger.
 
-Select exactly:
+It runs at:
 
-- `codeql-python`
-- `codeql-actions`
+```cron
+0 6 * * *
+```
 
-Do not launch blocking validation merely because the weekly security rescan occurred.
+which is 06:00 UTC using ordinary POSIX cron semantics.
+
+GitHub schedules execute against the latest commit on the default branch. GitHub also documents that scheduled workflows can be delayed during high load, particularly around the start of an hour; keep the human-facing policy as 06:00 UTC while treating exact wall-clock start as best-effort platform scheduling rather than a hard real-time guarantee.
+
+The selector should inspect its own prior successful downstream job history and ask which validation units are still meaningfully **covered** for current `main`.
+
+For ordinary validation units, coverage is relevance-aware:
+
+1. find the most recent successful execution of the unit;
+2. if it ran successfully on current `HEAD`, it is covered;
+3. if it ran on an older SHA, diff that SHA to current `HEAD`;
+4. feed those changed paths through the same unit-relevance mapping used for push/PR classification;
+5. if no changed path is relevant to that unit, the older success still covers current `main`;
+6. if any relevant path changed, run the unit;
+7. if prior-run history or comparison evidence is missing/ambiguous, run the unit.
+
+Example: a Markdown-specific validation unit should not become stale merely because ten Python files changed after its last success. Conversely, a Markdown change relevant to that unit invalidates its prior coverage.
+
+For CodeQL, deliberately use stricter exact-HEAD coverage rather than relevance-aware carry-forward. Evaluate `codeql-python` and `codeql-actions` independently:
+
+1. find the most recent successful execution of that CodeQL unit on **current main HEAD**;
+2. if none exists, run it immediately;
+3. if one exists and main HEAD is younger than `24 * 7` hours, run again when the last successful execution on HEAD is at least 24 hours old;
+4. if main HEAD is at least `24 * 7` hours old, run again when the last successful execution on HEAD is at least `24 * 7` hours old.
+
+Thus CodeQL behaves roughly as:
+
+- new/unscanned HEAD → run now;
+- active/recent HEAD → daily rescanning;
+- quiet HEAD older than seven days → weekly rescanning.
+
+The weekly phase is naturally anchored to the most recent successful CodeQL execution rather than to a particular weekday.
+
+Historical `CI: none` or `skip-checks: true` decisions suppress their event-triggered run but do not permanently exempt the resulting tree. Scheduled reconciliation may later repair missing coverage.
 
 ### Explicit override semantics
 
@@ -346,6 +380,23 @@ Automatic result:
 
 This is the classifier's most important invariant.
 
+## Prior-run evidence and scheduled state
+
+Do not create a bespoke persistent CI-state database unless implementation proves it necessary.
+
+GitHub's Actions API exposes workflow-run history keyed by workflow/head SHA, and workflow-job records expose stable job names, `head_sha`, conclusion, and completion timestamps. The selector can therefore derive recent successful unit coverage from Actions history. Use the built-in `GITHUB_TOKEN` with least-privilege `actions: read` / `contents: read` access.
+
+Because the top-level selector itself is the only event entry point, historical unit identity must be stable and machine-recognizable. Do not infer unit identity from arbitrary display text; establish deterministic job/unit names as part of implementation.
+
+When looking backward:
+
+- ignore the current in-progress workflow run;
+- use only successful unit executions as coverage;
+- if history pagination/retention means no usable success can be established, treat the unit as uncovered;
+- if an old successful SHA is no longer comparable/reachable in the fetched history, fail safe by running the affected unit.
+
+This is deliberately reconstructable state: repository history + GitHub Actions history remain the authority.
+
 ## Decision model
 
 For automatic push/PR events:
@@ -371,7 +422,7 @@ The launch decision becomes centralized; lifecycle semantics do not.
 - Blocking units remain advancement gates.
 - `AWAITING_DEFERRED_CI` remains valid when implementation can advance while selected CodeQL work is pending.
 - Completion still requires relevant selected CodeQL success for a task's final substantive tree.
-- Weekly schedule still runs both CodeQL units regardless of source-change classification.
+- The daily schedule centrally reconciles both CodeQL units using exact-HEAD adaptive cadence and ordinary validation units using relevance-aware coverage.
 - Stable default query suite, `build-mode: none`, current language categories, and least-privilege upload permissions remain unchanged unless separately justified.
 
 ## Policy supersessions required
@@ -403,7 +454,7 @@ Supersede these OPS-B-era rules:
 Preserve from OPS-B:
 
 - deferred lifecycle;
-- weekly rescan;
+- adaptive periodic rescan through the daily selector: 24-hour cadence for a main HEAD younger than seven days, 168-hour cadence thereafter;
 - default query suite;
 - Python + Actions;
 - `build-mode: none`;
@@ -457,7 +508,7 @@ It should:
 3. convert the top-level validation workflow into the unified policy workflow on `ubuntu-slim`;
 4. preserve the four reusable blocking workflows;
 5. refactor CodeQL into reusable downstream language analysis callable from the policy workflow;
-6. keep scheduled CodeQL through the top-level policy event;
+6. make the top-level selector the sole scheduled entry point at `0 6 * * *`, with adaptive CodeQL cadence and relevance-aware ordinary validation reconciliation;
 7. update `.agents/WORKFLOW.md`, root `AGENTS.md` if needed, and `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md`;
 8. validate real GitHub behavior for representative docs-only, Python, workflow/control, explicit subset, invalid override, `none`, manual, and CodeQL schedule/manual semantics where practical;
 9. cut over without duplicate workflows or double scans.
