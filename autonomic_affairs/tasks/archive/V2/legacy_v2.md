@@ -2,7 +2,7 @@
 
 These definitions retain the original `V2-*` identities and preserve the historical monolithic form in which the legacy series was maintained. All V2 tasks are complete; this file is archived task history rather than an active scheduling source.
 
-Do not manufacture replacement IDs or artificial per-task files for this series. Current executable-work scheduling lives in [`../../../agent_tasks.md`](../../../agent_tasks.md), and task-storage lookup rules live in [`../../README.md`](../../README.md).
+Do not manufacture replacement IDs or artificial per-task files for this series. Current executable-work scheduling lives in [`../../../tasks.md`](../../../tasks.md), and task-storage lookup rules live in [`../../README.md`](../../README.md).
 
 - [x] **V2-01 — Inspect existing repository**
   - Inspect branches/history, directory tree, scripts, configs, `$MACHINE_SOUL`, deployment logic, conventions, and reusable ideas.
