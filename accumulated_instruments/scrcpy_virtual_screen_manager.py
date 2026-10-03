@@ -145,6 +145,7 @@ GROUP_WINDOW_MIN_WIDTH = 420
 GROUP_WINDOW_MIN_HEIGHT = 300
 GROUP_WINDOW_INITIAL_WIDTH = 1000
 GROUP_WINDOW_INITIAL_HEIGHT = 700
+ADAPTIVE_WINDOW_SETTLE_SECONDS = 1.0
 
 SIZE_PATTERN = re.compile(r"^(?P<width>[1-9][0-9]*)[xX](?P<height>[1-9][0-9]*)$")
 BITRATE_PATTERN = re.compile(r"^(?P<number>[1-9][0-9]*)(?P<suffix>[kKmM]?)$")
@@ -317,6 +318,7 @@ class ManagedScreen:
     virtual_display_id: int | None = None
     adaptive_applied_size: DisplaySize | None = None
     adaptive_error: str | None = None
+    adaptive_settle_until: float = 0.0
 
     @property
     def status(self) -> str:
@@ -1641,6 +1643,8 @@ def win32_apply_group_window_batch(
     screen_windows: Sequence[
         tuple[int, tuple[int, int, int, int] | None]
     ],
+    *,
+    first_insert_after: int = 0,
 ) -> bool:
     """
     Atomically apply geometry and a complete contiguous group z-order stack.
@@ -1671,7 +1675,6 @@ def win32_apply_group_window_batch(
     user32.EndDeferWindowPos.argtypes = [wintypes.HANDLE]
     user32.EndDeferWindowPos.restype = wintypes.BOOL
 
-    HWND_TOP = 0
     SWP_NOSIZE = 0x0001
     SWP_NOMOVE = 0x0002
     SWP_NOACTIVATE = 0x0010
@@ -1681,7 +1684,7 @@ def win32_apply_group_window_batch(
     if not hdwp:
         return False
 
-    insert_after = HWND_TOP
+    insert_after = first_insert_after
     for hwnd, rect in screen_windows:
         if rect is None:
             x = y = width = height = 0
@@ -1718,6 +1721,37 @@ def win32_apply_group_window_batch(
         return False
 
     return bool(user32.EndDeferWindowPos(hdwp))
+
+
+def win32_promote_group_window_batch(
+    organizer_hwnd: int,
+    screen_windows: Sequence[
+        tuple[int, tuple[int, int, int, int] | None]
+    ],
+) -> bool:
+    """
+    Reliably raise a group containing windows owned by several processes.
+
+    HWND_TOP alone can be constrained by foreground-activation rules for foreign
+    process windows. Pulse the whole stack into TOPMOST, then immediately back
+    into NOTOPMOST. This leaves the organizer active for dragging while putting
+    every screen above it and above unrelated ordinary windows.
+    """
+    HWND_TOPMOST = -1
+    HWND_NOTOPMOST = -2
+
+    if not win32_apply_group_window_batch(
+        organizer_hwnd,
+        screen_windows,
+        first_insert_after=HWND_TOPMOST,
+    ):
+        return False
+
+    return win32_apply_group_window_batch(
+        organizer_hwnd,
+        screen_windows,
+        first_insert_after=HWND_NOTOPMOST,
+    )
 
 
 def _fit_ratio_inside_cell(
@@ -2734,11 +2768,20 @@ class VirtualScreenManager:
                 else "(not applied yet)"
             )
             target = describe_display_policy(screen.request)
+            settling = max(
+                0.0,
+                screen.adaptive_settle_until - time.monotonic(),
+            )
             detail = [
                 f"Display ID : {display_id}",
                 f"Policy     : {target}",
                 f"Applied    : {applied}",
                 f"ADB        : {self.adb or '(not found)'}",
+                (
+                    f"Settle     : {settling:.1f}s"
+                    if settling > 0
+                    else "Settle     : idle"
+                ),
             ]
             if screen.adaptive_error:
                 detail.extend(["", f"Last error: {screen.adaptive_error}"])
@@ -2850,6 +2893,13 @@ class VirtualScreenManager:
             if success:
                 screen.adaptive_applied_size = target
                 screen.adaptive_error = None
+                screen.adaptive_settle_until = (
+                    time.monotonic() + ADAPTIVE_WINDOW_SETTLE_SECONDS
+                )
+                if screen.group_id is not None:
+                    group = self.groups.get(screen.group_id)
+                    if group is not None and group.last_rect is not None:
+                        group.pending_rect = group.last_rect
             else:
                 screen.adaptive_error = detail or "wm size override failed"
 
@@ -2959,6 +3009,17 @@ class VirtualScreenManager:
                     self._remove_screen_from_group(screen_id)
 
             group = self.groups.get(group_id)
+            if group is not None and group.last_rect is not None:
+                now = time.monotonic()
+                if any(
+                    (
+                        self.screens.get(screen_id) is not None
+                        and self.screens[screen_id].adaptive_settle_until > now
+                    )
+                    for screen_id in group.screen_ids
+                ):
+                    group.pending_rect = group.last_rect
+
             if group is not None and group.pending_rect is not None:
                 if self._layout_group(group):
                     group.pending_rect = None
@@ -2975,7 +3036,7 @@ class VirtualScreenManager:
             for screen in screens
             if screen.window_handle is not None
         ]
-        return win32_apply_group_window_batch(organizer_hwnd, windows)
+        return win32_promote_group_window_batch(organizer_hwnd, windows)
 
     def _layout_group(self, group: ManagedGroup) -> bool:
         """Atomically move and restack every member inside the organizer."""
@@ -3727,7 +3788,7 @@ class VirtualScreenManager:
         adaptive_max_size = validate_adaptive_max_size(initial.adaptive_max_size)
         max_fps = validate_max_fps(initial.max_fps)
         bitrate_spec = normalize_bitrate_spec(initial.bitrate_spec)
-        selected = 0
+        selected = -1
 
         while True:
             if display_mode == DISPLAY_MODE_FIXED:
@@ -3751,7 +3812,10 @@ class VirtualScreenManager:
                 ("submit", submit_label, ""),
                 ("cancel", "Cancel", ""),
             ]
-            selected = max(0, min(selected, len(rows) - 1))
+            if selected < 0:
+                selected = len(field_rows)
+            else:
+                selected = max(0, min(selected, len(rows) - 1))
 
             width, height = terminal_dimensions()
             inner_width = max(1, width - 2)
@@ -3935,7 +3999,9 @@ class VirtualScreenManager:
             "  starts at native portrait aspect and stays there until grouped.",
             "  Adaptive screens expose a submenu status view with display id/result/error.",
             "  Closing it disbands the group; screens remain alive and independent.",
-            "  Moving/activating uses one atomic member+organizer z-order transaction.",
+            "  Moving uses one atomic member+organizer z-order transaction. Activating",
+            "  pulses the whole stack through TOPMOST, then immediately NOTOPMOST,",
+            "  so foreign scrcpy windows reliably rise without becoming always-on-top.",
             "  Groups automatically dissolve when fewer than two members remain.",
             "",
             f"{ICON_APPS} Installed-app finder",
