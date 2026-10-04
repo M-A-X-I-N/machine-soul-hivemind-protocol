@@ -4,7 +4,7 @@
 
 The post-baseline redesign will converge on a Python 3, library-first, declarative application architecture.
 
-The human-facing target architecture is documented in [`../../autonomic_affairs/docs/next_phase_architecture.md`](../../autonomic_affairs/docs/next_phase_architecture.md). Read that document before implementing V2-45 through V2-63.
+The human-facing target architecture is documented in [`../../../autonomic_affairs/docs/next_phase_architecture.md`](../../../autonomic_affairs/docs/next_phase_architecture.md). Read that document before implementing V2-45 through V2-63.
 
 ## Agent-critical rules
 
