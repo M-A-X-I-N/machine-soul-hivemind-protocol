@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-1. [`MSHP-AGENT-BASELINE-A-060`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-060.md) — investigate versioning, compatibility, and migration policy.
+_No QUEUED task is currently dispatched._
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS`, removes it from Dispatch, and records a live claim below.
 
@@ -16,6 +16,7 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
+| `MSHP-AGENT-BASELINE-A-060` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-04T00:30:32Z` | Human authorized MSHP-AGENT-BASELINE-A through and including A-070; continuing explicitly adopted Sera lineage. |
 
 ## Active task index
 
@@ -30,7 +31,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 | [`MSHP-AGENT-BASELINE-A-030`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-030.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-020` | Investigate cross-repository distribution and reuse mechanisms | Compare templates with reusable workflows, composite actions, shared scripts/packages, repository configuration mechanisms, and other viable distribution models. |
 | [`MSHP-AGENT-BASELINE-A-040`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-040.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-030` | Investigate ongoing synchronization and baseline evolution | Research how existing repositories can discover, compare, and safely adopt later baseline changes without overwriting local policy. |
 | [`MSHP-AGENT-BASELINE-A-050`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-050.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-040` | Investigate baseline and repository-local override boundaries | Determine safe layering models for generic baseline policy plus explicit repository-local additions/overrides without creating hidden forks or authority ambiguity. |
-| [`MSHP-AGENT-BASELINE-A-060`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-060.md) | QUEUED | `MSHP-AGENT-BASELINE-A-050` | Investigate versioning, compatibility, and migration policy | Research versioning, pinning, compatibility, migration, and rollback for both copied baseline files and live shared components. |
+| [`MSHP-AGENT-BASELINE-A-060`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-060.md) | IN_PROGRESS | `MSHP-AGENT-BASELINE-A-050` | Investigate versioning, compatibility, and migration policy | Research versioning, pinning, compatibility, migration, and rollback for both copied baseline files and live shared components. |
 | [`MSHP-AGENT-BASELINE-A-070`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-070.md) | QUEUED | `MSHP-AGENT-BASELINE-A-060` | Synthesize cross-repository agent baseline architecture | Produce the evidence-backed recommended bootstrap/shared-runtime/update/versioning architecture and future implementation roadmap without implementing it. |
 
 ### MSHP-WINGET-A
