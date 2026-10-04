@@ -27,23 +27,24 @@ Before this reminder can become executable work:
 
 Merely recording this reminder does **not** authorize any rebase, force-push, ref rewrite, or history destruction.
 
-## Implement cross-repository agent baseline architecture
+## Extend agent baseline beyond manual instruction v1
 
-**Status:** Parked follow-up after completed research block `MSHP-AGENT-BASELINE-A`.
+**Status:** Parked follow-up beyond active block `MSHP-AGENT-BASELINE-B`.
 
-The research recommendation is documented in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md`. Detailed evidence is preserved with the archived research block.
+The active B block deliberately implements only the manually maintained **agent-instruction baseline**: generic/local/memory separation, ChatGPT-Chat-oriented routing, MSHP reference-consumer refactor, template population, and a human-plus-agent update/adoption procedure.
 
-When explicitly promoted to executable work, begin with the neutral baseline contract/manifest/local-profile design before modifying `M-A-X-I-N/template` or creating any shared tooling/runtime repository.
+After that v1 has real usage experience, revisit the broader research in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md` if manual maintenance becomes painful or shared runtime provides clear value.
 
-The researched direction is:
+Deferred possibilities include:
 
-- `M-A-X-I-N/template` as the consumer-visible GitHub template / copied baseline tree;
-- a separate future shared tooling/runtime repository for pinned reusable workflows/actions and updater/adoption tooling;
-- baseline kernel + repository-local profile/state ownership;
-- release version + exact SHA + schema versioning;
-- reviewable adoption/update PRs rather than silent overwrite.
+- centrally shared reusable workflows/actions;
+- automatic or semi-automatic baseline synchronization;
+- baseline manifests/schema/version machinery;
+- update bots or GitHub Apps;
+- repository-setting reconciliation;
+- broader fleet migration/automation.
 
-**No implementation is authorized by this reminder.**
+Do not implement these merely because the research exists. Let actual v1 maintenance experience justify the complexity.
 
 ## Investigate OpenAI Skills for reusable repository workflows
 
