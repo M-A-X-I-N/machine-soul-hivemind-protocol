@@ -27,24 +27,6 @@ Before this reminder can become executable work:
 
 Merely recording this reminder does **not** authorize any rebase, force-push, ref rewrite, or history destruction.
 
-## Standardize baseline agent infrastructure across repositories
-
-Design and eventually implement a reusable baseline for agent-facing repository infrastructure across the maintainer's repositories.
-
-Use Machine-Soul as the base/reference parent for generic conventions while allowing individual repositories to layer project-specific additions or overrides without unnecessarily copying/forking the shared baseline.
-
-Areas worth considering include:
-
-- root `AGENTS.md` conventions;
-- `.agents/` structure and reading order;
-- recovery/checkpoint workflow;
-- provenance registry/policy;
-- agent-task index/spec/archive format;
-- documentation/style rules;
-- future reusable Skills or equivalent workflows.
-
-Before promotion to executable work, decide how the shared baseline is distributed/synchronized and how repository-local overrides remain explicit rather than being overwritten.
-
 ## Investigate OpenAI Skills for reusable repository workflows
 
 Investigate whether repeatable Machine-Soul workflows are worth expressing as OpenAI Skills or related reusable agent workflows.
