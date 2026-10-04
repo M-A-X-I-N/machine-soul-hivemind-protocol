@@ -6,7 +6,7 @@ Reminders, objectives, and speculative roadmap ideas are not executable work and
 
 ## Dispatch
 
-_No QUEUED task is currently dispatched._
+1. [`MSHP-AGENT-BASELINE-B-020`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-020.md) — extract the generic workflow instruction set.
 
 Dispatch is an ordered authorization/priority list, not a lifecycle state. Only `QUEUED` tasks with satisfied dependencies belong here. Claiming a task changes it to `IN_PROGRESS`, removes it from Dispatch, and records a live claim below.
 
@@ -16,7 +16,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| `MSHP-AGENT-BASELINE-B-010` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-04T21:15:44Z` | Human authorized B-010 through and including B-050; continuing explicitly adopted Sera lineage. |
 
 ## Active task index
 
@@ -26,7 +25,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-AGENT-BASELINE-B-010`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-010.md) | IN_PROGRESS | — | Specify v1 agent instruction topology and precedence | Define the minimal ChatGPT-Chat-oriented instruction graph, precedence rules, naming, and routing semantics for baseline, repository-local policy, and agent memory. |
+| [`MSHP-AGENT-BASELINE-B-010`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-010.md) | COMPLETE | — | Specify v1 agent instruction topology and precedence | Define the minimal ChatGPT-Chat-oriented instruction graph, precedence rules, naming, and routing semantics for baseline, repository-local policy, and agent memory. |
 | [`MSHP-AGENT-BASELINE-B-020`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-020.md) | QUEUED | `MSHP-AGENT-BASELINE-B-010` | Extract the generic workflow instruction set | Derive the reusable baseline instruction files from current MSHP governance while removing Machine-Soul-specific policy and retaining the workflow behavior the maintainer values. |
 | [`MSHP-AGENT-BASELINE-B-030`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-030.md) | QUEUED | `MSHP-AGENT-BASELINE-B-020` | Design and extract MSHP-local policy and memory boundaries | Define the repository-local instruction surface and reorganize MSHP-specific rules/knowledge so local overrides remain separate from generic baseline policy. |
 | [`MSHP-AGENT-BASELINE-B-040`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-040.md) | QUEUED | `MSHP-AGENT-BASELINE-B-030` | Refactor MSHP onto the v1 instruction architecture | Make MSHP the reference consumer of the generic/local/memory separation and preserve existing workflow behavior under the new instruction graph. |
