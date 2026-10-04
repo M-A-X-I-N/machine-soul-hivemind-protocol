@@ -1,59 +1,49 @@
-# Persisted agent context
+# Agent instruction and memory router
 
-This directory is a **living project memory for agents**.
+This directory separates **normative instructions** from **repository memory**.
 
-It stores procedure, recovery guidance, navigation help, and durable technical discoveries useful across chats/tool sessions but too agent-oriented for root documentation.
+- `baseline/` contains generic instructions intended to be reusable across repositories.
+- `local/` contains MSHP-specific normative instructions. Applicable local rules override conflicting baseline rules.
+- `memory/` contains MSHP-specific knowledge, rationale, investigations, decisions, and scar tissue. Memory is not policy and is read only when relevant.
 
-Unlike some sibling repositories, this project explicitly encourages proactive retention of expensive-to-rediscover technical knowledge here.
+Do not preload this entire directory.
 
-## What belongs here
+## Read routing
 
-Good candidates include workflow/recovery conventions, host/platform/application quirks, exact config/install locations, symlink and privilege behavior, failed approaches and why they failed, diagnostics, architecture discoveries, verified assumptions, and source-of-truth/navigation guidance.
+| Situation | Read |
+|---|---|
+| substantial repository work | `baseline/WORKFLOW.md` + `local/REPOSITORY.md` |
+| taskification, Dispatch, claims, task-state changes, recovery | `baseline/WORKFLOW.md` + the authoritative task ledger/spec |
+| branch/history/checkpoint/commit operation | `baseline/GIT.md` |
+| wholly agent-authored substantive commit | `baseline/PROVENANCE.md` |
+| deciding where learned information belongs | `baseline/KNOWLEDGE.md` |
+| CI/control-plane work or CI override/diagnosis | `local/CI.md` |
+| repository-specific concern | the applicable file under `local/` |
+| technical/rationale/history lookup | only relevant file(s) under `memory/` |
+| durable project architecture/policy | applicable human-facing documentation |
 
-If meaningful effort was spent learning something and it is likely to matter again, preserve it.
+For a tiny isolated edit, do not load unrelated instruction files merely for ceremony. If the work expands into task-governed, Git-sensitive, provenance-sensitive, CI-sensitive, or knowledge-management work, load the relevant instructions before performing that part.
 
-## What does not belong here
+## MSHP executable-work locations
 
-- live task scheduling/state — use `../autonomic_affairs/tasks.md`; active and archived execution specifications live under `../autonomic_affairs/tasks/`;
-- structured non-executable unfinished work/debt — use `../autonomic_affairs/initiatives/`;
-- temporary task/block/workstream research needed mainly to carry unfinished work across context boundaries — use the relevant tracked task workspace under `../autonomic_affairs/tasks/`;
-- secrets, tokens, passwords, private keys, or other sensitive machine-local values;
-- generated output or disposable scratch data;
-- machine-local mutable deployment state — use ignored `../scratch/`;
-- duplicated authoritative human-facing docs;
-- unrelated personal/chat history.
+- ledger / Dispatch / Active claims: `../autonomic_affairs/tasks.md`;
+- active task specifications/workspaces: `../autonomic_affairs/tasks/`;
+- terminal task archive: `../autonomic_affairs/tasks/archive/`;
+- reminders: `../autonomic_affairs/reminders.md`;
+- initiatives: `../autonomic_affairs/initiatives/`.
 
-## Organization
+## Memory organization
 
-Prefer these categories when useful:
+Current useful memory categories live below `memory/`:
 
-```text
-.agents/
-├── README.md
-├── WORKFLOW.md
-├── PROVENANCE.md
-├── architecture/
-├── applications/
-├── hosts/
-├── platforms/
-├── investigations/
-└── decisions/
-```
+- `architecture/`;
+- `decisions/`;
+- `investigations/`;
+- `platforms/`;
+- `tools/`.
 
-Do not create empty taxonomy merely for appearance. Add subdirectories when there is actual knowledge to place there.
+Do not create empty taxonomy for appearance. Add categories only when there is actual knowledge to store.
 
-Prefer updating an existing note over creating a competing note on the same subject. Mark uncertainty and how knowledge was obtained.
+Dated investigations, migration records, and historical decision snapshots are **on-demand references**, not startup context.
 
-Dated `investigations/`, migration records, and historical decision snapshots are **on-demand references**, not startup context. Do not preload them merely because they exist. Prefer current source/tests and human-facing architecture for implemented behavior, then use agent notes or archived task workspaces when rationale, platform scar tissue, or recovery evidence is actually relevant.
-
-## Fresh-session reading order
-
-1. `../AGENTS.md`
-2. `WORKFLOW.md`
-3. `PROVENANCE.md` before authoring commits
-4. `../autonomic_affairs/tasks.md` and the linked specification for the dispatched/claimed active task; for historical/recovery lookup, resolve the task ID using `../autonomic_affairs/tasks/README.md`
-5. only task-workspace files explicitly relevant to the active work
-6. relevant notes under this directory
-7. relevant human-facing documentation/configuration
-
-Current repository state remains authoritative over remembered conversation context.
+Current tracked repository state remains authoritative over remembered conversation context.
