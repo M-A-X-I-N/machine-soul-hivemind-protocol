@@ -27,6 +27,24 @@ Before this reminder can become executable work:
 
 Merely recording this reminder does **not** authorize any rebase, force-push, ref rewrite, or history destruction.
 
+## Implement cross-repository agent baseline architecture
+
+**Status:** Parked follow-up after completed research block `MSHP-AGENT-BASELINE-A`.
+
+The research recommendation is documented in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md`. Detailed evidence is preserved with the archived research block.
+
+When explicitly promoted to executable work, begin with the neutral baseline contract/manifest/local-profile design before modifying `M-A-X-I-N/template` or creating any shared tooling/runtime repository.
+
+The researched direction is:
+
+- `M-A-X-I-N/template` as the consumer-visible GitHub template / copied baseline tree;
+- a separate future shared tooling/runtime repository for pinned reusable workflows/actions and updater/adoption tooling;
+- baseline kernel + repository-local profile/state ownership;
+- release version + exact SHA + schema versioning;
+- reviewable adoption/update PRs rather than silent overwrite.
+
+**No implementation is authorized by this reminder.**
+
 ## Investigate OpenAI Skills for reusable repository workflows
 
 Investigate whether repeatable Machine-Soul workflows are worth expressing as OpenAI Skills or related reusable agent workflows.
