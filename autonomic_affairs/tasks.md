@@ -57,20 +57,11 @@ This repository uses `MSHP`. Specifiers are optional workstream namespaces and s
 
 Legacy `V2-*` IDs are permanent and are never translated into new IDs.
 
-### States
+### Lifecycle semantics
 
-Allowed lifecycle states:
+The generic lifecycle, state meanings, Dispatch/claim behavior, dependency-vs-blocker distinction, deferred validation, and terminal advancement rules are defined by [`.agents/baseline/WORKFLOW.md`](../.agents/baseline/WORKFLOW.md).
 
-- `QUEUED`
-- `IN_PROGRESS`
-- `BLOCKED`
-- `FROZEN`
-- `AWAITING_DEFERRED_CI`
-- `COMPLETE`
-- `CANCELLED`
-- `SUPERSEDED`
-
-A dependency is another task whose completed output is structurally required. A temporary external, technical, or human impediment is a blocker, not a dependency. `FROZEN` is an intentional priority/policy hold rather than a technical blocker. `AWAITING_DEFERRED_CI` means implementation and advancement-blocking validation are complete while explicitly deferred analysis is still pending; such a task is not `COMPLETE` until its required deferred checks pass.
+This index records the current state; it does not duplicate those semantics.
 
 ### Source ownership
 
@@ -80,12 +71,14 @@ A dependency is another task whose completed output is structurally required. A 
 - Do not duplicate mutable scheduling facts inside detailed task files.
 - Required task instructions use ordinary Markdown headings and links; do not hide them inside rendering-dependent disclosure widgets.
 
-### Storage, workspaces, and archival
+### Storage and archival
 
-Task IDs are permanent identities; their storage location may change as their lifecycle changes. Resolve active tasks under [`tasks/`](tasks/) and archived tasks under [`tasks/archive/`](tasks/archive/). See [`tasks/README.md`](tasks/README.md) for lookup and workspace conventions.
+Task IDs are permanent identities; storage location may change with lifecycle.
 
-All non-terminal tasks remain in this index. Once every task in a block is terminal (`COMPLETE`, `CANCELLED`, or `SUPERSEDED`), move the block directory intact into `tasks/archive/<block-id>/`, including block/task-scoped workspace material, and remove its rows from this active index. Never archive a block that still contains any non-terminal task.
+- active task specs/workspaces: [`tasks/`](tasks/);
+- terminal blocks: [`tasks/archive/`](tasks/archive/);
+- lookup/workspace/archive conventions: [`tasks/README.md`](tasks/README.md).
 
-Temporary tracked task knowledge may live in task-, block-, or broader workstream-scoped workspaces. Workspace existence does not make it mandatory startup context; task specifications should point to the pieces they require. Broader workstream workspace material remains active while later blocks still need it.
+All non-terminal tasks remain in this index. Archive only when the entire block is terminal, as defined by the baseline workflow.
 
-Completed legacy V2 history is preserved in [`tasks/archive/V2/legacy_v2.md`](tasks/archive/V2/legacy_v2.md). The legacy V2 series is complete and therefore does not appear in the active scheduling table.
+Completed legacy V2 history remains in [`tasks/archive/V2/legacy_v2.md`](tasks/archive/V2/legacy_v2.md).

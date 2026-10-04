@@ -38,9 +38,9 @@ Task- and block-scoped workspace material travels with its block when that block
 
 Broader workstream/specifier-scoped workspace material has an independent lifetime. Keep it active while any expected later block still needs it; when the wider scope is finished, promote durable conclusions and archive or retire the remaining historical working material as appropriate.
 
-Before material leaves active use, promote durable human-facing architecture into normal docs, continuing expensive-to-rediscover agent knowledge into `.agents/`, and let source/tests remain authoritative for implemented behavior. Preserve useful historical leftovers with their archived scope. Consolidate or prune active workspace material when its size creates context/token burden.
+Before material leaves active use, promote durable human-facing architecture into normal docs, continuing expensive-to-rediscover agent knowledge into `.agents/memory/`, and let source/tests remain authoritative for implemented behavior. Preserve useful historical leftovers with their archived scope. Consolidate or prune active workspace material when its size creates context/token burden.
 
-Workspace material is tracked temporary/intermediate knowledge. It is distinct from permanent `.agents/` memory and ignored machine-local `scratch/` state.
+Workspace material is tracked temporary/intermediate knowledge. It is distinct from permanent `.agents/memory/` knowledge and ignored machine-local `scratch/` state.
 
 ## Archival
 

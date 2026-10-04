@@ -17,6 +17,8 @@ Do not preload this entire directory.
 | branch/history/checkpoint/commit operation | `baseline/GIT.md` |
 | wholly agent-authored substantive commit | `baseline/PROVENANCE.md` |
 | deciding where learned information belongs | `baseline/KNOWLEDGE.md` |
+| adding/moving/classifying repository material | `local/LAYOUT.md` |
+| configuration deployment / Apply / Unapply / Check / related state safety | `local/CONFIGURATION.md` |
 | CI/control-plane work or CI override/diagnosis | `local/CI.md` |
 | repository-specific concern | the applicable file under `local/` |
 | technical/rationale/history lookup | only relevant file(s) under `memory/` |
