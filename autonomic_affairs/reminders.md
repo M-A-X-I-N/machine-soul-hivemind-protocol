@@ -147,8 +147,12 @@ The concern is epistemic rather than merely stylistic: an agent evaluating the i
 The review should cover at least:
 
 - root `AGENTS.md`;
-- `.agents/WORKFLOW.md`;
-- `.agents/PROVENANCE.md`;
+- `.agents/README.md`;
+- `.agents/baseline/WORKFLOW.md`;
+- `.agents/baseline/GIT.md`;
+- `.agents/baseline/PROVENANCE.md`;
+- `.agents/baseline/KNOWLEDGE.md`;
+- applicable files under `.agents/local/`;
 - task/initiative/reminder lifecycle instructions;
 - source-of-truth and authority ordering;
 - any other Markdown that materially governs agent behavior.
