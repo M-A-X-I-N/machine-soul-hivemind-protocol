@@ -1,6 +1,6 @@
 # GitHub Actions control-plane observations
 
-> **Historical evidence:** the OPS-A dispatcher behavior below was verified and remains useful test evidence, but its routing policy is superseded by MSHP-OPS-D. Current policy lives in `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md` and `.agents/WORKFLOW.md`.
+> **Historical evidence:** the OPS-A dispatcher behavior below was verified and remains useful test evidence, but its routing policy is superseded by MSHP-OPS-D. Current policy lives in `autonomic_affairs/docs/AGENT_LINEAGES_AND_CI.md`, `.agents/baseline/WORKFLOW.md`, and `.agents/local/CI.md`.
 
 ## Current control-plane model
 
