@@ -22,6 +22,8 @@ When overriding, identify the baseline behavior being changed clearly enough tha
 
 Silence in local policy leaves baseline policy active.
 
+The repository-specific instruction router is `.agents/local/README.md`. Adding or removing a local instruction file should update that local router; it must not require editing baseline-owned routing merely for discoverability.
+
 ### Memory
 
 Repository-specific non-normative knowledge under `.agents/memory/`.
