@@ -2,17 +2,19 @@
 
 ## Scope
 
-Validate the refactored v1 instruction graph as it is actually consumed by ChatGPT Chat-style repository work.
+Validate the v1 instruction graph as consumed by ChatGPT Chat-style repository work.
 
 Primary goals:
 
 - make the correct instruction path obvious from root `AGENTS.md`;
+- keep generic baseline instructions and repository-local instructions independently owned;
+- allow arbitrary local instruction files without editing baseline-owned files;
 - avoid indiscriminate loading of all agent files;
-- keep high-frequency coupled rules together;
-- split low-frequency policy when the context savings justify another routing hop;
-- preserve explicit local-over-baseline precedence;
-- keep memory demand-loaded and non-normative;
-- avoid depending on Codex-only nested instruction discovery.
+- group high-frequency coupled rules and demand-load lower-frequency policy;
+- keep memory non-normative and demand-loaded;
+- avoid dependence on Codex-only nested instruction discovery.
+
+B-050 was reopened after initial completion when the human identified an ownership defect: the supposedly generic `.agents/README.md` still contained MSHP-specific local routing, task paths, and memory categories. The corrective rerun below is the final B-050 result.
 
 ## Final live topology
 
@@ -20,13 +22,14 @@ Primary goals:
 AGENTS.md
 
 .agents/
-├── README.md
+├── README.md                 # baseline-owned generic router
 ├── baseline/
 │   ├── WORKFLOW.md
 │   ├── GIT.md
 │   ├── PROVENANCE.md
 │   └── KNOWLEDGE.md
 ├── local/
+│   ├── README.md             # repository-owned local router/index
 │   ├── REPOSITORY.md
 │   ├── LAYOUT.md
 │   ├── CONFIGURATION.md
@@ -39,322 +42,256 @@ AGENTS.md
     └── tools/
 ```
 
-The B-030 expectation of only two local files was intentionally revised during ergonomics testing: directory-placement policy and configuration safety have sufficiently distinct retrieval triggers to justify separate local files.
+Root `AGENTS.md` may contain small repository-local orientation/navigation. The strict generic/local ownership boundary applies inside `.agents/`.
 
-## File size / access observations
+## Ownership contract
+
+### Baseline-owned
+
+- `.agents/README.md`;
+- everything under `.agents/baseline/`.
+
+The generic router may know only the stable local entry point:
+
+```text
+local/README.md
+```
+
+It must not enumerate repository-specific local instruction filenames, task/control paths, or memory categories.
+
+### Repository-owned
+
+- `.agents/local/README.md`;
+- all other files under `.agents/local/`;
+- everything under `.agents/memory/`.
+
+`local/README.md` owns discovery/read triggers for arbitrary repository-specific instruction files.
+
+A local instruction does **not** need a baseline counterpart.
+
+For example, adding:
+
+```text
+.agents/local/DARK_SORCERY.md
+```
+
+requires only:
+
+1. creating the local file;
+2. adding its read trigger to `.agents/local/README.md`.
+
+No baseline-owned file changes.
+
+This is the dry-run case that exposed and then verified the corrected ownership model.
+
+## Precedence
+
+Applicable repository-local policy overrides conflicting baseline policy.
+
+Silence in local policy leaves baseline policy in force.
+
+A local override should identify the baseline behavior it changes clearly enough that an agent need not infer the conflict from filename symmetry or diff history.
+
+Memory remains non-normative and cannot override current baseline/local policy.
+
+## File size / retrieval observations
+
+Measured during the corrective B-050 rerun:
 
 | File | Lines | Characters | Retrieval |
 |---|---:|---:|---|
-| `AGENTS.md` | 18 | 1,053 | every interaction / entrypoint |
-| `.agents/README.md` | 52 | 2,566 | substantial work / routing |
+| `AGENTS.md` | 18 | 1,093 | entrypoint |
+| `.agents/README.md` | 37 | 2,518 | substantial work / generic routing |
 | `baseline/WORKFLOW.md` | 195 | 8,500 | substantial planned/task work |
-| `baseline/GIT.md` | 77 | 2,407 | branch/history/checkpoint/commit operation |
+| `baseline/GIT.md` | 77 | 2,407 | branch/history/checkpoint/commit |
 | `baseline/PROVENANCE.md` | 96 | 3,441 | wholly agent-authored substantive commit |
-| `baseline/KNOWLEDGE.md` | 92 | 3,078 | knowledge placement/retention decisions |
-| `local/REPOSITORY.md` | 67 | 3,136 | substantial MSHP work |
-| `local/LAYOUT.md` | 33 | 3,761 | adding/moving/classifying repository material |
-| `local/CONFIGURATION.md` | 19 | 1,159 | configuration/state-management safety |
-| `local/CI.md` | 101 | 2,855 | CI/control-plane work |
-| `autonomic_affairs/tasks.md` | 85 | 6,881 | task-governed execution/state |
+| `baseline/KNOWLEDGE.md` | 92+ | ~3,100 | context-placement decisions |
+| `local/README.md` | 45 | 2,245 | local routing/index |
+| `local/REPOSITORY.md` | 59 | 2,787 | substantial MSHP work |
+| `local/LAYOUT.md` | 33 | 3,761 | file/domain placement |
+| `local/CONFIGURATION.md` | 19 | 1,159 | configuration/state safety |
+| `local/CI.md` | 101 | 2,855 | CI/control-plane |
+| `autonomic_affairs/tasks.md` | 85 | ~6,900 | task-governed execution/state |
 
-Character counts are used only as a simple context-cost proxy; they are not a model-token guarantee.
+Character counts are only a context-cost proxy, not a model-token guarantee.
 
-## Context reduction from B-040
+## Context-cost result
 
-Before B-050 tuning, a normal substantial-task read path required approximately:
+Before the B-050 split work, the ordinary substantial-task path was about **27,120 characters** before task-spec/domain context.
 
-- root `AGENTS.md`: 1,053 chars;
-- router: 2,391 chars;
-- baseline workflow: 8,500 chars;
-- local repository policy: 7,347 chars;
-- task ledger: 7,829 chars;
+The first B-050 completion reduced that to about **22,136 characters**, but achieved part of that reduction by leaking local routing into the baseline-owned router.
 
-for about **27,120 characters** before task-spec/domain context.
+After correcting ownership, the ordinary substantial-task path is approximately:
 
-After B-050 tuning:
+- `AGENTS.md`: 1,093;
+- generic `.agents/README.md`: 2,518;
+- `baseline/WORKFLOW.md`: 8,500;
+- `local/README.md`: 2,245;
+- `local/REPOSITORY.md`: 2,787;
+- task ledger: about 6,928;
 
-- root: 1,053;
-- router: 2,566;
-- workflow: 8,500;
-- local repository policy: 3,136;
-- task ledger: 6,881;
+for roughly **24,071 characters**.
 
-for about **22,136 characters**.
+That is still about **3,049 characters / 11% smaller** than the pre-B-050 path while providing a substantially cleaner ownership/update boundary.
 
-That is a reduction of roughly **4,984 characters / 18%** in the default substantial-task instruction/state path.
+The extra local-router hop is therefore accepted.
 
-The removed policy remains available through explicit subject routing rather than being deleted.
+## Representative read paths
 
-## Scenario validation
+### Trivial isolated edit
 
-### 1. Trivial isolated edit
+Read:
 
-Minimum read:
-
-- `AGENTS.md`;
+- root `AGENTS.md`;
 - directly relevant target/context.
 
-Expected baseline overhead: about **1,053 characters**.
+Do not load unrelated instruction files merely for ceremony.
 
-Do not read workflow/Git/provenance/memory solely for ceremony. If the edit expands into substantial/task-governed or Git-sensitive work, route into the relevant files before performing that part.
-
-**Result:** satisfactory.
-
-### 2. Substantial multi-step task
+### Substantial multi-step task
 
 Read:
 
-- `AGENTS.md`;
-- `.agents/README.md`;
+- root `AGENTS.md`;
+- generic `.agents/README.md`;
 - `baseline/WORKFLOW.md`;
+- `local/README.md`;
 - `local/REPOSITORY.md`;
-- `autonomic_affairs/tasks.md`;
-- linked task specification;
-- only task-linked/relevant workspace/memory/docs.
+- task ledger + linked task specification;
+- only relevant workspace/memory/docs.
 
-Instruction/state routing overhead before the task spec: about **22,136 characters**.
+Read Git/provenance later when the work reaches those operations.
 
-Read `GIT.md` / `PROVENANCE.md` when the workflow reaches branch/checkpoint/commit operations rather than front-loading them.
-
-**Result:** satisfactory.
-
-### 3. Taskification / task-state change
+### Taskification / task-state change
 
 Read:
 
-- root/router;
+- root + generic router;
 - `baseline/WORKFLOW.md`;
-- `local/REPOSITORY.md`;
-- task ledger/storage docs as needed.
+- local router/repository policy;
+- local task ledger/storage docs.
 
-The live task ledger now delegates generic state/lifecycle semantics to `baseline/WORKFLOW.md` instead of re-explaining them. It retains MSHP-specific ID/schema/storage ownership.
+The task ledger records current local state and schema while generic lifecycle semantics live in baseline WORKFLOW.
 
-**Result:** satisfactory; duplication reduced.
+### Interrupted recovery
 
-### 4. Interrupted recovery
+Read the substantial-work set plus:
 
-Read:
-
-- root/router;
-- `baseline/WORKFLOW.md`;
-- `local/REPOSITORY.md`;
 - `baseline/GIT.md`;
-- task ledger/spec/archive lookup;
-- only recovery-relevant task workspace/memory.
+- task/archive/workspace evidence relevant to recovery.
 
-Approximate fixed instruction/state path before task-specific recovery evidence: **24,543 characters**.
+Claims, lineages, recovery authority, and interrupted-session recovery remain together in WORKFLOW because they are strongly coupled.
 
-Recovery remains in WORKFLOW rather than being split into a separate file because claim/lineage/recovery semantics are tightly coupled and mistakes here are costlier than the modest context saving from another hop.
+### Git / provenance checkpoint
 
-**Result:** satisfactory.
-
-### 5. Git / provenance checkpoint
-
-When the repository/task context is already understood, the Git-specific instruction addition is:
+Add:
 
 - `baseline/GIT.md`;
 - `baseline/PROVENANCE.md` for wholly agent-authored substantive commits.
 
-A standalone Git/provenance routing set from root/router is about **9,467 characters**.
+### CI work
 
-Provenance stays separate from Git because its detailed registry/trailer rules are only needed at commit time.
-
-**Result:** satisfactory.
-
-### 6. CI change or CI diagnosis
-
-Read normal substantial-task set plus:
+Add:
 
 - `local/CI.md`.
 
-Approximate fixed instruction/state path before task/domain evidence: **24,991 characters**.
+MSHP check IDs, selector behavior, schedule, and deferred CodeQL details remain local.
 
-MSHP check IDs, schedule, selector behavior, hard bypass grammar, and CodeQL cadence remain local and therefore do not contaminate the reusable baseline.
+### Repository layout work
 
-**Result:** satisfactory.
-
-### 7. Repository layout change
-
-Read normal substantial-task set plus:
+Add:
 
 - `local/LAYOUT.md`.
 
-Approximate fixed path: **25,897 characters**.
+### Configuration/application-state work
 
-This is still smaller than the pre-B-050 default substantial path even though the full directory-placement contract is now loaded deliberately.
-
-**Result:** split justified.
-
-### 8. Configuration/application-state change
-
-Read normal substantial-task set plus:
+Add:
 
 - `local/CONFIGURATION.md`.
 
-Approximate fixed path: **23,295 characters**.
+### Architecture research
 
-The safety laws are therefore present for the work that can violate them without taxing unrelated research/CI/task work.
+Use the normal task path when task-governed, then load only applicable human architecture and relevant `memory/architecture/`, `memory/decisions/`, or `memory/investigations/`.
 
-**Result:** split justified.
+Read KNOWLEDGE when deciding where findings should be retained.
 
-### 9. Architecture research / investigation
+### Memory lookup
 
-For task-governed work:
+Use root/router as needed, then only relevant memory.
 
-- normal substantial-task set;
-- applicable human-facing architecture;
-- relevant `memory/architecture/`, `memory/decisions/`, or `memory/investigations/` only on demand.
+The existence of a memory file never makes it mandatory or normative.
 
-Read `baseline/KNOWLEDGE.md` when deciding where findings should be retained, not merely because research is happening.
-
-Read Git/provenance only when reaching the checkpoint.
-
-**Result:** satisfactory.
-
-### 10. Memory lookup
-
-For a direct factual/rationale lookup:
-
-- root;
-- router when location is not already known;
-- relevant memory file(s).
-
-Memory existence does not make it normative or mandatory startup context.
-
-Historical memory may explain past behavior but cannot override current baseline/local policy.
-
-**Result:** satisfactory.
-
-## Deliberate non-splits
+## Deliberate file-boundary choices
 
 ### WORKFLOW remains one larger file
 
-At 8,500 characters, WORKFLOW is the largest baseline instruction file.
+Task lifecycle, Dispatch, claims, lineages, recovery authority, interrupted recovery, completion, and validation remain tightly coupled. Splitting them would save context in some cases but increases the risk of missing a coordination/recovery invariant.
 
-It was **not** split further because:
+### PROVENANCE remains separate from GIT
 
-- task lifecycle, Dispatch, claims, lineages, recovery authority, interrupted recovery, completion, and validation are strongly coupled;
-- substantial planned work needs most of this contract;
-- recovery/claim mistakes are high-cost;
-- another routing layer would save relatively little compared with the risk of missing a coupled rule.
-
-A future usage pattern showing agents frequently need task mechanics without lineage/recovery would justify revisiting this.
-
-### PROVENANCE remains separate
-
-Although it could be merged into GIT, it is detailed and needed only for wholly agent-authored substantive commits. Keeping it demand-loaded is materially cheaper for planning/research work.
+Its detailed registry/trailer rules are needed principally at commit time.
 
 ### KNOWLEDGE remains separate
 
-Knowledge-placement policy is important when creating or reorganizing retained context but is unnecessary for ordinary implementation.
+Knowledge placement is important when creating/reorganizing retained context but unnecessary for ordinary implementation.
 
-## Local split justification
+### Local policy is not mirrored
 
-B-050 changed the local topology from:
+The local tree is allowed to contain any repository-specific normative subject.
 
-```text
-REPOSITORY.md
-CI.md
-```
+Current MSHP local files happen to be:
 
-to:
+- `REPOSITORY.md`;
+- `LAYOUT.md`;
+- `CONFIGURATION.md`;
+- `CI.md`.
 
-```text
-REPOSITORY.md
-LAYOUT.md
-CONFIGURATION.md
-CI.md
-```
-
-This is not symmetry-driven fragmentation.
-
-- `REPOSITORY.md` keeps high-frequency project identity, source-of-truth, engineering style, and local task/reminder locations.
-- `LAYOUT.md` is required only when file/domain placement matters.
-- `CONFIGURATION.md` is required only for configuration/application-state safety.
-- `CI.md` is required only for CI/control-plane work.
-
-The router and REPOSITORY policy both advertise these triggers.
-
-## Task-ledger tuning
-
-The live task ledger previously repeated generic state definitions already owned by the new baseline workflow.
-
-B-050 replaced that duplicated section with an explicit pointer to `.agents/baseline/WORKFLOW.md`.
-
-The task ledger still owns:
-
-- current scheduling data;
-- Dispatch;
-- Active claims;
-- task IDs/states/dependencies/titles/summaries;
-- MSHP task ID grammar;
-- task-spec source ownership;
-- local task storage/archive paths.
-
-This keeps mutable local state close to its local schema while leaving generic workflow semantics in the reusable baseline.
+Future repositories may have completely different local files. Discovery is owned by `local/README.md`, not by baseline filename symmetry.
 
 ## Platform-dependence review
 
-The final v1 structure uses ordinary Markdown and explicit repository-relative navigation.
+The final v1 uses plain Markdown and explicit relative navigation.
 
-It does **not** depend on:
+It does not depend on:
 
 - nested `AGENTS.md` precedence;
 - `AGENTS.override.md`;
 - Codex-only recursive instruction injection;
 - generated includes;
-- model-specific configuration files;
+- model-specific repository config;
 - baseline manifests/update tooling.
 
-The only deliberate OpenAI-oriented convention is root `AGENTS.md`, which is high-value and broadly understandable even when another agent does not provide identical automatic behavior.
-
-For ChatGPT Chat, explicit routing is treated as authoritative rather than assuming harness auto-loading.
-
-## Local override visibility
-
-Override semantics remain visible at three levels:
-
-- root `AGENTS.md`: applicable local policy overrides conflicting baseline;
-- router: baseline/local/memory roles are explicit;
-- each local policy: identifies itself as MSHP-specific normative policy and links/routing clarify when it applies.
-
-Silence in local policy never disables baseline behavior.
-
-No current MSHP local file needs to duplicate a generic baseline file merely to override a small rule.
-
-## Memory behavior
-
-The complete moved `.agents` tree passed a relative-link check after migration.
-
-Memory categories are explicitly non-normative and demand-loaded.
-
-The task-storage README now points durable agent knowledge specifically to `.agents/memory/` rather than ambiguously calling the whole `.agents/` tree “memory”.
+Root `AGENTS.md` is the deliberate OpenAI-oriented convention because it has high practical value and remains understandable as ordinary Markdown elsewhere.
 
 ## Validation performed
 
-- verified live root/baseline/local/memory structure on `main`;
-- verified old live `.agents/WORKFLOW.md` and `.agents/PROVENANCE.md` authorities are absent;
-- verified all 53 root/`.agents` Markdown files after B-040 had no broken relative Markdown targets;
-- verified no non-historical/non-B-workspace live references remained to the old instruction/category paths;
-- after B-050 tuning, verified all 12 touched/high-authority Markdown files have no broken relative targets;
-- verified router contains explicit LAYOUT/CONFIGURATION/CI triggers;
-- verified task ledger points lifecycle semantics to baseline WORKFLOW;
-- compared representative read sets and context-cost proxies.
+- reopened B-050 rather than inventing a follow-up task because the discovered issue invalidated B-050's own ownership/ergonomics conclusion;
+- verified generic `.agents/README.md` contains no MSHP name, MSHP task path, or MSHP-only local filenames;
+- verified the only stable local entry point required by the generic router is `local/README.md`;
+- verified `local/README.md` owns current local policy triggers and MSHP task/memory navigation;
+- dry-ran a novel unmatched local file (`DARK_SORCERY.md`) and confirmed only local-owned routing would need modification;
+- retained explicit local-over-baseline precedence and silence semantics;
+- measured the corrected default read path and accepted the ~11% reduction versus the pre-split state;
+- verified old live `.agents/WORKFLOW.md` / `.agents/PROVENANCE.md` authorities remain absent;
+- verified baseline/local/memory separation remains intact.
 
-GitHub code-search indexing lagged behind the refactor during validation, so direct branch/tree/file reads were treated as authoritative, consistent with prior MSHP housekeeping practice.
+## Final conclusion
 
-## B-050 conclusion
-
-The v1 instruction graph is ergonomically acceptable for ChatGPT Chat and ready for the next task's template population **when separately authorized**.
-
-The validated live baseline source is now the actual MSHP tree under:
+The corrected v1 ownership model is:
 
 ```text
-AGENTS.md
-.agents/README.md
-.agents/baseline/
+AGENTS.md                        small entry/orientation; may contain local facts
+
+.agents/README.md                baseline-owned generic router
+.agents/baseline/*               baseline-owned generic rules
+
+.agents/local/README.md          repository-owned local router/index
+.agents/local/*                  repository-owned normative policy
+
+.agents/memory/*                 repository-owned non-normative knowledge
 ```
 
-The B-020 workspace candidate is historical drafting evidence, not the post-B-050 source of truth.
+This architecture supports arbitrary local instruction files without modifying the baseline.
 
-B-050 does **not** authorize or perform B-060, and `M-A-X-I-N/template` remains untouched.
+The validated baseline source for future B-060 template population is the live MSHP baseline-owned surface, **not** the historical B-020 candidate workspace.
+
+B-050 does not authorize B-060. `M-A-X-I-N/template` must remain untouched until B-060 is separately authorized.
