@@ -16,7 +16,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| `MSHP-AGENT-BASELINE-A-070` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-04T00:33:37Z` | Human authorized MSHP-AGENT-BASELINE-A through and including A-070; continuing explicitly adopted Sera lineage. |
 
 ## Active task index
 
@@ -32,7 +31,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 | [`MSHP-AGENT-BASELINE-A-040`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-040.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-030` | Investigate ongoing synchronization and baseline evolution | Research how existing repositories can discover, compare, and safely adopt later baseline changes without overwriting local policy. |
 | [`MSHP-AGENT-BASELINE-A-050`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-050.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-040` | Investigate baseline and repository-local override boundaries | Determine safe layering models for generic baseline policy plus explicit repository-local additions/overrides without creating hidden forks or authority ambiguity. |
 | [`MSHP-AGENT-BASELINE-A-060`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-060.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-050` | Investigate versioning, compatibility, and migration policy | Research versioning, pinning, compatibility, migration, and rollback for both copied baseline files and live shared components. |
-| [`MSHP-AGENT-BASELINE-A-070`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-070.md) | IN_PROGRESS | `MSHP-AGENT-BASELINE-A-060` | Synthesize cross-repository agent baseline architecture | Produce the evidence-backed recommended bootstrap/shared-runtime/update/versioning architecture and future implementation roadmap without implementing it. |
+| [`MSHP-AGENT-BASELINE-A-070`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-070.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-060` | Synthesize cross-repository agent baseline architecture | Produce the evidence-backed recommended bootstrap/shared-runtime/update/versioning architecture and future implementation roadmap without implementing it. |
 
 ### MSHP-WINGET-A
 
