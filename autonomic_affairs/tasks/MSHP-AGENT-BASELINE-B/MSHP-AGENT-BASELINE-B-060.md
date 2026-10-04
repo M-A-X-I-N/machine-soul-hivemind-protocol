@@ -1,4 +1,4 @@
-# MSHP-AGENT-BASELINE-B-060 — Populate the GitHub template with the generic instruction baseline
+# MSHP-AGENT-BASELINE-B-060 — Populate the baseline template repository with the generic instruction baseline
 
 ## Description
 
@@ -6,7 +6,7 @@ Use the validated MSHP reference-consumer structure to create the first practica
 
 ## Requirements
 
-- Before writing, re-inspect `M-A-X-I-N/template` and preserve any unexpected human/concurrent content.
+- Before writing, re-inspect `M-A-X-I-N/baseline` and preserve any unexpected human/concurrent content.
 - Populate the template only with the validated generic instruction files and the minimum seed-once local/task/memory skeleton required for the workflow to function.
 - Provide a clear local repository-policy placeholder that a new repository is expected to fill in.
 - Ensure baseline and local instruction namespaces are separate from first commit.
@@ -24,7 +24,7 @@ Use the validated MSHP reference-consumer structure to create the first practica
 
 ## Acceptance criteria
 
-- `M-A-X-I-N/template` contains a minimal usable generic instruction baseline.
+- `M-A-X-I-N/baseline` contains a minimal usable generic instruction baseline.
 - A new repository generated from its file tree has an obvious place for local policy without editing baseline rule files.
 - The template contains no meaningful MSHP-specific project content.
 
