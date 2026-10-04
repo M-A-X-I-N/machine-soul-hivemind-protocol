@@ -25,14 +25,6 @@ Configuration is one managed capability, not the definition of support.
 
 Do not create competing task ledgers or duplicate authoritative policy.
 
-## Local policy routing
-
-Read additional local policy only when the work makes it relevant:
-
-- adding, moving, or classifying repository material → `LAYOUT.md`;
-- changing configuration deployment, Apply/Unapply/Check behavior, or related application-state safety → `CONFIGURATION.md`;
-- changing or diagnosing CI/control-plane behavior → `CI.md`.
-
 ## MSHP engineering style
 
 - Prefer native platform/application mechanisms over unnecessary bespoke machinery.
