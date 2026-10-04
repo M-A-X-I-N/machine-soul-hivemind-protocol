@@ -21,18 +21,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 Task rows are grouped by block for readability. Every block uses the same authoritative scheduling schema; headings are presentation only and do not change task identity, dependency, state, claim, or Dispatch semantics.
 
-### MSHP-AGENT-BASELINE-A
-
-| ID | State | Depends on | Title | Summary |
-|---|---|---|---|---|
-| [`MSHP-AGENT-BASELINE-A-010`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-010.md) | COMPLETE | — | Investigate GitHub template repository mechanics | Establish exactly what GitHub template repositories copy, inherit, omit, and remain connected to after repository creation, including history, settings, visibility, automation, and update limitations. |
-| [`MSHP-AGENT-BASELINE-A-020`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-020.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-010` | Inventory reusable agent infrastructure in Machine-Soul | Classify current MSHP agent-facing infrastructure into generic, parameterized-generic, repository-specific, historical, or unsuitable-for-reuse material. |
-| [`MSHP-AGENT-BASELINE-A-030`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-030.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-020` | Investigate cross-repository distribution and reuse mechanisms | Compare templates with reusable workflows, composite actions, shared scripts/packages, repository configuration mechanisms, and other viable distribution models. |
-| [`MSHP-AGENT-BASELINE-A-040`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-040.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-030` | Investigate ongoing synchronization and baseline evolution | Research how existing repositories can discover, compare, and safely adopt later baseline changes without overwriting local policy. |
-| [`MSHP-AGENT-BASELINE-A-050`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-050.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-040` | Investigate baseline and repository-local override boundaries | Determine safe layering models for generic baseline policy plus explicit repository-local additions/overrides without creating hidden forks or authority ambiguity. |
-| [`MSHP-AGENT-BASELINE-A-060`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-060.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-050` | Investigate versioning, compatibility, and migration policy | Research versioning, pinning, compatibility, migration, and rollback for both copied baseline files and live shared components. |
-| [`MSHP-AGENT-BASELINE-A-070`](tasks/MSHP-AGENT-BASELINE-A/MSHP-AGENT-BASELINE-A-070.md) | COMPLETE | `MSHP-AGENT-BASELINE-A-060` | Synthesize cross-repository agent baseline architecture | Produce the evidence-backed recommended bootstrap/shared-runtime/update/versioning architecture and future implementation roadmap without implementing it. |
-
 ### MSHP-WINGET-A
 
 | ID | State | Depends on | Title | Summary |

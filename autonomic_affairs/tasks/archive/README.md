@@ -84,3 +84,20 @@ The terminal `MSHP-HOUSEKEEPING-A` block records the repository-wide cleanup che
 Its workspace preserves the initial inventory plus the repository-consistency and agent-memory audit reports. High-confidence findings were promoted into current task/archive policy, navigation, README wording, and agent-memory guidance before the block archived itself.
 
 The separate reminder **Standardize baseline agent infrastructure across repositories** remained intentionally unpromoted/unexecuted at housekeeping completion.
+
+
+## MSHP-AGENT-BASELINE-A
+
+The terminal `MSHP-AGENT-BASELINE-A` block preserves the research-only investigation into standardizing generic agent infrastructure across repositories.
+
+It established:
+
+- GitHub template repositories as bootstrap snapshots rather than ongoing upstreams;
+- a reusable-agent-infrastructure inventory separating generic governance from MSHP-specific policy;
+- comparison of template, reusable-workflow/action, account-level GitHub, and repository-automation mechanisms;
+- reviewable three-way baseline synchronization/update semantics and existing tool precedent such as Copier/Cruft;
+- a baseline-kernel versus repository-local ownership model;
+- release/SHA/schema versioning and migration/rollback policy;
+- the final recommendation documented in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md`.
+
+No repository other than MSHP was modified during the block. `M-A-X-I-N/template` remained read-only/empty, and implementation was deliberately left as a non-executable reminder.
