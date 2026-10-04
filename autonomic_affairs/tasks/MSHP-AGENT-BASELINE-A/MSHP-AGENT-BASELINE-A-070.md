@@ -18,6 +18,7 @@ Combine the complete research block into an evidence-backed recommendation for h
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research/synthesis only. Do not modify `M-A-X-I-N/template` or any other repository.
 - Do not create prototypes, test repositories, reusable workflows/actions, updater tooling, baseline files, or consumer migrations.
 - Do not treat untested implementation details as proven architecture.

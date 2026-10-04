@@ -16,6 +16,7 @@ Systematically inventory the agent-related infrastructure already present in Mac
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not extract/copy infrastructure into `M-A-X-I-N/template` or any other repository.
 - Do not modify current MSHP behavior merely because something appears reusable.
 - Do not classify content as generic solely because it is agent-related.

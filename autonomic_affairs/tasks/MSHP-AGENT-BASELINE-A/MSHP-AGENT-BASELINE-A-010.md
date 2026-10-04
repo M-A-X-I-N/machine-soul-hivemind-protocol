@@ -17,6 +17,7 @@ Research GitHub template repository behavior as a possible bootstrap mechanism f
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not create repositories, branches, commits, files, workflows, settings changes, or experiments outside MSHP.
 - Do not write to `M-A-X-I-N/template`.
 - Do not assume template repositories solve ongoing synchronization.

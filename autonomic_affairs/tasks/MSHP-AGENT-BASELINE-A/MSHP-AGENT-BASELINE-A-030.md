@@ -16,6 +16,7 @@ Research the available mechanisms for sharing generic repository/agent infrastru
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not create reusable workflows/actions/packages or modify any external repository.
 - Do not assume `M-A-X-I-N/template` must ultimately host all reusable machinery.
 - Do not assume a second infrastructure repository is necessary either.

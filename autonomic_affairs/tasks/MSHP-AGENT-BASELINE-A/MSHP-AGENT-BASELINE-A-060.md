@@ -17,6 +17,7 @@ Investigate versioning and compatibility policy for a cross-repository baseline 
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not create releases/tags, manifests, migration files, or shared workflow versions.
 - Do not assume semantic versioning is automatically the right model.
 - Do not choose moving `main` references merely for convenience if reproducibility/security argues otherwise.

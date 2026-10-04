@@ -17,6 +17,7 @@ Research how generic agent infrastructure can remain centrally reusable while ea
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not refactor MSHP into the proposed layering model.
 - Do not modify any other repository.
 - Do not optimize only for deduplication; clarity and explicit authority are primary.

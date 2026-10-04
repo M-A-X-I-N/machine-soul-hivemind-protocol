@@ -17,6 +17,7 @@ Investigate the hard part that template repositories do not automatically solve:
 
 ## Constraints / non-goals
 
+- Read-only inspection of other repositories is permitted when relevant to research. Do not modify any repository other than MSHP; within MSHP, writes are limited to normal task bookkeeping and storing relevant research/findings.
 - Research only. Do not build an updater, bot, Action, migration tool, or synchronization prototype.
 - Do not modify `M-A-X-I-N/template` or any consumer repository.
 - Do not recommend destructive overwrite-based synchronization unless conflict/local-override safety is convincingly addressed.
