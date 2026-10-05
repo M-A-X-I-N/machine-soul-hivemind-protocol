@@ -1,378 +1,330 @@
-
 # Cross-repository agent baseline architecture
 
-> **Status:** Research recommendation from `MSHP-AGENT-BASELINE-A`. This architecture is **not implemented**. No external repository modification is authorized by this document.
+> **Status:** v1 implemented by `MSHP-AGENT-BASELINE-B`. The broader synchronization/runtime architecture researched in archived block `MSHP-AGENT-BASELINE-A` is deliberately deferred.
 
 ## Goal
 
-Make generally useful agent infrastructure reusable across the maintainer's repositories without copying Machine-Soul-specific policy everywhere or making repository-local policy subordinate to invisible remote state.
+Make the agent collaboration behavior that works well in MSHP reusable across repositories without copying MSHP-specific policy everywhere and without making repository-local policy subordinate to invisible remote state.
 
-The target outcome is:
+The implemented v1 optimizes for:
 
-- new repositories start with a strong generic agent baseline;
-- existing repositories can deliberately adopt the baseline later;
-- generic improvements can be proposed across consumers;
-- repository-specific policy, tasks, knowledge, and CI remain locally authoritative;
-- updates are reviewable and recoverable.
+- strong generic agent workflow instructions;
+- explicit separation of generic policy, repository-local policy, and non-normative memory;
+- a clean GitHub-template bootstrap path;
+- manual, reviewable adoption and updates;
+- ordinary Git history as recovery/provenance;
+- minimal machinery until real maintenance pain justifies more.
 
-## Recommended repository roles
+## Canonical repository roles
 
-### `M-A-X-I-N/template` — bootstrap/copy baseline
+### `M-A-X-I-N/baseline`
 
-Keep the existing GitHub template repository as the authoritative Git tree for **consumer-visible copied baseline files**.
+`M-A-X-I-N/baseline` is the canonical Git tree for the current consumer-visible generic agent baseline and is configured as a GitHub template repository.
 
-It should eventually contain only material that genuinely belongs in generated repositories, such as:
+It contains:
 
-- a thin root `AGENTS.md` entry contract;
-- generic memory/read-order guidance;
-- generic task/recovery protocol and empty state skeletons;
-- provenance policy/skeleton;
-- reminder/initiative lifecycle skeletons;
-- repository-local profile placeholder;
-- baseline manifest/state skeleton;
-- thin consumer workflow callers where needed.
+- a thin root `AGENTS.md` seed;
+- generic routing under `.agents/README.md`;
+- generic normative policy under `.agents/baseline/`;
+- repository-owned local-policy and memory seed structure;
+- the reserved exact lowercase top-level `project/` project-control namespace and seed state.
 
-It should **not** contain:
+A repository generated from the GitHub template has independent Git history. The template is a bootstrap/canonical-copy source, **not** an upstream Git merge relationship or runtime dependency.
 
-- Machine-Soul's thematic/project directory taxonomy;
-- Machine-Soul tasks, architecture, application/runtime knowledge, or CI check mapping;
-- live shared workflow/action/updater implementation that should remain centrally maintained.
+### MSHP
 
-GitHub templates create independent repositories with new history. They are bootstrap snapshots, not an upstream synchronization relationship.
+MSHP is the demanding reference consumer used to develop and validate the baseline architecture.
 
-### Future shared agent-infrastructure/tooling repository
+Its repository-specific policy, memory, tasks, CI, configuration architecture, and thematic paths remain local. MSHP's current generic baseline-managed files are kept aligned with `M-A-X-I-N/baseline` through the same manual lifecycle expected of other consumers.
 
-A separate future repository is recommended for **live shared implementation**:
+### Future shared tooling/runtime
 
-- reusable workflows;
-- composite actions;
-- baseline status/adopt/update tooling;
-- migration/schema helpers;
-- generic validation/audit helpers.
+No shared runtime/tooling repository exists in v1.
 
-Exact name, implementation language, and visibility are future decisions.
+Reusable workflows/actions, updater tooling, repository-setting synchronization, schema/migration helpers, or fleet orchestration remain possible future work only if real manual-maintenance experience demonstrates clear value.
 
-This role is deliberately separate because reusable workflows must live under the provider's `.github/workflows` tree, while GitHub template generation copies the template repository's files. Co-locating the roles would copy shared implementation into every consumer and create duplicate authority.
+## Ownership model
 
-## Baseline philosophy
-
-The baseline is a **governance kernel plus repository-local profile**, not a parent repository whose files must remain identical.
-
-Prefer clear ownership over aggressive deduplication.
-
-Every baseline-related artifact should fit one of these categories:
+The baseline is a **generic governance kernel plus repository-owned state**, not a parent repository whose entire tree should stay synchronized.
 
 ### Baseline-managed
 
-Generic protocol expected to evolve with baseline releases.
+The generic synchronized surface is:
 
-Examples:
+```text
+.agents/README.md
+.agents/baseline/*
+```
 
-- root loader;
-- generic workflow/recovery rules;
-- generic task protocol/schema;
-- memory doctrine;
-- provenance protocol;
-- thin CI callers.
+These files define generic routing and normative workflow behavior.
 
-### Seed-once local
+A consumer adopting a complete baseline update should normally end with these files matching the canonical baseline source.
 
-Created during bootstrap, then owned locally.
+Repository-specific policy must not be hidden inside these files. If such policy appears there, move it into the local instruction surface during reconciliation.
 
-Examples:
+### Seed-once / repository-owned
 
-- repository mission/profile;
-- initial task state/index;
-- reminder contents;
-- initiative contents;
-- project-specific policy extension;
-- local CI declaration.
+These are provided by the template/adoption process but become repository-owned:
 
-### Always local
+```text
+AGENTS.md
+.agents/local/*
+.agents/memory/*
+project/*
+```
 
-Never synchronized from the generic baseline.
+The root `AGENTS.md` may contain small repository-specific orientation.
 
-Examples:
+`.agents/local/` owns repository-specific normative policy and explicit overrides.
 
-- actual tasks/claims/Dispatch/workspaces/archive history;
-- project architecture/documentation;
-- project `.agents` investigations/decisions/scar tissue;
-- local CI checks/path relevance;
-- product safety laws;
-- intentional deviations.
+`.agents/memory/` owns non-normative knowledge, rationale, investigations, and scar tissue.
 
-### Shared executable dependency
+`project/` owns project-control/collaboration state such as tasks, workspaces, reminders, and initiatives.
 
-Implementation stays central; consumer keeps a pinned reference.
+### Reserved structural contract
 
-Examples:
+The exact lowercase top-level path:
 
-- generic CI policy workflow;
-- provenance/metadata validator;
-- baseline status/audit action.
+```text
+project/
+```
 
-## Root agent entry
+is reserved for the baseline project-control integration.
 
-The root `AGENTS.md` should be deliberately thin and stable.
+Do not rename or recase it merely because a repository uses snake_case, kebab-case, PascalCase, or another naming convention elsewhere. Keeping this neutral path stable avoids cross-repository update churn over local casing style.
 
-Its generic responsibility is to tell an agent to:
+The contents are repository-owned; the integration path is stable.
 
-1. trust tracked repository state over remembered conversation state;
-2. read generic baseline procedure;
-3. read repository-local profile/policy;
-4. inspect executable-work state before substantive work;
-5. load only task-relevant memory/documentation;
-6. follow generic recovery/Git/authority precedence.
+## Instruction topology
 
-Repository mission, directory ownership, product rules, architecture, and local CI belong in local policy rather than the generic loader.
+The implemented v1 topology is:
 
-Avoid partial-file ownership markers when separate files can express ownership cleanly.
+```text
+AGENTS.md
+
+.agents/
+├── README.md
+├── baseline/
+│   ├── WORKFLOW.md
+│   ├── GIT.md
+│   ├── PROVENANCE.md
+│   ├── KNOWLEDGE.md
+│   └── MAINTENANCE.md
+├── local/
+│   ├── README.md
+│   └── repository-specific policy...
+└── memory/
+    └── repository-specific non-normative knowledge...
+
+project/
+└── repository-owned project-control state...
+```
+
+The generic router knows only stable generic files and the local entry point. Arbitrary repository-specific local instruction files are discoverable through `.agents/local/README.md` without editing baseline routing.
+
+Applicable local policy explicitly overrides conflicting generic baseline behavior. Silence leaves the generic rule active.
+
+Memory never becomes normative merely because it exists.
 
 ## Task/work governance
 
-The reusable protocol should preserve the strongest MSHP concepts:
+The reusable workflow preserves the MSHP concepts that proved useful:
 
 - explicit task lifecycle states;
-- Dispatch as executable authorization;
+- Dispatch as executable authorization/priority;
 - Active claims as coordination locks;
-- dependencies/order;
+- dependency and blocker distinction;
+- recoverable agent lineages;
+- interrupted-session recovery from repository evidence;
 - task workspaces for temporary tracked cross-context knowledge;
-- immutable task IDs;
 - terminal block archival;
-- reminders and initiatives as explicitly non-executable context;
+- reminders and initiatives as explicitly non-executable intent;
 - deliberate promotion into executable tasks.
 
-Future baseline design should separate **static task protocol** from **dynamic repository task state** more cleanly than current MSHP so protocol updates do not repeatedly conflict with live task rows.
-
-## Agent memory
-
-Baseline-managed:
-
-- durable-memory placement rules;
-- temporary task-workspace distinction;
-- fresh-session reading order;
-- historical notes are on-demand;
-- promote human-relevant durable facts to human documentation;
-- never store secrets.
-
-Repository-local:
-
-- every actual project investigation, decision, architecture note, platform/application quirk, and scar-tissue record.
-
-The baseline may provide structure, not project memory.
+Static lifecycle semantics live in generic baseline policy. Mutable task state remains repository-owned.
 
 ## Git, lineage, and provenance
 
-Strong generic defaults:
+Generic defaults include:
 
-- additive history;
-- no destructive rewrite of established history without explicit authority;
-- recoverable agent lineage namespaces;
-- discovering a lineage does not authorize adopting it;
-- task claims are coordination locks, not recovery credentials;
-- coherent checkpoint discipline;
-- explicit agent-authorship provenance.
+- preserve reachable history by default;
+- normal correction is additive;
+- do not infer authority to adopt an agent lineage merely because it exists;
+- recover interrupted work from repository evidence rather than narrated chat state;
+- use coherent recoverable checkpoints;
+- use explicit agent-authorship provenance for wholly agent-authored substantive commits.
 
-Repository-local profiles may explicitly tighten or opt out of conventions when a project genuinely differs.
+Repository-local policy may explicitly tighten or override generic behavior where a project genuinely differs.
 
-## CI
+## Manual v1 baseline lifecycle
 
-Treat the current MSHP selector as a reusable **architecture pattern**, not reusable local policy.
+The authoritative detailed procedure is:
 
-### Shared core candidate
+```text
+.agents/baseline/MAINTENANCE.md
+```
 
-- event normalization;
-- push/PR Git-range derivation;
-- override parsing;
-- fail-safe ambiguity behavior;
-- commit/provenance validation framework;
-- check-registry validation;
-- check-to-runner coalescing;
-- run-history/coverage primitives.
+### Why manual
 
-### Repository-local declaration
+The current fleet is small enough that transparent human-plus-agent review is preferable to synchronization machinery.
 
-- check IDs;
-- commands;
-- path relevance;
-- runner/platform requirements;
-- destructive/isolation requirements;
-- security-analysis languages;
-- cadence/exceptions.
+Git already provides substantial useful evidence:
 
-A thin local workflow should own the consumer's GitHub events/permissions and call a **full-SHA-pinned** shared reusable workflow.
+- current file contents and blob identity;
+- per-repository history;
+- path history;
+- blame/line provenance;
+- ordinary diffs and commits;
+- additive rollback/revert.
 
-## Baseline state and versioning
+That is sufficient for v1 when combined with explicit ownership boundaries.
 
-A managed consumer should be able to identify:
+### Generic change flow
 
-- baseline source;
-- baseline release;
-- exact source commit or an immutable release identity resolvable to it;
-- baseline schema;
-- selected profile/modules;
-- intentional deviations/detached components;
-- exact shared executable pins.
+A generic improvement may be discovered in any consumer.
 
-Use separate concepts for:
+Before propagation:
 
-- **release version** — human/orderable, likely semantic-style;
-- **Git SHA** — exact immutable provenance;
-- **schema version** — structural/migration compatibility.
+1. separate the generic rule from the consumer-specific circumstance;
+2. express and validate the generic change in `M-A-X-I-N/baseline`;
+3. adopt the canonical change into desired consumers through the manual update procedure.
 
-Shared Actions/reusable workflows should be pinned to full SHAs. Human-readable release tags may be documented alongside them, and Dependabot can propose reviewed update PRs.
+This makes the baseline repository authoritative without making it an invisible runtime dependency.
 
-## New repository bootstrap
+### Existing consumer update
 
-Future default flow:
+A consumer update is a semantic/content comparison, not a template merge:
 
-1. create repository from `M-A-X-I-N/template`;
-2. fill in repository-local profile/state;
-3. record baseline release/schema/profile;
-4. configure optional pinned shared runtime modules;
-5. commit project-specific setup normally.
+1. inspect canonical baseline and consumer state/history;
+2. compare every baseline-managed file;
+3. classify identical content, generic drift, local-policy leakage, semantic conflicts, and added/removed generic files;
+4. propose the transformation;
+5. move repository-specific policy into local instructions;
+6. refresh baseline-managed files from the canonical source;
+7. preserve repository-owned policy, memory, tasks, reminders, initiatives, CI, architecture, and source;
+8. validate routing/ownership;
+9. commit through ordinary repository history.
 
-The template's default branch should represent a stable baseline release, not arbitrary unreleased development state.
+Because GitHub-template children have independent histories, the procedure does not assume a shared merge base.
 
-## Existing repository adoption
+### Legacy repository adoption
 
 Do not fake template ancestry.
 
-Future adoption should:
+Adoption:
 
-1. inspect current governance;
-2. select target baseline/profile;
-3. compare target baseline with existing files;
-4. classify baseline-compatible, local, and conflicting material;
-5. produce a reviewable adoption diff/PR;
-6. apply necessary structural migrations;
-7. only then record the repository as baseline-managed.
+1. inventories existing instructions/work state/history;
+2. classifies generic policy, local policy, memory, and executable state;
+3. introduces the baseline/local/memory separation;
+4. copies current baseline-managed files from `M-A-X-I-N/baseline`;
+5. builds repository-specific root/local routing;
+6. reserves exact lowercase `project/` and maps existing project-control state deliberately;
+7. preserves existing local semantics rather than overwriting them with template seed state;
+8. validates and commits adoption as ordinary new history.
 
-## Ongoing baseline updates
+## No baseline manifest/version/schema in v1
 
-Separate read-only detection from mutation.
+v1 deliberately has **no**:
 
-### Status
+- baseline-version file;
+- source-commit manifest;
+- schema version;
+- profile/module manifest;
+- updater lock state;
+- migration registry.
 
-Report current baseline, available target, schema/migration path, and shared dependency updates.
+Do not add these merely to answer which baseline revision a consumer has.
 
-### Plan
+Instead, inspect canonical and consumer Git history plus current baseline-managed contents.
 
-Reconstruct old baseline state, compare local evolution, load target baseline, and produce proposed changes/conflicts.
+A source commit may appear naturally in historical discussion or a commit message, but it is not maintained repository state and is not required by the protocol.
 
-### Apply
+## New repository bootstrap
 
-On a recoverable branch/worktree:
+Current default bootstrap:
 
-- three-way reconcile baseline-managed content;
-- apply ordered migrations;
-- preserve local/detached content;
-- surface semantic conflicts;
-- update manifest/pins only after successful transformation;
-- validate;
-- merge through ordinary repository history.
+1. create the repository from `M-A-X-I-N/baseline`;
+2. retain the exact lowercase `project/` integration path;
+3. fill in repository-specific `.agents/local/` policy and root orientation;
+4. preserve generic files under `.agents/baseline/`;
+5. begin project work through ordinary Git history.
 
-The research strongly favors Copier-like three-way lifecycle semantics, but does not yet choose Copier over a simpler direct Git-tree implementation.
+There is no release/schema registration step.
+
+## Validation expectations
+
+For baseline updates/adoption, verify at least:
+
+- baseline-managed generic files match the intended canonical source;
+- repository-specific rules remain explicit under local policy;
+- generic files contain no repository-specific path/policy leakage;
+- root → generic router → local router → project/memory navigation resolves;
+- exact lowercase `project/` remains stable;
+- live task/project state was not replaced by template seed data;
+- no step depends on nonexistent updater/version machinery.
+
+Repository-specific tests/CI remain local concerns.
 
 ## Rollback
 
-A baseline update should be one coherent consumer checkpoint/PR containing:
+A baseline adoption/update is ordinary repository history.
 
-- baseline-derived changes;
-- manifest release/schema/provenance;
-- shared executable pin changes;
-- migration results;
-- setting changes where included.
+Primary rollback is:
 
-Primary rollback is ordinary Git revert.
+- Git revert; or
+- another additive corrective commit.
 
-External repository-setting migrations require separate before/after recovery information where automatic reversal is not guaranteed.
+No special baseline rollback metadata exists in v1.
 
-## GitHub repository-side settings
+## Deferred broader architecture
 
-Template generation does not provide a generic settings-inheritance system.
+Archived block `MSHP-AGENT-BASELINE-A` researched a substantially broader system involving:
 
-Future reconciliation of settings such as Actions permissions, rulesets, variables, environments, or security settings should be explicit:
+- shared reusable workflow/action runtime;
+- automated or semi-automated synchronization;
+- baseline releases/manifests/schema versions;
+- Copier/Cruft-style lifecycle reconciliation;
+- migration machinery;
+- repository-setting reconciliation;
+- updater bots/GitHub Apps;
+- fleet management.
 
-- baseline default;
-- local intentional deviation;
-- observed current setting;
-- proposed diff;
-- authorized apply;
-- rollback information.
+That research remains useful context, but none of it is part of v1.
 
-Do not design the current personal-account fleet around organization-only rulesets/custom properties.
+### Reopen triggers
 
-## Profiles/modules
+Revisit that broader research only when real usage repeatedly shows problems such as:
 
-Start small.
+- old baseline state becoming expensive or ambiguous to reconstruct;
+- enough consumers existing that manual comparison is materially burdensome;
+- updates requiring ordered structural migrations/schema compatibility;
+- shared runtime pins creating lifecycle state that ordinary content comparison handles poorly;
+- repeated baseline/local leakage making reconciliation error-prone;
+- repository-setting synchronization becoming a real requirement;
+- manual mistakes/review effort becoming a recurring cost.
 
-Conceptual **standard baseline**:
+The existence of the old research is not itself authorization to build automation.
 
-- agent entry/read order;
-- memory doctrine;
-- Git/recovery/lineage;
-- task/Dispatch/claims/archive;
-- reminders/initiatives;
-- provenance;
-- baseline manifest/local profile.
+## Non-goals
 
-Potential optional modules:
+v1 does not:
 
-- centralized CI;
-- CodeQL/security;
-- scheduled coverage reconciliation;
-- repository-setting reconciliation.
-
-Avoid profile explosion until real repositories prove distinct needs.
-
-## Research-backed non-goals
-
-Do not:
-
-- copy MSHP wholesale;
-- use remote `template@main` as invisible runtime policy;
-- overwrite local policy during updates;
 - synchronize whole repositories;
-- make baseline history an upstream Git merge topology;
-- put every historical investigation into startup context;
-- silently modify `main` from scheduled update automation;
-- depend on organization-only GitHub features for the current personal-account repository fleet.
+- maintain a hidden remote policy dependency;
+- overwrite repository-local policy during baseline updates;
+- fake Git template ancestry;
+- keep version/schema/manifest state;
+- use updater bots;
+- use Copier/Cruft;
+- create a shared runtime repository;
+- reconcile repository settings;
+- migrate arbitrary existing repositories automatically;
+- require repository-local source naming conventions to affect the reserved `project/` path.
 
-## Implementation questions still requiring experiments
+## Evidence and history
 
-1. direct Git-tree three-way updater versus Copier;
-2. neutral generic consumer paths/names;
-3. maintainer-global versus repo-local provenance registry entries;
-4. exact default profile/module boundary;
-5. stable template branch/tag release mechanics;
-6. updater packaging/runtime;
-7. v1 scope for repository-setting reconciliation;
-8. adoption behavior for heavily customized existing repositories;
-9. whether shared updater/workflow components need independent release trains.
+The broad research basis is preserved with archived task block `MSHP-AGENT-BASELINE-A`.
 
-## Proposed future implementation order
+Implementation/validation history is preserved with `MSHP-AGENT-BASELINE-B`.
 
-1. Specify neutral baseline contract, ownership model, manifest, and local profile.
-2. Build the first stable consumer-visible baseline in `M-A-X-I-N/template`.
-3. Create shared tooling/runtime repository only with separate human authorization.
-4. Prototype bootstrap, adoption, update, conflict, migration, rollback, and pinned-runtime updates.
-5. Adopt MSHP as a demanding consumer without erasing MSHP-specific policy.
-6. Migrate other repositories deliberately through adoption PRs.
-7. Add fleet automation only after the manual lifecycle is proven.
-
-## Evidence
-
-Full research and source references are preserved with archived task block `MSHP-AGENT-BASELINE-A`.
-
-The most important research inputs were:
-
-- GitHub repository-template mechanics;
-- reusable workflow/action distribution and access;
-- account/organization-level GitHub governance capabilities;
-- Copier/Cruft template lifecycle models;
-- Git submodule/subtree alternatives;
-- Dependabot GitHub Actions reference updates;
-- GitHub full-SHA secure-use guidance;
-- immutable GitHub releases.
-
+The most relevant durable generic behavior lives directly in the baseline-managed Markdown rather than in this architecture summary.
