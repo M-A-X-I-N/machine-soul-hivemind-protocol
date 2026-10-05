@@ -21,18 +21,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 Task rows are grouped by block for readability. Every block uses the same authoritative scheduling schema; headings are presentation only and do not change task identity, dependency, state, claim, or Dispatch semantics.
 
-### MSHP-AGENT-BASELINE-B
-
-| ID | State | Depends on | Title | Summary |
-|---|---|---|---|---|
-| [`MSHP-AGENT-BASELINE-B-010`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-010.md) | COMPLETE | — | Specify v1 agent instruction topology and precedence | Define the minimal ChatGPT-Chat-oriented instruction graph, precedence rules, naming, and routing semantics for baseline, repository-local policy, and agent memory. |
-| [`MSHP-AGENT-BASELINE-B-020`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-020.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-010` | Extract the generic workflow instruction set | Derive the reusable baseline instruction files from current MSHP governance while removing Machine-Soul-specific policy and retaining the workflow behavior the maintainer values. |
-| [`MSHP-AGENT-BASELINE-B-030`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-030.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-020` | Design and extract MSHP-local policy and memory boundaries | Define the repository-local instruction surface and reorganize MSHP-specific rules/knowledge so local overrides remain separate from generic baseline policy. |
-| [`MSHP-AGENT-BASELINE-B-040`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-040.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-030` | Refactor MSHP onto the v1 instruction architecture | Make MSHP the reference consumer of the generic/local/memory separation and preserve existing workflow behavior under the new instruction graph. |
-| [`MSHP-AGENT-BASELINE-B-050`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-050.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-040` | Validate ChatGPT Chat instruction ergonomics and context routing | Stress-test the refactored instruction graph for ChatGPT Chat-style repository work and tune file boundaries/read routing based on practical context needs. |
-| [`MSHP-AGENT-BASELINE-B-060`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-060.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-050` | Populate the baseline template repository with the generic instruction baseline | Copy only the validated generic instruction baseline and empty/local skeletons into `M-A-X-I-N/baseline`, without importing MSHP-specific policy or building shared runtime/update machinery. |
-| [`MSHP-AGENT-BASELINE-B-070`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-070.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-060` | Define the manual baseline maintenance and adoption workflow | Document the intentionally manual v1 process for comparing/updating/adopting generic instructions without version manifests or automatic synchronization. |
-
 ### MSHP-WINGET-A
 
 | ID | State | Depends on | Title | Summary |
