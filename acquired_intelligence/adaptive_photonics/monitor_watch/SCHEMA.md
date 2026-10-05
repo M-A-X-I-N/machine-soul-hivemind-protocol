@@ -107,6 +107,47 @@ Semantics:
 
 For the strict true-RGB lane, `rgb_stripe` means a conventional/explicit true RGB stripe arrangement. Layouts such as `rgb_q_stripe` and `matrix_pure` remain adjacent-interest technologies unless the requirement is explicitly broadened.
 
+## Retailer-specific hypothetical pricing scenarios
+
+A retailer scenario is a deliberately isolated "what if" view over one retailer's inventory.
+
+Example:
+
+~~~yaml
+retailer_scenarios:
+  elgiganten_employee_discount:
+    retailer_id: elgiganten
+    isolation:
+      affects_normal_shortlist: false
+      affects_market_snapshots: false
+      affects_market_price_history: false
+    normal_lane:
+      candidates:
+        example_model:
+          status: needs_verification
+          public_price_sek: 11990
+          employee_effective_price_sek: null
+          threshold_analysis:
+            interesting_at_or_below_sek: 10000
+            discount_needed_for_interesting_pct: 16.6
+    true_rgb_stripe_lane:
+      rules:
+        strict_subpixel_requirement: rgb_stripe
+      candidates: {}
+~~~
+
+Semantics:
+
+- scenario prices are **not** Swedish market prices;
+- public retailer prices may be copied into the scenario for context, but canonical volatile offer history remains in normal timestamped snapshots;
+- `employee_effective_price_sek` is privileged/hypothetical scenario data and must never feed normal price minima or historical market series;
+- never infer one universal employee-discount percentage: discounts can vary by product, campaign, margin, stock state, or other unknown internal rules;
+- when `employee_effective_price_sek` is unknown, retain `null` and calculate only the discount required to reach already-established model thresholds;
+- threshold discount is calculated from the current public retailer price as `100 * (1 - threshold / public_price)`, floored at zero when the public price already meets the threshold;
+- models without an existing numeric threshold may remain visible with `needs_verification` until a real effective price makes direct value comparison possible;
+- scenario lanes may mirror normal and other filtered lanes, but status changes inside them never promote or demote the canonical shortlist;
+- a model may therefore be `price_watch` normally and `active` in an employee scenario without contradiction.
+
 ## Snapshot identity
 
 Snapshots are identified by their **run-start instant**, not merely the calendar date.
