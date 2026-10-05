@@ -11,6 +11,7 @@ Use the validated MSHP reference-consumer structure to create the first practica
 - Provide a clear local repository-policy placeholder that a new repository is expected to fill in.
 - Ensure baseline and local instruction namespaces are separate from first commit.
 - Seed empty memory/task/reminder/initiative structures only where the validated instruction workflow actually depends on them.
+- Reserve the exact lowercase top-level `project/` path for baseline project-control/collaboration surfaces; child repositories must not rename or recase this integration path merely to match local source naming conventions.
 - Do not copy MSHP-specific paths, tasks, CI checks, application/runtime architecture, or historical memory.
 - Do not add automatic updater/version-manifest machinery.
 - Keep GitHub-template usability straightforward: the generated repository should make sense by reading root `AGENTS.md` first.
@@ -26,6 +27,7 @@ Use the validated MSHP reference-consumer structure to create the first practica
 
 - `M-A-X-I-N/baseline` contains a minimal usable generic instruction baseline.
 - A new repository generated from its file tree has an obvious place for local policy without editing baseline rule files.
+- Project-control state is grouped under the stable reserved top-level `project/` path rather than cluttering repository root or inheriting repository-specific casing conventions.
 - The template contains no meaningful MSHP-specific project content.
 
 ## Validation
