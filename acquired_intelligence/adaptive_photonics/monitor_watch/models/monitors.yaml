@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-03T01:35:42+02:00
+updated: 2026-10-05T04:13:16+02:00
 
 models:
   dell_aw2725q:
@@ -874,3 +874,51 @@ models:
     notes:
       - "Shares the 4th-gen Penta-Tandem QD-OLED, DarkArmor Film and Uniform Luminance platform with the MPG model."
       - "Lower-feature variant: 15-W USB-C and no KVM."
+
+  dell_aw3226q:
+    manufacturer: Dell
+    model: Alienware AW3226Q
+    size_in: 31.5
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: Tandem-OLED, generation: unknown, subpixel: rgb_stripe}
+    coating: {type: anti_reflective}
+    refresh: {native_hz: 165, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1 x2", usb_c_pd_w: 15, kvm: false}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: announced
+    verification: {specs: verified_primary, warranty: verified_primary, market: no_swedish_price}
+    sources:
+      - https://www.dell.com/en-hk/shop/monitors/apd/cty/aw3226q_monitor/-
+      - https://www.dell.com/support/product-details/en-us/product/aw3226q-monitor/resources/manuals
+    notes:
+      - "Dell explicitly specifies a flat 31.5-inch 4K165 RGB-stripe tandem OLED panel."
+      - "Primary product data lists anti-reflective surface treatment, DisplayPort 1.4, two HDMI 2.1 inputs and 15-W downstream USB-C."
+      - "Three-year warranty explicitly includes OLED burn-in."
+      - "The model is already sold in some non-Swedish markets, but no Swedish street price was found during the 2026-10-05 sweep."
+
+  samsung_g80sj:
+    manufacturer: Samsung
+    model: Odyssey OLED G8 G80SJ
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: "5th-gen Penta Tandem", subpixel: rgb_stripe}
+    coating: {type: glare_free}
+    refresh:
+      native_hz: 360
+      dual_mode: {resolution: 2560x1440, hz: 520}
+      additional_mode: {resolution: 1920x1080, hz: 680}
+    connectivity: {displayport: "2.1 UHBR20", hdmi: "2.1 x2", usb_c_pd_w: 98, kvm: true}
+    warranty: {years: null, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: announced
+    verification: {specs: verified_primary, shape_and_coating: verified_independent, warranty: unknown, market: announced}
+    sources:
+      - https://news.samsung.com/global/samsung-introduces-new-odyssey-lineup-for-fast-paced-gaming-at-gamescom-2026
+      - https://www.flatpanelshd.com/news.php?id=1787826022&subaction=showfull
+    notes:
+      - "Samsung confirms fifth-generation Penta-Tandem QD-OLED with RGB Stripe and UHD360/QHD520/FHD680 Triple Mode."
+      - "Independent launch coverage describes the 32-inch panel as flat with Samsung Glare Free treatment."
+      - "This belongs to Samsung's 2027 Odyssey lineup; Swedish price and exact availability remain unannounced."
