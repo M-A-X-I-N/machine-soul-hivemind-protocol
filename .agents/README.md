@@ -21,6 +21,7 @@ Do not preload this entire directory.
 | branch/history/checkpoint/commit operation | [`baseline/GIT.md`](baseline/GIT.md) |
 | wholly agent-authored substantive commit | [`baseline/PROVENANCE.md`](baseline/PROVENANCE.md) |
 | deciding where learned information belongs | [`baseline/KNOWLEDGE.md`](baseline/KNOWLEDGE.md) |
+| baseline comparison, update, or legacy-repository adoption | [`baseline/MAINTENANCE.md`](baseline/MAINTENANCE.md) + [`local/README.md`](local/README.md) |
 | repository-specific policy or an unfamiliar local concern | [`local/README.md`](local/README.md) |
 | technical/rationale/history lookup | only relevant file(s) under `memory/`, using local routing/search as needed |
 | durable project architecture/policy | applicable human-facing documentation identified by the repository |
