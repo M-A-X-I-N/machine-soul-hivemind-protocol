@@ -16,7 +16,7 @@ At initial task start GitHub reported:
 
 No pre-existing content required preservation.
 
-B-060 was reopened once after human review because the first generic seed placed task/reminder/initiative files directly at repository root. That was functionally valid but created unnecessary root clutter. The corrected seed groups those repository-control surfaces under `project_control/`.
+B-060 was reopened after human review because the first generic seed placed task/reminder/initiative files directly at repository root. That was functionally valid but created unnecessary root clutter. A first correction grouped them under `project/`; a second human review deliberately simplified and stabilized that namespace to the exact lowercase top-level `project/` path so child repositories never need to recase/rename the baseline integration point to match local source naming conventions.
 
 ## Final populated structure
 
@@ -36,7 +36,7 @@ AGENTS.md
 └── memory/
     └── README.md
 
-project_control/
+project/
 ├── tasks.md
 ├── tasks/
 │   └── README.md
@@ -47,7 +47,7 @@ project_control/
 
 The seed deliberately does not reproduce MSHP's `autonomic_affairs/` layout or its memory category taxonomy.
 
-`project_control/` is a generic repository-owned organizational container, not baseline policy. A consumer repository may choose different local paths by updating local-owned routing/policy without editing baseline-owned files.
+`project/` is the reserved lowercase top-level integration path for baseline project-control/collaboration state. Its contents are repository-owned, but the directory name itself is intentionally stable across child repositories and is not recased or renamed to match local source naming conventions. Repositories may add project-control material beneath it without modifying baseline-owned files.
 
 ## Baseline equality
 
@@ -81,11 +81,11 @@ Result: **zero matches**.
 
 Verified the generated-repository path:
 
-1. root `AGENTS.md` routes to `.agents/README.md`, `.agents/local/README.md`, and `project_control/tasks.md`;
+1. root `AGENTS.md` routes to `.agents/README.md`, `.agents/local/README.md`, and `project/tasks.md`;
 2. the generic router routes substantial work to `baseline/WORKFLOW.md` plus the stable `local/README.md` entrypoint;
-3. the local router owns discovery of `local/REPOSITORY.md`, `project_control/` task/reminder/initiative locations, and memory placement;
-4. `project_control/tasks.md` points lifecycle semantics back to baseline `WORKFLOW.md`;
-5. `project_control/tasks/README.md`, reminders, and initiatives resolve their relative links inside the grouped control directory;
+3. the local router owns discovery of `local/REPOSITORY.md`, `project/` task/reminder/initiative locations, and memory placement;
+4. `project/tasks.md` points lifecycle semantics back to baseline `WORKFLOW.md`;
+5. `project/tasks/README.md`, reminders, and initiatives resolve their relative links inside the grouped control directory;
 6. memory has only a repository-owned README and no speculative empty taxonomy.
 
 A repository generated from this template can add arbitrary local instruction files by updating only `.agents/local/README.md`; baseline-owned routing does not need modification.
@@ -97,13 +97,13 @@ The final repository's top-level control/navigation surface is intentionally sma
 ```text
 AGENTS.md
 .agents/
-project_control/
+project/
 ```
 
-Future normal project files such as `README.md`, source directories, licenses, build files, and documentation therefore do not have to compete with four separate baseline workflow artifacts at repository root.
+Future normal project files such as `README.md`, source directories, licenses, build files, and documentation therefore do not have to compete with four separate baseline workflow artifacts at repository root. Reserving the neutral lowercase `project/` name also avoids per-repository snake_case/kebab-case/PascalCase decisions that would complicate manual baseline updates.
 
 ## Result
 
-B-060 acceptance criteria are satisfied after the layout correction.
+B-060 acceptance criteria are satisfied after the final reserved-path correction.
 
 No updater, manifest/version machinery, shared runtime, CI automation, or other consumer repository was added or modified.
