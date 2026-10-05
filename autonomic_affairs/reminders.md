@@ -27,24 +27,26 @@ Before this reminder can become executable work:
 
 Merely recording this reminder does **not** authorize any rebase, force-push, ref rewrite, or history destruction.
 
-## Extend agent baseline beyond manual instruction v1
+## Automate agent-baseline maintenance only if manual v1 proves painful
 
-**Status:** Parked follow-up beyond active block `MSHP-AGENT-BASELINE-B`.
+**Status:** Parked evidence-driven follow-up after implementation of manual baseline v1.
 
-The active B block deliberately implements only the manually maintained **agent-instruction baseline**: generic/local/memory separation, ChatGPT-Chat-oriented routing, MSHP reference-consumer refactor, template population, and a human-plus-agent update/adoption procedure.
+The manually maintained agent baseline is now implemented. Its canonical generic source is `M-A-X-I-N/baseline`, and the update/adoption procedure lives in `.agents/baseline/MAINTENANCE.md`.
 
-After that v1 has real usage experience, revisit the broader research in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md` if manual maintenance becomes painful or shared runtime provides clear value.
+Revisit the broader archived research in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md` only after real usage demonstrates that the manual lifecycle is materially insufficient.
 
-Deferred possibilities include:
+Useful evidence would include repeated problems such as:
 
-- centrally shared reusable workflows/actions;
-- automatic or semi-automatic baseline synchronization;
-- baseline manifests/schema/version machinery;
-- update bots or GitHub Apps;
-- repository-setting reconciliation;
-- broader fleet migration/automation.
+- baseline state becoming expensive or ambiguous to reconstruct from Git/content;
+- enough consumer repositories that manual comparison is a recurring burden;
+- ordered structural migrations or schema compatibility becoming necessary;
+- shared workflow/runtime pins needing coordinated lifecycle management;
+- repository-setting synchronization becoming a real requirement;
+- repeated reconciliation errors or review cost.
 
-Do not implement these merely because the research exists. Let actual v1 maintenance experience justify the complexity.
+Possible future responses still include shared reusable workflows/actions, semi-automatic synchronization, manifests/schema/version machinery, updater bots/GitHub Apps, repository-setting reconciliation, and fleet management.
+
+Do not implement those merely because earlier research described them. Manual v1 remains the default until measured maintenance pain justifies added machinery.
 
 ## Investigate OpenAI Skills for reusable repository workflows
 
