@@ -222,6 +222,27 @@ If `shortlist/current.yaml` defines one or more orthogonal filtered lanes:
 6. allow the same monitor to appear in the normal shortlist and one or more filtered lanes;
 7. mention promotions/demotions inside filtered lanes when a market-watch run changes them.
 
+### Retailer-specific hypothetical pricing scenarios
+
+`shortlist/current.yaml` may also define isolated retailer scenarios, such as an Elgiganten employee-discount scenario.
+
+These are **not market-price lanes**.
+
+For every such scenario:
+
+1. inherit the normal purchase rules unless the scenario explicitly adds another filter;
+2. restrict inventory to the named retailer;
+3. keep public retailer price separate from any privileged/effective scenario price;
+4. never infer a fixed employee discount percentage or formula;
+5. only record `employee_effective_price_sek` when an actual effective price is supplied or directly observed;
+6. when the effective price is unknown, calculate the discount required to hit already-defined model thresholds instead of fabricating an employee price;
+7. keep scenario statuses and conclusions isolated from the canonical normal shortlist and ordinary filtered lanes;
+8. never use employee/privileged prices in normal market snapshots, Swedish street-price minima, historical market trends, or retailer comparisons;
+9. mirror normal and strict filtered categories independently when the scenario defines both;
+10. if a model lacks an existing numeric price threshold, keep it visible but unranked/`needs_verification` until an effective employee price permits a real value comparison.
+
+A scenario can therefore say "this becomes interesting at an employee discount of at least 16.6%" without claiming that such a discount exists.
+
 ## 9. Report only meaningful movement
 
 Summarize:
