@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-03T01:35:42+02:00
+updated: 2026-10-05T04:13:16+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -73,6 +73,35 @@ true_rgb_stripe_lane:
         - "Real coating quality, minimum luminance, firmware behavior, warranty and street price remain unresolved."
       price_logic: {interesting_at_or_below_sek: 11000}
 
+    dell_aw3226q:
+      status: needs_verification
+      summary: {size_in: 31.5, panel: Tandem-OLED, coating: anti_reflective, native_hz: 165, subpixel: rgb_stripe}
+      reasons_for:
+        - "31.5-inch flat 4K panel matches the current 32-inch lean."
+        - "Conventional RGB stripe directly targets text/fine-line clarity."
+        - "165 Hz is already sufficient under the normal purchase rules."
+        - "Dell explicitly includes OLED burn-in in the three-year warranty."
+      reasons_against:
+        - "No Swedish street price was found yet, so normal value ranking cannot be completed."
+        - "Anti-reflective treatment is less aligned than preferred TrueBlack Glossy."
+        - "No high-refresh dual mode."
+      unresolved:
+        - "Establish Swedish launch timing and street price."
+
+    samsung_g80sj:
+      status: needs_verification
+      summary: {size_in: 32, panel: "5th-gen Penta-Tandem QD-OLED", coating: glare_free, native_hz: 360, subpixel: rgb_stripe}
+      reasons_for:
+        - "32-inch 4K fifth-generation QD-OLED with explicit RGB Stripe."
+        - "UHD360/QHD520/FHD680 Triple Mode is unusually aligned with both coding and competitive-shooter use."
+        - "98-W USB-C and KVM are useful bonuses."
+      reasons_against:
+        - "2027 model with no Swedish price or firm local availability yet."
+        - "Samsung Glare Free treatment is a direct optical-preference mismatch versus glossy."
+        - "Burn-in warranty wording for Sweden is unresolved."
+      unresolved:
+        - "Establish Swedish launch timing, street price, minimum luminance and burn-in warranty."
+
   adjacent_text_focused_layouts_not_in_lane:
     - model_id: philips_32m2n8900p
       reason: "Philips calls this RGB Q-Stripe; potentially good for text, but it is not the strict conventional RGB-stripe requirement."
@@ -102,9 +131,10 @@ candidates:
       - "Nearly ideal fit: glossy, flat, 4K240, FHD480."
       - "Explicit three-year burn-in warranty."
       - "KVM and proximity OLED protection are useful bonuses."
+      - "Fresh Prisjakt category data is around 9,819 SEK, crossing the pre-written <=10,000 interesting threshold."
     reasons_against:
       - "Measured minimum around 32 nits is not exceptionally low."
-      - "Swedish price varies wildly."
+      - "Direct Proshop is 10,490 SEK while the fresh comparison-site floor is lower, so retailer selection still matters."
     price_logic: {very_strong_at_or_below_sek: 9000, interesting_at_or_below_sek: 10000}
     unresolved:
       - "Confirm whether XG32UCWMGZ differs materially from XG32UCWMG beyond regional/campaign identity."
@@ -397,3 +427,28 @@ candidates:
       - "15-W USB-C and no KVM make it less compelling than the MPG sibling if the prices are close."
       - "No dual-mode 480-Hz mode."
     price_logic: {resurrect_at_or_below_sek: 9500, very_strong_at_or_below_sek: 8500}
+
+  dell_aw3226q:
+    status: needs_verification
+    summary: {size_in: 31.5, panel: Tandem-OLED, coating: anti_reflective, native_hz: 165, subpixel: rgb_stripe}
+    reasons_for:
+      - "Flat 32-inch-class 4K RGB-stripe OLED is unusually well aligned with coding clarity."
+      - "165 Hz is sufficient under the normal rules and the three-year burn-in warranty is explicit."
+    reasons_against:
+      - "No Swedish street price yet."
+      - "Anti-reflective coating and lack of dual mode make price especially important."
+    unresolved:
+      - "Establish Swedish launch timing and street price."
+
+  samsung_g80sj:
+    status: needs_verification
+    summary: {size_in: 32, panel: "5th-gen Penta-Tandem QD-OLED", coating: glare_free, native_hz: 360, subpixel: rgb_stripe}
+    reasons_for:
+      - "Strict RGB stripe plus 4K360/QHD520/FHD680 Triple Mode is a rare text-clarity and competitive-refresh combination."
+      - "32-inch size matches the current physical-size preference."
+    reasons_against:
+      - "2027 product with no Swedish price yet."
+      - "Glare Free coating conflicts with the glossy preference."
+      - "Swedish burn-in warranty remains unknown."
+    unresolved:
+      - "Establish Swedish launch timing, street price, minimum luminance and burn-in warranty."
