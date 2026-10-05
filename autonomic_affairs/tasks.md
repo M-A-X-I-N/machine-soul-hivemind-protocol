@@ -16,7 +16,6 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| `MSHP-AGENT-BASELINE-B-060` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-05T00:06:00Z` | Reopened after human review: reserve exact top-level `project/` for baseline control surfaces, avoiding child-repository casing/style renames. |
 
 ## Active task index
 
@@ -31,7 +30,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 | [`MSHP-AGENT-BASELINE-B-030`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-030.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-020` | Design and extract MSHP-local policy and memory boundaries | Define the repository-local instruction surface and reorganize MSHP-specific rules/knowledge so local overrides remain separate from generic baseline policy. |
 | [`MSHP-AGENT-BASELINE-B-040`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-040.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-030` | Refactor MSHP onto the v1 instruction architecture | Make MSHP the reference consumer of the generic/local/memory separation and preserve existing workflow behavior under the new instruction graph. |
 | [`MSHP-AGENT-BASELINE-B-050`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-050.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-040` | Validate ChatGPT Chat instruction ergonomics and context routing | Stress-test the refactored instruction graph for ChatGPT Chat-style repository work and tune file boundaries/read routing based on practical context needs. |
-| [`MSHP-AGENT-BASELINE-B-060`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-060.md) | IN_PROGRESS | `MSHP-AGENT-BASELINE-B-050` | Populate the baseline template repository with the generic instruction baseline | Copy only the validated generic instruction baseline and empty/local skeletons into `M-A-X-I-N/baseline`, without importing MSHP-specific policy or building shared runtime/update machinery. |
+| [`MSHP-AGENT-BASELINE-B-060`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-060.md) | COMPLETE | `MSHP-AGENT-BASELINE-B-050` | Populate the baseline template repository with the generic instruction baseline | Copy only the validated generic instruction baseline and empty/local skeletons into `M-A-X-I-N/baseline`, without importing MSHP-specific policy or building shared runtime/update machinery. |
 | [`MSHP-AGENT-BASELINE-B-070`](tasks/MSHP-AGENT-BASELINE-B/MSHP-AGENT-BASELINE-B-070.md) | QUEUED | `MSHP-AGENT-BASELINE-B-060` | Define the manual baseline maintenance and adoption workflow | Document the intentionally manual v1 process for comparing/updating/adopting generic instructions without version manifests or automatic synchronization. |
 
 ### MSHP-WINGET-A
