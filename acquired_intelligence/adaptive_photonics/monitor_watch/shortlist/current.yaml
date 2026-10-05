@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-05T04:13:16+02:00
+updated: 2026-10-05T04:27:21+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -16,6 +16,118 @@ criteria_summary:
     - small-text clarity
     - explicit burn-in warranty
     - predictable static-dimming behavior
+
+
+retailer_scenarios:
+  elgiganten_employee_discount:
+    purpose: "Isolated what-if shortlist for products bought from Elgiganten with an employee discount; it must never taint normal Swedish market pricing or recommendations."
+    retailer_id: elgiganten
+    pricing:
+      discount_model: unknown_product_specific
+      infer_percentage: false
+      employee_effective_price_source: "Only an actually supplied/observed employee price."
+      unknown_price_behavior: "Keep employee_effective_price_sek null and calculate discount needed to hit existing thresholds."
+      public_prices_observed_at: 2026-10-05T04:27:21+02:00
+    isolation:
+      affects_normal_shortlist: false
+      affects_true_rgb_stripe_lane: false
+      affects_market_snapshots: false
+      affects_market_price_history: false
+      affects_market_minimums: false
+    shared_rules:
+      inherit_all_normal_purchase_rules: true
+      retailer_required: elgiganten
+      flat_required: true
+      resolution_required: 3840x2160
+      oled_required: true
+      notes:
+        - "This is not an assumption that a specific employee discount exists."
+        - "Employee prices are scenario-only and must never be presented as public Elgiganten or Swedish street prices."
+        - "Public Elgiganten price is retained only to answer how large a discount would be required."
+
+    normal_lane:
+      purpose: "Mirror the normal purchase category, but restrict inventory to Elgiganten and evaluate against employee-effective price when known."
+      candidates:
+        samsung_g81sf_27:
+          status: active
+          public_price_sek: 6990
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 896181"
+          threshold_analysis:
+            very_strong_at_or_below_sek: 7000
+            discount_needed_for_very_strong_pct: 0.0
+          notes:
+            - "Public Elgiganten price already meets the existing very-strong threshold, so any genuine employee reduction only improves the scenario."
+
+        asus_xg32ucwg:
+          status: needs_verification
+          public_price_sek: 11490
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 1008997"
+          threshold_analysis:
+            interesting_at_or_below_sek: 9000
+            discount_needed_for_interesting_pct: 21.7
+            very_strong_at_or_below_sek: 8500
+            discount_needed_for_very_strong_pct: 26.0
+
+        tcl_32x3a:
+          status: needs_verification
+          public_price_sek: 11990
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 1149007/1149008"
+          threshold_analysis:
+            interesting_at_or_below_sek: 10000
+            discount_needed_for_interesting_pct: 16.6
+            very_strong_at_or_below_sek: 9000
+            discount_needed_for_very_strong_pct: 24.9
+
+        asus_xg32ucwmg:
+          status: needs_verification
+          public_price_sek: 13490
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 1008993"
+          threshold_analysis:
+            interesting_at_or_below_sek: 10000
+            discount_needed_for_interesting_pct: 25.9
+            very_strong_at_or_below_sek: 9000
+            discount_needed_for_very_strong_pct: 33.3
+
+        samsung_g81sf_32:
+          status: needs_verification
+          public_price_sek: 9990
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 896180"
+          threshold_analysis:
+            numeric_thresholds: unknown
+          notes:
+            - "In-scope Elgiganten inventory, but no model-specific numeric value threshold is currently defined in the canonical shortlist."
+
+        samsung_g80sh_32:
+          status: needs_verification
+          public_price_sek: 14990
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 1107852"
+          threshold_analysis:
+            numeric_thresholds: unknown
+
+        asus_pg32ucdm3:
+          status: needs_verification
+          public_price_sek: 14990
+          employee_effective_price_sek: null
+          public_price_source: "Elgiganten product 1086709"
+          threshold_analysis:
+            numeric_thresholds: unknown
+
+    true_rgb_stripe_lane:
+      purpose: "Mirror the strict conventional RGB-stripe category, but only for Elgiganten inventory and employee-effective pricing."
+      rules:
+        inherit_employee_scenario_shared_rules: true
+        inherit_true_rgb_stripe_rule: true
+        strict_subpixel_requirement: rgb_stripe
+      candidates: {}
+      notes:
+        - "No currently verified Elgiganten 4K OLED offer in this scenario is known to satisfy the strict conventional RGB-stripe requirement."
+        - "Do not admit RGB Q-Stripe, Matrix-Pure, or ordinary nonstandard QD-OLED layouts here."
 
 
 
