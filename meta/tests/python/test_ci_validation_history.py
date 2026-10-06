@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
-from autonomic_affairs.ci_validation_history import (
+from meta.ci_validation_history import (
     GitHubActionsHistory,
     reconcile_scheduled_checks,
     successful_check_executions,
