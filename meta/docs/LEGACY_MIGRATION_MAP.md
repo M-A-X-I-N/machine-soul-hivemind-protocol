@@ -508,4 +508,4 @@ The policy-heavy Bash/PowerShell runtimes and per-platform operation forwarding 
 
 No legacy runtime script was retained as a native primitive. The current codebase still supports the **possibility** of future native primitives through the versioned protocol, but such helpers must be justified by a demonstrated platform need rather than historical language choice.
 
-Selected shell/PowerShell files under `autonomic_affairs/tests/` remain test harnesses only; they invoke the canonical Python wrappers and are not runtime implementations.
+Selected shell/PowerShell files under `meta/tests/` remain test harnesses only; they invoke the canonical Python wrappers and are not runtime implementations.
