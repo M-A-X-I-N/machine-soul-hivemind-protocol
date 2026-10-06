@@ -1,6 +1,6 @@
 # Autonomic affairs
 
-`autonomic_affairs/` contains material about the Machine-Soul repository/project itself rather than configuration that is assimilated onto a machine or procedures that annex/manage applications.
+`meta/` contains material about the Machine-Soul repository/project itself rather than configuration that is assimilated onto a machine or procedures that annex/manage applications.
 
 Current contents:
 
