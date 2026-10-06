@@ -58,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           TIP_COMMIT_MESSAGE="$(git show -s --format=%B "$POLICY_HEAD_SHA" 2>/dev/null || true)"
-          python autonomic_affairs/ci_validation_selector.py \
+          python meta/ci_validation_selector.py \
             --event "$EVENT_NAME" \
             --commit-message "$TIP_COMMIT_MESSAGE" \
             --manual-selector "$MANUAL_SELECTOR" \
