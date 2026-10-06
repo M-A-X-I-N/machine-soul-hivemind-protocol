@@ -2,7 +2,7 @@
 
 import unittest
 
-from autonomic_affairs.ci_validation_selector import (
+from meta.ci_validation_selector import (
     GROUP_ALIASES,
     REGISTERED_CHECKS,
     PolicySelection,
@@ -119,7 +119,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from autonomic_affairs.ci_validation_selector import (
+from meta.ci_validation_selector import (
     PolicyEvidenceError,
     checks_for_paths,
     git_changed_paths,
