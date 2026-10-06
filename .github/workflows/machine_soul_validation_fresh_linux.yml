@@ -22,4 +22,4 @@ jobs:
         shell: bash
         run: |
           cd "${RUNNER_TEMP}/fresh-soul"
-          bash autonomic_affairs/tests/applications/test_linux_operations.sh
+          bash meta/tests/applications/test_linux_operations.sh
