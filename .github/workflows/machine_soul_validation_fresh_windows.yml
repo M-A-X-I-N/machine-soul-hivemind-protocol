@@ -22,4 +22,4 @@ jobs:
         shell: powershell
         run: |
           Set-Location "$env:RUNNER_TEMP\fresh-soul"
-          .\autonomic_affairs\tests\applications\test_windows_operations.ps1
+          .\meta\tests\applications\test_windows_operations.ps1
