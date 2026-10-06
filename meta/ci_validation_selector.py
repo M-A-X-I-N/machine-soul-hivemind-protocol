@@ -620,7 +620,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _scheduled_selection(args: argparse.Namespace) -> PolicySelection:
-    from autonomic_affairs.ci_validation_history import (
+    from meta.ci_validation_history import (
         GitHubActionsHistory,
         HistoryEvidenceError,
         reconcile_scheduled_checks,
