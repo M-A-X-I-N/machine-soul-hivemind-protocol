@@ -155,7 +155,7 @@ def load_wrapper(path: str | Path) -> WrapperBinding:
 def discover_wrappers(repository_root: str | Path) -> tuple[WrapperBinding, ...]:
     """Discover all atomic wrapper interfaces in deterministic order."""
     root = Path(repository_root)
-    annexation = root / "annexation_procedures"
+    annexation = root / "annexation"
     if not annexation.is_dir():
         return ()
 
