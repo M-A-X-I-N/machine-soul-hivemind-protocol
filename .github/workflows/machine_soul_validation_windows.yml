@@ -19,7 +19,7 @@ jobs:
       - name: Check windows-python
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-python') }}
         shell: powershell
-        run: python -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
+        run: python -m unittest discover -s meta/tests/python -p 'test_*.py'
       - name: Check windows-applications
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-applications') }}
         shell: powershell
@@ -27,7 +27,7 @@ jobs:
       - name: Check windows-posix
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-posix') }}
         shell: bash
-        run: bash autonomic_affairs/tests/applications/test_windows_posix_operations.sh
+        run: bash meta/tests/applications/test_windows_posix_operations.sh
       - name: Check windows-install
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-install') }}
         shell: powershell
