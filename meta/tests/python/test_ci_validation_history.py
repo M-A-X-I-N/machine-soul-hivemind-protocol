@@ -243,8 +243,8 @@ class ScheduledReconciliationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             old = self._commit(root, "[Test] Base")
-            (root / "autonomic_affairs/tasks").mkdir(parents=True)
-            (root / "autonomic_affairs/tasks/note.md").write_text(
+            (root / "meta/tasks").mkdir(parents=True)
+            (root / "meta/tasks/note.md").write_text(
                 "docs",
                 encoding="utf-8",
             )
