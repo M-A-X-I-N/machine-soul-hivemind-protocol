@@ -1,4 +1,4 @@
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     CmdAutoRunVerification,
     ConfigurationVerificationPlan,
@@ -12,7 +12,7 @@ from annexation_procedures.model import (
     CustomConfiguration,
     LocalAppDataRelativeDestination,
 )
-from annexation_procedures.cmd._configuration import handle_configuration
+from annexation.cmd._configuration import handle_configuration
 
 APPLICATION = Application(
     id="cmd",

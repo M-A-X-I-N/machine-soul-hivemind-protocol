@@ -37,7 +37,7 @@ def source_candidates(
     configuration: ConfigurationFile,
 ) -> tuple[Path, ...]:
     """Return canonical source candidates in documented specificity order."""
-    base = context.repository_root / "assimilation_directives" / application.id
+    base = context.repository_root / "assimilation" / application.id
     host = context.host
     account = context.target_account.name
     leaf = configuration.source_leaf
