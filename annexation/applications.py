@@ -48,7 +48,7 @@ def load_application(path: str | Path) -> Application:
 def discover_applications(repository_root: str | Path) -> tuple[Application, ...]:
     """Discover application declarations in deterministic directory-name order."""
     root = Path(repository_root)
-    annexation = root / "annexation_procedures"
+    annexation = root / "annexation"
     if not annexation.is_dir():
         return ()
 

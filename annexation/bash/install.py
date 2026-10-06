@@ -3,10 +3,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from annexation_procedures.applications import load_application
-from annexation_procedures.model import Operation
-from annexation_procedures.operations import perform_operation
-from annexation_procedures.presentation import wrapper_main
+from annexation.applications import load_application
+from annexation.model import Operation
+from annexation.operations import perform_operation
+from annexation.presentation import wrapper_main
 
 
 APPLICATION = load_application(Path(__file__).with_name("_application.py"))

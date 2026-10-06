@@ -28,7 +28,7 @@ Unapply verifies that the current destination is still the object Machine-Soul e
 
 ## Configuration resolution
 
-Application configuration lives under assimilation_directives/<application>/.
+Application configuration lives under assimilation/<application>/.
 
 Current final-file precedence is:
 
@@ -43,9 +43,9 @@ Tracked configuration currently includes one Windows host variant and multiple L
 
 ## Assimilation directives and annexation procedures
 
-`assimilation_directives/` contains the canonical tracked **instructions for how an assimilated machine should behave**: application configuration and other desired behavioral content that belongs in version control.
+`assimilation/` contains the canonical tracked **instructions for how an assimilated machine should behave**: application configuration and other desired behavioral content that belongs in version control.
 
-`annexation_procedures/` contains the executable **machinery used to take over / bring a machine into the collective**: shared Python runtime, application declarations, install/uninstall/discovery/configuration operations, wrappers, and broad orchestration.
+`annexation/` contains the executable **machinery used to take over / bring a machine into the collective**: shared Python runtime, application declarations, install/uninstall/discovery/configuration operations, wrappers, and broad orchestration.
 
 The names describe different responsibilities, not two halves that every target must possess.
 
@@ -73,7 +73,7 @@ See meta/docs/SESSION_BOUNDARIES.md.
 
 See meta/docs/SUPPORT_MATRIX.md.
 
-All application operations use platform-neutral Python wrappers directly under `annexation_procedures/<application>/`. Windows Fish/Bash/Zsh configuration remains dependent on an MSYS2/Cygwin-compatible environment because their declared destination strategy intentionally uses that environment's `HOME` and `cygpath`; the operation policy itself is Python.
+All application operations use platform-neutral Python wrappers directly under `annexation/<application>/`. Windows Fish/Bash/Zsh configuration remains dependent on an MSYS2/Cygwin-compatible environment because their declared destination strategy intentionally uses that environment's `HOME` and `cygpath`; the operation policy itself is Python.
 
 ## Next-phase target architecture
 
@@ -86,7 +86,7 @@ The Python operation core and atomic wrappers are now authoritative for migrated
 Atomic wrappers remain independently usable, while the broad manager composes them without duplicating application logic:
 
 ```text
-python annexation_procedures/manage_machine_soul.py
+python annexation/manage_machine_soul.py
 ```
 
 Run it without a workflow for the interactive menu, or use its workflow options for scripted status/application selection. See `meta/docs/INTERACTIVE_ORCHESTRATION.md`.
