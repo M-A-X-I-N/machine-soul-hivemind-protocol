@@ -11,13 +11,13 @@ import sys
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from annexation_procedures.discovery import (  # noqa: E402
+from annexation.discovery import (  # noqa: E402
     DiscoveryError,
     UnsupportedTargetAccount,
     build_operation_context,
 )
-from annexation_procedures.model import ConflictPolicy, Operation  # noqa: E402
-from annexation_procedures.orchestration import (  # noqa: E402
+from annexation.model import ConflictPolicy, Operation  # noqa: E402
+from annexation.orchestration import (  # noqa: E402
     WrapperBinding,
     apply_installed_configurations,
     apply_selected_configurations,
@@ -26,8 +26,8 @@ from annexation_procedures.orchestration import (  # noqa: E402
     discovery_status,
     discover_wrappers,
 )
-from annexation_procedures.presentation import render_human  # noqa: E402
-from annexation_procedures.status_presentation import (  # noqa: E402
+from annexation.presentation import render_human  # noqa: E402
+from annexation.status_presentation import (  # noqa: E402
     render_discovery_status_human,
     render_discovery_status_json,
 )

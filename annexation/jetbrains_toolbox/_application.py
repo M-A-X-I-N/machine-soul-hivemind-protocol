@@ -1,4 +1,4 @@
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     InstallationDiscoveryPlan,
     InstallationScope,
