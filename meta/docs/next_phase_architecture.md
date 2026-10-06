@@ -25,7 +25,7 @@ Special/conventional root artifacts remain at the repository root when their loc
 Repository/project administration belongs under:
 
 ```text
-autonomic_affairs/
+meta/
 ```
 
 Thematic repository-controlled top-level directories use names beginning with `a`. Tool-defined/conventional roots and externally mandated identifiers are exempt.
@@ -35,7 +35,7 @@ This namespace is for material about the repository itself rather than configura
 The executable-work ledger is:
 
 ```text
-autonomic_affairs/tasks.md
+meta/tasks.md
 ```
 
 "Agent tasks" means work that has been thought through enough to be theoretically executable. It is intentionally narrower than possible future concepts such as roadmap, objectives, or reminders. Those concepts may get separate artifacts later if they become useful.
