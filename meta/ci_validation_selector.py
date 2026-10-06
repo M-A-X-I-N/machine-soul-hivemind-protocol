@@ -68,11 +68,11 @@ _CONTROL_PATHS = frozenset({
     ".github/workflows/machine_soul_validation_fresh_linux.yml",
     ".github/workflows/machine_soul_validation_fresh_windows.yml",
     ".github/workflows/codeql.yml",
-    "autonomic_affairs/ci_validation_selector.py",
-    "autonomic_affairs/ci_validation_history.py",
-    "autonomic_affairs/tests/python/test_ci_validation_selector.py",
-    "autonomic_affairs/tests/python/test_ci_validation_history.py",
-    "autonomic_affairs/tests/python/test_ci_workflow_contract.py",
+    "meta/ci_validation_selector.py",
+    "meta/ci_validation_history.py",
+    "meta/tests/python/test_ci_validation_selector.py",
+    "meta/tests/python/test_ci_validation_history.py",
+    "meta/tests/python/test_ci_workflow_contract.py",
 })
 _BLOCKING_CHECKS = REGISTERED_CHECKS[:-2]
 _NONFRESH_OS_CHECKS = REGISTERED_CHECKS[0:9]
@@ -84,17 +84,17 @@ _INSTALL_MARKERS = (
 )
 _INERT_TEXT_PREFIXES = (
     ".agents/",
-    "autonomic_affairs/tasks/",
-    "autonomic_affairs/docs/",
-    "autonomic_affairs/initiatives/",
+    "meta/tasks/",
+    "meta/docs/",
+    "meta/initiatives/",
     "acquired_intelligence/",
     "abandoned_artifacts/",
 )
 _INERT_TEXT_FILES = frozenset({
     "AGENTS.md",
     "README.md",
-    "autonomic_affairs/tasks.md",
-    "autonomic_affairs/reminders.md",
+    "meta/tasks.md",
+    "meta/reminders.md",
 })
 
 
@@ -222,27 +222,27 @@ def _checks_for_path(path: str) -> tuple[str, ...] | None:
         return ()
 
     exact_test_checks = {
-        "autonomic_affairs/tests/applications/test_linux_operations.sh": (
+        "meta/tests/applications/test_linux_operations.sh": (
             "linux-applications",
             "fresh-linux",
         ),
-        "autonomic_affairs/tests/applications/test_windows_operations.ps1": (
+        "meta/tests/applications/test_windows_operations.ps1": (
             "windows-applications",
             "fresh-windows",
         ),
-        "autonomic_affairs/tests/applications/test_windows_posix_operations.sh": (
+        "meta/tests/applications/test_windows_posix_operations.sh": (
             "windows-posix",
         ),
-        "autonomic_affairs/tests/install/test_linux_install_dry_run.sh": (
+        "meta/tests/install/test_linux_install_dry_run.sh": (
             "linux-install",
         ),
-        "autonomic_affairs/tests/install/test_windows_install_dry_run.ps1": (
+        "meta/tests/install/test_windows_install_dry_run.ps1": (
             "windows-install",
         ),
-        "autonomic_affairs/tests/session/test_linux_account_boundaries.sh": (
+        "meta/tests/session/test_linux_account_boundaries.sh": (
             "linux-session",
         ),
-        "autonomic_affairs/tests/matrix/test_linux_host_matrix.sh": (
+        "meta/tests/matrix/test_linux_host_matrix.sh": (
             "linux-matrix",
         ),
     }
@@ -265,7 +265,7 @@ def _checks_for_path(path: str) -> tuple[str, ...] | None:
             if any(marker in normalized for marker in _INSTALL_MARKERS):
                 return (*_BLOCKING_CHECKS, "codeql-python")
             return (*_NONFRESH_OS_CHECKS, "codeql-python")
-        if normalized.startswith("autonomic_affairs/tests/python/"):
+        if normalized.startswith("meta/tests/python/"):
             return ("linux-python", "windows-python", "codeql-python")
         return ("codeql-python",)
 
