@@ -22,12 +22,12 @@ If a new local instruction file is introduced later, add its trigger to this tab
 
 ## Executable-work locations
 
-- ledger / Dispatch / Active claims: [`../../autonomic_affairs/tasks.md`](../../autonomic_affairs/tasks.md);
-- active task specifications/workspaces: [`../../autonomic_affairs/tasks/`](../../autonomic_affairs/tasks/);
-- terminal task archive: [`../../autonomic_affairs/tasks/archive/`](../../autonomic_affairs/tasks/archive/);
-- task storage/lookup rules: [`../../autonomic_affairs/tasks/README.md`](../../autonomic_affairs/tasks/README.md);
-- reminders: [`../../autonomic_affairs/reminders.md`](../../autonomic_affairs/reminders.md);
-- initiatives: [`../../autonomic_affairs/initiatives/`](../../autonomic_affairs/initiatives/).
+- ledger / Dispatch / Active claims: [`../../meta/tasks.md`](../../meta/tasks.md);
+- active task specifications/workspaces: [`../../meta/tasks/`](../../meta/tasks/);
+- terminal task archive: [`../../meta/tasks/archive/`](../../meta/tasks/archive/);
+- task storage/lookup rules: [`../../meta/tasks/README.md`](../../meta/tasks/README.md);
+- reminders: [`../../meta/reminders.md`](../../meta/reminders.md);
+- initiatives: [`../../meta/initiatives/`](../../meta/initiatives/).
 
 ## Local memory organization
 
