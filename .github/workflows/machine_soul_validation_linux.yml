@@ -19,20 +19,20 @@ jobs:
       - name: Check linux-python
         if: ${{ contains(fromJSON(inputs.checks_json), 'linux-python') }}
         shell: bash
-        run: python3 -m unittest discover -s autonomic_affairs/tests/python -p 'test_*.py'
+        run: python3 -m unittest discover -s meta/tests/python -p 'test_*.py'
       - name: Check linux-applications
         if: ${{ contains(fromJSON(inputs.checks_json), 'linux-applications') }}
         shell: bash
-        run: bash autonomic_affairs/tests/applications/test_linux_operations.sh
+        run: bash meta/tests/applications/test_linux_operations.sh
       - name: Check linux-install
         if: ${{ contains(fromJSON(inputs.checks_json), 'linux-install') }}
         shell: bash
-        run: bash autonomic_affairs/tests/install/test_linux_install_dry_run.sh
+        run: bash meta/tests/install/test_linux_install_dry_run.sh
       - name: Check linux-session
         if: ${{ contains(fromJSON(inputs.checks_json), 'linux-session') }}
         shell: bash
-        run: bash autonomic_affairs/tests/session/test_linux_account_boundaries.sh
+        run: bash meta/tests/session/test_linux_account_boundaries.sh
       - name: Check linux-matrix
         if: ${{ contains(fromJSON(inputs.checks_json), 'linux-matrix') }}
         shell: bash
-        run: bash autonomic_affairs/tests/matrix/test_linux_host_matrix.sh
+        run: bash meta/tests/matrix/test_linux_host_matrix.sh
