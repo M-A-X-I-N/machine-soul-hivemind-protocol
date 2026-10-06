@@ -26,10 +26,10 @@ Treat these as **repository-owned** after bootstrap/adoption:
 - root `AGENTS.md`;
 - everything under `.agents/local/`;
 - everything under `.agents/memory/`;
-- task/reminder/initiative contents and other state under `project/`;
+- task/reminder/initiative contents and other state under `meta/`;
 - ordinary repository source, tests, documentation, CI, configuration, and architecture.
 
-The exact lowercase top-level path `project/` is reserved by the baseline integration contract for project-control/collaboration state. Do not rename or recase it merely to match a repository's source naming convention.
+The exact lowercase top-level path `meta/` is reserved by the baseline integration contract for project-control/collaboration state. Do not rename or recase it merely to match a repository's source naming convention.
 
 Repository-specific behavior belongs in local instructions. If repository-specific policy has leaked into a baseline-managed file, move that policy into the appropriate local file rather than preserving an opaque generic-file fork.
 
@@ -85,7 +85,7 @@ Before mutation, make the intended transformation understandable:
 - local routing/link changes required by structural baseline changes;
 - any conflict that genuinely needs human design judgment.
 
-Do not treat differences under `.agents/local/`, `.agents/memory/`, or live `project/` state as baseline drift merely because the template's seed differs.
+Do not treat differences under `.agents/local/`, `.agents/memory/`, or live `meta/` state as baseline drift merely because the template's seed differs.
 
 ### 4. Reconcile
 
@@ -107,7 +107,7 @@ At minimum verify:
 - local overrides remain discoverable and explicit;
 - generic files contain no repository-specific policy/path leakage;
 - root → generic router → local router → task/memory navigation still resolves;
-- the reserved `project/` path remains stable;
+- the reserved `meta/` path remains stable;
 - task/claim state was not accidentally replaced by template seed state;
 - no step depends on unimplemented updater/version machinery.
 
@@ -130,7 +130,7 @@ Instead:
 3. introduce the baseline/local/memory separation without overwriting useful existing material;
 4. copy the current baseline-managed files from `M-A-X-I-N/baseline`;
 5. create/adapt root `AGENTS.md` and `.agents/local/` for the repository's actual identity and routing;
-6. reserve exact lowercase `project/` and deliberately map existing task/reminder/initiative state into the baseline project-control model when applicable;
+6. reserve exact lowercase `meta/` and deliberately map existing task/reminder/initiative state into the baseline project-control model when applicable;
 7. preserve existing repository-specific policy as explicit local policy;
 8. validate the same ownership/routing invariants as a normal update;
 9. commit the adoption as ordinary new repository history.
