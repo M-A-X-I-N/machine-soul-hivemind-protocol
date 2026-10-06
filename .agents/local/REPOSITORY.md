@@ -12,15 +12,15 @@ Configuration is one managed capability, not the definition of support.
 
 ## Local source-of-truth map
 
-- `autonomic_affairs/tasks.md` owns executable-work scheduling metadata, Dispatch, and Active claims.
-- `autonomic_affairs/tasks/` owns task specifications, temporary task workspaces, and structured archived task material.
-- `autonomic_affairs/reminders.md` owns deliberately non-executable lightweight future ideas.
-- `autonomic_affairs/initiatives/` owns structured non-executable unfinished work/debt.
+- `meta/tasks.md` owns executable-work scheduling metadata, Dispatch, and Active claims.
+- `meta/tasks/` owns task specifications, temporary task workspaces, and structured archived task material.
+- `meta/reminders.md` owns deliberately non-executable lightweight future ideas.
+- `meta/initiatives/` owns structured non-executable unfinished work/debt.
 - `assimilation_directives/` owns canonical tracked desired configuration/behavioral content when such content exists.
 - human-facing architecture/policy documentation owns durable project design.
 - `.agents/local/` owns MSHP-specific normative agent policy.
 - `.agents/memory/` owns durable non-normative agent knowledge whose rediscovery would be wasteful.
-- task workspaces under `autonomic_affairs/tasks/` own tracked temporary/intermediate knowledge needed across task/context boundaries.
+- task workspaces under `meta/tasks/` own tracked temporary/intermediate knowledge needed across task/context boundaries.
 - `scratch/` is ignored machine-local mutable state.
 
 Do not create competing task ledgers or duplicate authoritative policy.
@@ -30,7 +30,7 @@ Do not create competing task ledgers or duplicate authoritative policy.
 - Prefer native platform/application mechanisms over unnecessary bespoke machinery.
 - Keep shared configuration-deployment runtime behavior separate from application-specific adapters.
 - Keep host/account/platform special cases declarative where practical.
-- Follow `autonomic_affairs/docs/DOCUMENTATION_STYLE.md` for durable documentation identity/role conventions and internal-humor boundaries.
+- Follow `meta/docs/DOCUMENTATION_STYLE.md` for durable documentation identity/role conventions and internal-humor boundaries.
 - A fresh clone should eventually reconstruct behavior from repository state plus intentionally machine-local `scratch/` data.
 
 ## Task storage
@@ -39,10 +39,10 @@ MSHP uses the generic baseline task lifecycle.
 
 Local physical storage:
 
-- ledger: `autonomic_affairs/tasks.md`;
-- active task specs/workspaces: `autonomic_affairs/tasks/<block-id>/`;
-- terminal archives: `autonomic_affairs/tasks/archive/<block-id>/`;
-- task lookup/storage rules: `autonomic_affairs/tasks/README.md`.
+- ledger: `meta/tasks.md`;
+- active task specs/workspaces: `meta/tasks/<block-id>/`;
+- terminal archives: `meta/tasks/archive/<block-id>/`;
+- task lookup/storage rules: `meta/tasks/README.md`.
 
 Task IDs remain stable when blocks archive.
 
@@ -52,7 +52,7 @@ MSHP uses the baseline non-executable semantics.
 
 Local storage:
 
-- reminders: `autonomic_affairs/reminders.md`;
-- initiatives: `autonomic_affairs/initiatives/`.
+- reminders: `meta/reminders.md`;
+- initiatives: `meta/initiatives/`.
 
 Neither location is Dispatch authority.
