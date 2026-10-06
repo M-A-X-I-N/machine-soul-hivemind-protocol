@@ -98,6 +98,6 @@ It established:
 - reviewable three-way baseline synchronization/update semantics and existing tool precedent such as Copier/Cruft;
 - a baseline-kernel versus repository-local ownership model;
 - release/SHA/schema versioning and migration/rollback policy;
-- the final recommendation documented in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md`.
+- the final recommendation documented in `meta/docs/CROSS_REPOSITORY_AGENT_BASELINE.md`.
 
 No repository other than MSHP was modified during the block. `M-A-X-I-N/template` remained read-only/empty, and implementation was deliberately left as a non-executable reminder.
