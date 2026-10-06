@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Callable, Iterable
 from urllib.request import Request, urlopen
 
-from autonomic_affairs.ci_validation_selector import (
+from meta.ci_validation_selector import (
     PolicyEvidenceError,
     PolicySelection,
     REGISTERED_CHECKS,
