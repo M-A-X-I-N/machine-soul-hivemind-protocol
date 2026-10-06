@@ -33,7 +33,7 @@ Merely recording this reminder does **not** authorize any rebase, force-push, re
 
 The manually maintained agent baseline is now implemented. Its canonical generic source is `M-A-X-I-N/baseline`, and the update/adoption procedure lives in `.agents/baseline/MAINTENANCE.md`.
 
-Revisit the broader archived research in `autonomic_affairs/docs/CROSS_REPOSITORY_AGENT_BASELINE.md` only after real usage demonstrates that the manual lifecycle is materially insufficient.
+Revisit the broader archived research in `meta/docs/CROSS_REPOSITORY_AGENT_BASELINE.md` only after real usage demonstrates that the manual lifecycle is materially insufficient.
 
 Useful evidence would include repeated problems such as:
 
