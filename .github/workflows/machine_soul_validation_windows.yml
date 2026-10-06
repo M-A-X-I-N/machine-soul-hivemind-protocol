@@ -23,7 +23,7 @@ jobs:
       - name: Check windows-applications
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-applications') }}
         shell: powershell
-        run: .\autonomic_affairs\tests\applications\test_windows_operations.ps1
+        run: .\meta\tests\applications\test_windows_operations.ps1
       - name: Check windows-posix
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-posix') }}
         shell: bash
@@ -31,4 +31,4 @@ jobs:
       - name: Check windows-install
         if: ${{ contains(fromJSON(inputs.checks_json), 'windows-install') }}
         shell: powershell
-        run: .\autonomic_affairs\tests\install\test_windows_install_dry_run.ps1
+        run: .\meta\tests\install\test_windows_install_dry_run.ps1
