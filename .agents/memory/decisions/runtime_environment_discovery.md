@@ -18,6 +18,6 @@ Therefore the tracked host inventory was dead metadata, not an implementation de
 
 Discover portable host/platform/account facts at runtime whenever practical. Retain explicit environment overrides for tests and unusual environments, but do not make normal execution depend on a tracked host registry.
 
-Host-specific paths under `assimilation_directives/<application>/hosts/<hostname>/` remain valid because they represent actual configuration variants rather than inventory metadata.
+Host-specific paths under `assimilation/<application>/hosts/<hostname>/` remain valid because they represent actual configuration variants rather than inventory metadata.
 
 Account existence or configuration availability does not imply that the account is managed; explicit account-targeting rules are handled separately.

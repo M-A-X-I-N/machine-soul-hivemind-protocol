@@ -4,7 +4,7 @@ Canonical detail: [`../../../autonomic_affairs/docs/ATOMIC_WRAPPERS.md`](../../.
 
 V2-53 decisions:
 
-- final Python wrappers live directly under `annexation_procedures/<application>/`, not per-platform subdirectories;
+- final Python wrappers live directly under `annexation/<application>/`, not per-platform subdirectories;
 - `_application.py` is the non-executable declaration; unprefixed operation files are atomic executable/importable interfaces;
 - file presence is not capability truth; platform capability comes from the declaration;
 - `run(context=None)` is the canonical semantic path and returns the common result;

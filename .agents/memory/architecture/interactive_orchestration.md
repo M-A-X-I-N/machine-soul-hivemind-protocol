@@ -31,4 +31,4 @@ Do not add an aggregate health boolean/score. Keep the three dimensions independ
 
 Unsupported/not-implemented dimensions are information, not workflow failure. Genuine `ERROR` results determine the status workflow error exit code.
 
-The human renderer lives in `annexation_procedures/status_presentation.py`; orchestration must remain free of application-specific presentation/policy.
+The human renderer lives in `annexation/status_presentation.py`; orchestration must remain free of application-specific presentation/policy.

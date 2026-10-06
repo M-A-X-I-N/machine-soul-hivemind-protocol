@@ -16,7 +16,7 @@ Configuration is one managed capability, not the definition of support.
 - `meta/tasks/` owns task specifications, temporary task workspaces, and structured archived task material.
 - `meta/reminders.md` owns deliberately non-executable lightweight future ideas.
 - `meta/initiatives/` owns structured non-executable unfinished work/debt.
-- `assimilation_directives/` owns canonical tracked desired configuration/behavioral content when such content exists.
+- `assimilation/` owns canonical tracked desired configuration/behavioral content when such content exists.
 - human-facing architecture/policy documentation owns durable project design.
 - `.agents/local/` owns MSHP-specific normative agent policy.
 - `.agents/memory/` owns durable non-normative agent knowledge whose rediscovery would be wasteful.

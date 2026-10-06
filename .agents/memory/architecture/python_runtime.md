@@ -4,7 +4,7 @@ V2-50 established the shared Python runtime boundary.
 
 - Minimum Python: 3.10.
 - Python is an external prerequisite; do not implement Python bootstrap/install behavior without new authorization.
-- Shared package: `annexation_procedures`.
+- Shared package: `annexation`.
 - Repository-local imports are intentional; no editable/site-packages install is required.
 - Standard library first; add dependency tooling only when a real dependency justifies it.
 - Importing the package must be side-effect free.

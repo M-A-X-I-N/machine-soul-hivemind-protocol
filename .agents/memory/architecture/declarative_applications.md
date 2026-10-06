@@ -1,6 +1,6 @@
 # Declarative application schema
 
-V2-51 established actual side-effect-free declaration types under `annexation_procedures.model`.
+V2-51 established actual side-effect-free declaration types under `annexation.model`.
 
 Per-application modules will be named `_application.py` and expose `APPLICATION = Application(...)`.
 

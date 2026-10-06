@@ -75,7 +75,7 @@ OMP verification is now a dedicated reusable strategy type, OhMyPoshVerification
 Durable rules:
 
 - Application evidence uses the OMP print-primary command against the canonical source.
-- The expected runtime theme is the canonical source selected by resolve_source, **not** the OMP deployment destination. Existing Bash/Zsh/Fish/PowerShell Machine-Soul startup configs pass the tracked assimilation_directives/oh_my_posh theme path directly to oh-my-posh init.
+- The expected runtime theme is the canonical source selected by resolve_source, **not** the OMP deployment destination. Existing Bash/Zsh/Fish/PowerShell Machine-Soul startup configs pass the tracked assimilation/oh_my_posh theme path directly to oh-my-posh init.
 - Runtime consumer probes inspect POSH_THEME after ordinary controlled startup. Matching selection is runtime-effective; an explicit different selected theme is runtime-not-effective.
 - Missing consumer executables do not create stronger uncertainty than a valid application-level theme probe.
 - A consumer that runs but exposes no POSH_THEME contributes indeterminate resolution evidence only.
