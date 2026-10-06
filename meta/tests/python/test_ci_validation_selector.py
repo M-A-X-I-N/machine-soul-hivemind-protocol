@@ -131,7 +131,7 @@ from autonomic_affairs.ci_validation_selector import (
 
 class PathClassificationTests(unittest.TestCase):
     def test_inert_task_markdown_selects_no_downstream_checks(self):
-        selection = checks_for_paths(("autonomic_affairs/tasks/MSHP-X/example.md",))
+        selection = checks_for_paths(("meta/tasks/MSHP-X/example.md",))
         self.assertTrue(selection.valid)
         self.assertEqual((), selection.selected)
 
@@ -155,7 +155,7 @@ class PathClassificationTests(unittest.TestCase):
 
     def test_python_test_change_also_selects_python_codeql(self):
         selection = checks_for_paths((
-            "autonomic_affairs/tests/python/test_runtime_core.py",
+            "meta/tests/python/test_runtime_core.py",
         ))
         self.assertEqual(
             ("linux-python", "windows-python", "codeql-python"),
@@ -184,7 +184,7 @@ class PathClassificationTests(unittest.TestCase):
 
     def test_path_classification_unions_relevance(self):
         selection = checks_for_paths((
-            "autonomic_affairs/tasks/MSHP-X/example.md",
+            "meta/tasks/MSHP-X/example.md",
             "annexation_procedures/runtime.py",
             ".github/workflows/release.yml",
         ))
@@ -207,7 +207,7 @@ class PathClassificationTests(unittest.TestCase):
 
     def test_existing_linux_application_test_maps_to_shared_and_fresh_checks(self):
         selection = checks_for_paths((
-            "autonomic_affairs/tests/applications/test_linux_operations.sh",
+            "meta/tests/applications/test_linux_operations.sh",
         ))
         self.assertEqual(("linux-applications", "fresh-linux"), selection.selected)
 
