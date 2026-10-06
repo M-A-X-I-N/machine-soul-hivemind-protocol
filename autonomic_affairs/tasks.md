@@ -21,6 +21,16 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 Task rows are grouped by block for readability. Every block uses the same authoritative scheduling schema; headings are presentation only and do not change task identity, dependency, state, claim, or Dispatch semantics.
 
+### MSHP-LAYOUT-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
+| [`MSHP-LAYOUT-A-010`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-010.md) | QUEUED | — | Rename the generic baseline project-control namespace to meta | Move the baseline-reserved control namespace from exact lowercase `project/` to exact lowercase `meta/`, then adopt the changed generic baseline into MSHP. |
+| [`MSHP-LAYOUT-A-020`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-020.md) | QUEUED | `MSHP-LAYOUT-A-010` | Move the MSHP control plane to meta | Move the complete `autonomic_affairs/` control plane to `meta/` while preserving task authority, archives, docs/tests, CI-control helpers, and root discovery. |
+| [`MSHP-LAYOUT-A-030`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-030.md) | QUEUED | `MSHP-LAYOUT-A-020` | Shorten the Machine-Soul functional trees | Rename `annexation_procedures/` → `annexation/` and `assimilation_directives/` → `assimilation/`, updating runtime/import/configuration references without semantic redesign. |
+| [`MSHP-LAYOUT-A-040`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-040.md) | QUEUED | `MSHP-LAYOUT-A-030` | Normalize generic support-directory names | Rename the generic thematic support directories to `tools/`, `research/`, `experiments/`, `assets/`, and `archive/` while preserving their placement contracts. |
+| [`MSHP-LAYOUT-A-050`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-050.md) | QUEUED | `MSHP-LAYOUT-A-040` | Validate and consolidate the normalized repository layout | Audit stale paths, update final layout/navigation docs, validate tests/CI/task recovery, and confirm the normalized topology is coherent end-to-end. |
+
 ### MSHP-WINGET-A
 
 | ID | State | Depends on | Title | Summary |
