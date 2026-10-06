@@ -8,7 +8,7 @@ There is no central tracked host inventory.
 2. Add configuration under `assimilation_directives/<application>/hosts/<hostname>/...` only when that host genuinely needs a different canonical file.
 3. Add account-specific files only for accounts explicitly targeted by a management operation.
 4. Extend matrix validation where practical.
-5. Update `autonomic_affairs/docs/SUPPORT_MATRIX.md` when the supported target set changes.
+5. Update `meta/docs/SUPPORT_MATRIX.md` when the supported target set changes.
 
 If a machine needs a genuinely non-discoverable local value, keep it in ignored machine-local state under `scratch/` rather than inventing a tracked host registry.
 
