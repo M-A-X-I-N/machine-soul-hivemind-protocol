@@ -249,7 +249,7 @@ def _checks_for_path(path: str) -> tuple[str, ...] | None:
     if normalized in exact_test_checks:
         return exact_test_checks[normalized]
 
-    if normalized.startswith("assimilation_directives/"):
+    if normalized.startswith("assimilation/"):
         return (
             "linux-applications",
             "linux-session",
@@ -261,7 +261,7 @@ def _checks_for_path(path: str) -> tuple[str, ...] | None:
         )
 
     if normalized.endswith(".py"):
-        if normalized.startswith("annexation_procedures/"):
+        if normalized.startswith("annexation/"):
             if any(marker in normalized for marker in _INSTALL_MARKERS):
                 return (*_BLOCKING_CHECKS, "codeql-python")
             return (*_NONFRESH_OS_CHECKS, "codeql-python")

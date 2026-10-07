@@ -5,17 +5,17 @@
 Configuration content and operational machinery intentionally live in separate but parallel trees:
 
 ```text
-assimilation_directives/<application>/
+assimilation/<application>/
     # canonical tracked configuration files
 
-annexation_procedures/<application>/
+annexation/<application>/
     # Apply / Unapply / Check / Install / Uninstall entry points
 ```
 
 An application's operational surface is platform-neutral at the wrapper layer:
 
 ```text
-annexation_procedures/<application>/
+annexation/<application>/
 ├── _application.py
 ├── apply_config.py
 ├── unapply_config.py
@@ -26,7 +26,7 @@ annexation_procedures/<application>/
 └── check_installed.py
 ```
 
-The declaration owns platform capability/strategy differences. Shared Python engines under `annexation_procedures/` implement common semantics so wrappers remain tiny. File presence is not the capability contract.
+The declaration owns platform capability/strategy differences. Shared Python engines under `annexation/` implement common semantics so wrappers remain tiny. File presence is not the capability contract.
 
 ## 2. Required versus optional operations
 

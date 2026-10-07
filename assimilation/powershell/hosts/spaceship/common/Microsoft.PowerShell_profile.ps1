@@ -3,8 +3,8 @@
 if ($env:MACHINE_SOUL -and (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
     $hostName = if ($env:MACHINE_SOUL_HOST) { $env:MACHINE_SOUL_HOST.ToLowerInvariant() } elseif ($env:COMPUTERNAME) { $env:COMPUTERNAME.ToLowerInvariant() } else { 'spaceship' }
     $userName = if ($env:MACHINE_SOUL_ACCOUNT) { $env:MACHINE_SOUL_ACCOUNT } elseif ($env:USERNAME) { $env:USERNAME } else { '' }
-    $userConfig = Join-Path $env:MACHINE_SOUL "assimilation_directives\oh_my_posh\hosts\$hostName\users\$userName\theme.omp.json"
-    $commonConfig = Join-Path $env:MACHINE_SOUL "assimilation_directives\oh_my_posh\hosts\$hostName\common\theme.omp.json"
+    $userConfig = Join-Path $env:MACHINE_SOUL "assimilation\oh_my_posh\hosts\$hostName\users\$userName\theme.omp.json"
+    $commonConfig = Join-Path $env:MACHINE_SOUL "assimilation\oh_my_posh\hosts\$hostName\common\theme.omp.json"
     if (Test-Path -LiteralPath $userConfig -PathType Leaf) {
         oh-my-posh init pwsh --config $userConfig | Invoke-Expression
     } elseif (Test-Path -LiteralPath $commonConfig -PathType Leaf) {

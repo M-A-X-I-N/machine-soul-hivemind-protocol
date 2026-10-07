@@ -24,7 +24,7 @@ A tracked root marker, `.machine_soul_root`, provides a stable repository-identi
 Canonical configuration and the machinery that applies it are deliberately separated:
 
 ```text
-assimilation_directives/
+assimilation/
 └── <application>/
     ├── shared/
     ├── default/
@@ -37,7 +37,7 @@ assimilation_directives/
             └── users/
                 └── <account>/
 
-annexation_procedures/
+annexation/
 └── <application>/
     ├── _application.py
     ├── apply_config.py
@@ -46,13 +46,13 @@ annexation_procedures/
     └── ...
 ```
 
-`assimilation_directives/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
+`assimilation/` is the repository's configuration-content tree: the equivalent of a conventional top-level `config/` tree.
 
-`annexation_procedures/` is the operational tree: the equivalent of a conventional top-level `operations/` tree.
+`annexation/` is the operational tree: the equivalent of a conventional top-level `operations/` tree.
 
 The two are intrinsically paired by application name, but neither is nested inside the other.
 
-Shared symlink/backup/state/dispatch implementation belongs under `annexation_procedures/` rather than being duplicated in each annexation procedure.
+Shared symlink/backup/state/dispatch implementation belongs under `annexation/` rather than being duplicated in each annexation procedure.
 
 ## 3. Configuration identity dimensions
 
@@ -76,7 +76,7 @@ Runtime facts are discovered when practical:
 
 Explicit environment overrides such as `MACHINE_SOUL_HOST` and `MACHINE_SOUL_ACCOUNT` remain useful for tests and unusual environments, but ordinary operation must not depend on a tracked host-inventory record.
 
-The configuration tree currently contains multiple concrete host-specific variants. Their identities belong in `assimilation_directives/<application>/hosts/<hostname>/` where they select genuinely different configuration; durable architecture documentation does not need to enumerate those machine names.
+The configuration tree currently contains multiple concrete host-specific variants. Their identities belong in `assimilation/<application>/hosts/<hostname>/` where they select genuinely different configuration; durable architecture documentation does not need to enumerate those machine names.
 
 ## 4. Resolution precedence
 

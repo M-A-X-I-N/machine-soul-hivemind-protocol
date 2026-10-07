@@ -199,7 +199,7 @@ Supported consumer probes are Bash, Zsh, Fish, and Windows PowerShell where appl
 - compares the selected theme with the **canonical resolved tracked source**, not the deployed OMP theme symlink;
 - reports matching or mismatching selection as **runtime** evidence.
 
-This canonical-source comparison is intentional because the tracked Machine-Soul shell profiles initialize OMP with paths under MACHINE_SOUL/assimilation_directives/oh_my_posh.
+This canonical-source comparison is intentional because the tracked Machine-Soul shell profiles initialize OMP with paths under MACHINE_SOUL/assimilation/oh_my_posh.
 
 If no supported consumer is installed, a successful theme render remains the strongest application evidence. If a consumer starts but exposes no POSH_THEME, that produces weaker indeterminate resolution evidence and does not erase a stronger successful application probe.
 

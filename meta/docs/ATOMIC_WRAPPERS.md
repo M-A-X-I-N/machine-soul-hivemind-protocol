@@ -7,7 +7,7 @@ Atomic wrappers are the stable direct/importable interface for performing one se
 The target layout is platform-neutral at the wrapper level:
 
 ```text
-annexation_procedures/
+annexation/
 └── <application>/
     ├── _application.py
     ├── apply_config.py
@@ -48,10 +48,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from annexation_procedures.applications import load_application
-from annexation_procedures.model import Operation
-from annexation_procedures.operations import perform_operation
-from annexation_procedures.presentation import wrapper_main
+from annexation.applications import load_application
+from annexation.model import Operation
+from annexation.operations import perform_operation
+from annexation.presentation import wrapper_main
 
 APPLICATION = load_application(Path(__file__).with_name("_application.py"))
 OPERATION = Operation.INSTALL
@@ -138,7 +138,7 @@ It may not:
 
 A wrapper must be runnable by path without requiring an editable package install or preconfigured `PYTHONPATH`.
 
-For wrappers directly under `annexation_procedures/<application>/`, the standardized repository bootstrap is:
+For wrappers directly under `annexation/<application>/`, the standardized repository bootstrap is:
 
 ```python
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
