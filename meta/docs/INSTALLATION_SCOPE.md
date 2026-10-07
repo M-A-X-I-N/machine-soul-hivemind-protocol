@@ -164,7 +164,7 @@ Unsupported managers remain gaps in `MSHP-INST-SCOPE`, not permanently incomplet
 
 ## Concrete scope policy model
 
-The mutation-side contract is implemented by `InstallationScopePolicy` and `InstallationScopePolicyMode` under `annexation_procedures.model.installation_scope`.
+The mutation-side contract is implemented by `InstallationScopePolicy` and `InstallationScopePolicyMode` under `annexation.model.installation_scope`.
 
 Current policy modes are:
 

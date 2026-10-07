@@ -219,7 +219,7 @@ Audit conclusion:
 Most adapters construct:
 
 ```text
-assimilation_directives/<app>/hosts/<host>/common/<leaf>
+assimilation/<app>/hosts/<host>/common/<leaf>
 ```
 
 Destination: **generic Python configuration resolver + declarative `ConfigurationFile.source_leaf`**.

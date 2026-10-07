@@ -154,7 +154,7 @@ That future workflow is not part of discovery. Discovery gathers/assesses facts;
 
 ## Concrete shared value model
 
-The implementation uses concrete model types under `annexation_procedures.model.discovery`.
+The implementation uses concrete model types under `annexation.model.discovery`.
 
 Raw installation observations use `DiscoveryObservation` with `ObservationAuthority` values:
 

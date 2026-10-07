@@ -13,7 +13,7 @@ Python is a prerequisite. This phase does not install Python, bootstrap Python, 
 Shared Python behavior lives directly in the operational tree:
 
 ```text
-annexation_procedures/
+annexation/
 ├── __init__.py
 ├── model/
 ├── operations/
@@ -24,9 +24,9 @@ annexation_procedures/
 └── manage_machine_soul.py
 ```
 
-The repository root is the import root, so the shared runtime imports as `annexation_procedures`. The package is not required to be installed into `site-packages`.
+The repository root is the import root, so the shared runtime imports as `annexation`. The package is not required to be installed into `site-packages`.
 
-`annexation_procedures/__init__.py` establishes the importable namespace. Importing the package must not mutate machine state. Application declaration/wrapper directories live beside the shared modules but are discovered by convention rather than forming separate runtime packages.
+`annexation/__init__.py` establishes the importable namespace. Importing the package must not mutate machine state. Application declaration/wrapper directories live beside the shared modules but are discovered by convention rather than forming separate runtime packages.
 
 ## Dependency rule
 
@@ -43,7 +43,7 @@ See [`OPERATION_ARCHITECTURE.md`](OPERATION_ARCHITECTURE.md) for the canonical d
 The exact files may evolve as V2-51 through V2-58 land, but responsibilities are divided conceptually as:
 
 ```text
-annexation_procedures/
+annexation/
 ├── model/          shared declarations, context, result/value objects
 ├── operations/     generic install/config/check/unapply engines
 ├── strategies/     reusable declared strategies such as package installers
@@ -71,7 +71,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 ```
 
-For a wrapper at `annexation_procedures/<application>/<operation>.py`, `parents[2]` is the repository root.
+For a wrapper at `annexation/<application>/<operation>.py`, `parents[2]` is the repository root.
 
 This tiny bootstrap is infrastructure required to make a repository-local package importable; it is not application business logic. Do not let wrapper-specific behavior accumulate there.
 
@@ -97,13 +97,13 @@ They do not contain installation/configuration/state/platform policy.
 During this phase, valid usage may look like:
 
 ```text
-python3 annexation_procedures/fish/install.py
-python annexation_procedures/fish/install.py
+python3 annexation/fish/install.py
+python annexation/fish/install.py
 ```
 
 depending on platform/interpreter command.
 
-The broad manager is now available at `annexation_procedures/manage_machine_soul.py`, but atomic wrappers remain usable independently and remain the semantic operation interfaces consumed by orchestration.
+The broad manager is now available at `annexation/manage_machine_soul.py`, but atomic wrappers remain usable independently and remain the semantic operation interfaces consumed by orchestration.
 
 ## Testing
 

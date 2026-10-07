@@ -136,8 +136,8 @@ Verification evidence strength is reported separately from the semantic conclusi
 The broad manager exposes a read-only three-dimensional status workflow:
 
 ```text
-python annexation_procedures/manage_machine_soul.py --workflow status
-python annexation_procedures/manage_machine_soul.py --workflow status --json
+python annexation/manage_machine_soul.py --workflow status
+python annexation/manage_machine_soul.py --workflow status --json
 ```
 
 For every discovered application it preserves independent installation, structural configuration, and effective-configuration results. There is deliberately no overall health score.

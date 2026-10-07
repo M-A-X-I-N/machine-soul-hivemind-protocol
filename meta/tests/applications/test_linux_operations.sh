@@ -36,7 +36,7 @@ for app in fish bash zsh oh_my_posh contour; do
     export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/$app/config.file"
     mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
 
-    ops="$repo_root/annexation_procedures/$app"
+    ops="$repo_root/annexation/$app"
     account_args=()
     if [[ "$app" == "oh_my_posh" ]]; then
         account_args=(--account root)

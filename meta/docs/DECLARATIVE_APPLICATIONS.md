@@ -7,7 +7,7 @@ An application definition describes **what Machine-Soul knows about an applicati
 Every application will eventually have:
 
 ```text
-annexation_procedures/<application>/_application.py
+annexation/<application>/_application.py
 ```
 
 That module exposes one declaration constant:
@@ -20,7 +20,7 @@ Importing the module is meaningful. Executing it directly performs no action and
 
 ## Core value objects
 
-The shared model lives under `annexation_procedures.model`.
+The shared model lives under `annexation.model`.
 
 The initial schema provides:
 

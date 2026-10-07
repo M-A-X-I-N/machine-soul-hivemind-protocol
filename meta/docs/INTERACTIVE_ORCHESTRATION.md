@@ -66,7 +66,7 @@ The orchestrator must never contain operation-specific parsing rules for spawned
 
 Application discovery should be generic.
 
-Conceptually, the manager may enumerate application directories/declarations under `annexation_procedures/` and determine:
+Conceptually, the manager may enumerate application directories/declarations under `annexation/` and determine:
 
 - application ID/display name;
 - declared platforms;
@@ -186,7 +186,7 @@ If adding an application requires teaching the broad manager how that applicatio
 The broad manager entry point is:
 
 ```text
-python annexation_procedures/manage_machine_soul.py
+python annexation/manage_machine_soul.py
 ```
 
 With no workflow argument it presents an interactive menu. The initial workflows are deliberately small and generic:
@@ -203,6 +203,6 @@ The `status` workflow invokes the existing `check_installed`, `check_config`, an
 
 Human status output summarizes installation presence/candidate preference/ownership, structural configuration state/ownership, and effective conclusion/evidence. `--json` preserves the complete atomic result payloads for all three dimensions.
 
-Composition lives in `annexation_procedures.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
+Composition lives in `annexation.orchestration`. Wrapper discovery loads the platform-neutral atomic wrapper modules and validates their `APPLICATION`, `OPERATION`, and `run(context)` interface. Workflow execution calls those `run(...)` functions directly.
 
 A non-success result with `changed=true` stops later mutation in the same baseline workflow so partial-change risk cannot be silently buried. Mixed ordinary semantic outcomes remain present as individual attempts in the workflow report.

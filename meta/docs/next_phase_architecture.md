@@ -13,8 +13,8 @@ The hyphen remains available for names that are externally defined or genuinely 
 Examples of repository-owned target names include:
 
 ```text
-assimilation_directives/
-annexation_procedures/
+assimilation/
+annexation/
 accumulated_instruments/
 configuration_deployment/
 oh_my_posh/
@@ -179,7 +179,7 @@ Each application is primarily described declaratively.
 The conventional declaration file is:
 
 ```text
-annexation_procedures/<application>/_application.py
+annexation/<application>/_application.py
 ```
 
 After the snake_case migration, the surrounding paths follow that convention.
@@ -232,7 +232,7 @@ Per-application wrapper files represent individual semantic actions.
 Examples:
 
 ```text
-annexation_procedures/fish/
+annexation/fish/
 ├── _application.py
 ├── install.py
 ├── uninstall.py

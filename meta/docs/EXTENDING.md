@@ -5,7 +5,7 @@
 There is no central tracked host inventory.
 
 1. Let Machine-Soul discover ordinary host/platform/account facts at runtime.
-2. Add configuration under `assimilation_directives/<application>/hosts/<hostname>/...` only when that host genuinely needs a different canonical file.
+2. Add configuration under `assimilation/<application>/hosts/<hostname>/...` only when that host genuinely needs a different canonical file.
 3. Add account-specific files only for accounts explicitly targeted by a management operation.
 4. Extend matrix validation where practical.
 5. Update `meta/docs/SUPPORT_MATRIX.md` when the supported target set changes.
@@ -14,7 +14,7 @@ If a machine needs a genuinely non-discoverable local value, keep it in ignored 
 
 ## Add an application
 
-Create the canonical configuration under `assimilation_directives/<application>/` and the matching operational entry points under `annexation_procedures/<application>/`.
+Create the canonical configuration under `assimilation/<application>/` and the matching operational entry points under `annexation/<application>/`.
 
 ### Define canonical config
 
@@ -28,7 +28,7 @@ Document where the application expects each file. If the path or symlink semanti
 
 ### Reuse the shared Python operation core
 
-Generic operation behavior lives under `annexation_procedures/`.
+Generic operation behavior lives under `annexation/`.
 
 Application declarations select reusable source/destination/install strategies; platform-neutral atomic wrappers call the shared dispatcher. Do not add a per-application Bash/PowerShell policy engine or hand-roll backup/state/account behavior.
 
@@ -36,7 +36,7 @@ Use a native process helper only when a demonstrated platform operation is mater
 
 ### Expose operations
 
-Applications expose platform-neutral Python wrappers such as `apply_config.py`, `unapply_config.py`, and `check_config.py` directly under `annexation_procedures/<application>/`. The declared capability state, not platform-specific wrapper-file presence, determines support. Installation surfaces may additionally include `install.py`, `uninstall.py`, and `check_installed.py`.
+Applications expose platform-neutral Python wrappers such as `apply_config.py`, `unapply_config.py`, and `check_config.py` directly under `annexation/<application>/`. The declared capability state, not platform-specific wrapper-file presence, determines support. Installation surfaces may additionally include `install.py`, `uninstall.py`, and `check_installed.py`.
 
 Unsupported or unfinished operations should say so explicitly.
 
@@ -56,7 +56,7 @@ Choose an explicit platform/upstream-supported install mechanism. Never make con
 
 ## Add an account override
 
-Add only the final file that differs under `assimilation_directives/<application>/hosts/<host>/users/<account>/`.
+Add only the final file that differs under `assimilation/<application>/hosts/<host>/users/<account>/`.
 
 OMP root configs are the initial example.
 

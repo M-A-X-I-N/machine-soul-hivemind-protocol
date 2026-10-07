@@ -29,7 +29,7 @@ try {
     foreach ($app in @('powershell','windows_terminal','oh_my_posh','contour')) {
         $env:MACHINE_SOUL_CONFIG_DESTINATION = Join-Path $tempRoot "$app\config.file"
         New-Item -ItemType Directory -Force -Path (Split-Path -Parent $env:MACHINE_SOUL_CONFIG_DESTINATION) | Out-Null
-        $ops = Join-Path $repoRoot "annexation_procedures\$app"
+        $ops = Join-Path $repoRoot "annexation\$app"
 
         Assert-Equal 'not_applied' (Invoke-Wrapper (Join-Path $ops 'check_config.py')).code "$app initial check"
         Assert-Equal 'applied' (Invoke-Wrapper (Join-Path $ops 'apply_config.py') @('--conflict-policy','abort')).code "$app apply"
@@ -45,7 +45,7 @@ try {
     New-Item -ItemType Directory -Force -Path $testRegistryKey | Out-Null
     Set-ItemProperty -LiteralPath $testRegistryKey -Name AutoRun -Value 'echo original' -Type String
 
-    $cmdOps = Join-Path $repoRoot 'annexation_procedures\cmd'
+    $cmdOps = Join-Path $repoRoot 'annexation\cmd'
     Assert-Equal 'conflict' (Invoke-Wrapper (Join-Path $cmdOps 'check_config.py')).code 'cmd initial conflict'
     Assert-Equal 'applied' (Invoke-Wrapper (Join-Path $cmdOps 'apply_config.py') @('--conflict-policy','backup_and_replace')).code 'cmd apply'
     Assert-Equal 'applied' (Invoke-Wrapper (Join-Path $cmdOps 'check_config.py')).code 'cmd check applied'

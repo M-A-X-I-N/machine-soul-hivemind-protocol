@@ -39,7 +39,7 @@ Avoid dependency cycles. When a lower layer appears to need knowledge from a hig
 
 ## Application declarations
 
-`annexation_procedures/<application>/_application.py` is structured configuration written in Python.
+`annexation/<application>/_application.py` is structured configuration written in Python.
 
 It answers questions such as:
 
@@ -106,7 +106,7 @@ Application wrappers and custom hooks receive the already-resolved context. They
 
 ## Strategy descriptors versus handlers
 
-Declarative strategy **descriptors** are immutable data. Current examples live under `annexation_procedures.model.strategies`:
+Declarative strategy **descriptors** are immutable data. Current examples live under `annexation.model.strategies`:
 
 ```text
 AptPackage("fish")
@@ -240,7 +240,7 @@ The responsibility-by-responsibility audit of the existing Bash/PowerShell imple
 As implementation lands, responsibility should converge approximately to:
 
 ```text
-annexation_procedures/
+annexation/
 ├── model/               immutable declarations and shared value objects
 ├── operations/          generic dispatcher + operation engines + strategy handlers
 ├── discovery/           environment/platform/account resolution
