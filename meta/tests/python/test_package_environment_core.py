@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     DesiredPackageRoot,
     OperationContext,
     OperationResult,
@@ -27,14 +27,14 @@ from annexation_procedures.model import (
     RuntimeSpec,
     TargetAccount,
 )
-from annexation_procedures.package_environment import (
+from annexation.package_environment import (
     adopt_package_environment,
     package_environment_runtime_removal_guard,
     read_package_environment_ownerships,
     reconcile_package_environment,
     register_created_package_environment,
 )
-from annexation_procedures.runtime import (
+from annexation.runtime import (
     adopt_runtime_instance,
     reconcile_runtime,
 )

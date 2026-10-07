@@ -6,19 +6,19 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     OperationContext,
     Platform,
     RuntimeDesiredState,
     TargetAccount,
 )
-from annexation_procedures.node_runtime import (
+from annexation.node_runtime import (
     NvmWindowsV2Backend,
     NvmWindowsV2Error,
     nvm_windows_runtime_spec,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.runtime import read_runtime_ownerships, reconcile_runtime
+from annexation.process import ProcessResult
+from annexation.runtime import read_runtime_ownerships, reconcile_runtime
 
 
 class FakeNvmV2:

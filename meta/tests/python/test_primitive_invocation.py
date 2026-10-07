@@ -4,8 +4,8 @@ import json
 import sys
 import unittest
 
-from annexation_procedures.model import OperationResult
-from annexation_procedures.primitives import (
+from annexation.model import OperationResult
+from annexation.primitives import (
     PrimitiveProcessError,
     PrimitiveProtocolError,
     build_primitive_envelope,

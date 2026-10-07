@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.model import (
+from annexation.model import (
     ConflictPolicy,
     Operation,
     OperationContext,
@@ -19,7 +19,7 @@ from annexation_procedures.model import (
     ResultStatus,
     TargetAccount,
 )
-from annexation_procedures.orchestration import (
+from annexation.orchestration import (
     WrapperBinding,
     apply_installed_configurations,
     apply_selected_configurations,
@@ -175,7 +175,7 @@ class RealOrchestratorSurfaceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.root = Path(__file__).resolve().parents[3]
-        cls.manager = cls.root / "annexation_procedures/manage_machine_soul.py"
+        cls.manager = cls.root / "annexation/manage_machine_soul.py"
 
     def test_discovery_finds_every_current_atomic_wrapper(self) -> None:
         bindings = discover_wrappers(self.root)

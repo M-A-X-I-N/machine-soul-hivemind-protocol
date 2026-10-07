@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     OperationContext,
     PackageEnvironmentDesiredState,
     PackageMutationPolicy,
@@ -13,18 +13,18 @@ from annexation_procedures.model import (
     RuntimeInstance,
     TargetAccount,
 )
-from annexation_procedures.npm_package import (
+from annexation.npm_package import (
     NpmGlobalPackageEnvironmentBackend,
     NpmGlobalTarget,
     normalize_npm_package_name,
     npm_desired_root,
 )
-from annexation_procedures.package_environment import (
+from annexation.package_environment import (
     adopt_package_environment,
     package_environment_runtime_removal_guard,
     reconcile_package_environment,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 class FakeNpmRunner:

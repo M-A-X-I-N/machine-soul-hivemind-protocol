@@ -4,8 +4,8 @@ import json
 import math
 import unittest
 
-from annexation_procedures.model import OperationResult, ResultStatus
-from annexation_procedures.presentation import render_human, render_json
+from annexation.model import OperationResult, ResultStatus
+from annexation.presentation import render_human, render_json
 
 
 class OperationResultTests(unittest.TestCase):

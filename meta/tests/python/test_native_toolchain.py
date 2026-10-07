@@ -5,13 +5,13 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     NativeToolchainRequirement,
     OperationContext,
     Platform,
     TargetAccount,
 )
-from annexation_procedures.native_toolchain import (
+from annexation.native_toolchain import (
     NativeToolchainDiscoveryError,
     adopt_visual_studio_instance,
     check_native_toolchain_requirement,
@@ -19,7 +19,7 @@ from annexation_procedures.native_toolchain import (
     read_native_toolchain_ownership,
     reconcile_visual_studio_components,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 X64_LATEST = "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"

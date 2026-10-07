@@ -6,12 +6,12 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.lua_runtime import (
+from annexation.lua_runtime import (
     LuaPrefixBackend,
     luajit_runtime_spec,
     puc_lua_runtime_spec,
 )
-from annexation_procedures.model import (
+from annexation.model import (
     NativeToolchainRequirement,
     OperationContext,
     OperationResult,
@@ -20,8 +20,8 @@ from annexation_procedures.model import (
     RuntimeSpec,
     TargetAccount,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.runtime import reconcile_runtime
+from annexation.process import ProcessResult
+from annexation.runtime import reconcile_runtime
 
 
 class LuaFixture:

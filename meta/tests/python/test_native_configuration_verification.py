@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.configuration_verification import verify_config
-from annexation_procedures.model import (
+from annexation.configuration_verification import verify_config
+from annexation.model import (
     Application,
     ApplicationConfigProbe,
     CmdAutoRunVerification,
@@ -25,7 +25,7 @@ from annexation_procedures.model import (
     TargetAccount,
     WindowsTerminalSettingsDestination,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 class NativeConfigurationVerificationTests(unittest.TestCase):
@@ -74,10 +74,10 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             app = Application(id="powershell", display_name="PowerShell", platforms=(declaration,))
 
             with patch(
-                "annexation_procedures.configuration.shutil.which",
+                "annexation.configuration.shutil.which",
                 return_value=r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
             ), patch(
-                "annexation_procedures.configuration.run_process",
+                "annexation.configuration.run_process",
                 return_value=ProcessResult(0, str(destination), ""),
             ):
                 result = verify_config(app, declaration, context)
@@ -118,7 +118,7 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             (packaged / "settings.json").write_text("{}", encoding="utf-8")
 
             with patch(
-                "annexation_procedures.native_configuration_verification.shutil.which",
+                "annexation.native_configuration_verification.shutil.which",
                 return_value=r"C:\Users\fixture\AppData\Local\Microsoft\WindowsApps\wt.exe",
             ):
                 packaged_result = verify_config(app, declaration, context)
@@ -136,7 +136,7 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             (unpacked / "settings.json").write_text("{}", encoding="utf-8")
 
             with patch(
-                "annexation_procedures.native_configuration_verification.shutil.which",
+                "annexation.native_configuration_verification.shutil.which",
                 return_value=r"C:\tools\terminal\wt.exe",
             ):
                 unpacked_result = verify_config(app, declaration, context)
@@ -173,7 +173,7 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             original = destination.read_text(encoding="utf-8")
 
             with patch(
-                "annexation_procedures.native_configuration_verification._read_cmd_autorun",
+                "annexation.native_configuration_verification._read_cmd_autorun",
                 return_value=expected,
             ):
                 result = verify_config(app, declaration, context)
@@ -206,7 +206,7 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             )
 
             with patch(
-                "annexation_procedures.native_configuration_verification._read_cmd_autorun",
+                "annexation.native_configuration_verification._read_cmd_autorun",
                 return_value='call "C:\\other.cmd"',
             ):
                 result = verify_config(
@@ -241,10 +241,10 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             app = Application(id="contour", display_name="Contour", platforms=(declaration,))
 
             with patch(
-                "annexation_procedures.native_configuration_verification.shutil.which",
+                "annexation.native_configuration_verification.shutil.which",
                 return_value="/usr/bin/contour",
             ), patch(
-                "annexation_procedures.native_configuration_verification.run_process",
+                "annexation.native_configuration_verification.run_process",
                 return_value=ProcessResult(0, "configuration inspected\n", ""),
             ):
                 result = verify_config(app, declaration, context)
@@ -275,10 +275,10 @@ class NativeConfigurationVerificationTests(unittest.TestCase):
             )
 
             with patch(
-                "annexation_procedures.native_configuration_verification.shutil.which",
+                "annexation.native_configuration_verification.shutil.which",
                 return_value="/usr/bin/contour",
             ), patch(
-                "annexation_procedures.native_configuration_verification.run_process",
+                "annexation.native_configuration_verification.run_process",
                 return_value=ProcessResult(64, "", "unsupported command"),
             ):
                 result = verify_config(

@@ -5,13 +5,13 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.luarocks_package import (
+from annexation.luarocks_package import (
     LuaRocksPackageEnvironmentBackend,
     LuaRocksPackageEnvironmentError,
     LuaRocksTreeTarget,
     luarocks_desired_root,
 )
-from annexation_procedures.model import (
+from annexation.model import (
     OperationContext,
     PackageEnvironmentDesiredState,
     PackageEnvironmentOwnershipKind,
@@ -21,14 +21,14 @@ from annexation_procedures.model import (
     RuntimeOwnership,
     TargetAccount,
 )
-from annexation_procedures.package_environment import (
+from annexation.package_environment import (
     adopt_package_environment,
     package_environment_runtime_removal_guard,
     reconcile_package_environment,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.runtime import runtime_ownership_path
-from annexation_procedures.state import write_json_state
+from annexation.process import ProcessResult
+from annexation.runtime import runtime_ownership_path
+from annexation.state import write_json_state
 
 
 class FakeLuaRocksRunner:

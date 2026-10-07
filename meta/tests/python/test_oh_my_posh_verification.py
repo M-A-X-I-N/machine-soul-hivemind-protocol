@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.configuration_verification import verify_config
-from annexation_procedures.model import (
+from annexation.configuration_verification import verify_config
+from annexation.model import (
     Application,
     ConfigurationFile,
     ConfigurationVerificationPlan,
@@ -21,7 +21,7 @@ from annexation_procedures.model import (
     Support,
     TargetAccount,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 class OhMyPoshVerificationTests(unittest.TestCase):
@@ -38,7 +38,7 @@ class OhMyPoshVerificationTests(unittest.TestCase):
         local.mkdir(parents=True, exist_ok=True)
         source = (
             root
-            / "assimilation_directives"
+            / "assimilation"
             / "oh_my_posh"
             / "default"
             / "common"
@@ -93,10 +93,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
                 return "/opt/omp/oh-my-posh" if command == "oh-my-posh" else None
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 return_value=ProcessResult(0, "rendered prompt", ""),
             ):
                 result = verify_config(app, declaration, context)
@@ -113,10 +113,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
             app, declaration, context, _ = self._fixture(root, consumers=())
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 return_value="/opt/omp/oh-my-posh",
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 return_value=ProcessResult(1, "", "invalid json config: parse failed"),
             ):
                 result = verify_config(app, declaration, context)
@@ -141,10 +141,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "__MSHP_POSH_THEME__=" + str(source) + "\n", "")
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 side_effect=fake_run,
             ):
                 result = verify_config(app, declaration, context)
@@ -172,10 +172,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "__MSHP_POSH_THEME__=" + str(wrong) + "\n", "")
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 side_effect=fake_run,
             ):
                 result = verify_config(app, declaration, context)
@@ -206,10 +206,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "__MSHP_POSH_THEME__=" + str(selected) + "\n", "")
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 side_effect=fake_run,
             ):
                 result = verify_config(app, declaration, context)
@@ -238,10 +238,10 @@ class OhMyPoshVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "__MSHP_POSH_THEME__=" + str(source), "")
 
             with patch(
-                "annexation_procedures.oh_my_posh_verification.shutil.which",
+                "annexation.oh_my_posh_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.oh_my_posh_verification.run_process",
+                "annexation.oh_my_posh_verification.run_process",
                 side_effect=fake_run,
             ):
                 result = verify_config(app, declaration, context)
