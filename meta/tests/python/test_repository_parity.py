@@ -64,6 +64,36 @@ class RepositoryParityTests(unittest.TestCase):
         self.assertTrue((self.root / "meta").is_dir())
         self.assertFalse((self.root / "collective_affairs").exists())
 
+    def test_normalized_top_level_layout(self) -> None:
+        expected = {
+            "meta",
+            "annexation",
+            "assimilation",
+            "tools",
+            "research",
+            "experiments",
+            "assets",
+            "archive",
+        }
+        superseded = {
+            "autonomic_affairs",
+            "annexation_procedures",
+            "assimilation_directives",
+            "accumulated_instruments",
+            "acquired_intelligence",
+            "arcane_experiments",
+            "assembled_assets",
+            "abandoned_artifacts",
+        }
+
+        for name in expected:
+            with self.subTest(expected=name):
+                self.assertTrue((self.root / name).is_dir())
+
+        for name in superseded:
+            with self.subTest(superseded=name):
+                self.assertFalse((self.root / name).exists())
+
 
 if __name__ == "__main__":
     unittest.main()

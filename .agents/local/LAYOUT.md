@@ -4,7 +4,7 @@ Read this file when adding, moving, or classifying repository material, or when 
 
 ## Top-level directory contract
 
-These thematic names are intentionally not self-explanatory. Treat this table as the binding placement contract.
+The concise top-level names divide distinct repository responsibilities. Treat this table as the binding placement contract.
 
 | Domain | Belongs here | Does not belong here |
 |---|---|---|
@@ -15,7 +15,7 @@ These thematic names are intentionally not self-explanatory. Treat this table as
 | `experiments/` | Tracked prototypes, proof-of-concepts, reverse-engineering attempts, temporary harnesses, and uncertain ideas still being tested. | Stable production machinery, durable conclusions, or ignored local scratch. |
 | `assets/` | Inert/static reusable resources such as icons, wallpapers, images, templates, exported resources, configuration-adjacent static files, and reusable skeletons. | Executable code, learned knowledge, canonical behavioral configuration, or active experiments. |
 | `assimilation/` | Canonical tracked desired behavior/configuration: how an assimilated target should behave. | Install/discovery/orchestration code, generic tools, or static assets merely consumed by directives. |
-| `meta/` | Repository/project control plane: tasks, claims, Dispatch, reminders, initiatives, project docs/tests, CI-control helpers, and related governance. | Machine-targeted configuration, annexation code, generic standalone utilities, or unrelated reference knowledge. |
+| `meta/` | Reserved exact-lowercase repository/project control plane: tasks, claims, Dispatch, reminders, initiatives, project docs/tests, CI-control helpers, and related governance. The baseline contract owns the path spelling; local source naming conventions do not recase it. | Machine-targeted configuration, annexation code, generic standalone utilities, or unrelated reference knowledge. |
 | `.agents/` | Agent instructions plus durable agent-facing memory according to its baseline/local/memory split. | Live scheduling state, task workspaces, canonical human architecture, secrets, or mutable machine-local state. |
 | `.github/` | GitHub-defined repository automation/configuration whose path is externally dictated. | Generic scripts merely because CI calls them, project docs, or agent memory. |
 | `scratch/` | Ignored machine-local mutable state: backups, deployment state, local env/secrets, temp files, logs, caches, and disposable local work. | Anything that must survive cloning or be repository truth. |

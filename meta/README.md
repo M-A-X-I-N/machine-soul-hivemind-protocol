@@ -1,24 +1,21 @@
-# Autonomic affairs
+# Repository meta
 
-`meta/` contains material about the Machine-Soul repository/project itself rather than configuration that is assimilated onto a machine or procedures that annex/manage applications.
+`meta/` is the exact lowercase repository-control namespace shared with the generic agent baseline.
+
+In MSHP it contains project/repository state rather than machine-targeted configuration or annexation machinery.
 
 Current contents:
 
 - `docs/` — human-facing architecture, contracts, support notes, and extension guidance.
 - `tests/` — repository validation and behavioral test suites.
 - `tasks.md` — compact scheduling/state/Dispatch index.
-- `tasks/` — active full task specifications, temporary tracked task workspaces, task-system navigation, and the structured archive under `tasks/archive/`.
-- `reminders.md` — non-executable ideas awaiting enough discussion/refinement to become tasks.
+- `tasks/` — active task specifications, temporary tracked task workspaces, task-system navigation, and structured archive under `tasks/archive/`.
+- `reminders.md` — non-executable lightweight future intent.
+- `initiatives/` — structured non-executable unfinished work/debt.
+- `ci_validation_selector.py` and related helpers — repository CI-control policy implementation.
 
-`tasks.md` is the authoritative ledger for work that has been specified well enough to be theoretically executable by an agent. It is not a catch-all roadmap: longer-horizon roadmap items, objectives, and reminders are separate concepts and should only gain their own artifacts when useful.
+`tasks.md` is the authoritative ledger for sufficiently specified executable agent work. Reminders and initiatives are deliberately not Dispatch authority.
 
-Root artifacts with conventional or tool-defined placement remain at root, including `AGENTS.md`, `README.md`, dotfiles, and `.github/`.
+The exact path `meta/` is reserved by the baseline integration contract. Do not rename or recase it to match repository-specific source naming conventions.
 
-
-## Top-level thematic naming
-
-Repository-controlled thematic top-level directories begin with the letter `a`.
-
-This is a project convention, not a rule imposed on tool-defined or conventional repository roots. Paths such as `.git/`, `.github/`, dotfiles, `AGENTS.md`, and `README.md` are exempt, as are externally dictated names that must remain exact.
-
-Do not rename external/application identifiers merely to satisfy the theme.
+Root artifacts whose placement is conventional or tool-defined remain at repository root, including `AGENTS.md`, `README.md`, `.machine_soul_root`, other dotfiles, and `.github/`.

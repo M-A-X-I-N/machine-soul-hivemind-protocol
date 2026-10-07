@@ -41,7 +41,7 @@ Shared fragments may exist, but deployment resolves to one concrete tracked file
 
 Tracked configuration currently includes one Windows host variant and multiple Linux host variants. See meta/docs/CONFIGURATION_MODEL.md.
 
-## Assimilation directives and annexation procedures
+## Assimilation and annexation
 
 `assimilation/` contains the canonical tracked **instructions for how an assimilated machine should behave**: application configuration and other desired behavioral content that belongs in version control.
 
@@ -51,9 +51,9 @@ The names describe different responsibilities, not two halves that every target 
 
 A target may legitimately have:
 
-- annexation procedures with assimilation directives — for example an application whose installation and configuration are both managed;
-- annexation procedures without assimilation directives — for example a runtime/tool whose useful Machine-Soul responsibility is installation/version lifecycle only;
-- assimilation directives whose application is already installed independently — configuration management does not imply installation ownership.
+- annexation with assimilation — for example an application whose installation and configuration are both managed;
+- annexation without assimilation — for example a runtime/tool whose useful Machine-Soul responsibility is installation/version lifecycle only;
+- assimilation for an application that is already installed independently — configuration management does not imply installation ownership.
 
 There is no requirement that an annexation target have configuration files merely to be considered supported.
 

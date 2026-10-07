@@ -27,7 +27,7 @@ It contains:
 - generic routing under `.agents/README.md`;
 - generic normative policy under `.agents/baseline/`;
 - repository-owned local-policy and memory seed structure;
-- the reserved exact lowercase top-level `project/` project-control namespace and seed state.
+- the reserved exact lowercase top-level `meta/` project-control namespace and seed state.
 
 A repository generated from the GitHub template has independent Git history. The template is a bootstrap/canonical-copy source, **not** an upstream Git merge relationship or runtime dependency.
 
@@ -70,7 +70,7 @@ These are provided by the template/adoption process but become repository-owned:
 AGENTS.md
 .agents/local/*
 .agents/memory/*
-project/*
+meta/*
 ```
 
 The root `AGENTS.md` may contain small repository-specific orientation.
@@ -79,14 +79,14 @@ The root `AGENTS.md` may contain small repository-specific orientation.
 
 `.agents/memory/` owns non-normative knowledge, rationale, investigations, and scar tissue.
 
-`project/` owns project-control/collaboration state such as tasks, workspaces, reminders, and initiatives.
+`meta/` owns project-control/collaboration state such as tasks, workspaces, reminders, and initiatives.
 
 ### Reserved structural contract
 
 The exact lowercase top-level path:
 
 ```text
-project/
+meta/
 ```
 
 is reserved for the baseline project-control integration.
@@ -116,7 +116,7 @@ AGENTS.md
 └── memory/
     └── repository-specific non-normative knowledge...
 
-project/
+meta/
 └── repository-owned project-control state...
 ```
 
@@ -218,7 +218,7 @@ Adoption:
 3. introduces the baseline/local/memory separation;
 4. copies current baseline-managed files from `M-A-X-I-N/baseline`;
 5. builds repository-specific root/local routing;
-6. reserves exact lowercase `project/` and maps existing project-control state deliberately;
+6. reserves exact lowercase `meta/` and maps existing project-control state deliberately;
 7. preserves existing local semantics rather than overwriting them with template seed state;
 8. validates and commits adoption as ordinary new history.
 
@@ -244,7 +244,7 @@ A source commit may appear naturally in historical discussion or a commit messag
 Current default bootstrap:
 
 1. create the repository from `M-A-X-I-N/baseline`;
-2. retain the exact lowercase `project/` integration path;
+2. retain the exact lowercase `meta/` integration path;
 3. fill in repository-specific `.agents/local/` policy and root orientation;
 4. preserve generic files under `.agents/baseline/`;
 5. begin project work through ordinary Git history.
@@ -258,8 +258,8 @@ For baseline updates/adoption, verify at least:
 - baseline-managed generic files match the intended canonical source;
 - repository-specific rules remain explicit under local policy;
 - generic files contain no repository-specific path/policy leakage;
-- root → generic router → local router → project/memory navigation resolves;
-- exact lowercase `project/` remains stable;
+- root → generic router → local router → meta/memory navigation resolves;
+- exact lowercase `meta/` remains stable;
 - live task/project state was not replaced by template seed data;
 - no step depends on nonexistent updater/version machinery.
 
@@ -319,7 +319,7 @@ v1 does not:
 - create a shared runtime repository;
 - reconcile repository settings;
 - migrate arbitrary existing repositories automatically;
-- require repository-local source naming conventions to affect the reserved `project/` path.
+- require repository-local source naming conventions to affect the reserved `meta/` path.
 
 ## Evidence and history
 
