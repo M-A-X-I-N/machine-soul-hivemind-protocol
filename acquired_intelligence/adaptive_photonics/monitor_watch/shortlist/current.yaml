@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-05T04:27:21+02:00
+updated: 2026-10-07T05:36:31+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -27,7 +27,7 @@ retailer_scenarios:
       infer_percentage: false
       employee_effective_price_source: "Only an actually supplied/observed employee price."
       unknown_price_behavior: "Keep employee_effective_price_sek null and calculate discount needed to hit existing thresholds."
-      public_prices_observed_at: 2026-10-05T04:27:21+02:00
+      public_prices_observed_at: 2026-10-07T05:36:31+02:00
     isolation:
       affects_normal_shortlist: false
       affects_true_rgb_stripe_lane: false
@@ -93,30 +93,35 @@ retailer_scenarios:
             discount_needed_for_very_strong_pct: 33.3
 
         samsung_g81sf_32:
-          status: needs_verification
+          status: unavailable
           public_price_sek: 9990
           employee_effective_price_sek: null
           public_price_source: "Elgiganten product 896180"
           threshold_analysis:
             numeric_thresholds: unknown
           notes:
-            - "In-scope Elgiganten inventory, but no model-specific numeric value threshold is currently defined in the canonical shortlist."
+            - "Public price remains 9,990 SEK, but the current Elgiganten product page says unavailable."
+            - "Keep in the employee scenario for history; unavailability is scenario state, not a normal-market conclusion."
 
         samsung_g80sh_32:
-          status: needs_verification
+          status: unavailable
           public_price_sek: 14990
           employee_effective_price_sek: null
           public_price_source: "Elgiganten product 1107852"
           threshold_analysis:
             numeric_thresholds: unknown
+          notes:
+            - "Current Elgiganten page says unavailable."
 
         asus_pg32ucdm3:
-          status: needs_verification
+          status: unavailable
           public_price_sek: 14990
           employee_effective_price_sek: null
           public_price_source: "Elgiganten product 1086709"
           threshold_analysis:
             numeric_thresholds: unknown
+          notes:
+            - "Current Elgiganten page says unavailable."
 
     true_rgb_stripe_lane:
       purpose: "Mirror the strict conventional RGB-stripe category, but only for Elgiganten inventory and employee-effective pricing."
@@ -157,8 +162,8 @@ true_rgb_stripe_lane:
         - "4K240/FHD480 Dual Mode matches both cinematic/high-resolution and competitive low-resolution use."
         - "Three-year warranty including burn-in and useful OLED-care features."
       reasons_against:
-        - "Current Swedish pricing remains launch-tax territory relative to excellent 8–10k OLED alternatives."
-        - "The final text/subpixel improvement is real but currently not large enough to justify the roughly 14k+ price under the normal value rules."
+        - "Fresh Inet pricing improved to 13,990 SEK, but this is still far above the <=11,000 interesting and <=10,000 very-strong thresholds."
+        - "The final text/subpixel improvement is real but the remaining premium over excellent normal-lane alternatives is still too large."
       price_logic: {interesting_at_or_below_sek: 11000, very_strong_at_or_below_sek: 10000}
 
     asus_pg27ucwm:
@@ -169,7 +174,7 @@ true_rgb_stripe_lane:
         - "TrueBlack Glossy and 4K240/FHD480 match the normal preferences well."
         - "Three-year warranty and OLED-care features."
       reasons_against:
-        - "Current Swedish pricing remains roughly 13k+ launch-tax territory."
+        - "Fresh comparison pricing is about 12,990 SEK; Inet lists 13,490 SEK with a 9 October release, still far above the <=10,000 interesting threshold."
         - "Smaller physical size than the current 32-inch lean."
       price_logic: {interesting_at_or_below_sek: 10000, very_strong_at_or_below_sek: 9000}
 
@@ -301,10 +306,10 @@ candidates:
     status: needs_verification
     summary: {size_in: 31.5, panel: QD-OLED, coating: antireflective_hard_coating, native_hz: 240}
     reasons_for:
-      - "Current Prisjakt category data is again around 7.48k, inside the pre-written very-strong price threshold."
       - "KVM and 65-W USB-C."
     reasons_against:
-      - "NetOnNet now says no longer sold."
+      - "Fresh Prisjakt pricing is around 8,286 SEK, up materially from ~7,491 and now above the pre-written <=7,800 very-strong threshold."
+      - "NetOnNet says no longer sold."
       - "Regional /00 versus /01 identity and remaining seller stock need verification."
     price_logic: {very_strong_at_or_below_sek: 7800}
 
@@ -324,11 +329,10 @@ candidates:
       - "166-PPI 4K density."
       - "Explicit three-year burn-in warranty."
       - "Excellent fallback if 32-inch value disappoints."
+      - "Dell Sweden directly offers 7,324.65 SEK, comfortably inside the <=8,000 interesting threshold and only slightly above <=7,200 very-strong."
     reasons_against:
-      - "Current Inet price is materially above the recent Prisjakt minimum."
+      - "27-inch physical size remains less preferred than a similarly strong 32-inch deal."
     price_logic: {very_strong_at_or_below_sek: 7200, interesting_at_or_below_sek: 8000}
-    unresolved:
-      - "Identify retailer behind current Prisjakt 6,960-SEK minimum before treating it as immediately buyable."
 
   samsung_g81sf_27:
     status: active
@@ -336,9 +340,9 @@ candidates:
     reasons_for:
       - "166-PPI 4K density."
       - "The model has repeatedly occupied the cheap 27-inch 4K240 OLED tier."
+      - "Elgiganten directly re-confirms 6,990 SEK, meeting the pre-written <=7,000 very-strong threshold."
     reasons_against:
       - "Matte Glare-Free coating conflicts with clarity preference."
-      - "The 6,990-SEK Elgiganten price from October 1 was not re-confirmed this run; current comparison/marketplace observations are higher."
     price_logic: {very_strong_at_or_below_sek: 7000}
 
   aoc_ag276uzd:
@@ -401,10 +405,9 @@ candidates:
       - "4K240 at roughly 166-PPI-class density."
       - "Semi-gloss/glare optical treatment aligns strongly with the dark-room clarity preference."
       - "USB-C 65 W."
-      - "Inet's campaign page is again directly exposing 6,490 SEK during this run, while the exact product page simultaneously exposes 7,990 SEK."
+      - "Fresh Inet catalogue/campaign data directly exposes 6,490 SEK with 18 units, inside the pre-written <=6,500 absurd threshold."
     reasons_against:
       - "Exact Swedish warranty duration and explicit burn-in coverage are unresolved."
-      - "Same-retailer campaign/product-page price disagreement means 6,490 should be confirmed at cart/checkout before purchase."
     price_logic: {absurd_at_or_below_sek: 6500, very_strong_at_or_below_sek: 7200, interesting_at_or_below_sek: 8000}
     unresolved:
       - "Resolve Acer/Inet two-year versus Acer EU three-year warranty conflict."
@@ -428,7 +431,7 @@ candidates:
       - "TrueBlack Glossy WOLED is extremely well aligned with dark-room use and text-clarity preference."
       - "4K165/FHD330 Dual-Mode is genuinely useful rather than decorative for this gaming split."
       - "Three-year warranty including burn-in and KVM."
-      - "Exact Prisjakt page showed about 8,455 SEK this run."
+      - "Fresh comparison pages are around 8,548–8,716 SEK, still inside the <=9,000 interesting threshold but no longer clearly inside <=8,500 very-strong."
     reasons_against:
       - "Slower than the 240/480 XG32UCWMG sibling."
     price_logic: {very_strong_at_or_below_sek: 8500, interesting_at_or_below_sek: 9000}
@@ -438,13 +441,14 @@ candidates:
     summary: {size_in: 26.5, panel: OLED, coating: unknown, native_hz: 240}
     reasons_for:
       - "166-PPI-class 4K240 OLED."
-      - "Prisjakt surfaced a 6,706-SEK CDON offer during this run, while fresh direct CDON sellers were around 7.3–7.4k."
+      - "Fresh Prisjakt pages expose roughly 6,629–6,741 SEK, crossing the pre-written <=6,800 absurd threshold at the low end."
     reasons_against:
+      - "The exact seller behind the lowest comparison price still needs verification."
       - "Exact coating remains insufficiently characterized."
       - "Lenovo primary material still does not clearly state explicit burn-in coverage in the Swedish/EU warranty."
     price_logic: {absurd_at_or_below_sek: 6800, very_strong_at_or_below_sek: 7300, interesting_at_or_below_sek: 8000}
     unresolved:
-      - "Identify/verify the exact CDON seller behind the 6,706-SEK aggregator floor."
+      - "Identify/verify the exact seller behind the current ~6,629-SEK aggregator floor."
       - "Resolve explicit burn-in warranty coverage."
 
   asus_xg32ucds:
@@ -497,7 +501,7 @@ candidates:
       - "27-inch 4K240 at roughly 166-PPI-class density."
       - "Semi-glossy/anti-reflective QD-OLED treatment fits the dark-room clarity preference better than matte options."
       - "KVM and explicit three-year burn-in warranty."
-      - "Current Prisjakt context identifies an Inet offer around 7,790 SEK."
+      - "Fresh comparison pricing is around 8,057 SEK: still inside the <=8,500 interesting threshold, but above <=7,800 very-strong."
     reasons_against:
       - "No dual-mode ultra-high-refresh mode."
       - "At similar money, 32-inch models may offer better physical-size value."
