@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 import unittest
 
-from annexation_procedures.applications import discover_applications
-from annexation_procedures.model import (
+from annexation.applications import discover_applications
+from annexation.model import (
     AptPackage,
     CustomConfiguration,
     InstallationScope,

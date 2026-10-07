@@ -18,7 +18,7 @@ class RepositoryParityTests(unittest.TestCase):
         )
 
     def test_shared_runtime_lives_in_annexation_tree(self) -> None:
-        annexation = self.root / "annexation_procedures"
+        annexation = self.root / "annexation"
         self.assertTrue((annexation / "__init__.py").is_file())
         self.assertTrue((annexation / "model").is_dir())
         self.assertTrue((annexation / "operations").is_dir())
@@ -29,7 +29,7 @@ class RepositoryParityTests(unittest.TestCase):
         )
 
     def test_annexation_runtime_is_platform_neutral_python(self) -> None:
-        annexation = self.root / "annexation_procedures"
+        annexation = self.root / "annexation"
         applications = [
             path
             for path in annexation.iterdir()
@@ -51,7 +51,7 @@ class RepositoryParityTests(unittest.TestCase):
                 self.assertEqual([], runtime_non_python)
 
     def test_native_process_scripts_are_not_production_policy_engines(self) -> None:
-        annexation = self.root / "annexation_procedures"
+        annexation = self.root / "annexation"
         offenders = []
         for suffix in ("*.sh", "*.ps1"):
             for path in annexation.rglob(suffix):

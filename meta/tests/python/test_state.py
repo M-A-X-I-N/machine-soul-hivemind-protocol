@@ -5,14 +5,14 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     InstallationScope,
     InstallationScopePolicyMode,
     OperationContext,
     Platform,
     TargetAccount,
 )
-from annexation_procedures.state import (
+from annexation.state import (
     ConfigState,
     InstallState,
     config_state_path,
@@ -54,7 +54,7 @@ class StateTests(unittest.TestCase):
                 application="example",
                 host=context.host,
                 account=context.target_account.name,
-                source_relative="assimilation_directives/example/default/common/config",
+                source_relative="assimilation/example/default/common/config",
                 destination=str(destination),
                 prior_type="file",
                 backup_relative="scratch/backups/example/original",
@@ -82,7 +82,7 @@ class StateTests(unittest.TestCase):
                         f"application_b64={b64('example')}",
                         f"host_b64={b64(context.host)}",
                         f"account_b64={b64(context.target_account.name)}",
-                        f"source_relative_b64={b64('assimilation_directives/example/default/common/config')}",
+                        f"source_relative_b64={b64('assimilation/example/default/common/config')}",
                         f"destination_b64={b64(str(destination))}",
                         "prior_type=absent",
                         f"backup_relative_b64={b64('')}",

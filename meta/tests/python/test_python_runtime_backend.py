@@ -5,19 +5,19 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     OperationContext,
     Platform,
     RuntimeDesiredState,
     TargetAccount,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.python_runtime import (
+from annexation.process import ProcessResult
+from annexation.python_runtime import (
     PythonInstallManagerBackend,
     PythonInstallManagerError,
     python_manager_runtime_spec,
 )
-from annexation_procedures.runtime import read_runtime_ownerships, reconcile_runtime
+from annexation.runtime import read_runtime_ownerships, reconcile_runtime
 
 
 def _row(manager_id: str, tag: str, version: str, *, company: str = "PythonCore"):

@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import unittest
 
-from annexation_procedures.model import OperationResult, ResultStatus
-from annexation_procedures.primitives import (
+from annexation.model import OperationResult, ResultStatus
+from annexation.primitives import (
     PROTOCOL_VERSION,
     PrimitiveProcessError,
     PrimitiveProtocolError,

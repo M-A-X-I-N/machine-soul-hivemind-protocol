@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     OperationContext,
     OperationResult,
     Platform,
@@ -13,7 +13,7 @@ from annexation_procedures.model import (
     RuntimeSpec,
     TargetAccount,
 )
-from annexation_procedures.runtime import (
+from annexation.runtime import (
     RuntimeStateError,
     adopt_runtime_instance,
     read_runtime_ownerships,

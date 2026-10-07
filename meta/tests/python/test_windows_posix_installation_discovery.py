@@ -4,8 +4,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.installation_discovery import discover_installation
-from annexation_procedures.model import (
+from annexation.installation_discovery import discover_installation
+from annexation.model import (
     InstallationDiscoveryPlan,
     InstallationPresence,
     OperationContext,
@@ -14,8 +14,8 @@ from annexation_procedures.model import (
     TargetAccount,
     WindowsPosixPackageDiscovery,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.windows_posix_installation_discovery import (
+from annexation.process import ProcessResult
+from annexation.windows_posix_installation_discovery import (
     discover_windows_posix_environment,
 )
 

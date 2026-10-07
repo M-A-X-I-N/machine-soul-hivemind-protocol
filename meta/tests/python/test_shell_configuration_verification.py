@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.configuration_verification import verify_config
-from annexation_procedures.model import (
+from annexation.configuration_verification import verify_config
+from annexation.model import (
     Application,
     ConfigurationFile,
     ConfigurationVerificationPlan,
@@ -22,8 +22,8 @@ from annexation_procedures.model import (
     Operation,
     TargetAccount,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.shell_verification import verify_shell_startup
+from annexation.process import ProcessResult
+from annexation.shell_verification import verify_shell_startup
 
 
 class ShellVerificationTests(unittest.TestCase):
@@ -82,10 +82,10 @@ class ShellVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "", f"+{destination}:1: true\n")
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 return_value="/bin/bash",
             ), patch(
-                "annexation_procedures.shell_verification.run_process",
+                "annexation.shell_verification.run_process",
                 side_effect=fake_run,
             ):
                 result = verify_config(app, declaration, context)
@@ -107,10 +107,10 @@ class ShellVerificationTests(unittest.TestCase):
             strategy = declaration.configuration_verification.strategies[0]
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 return_value="/bin/bash",
             ), patch(
-                "annexation_procedures.shell_verification.run_process",
+                "annexation.shell_verification.run_process",
                 return_value=ProcessResult(0, "", f"+{destination}:1: true\n"),
             ):
                 observation = verify_shell_startup(
@@ -139,10 +139,10 @@ class ShellVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "", f"+{destination}:1: true\n")
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 return_value="/bin/zsh",
             ), patch(
-                "annexation_procedures.shell_verification.run_process",
+                "annexation.shell_verification.run_process",
                 side_effect=fake_run,
             ):
                 observation = verify_shell_startup(
@@ -179,7 +179,7 @@ class ShellVerificationTests(unittest.TestCase):
             strategy = declaration.configuration_verification.strategies[0]
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 return_value="/usr/bin/fish",
             ):
                 observation = verify_shell_startup(
@@ -201,7 +201,7 @@ class ShellVerificationTests(unittest.TestCase):
             strategy = declaration.configuration_verification.strategies[0]
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 return_value=None,
             ):
                 observation = verify_shell_startup(
@@ -248,10 +248,10 @@ class ShellVerificationTests(unittest.TestCase):
                 return ProcessResult(0, "", "+/home/fixture/.bashrc:1: true\n")
 
             with patch(
-                "annexation_procedures.shell_verification.shutil.which",
+                "annexation.shell_verification.shutil.which",
                 side_effect=fake_which,
             ), patch(
-                "annexation_procedures.shell_verification.run_process",
+                "annexation.shell_verification.run_process",
                 side_effect=fake_run,
             ):
                 observation = verify_shell_startup(

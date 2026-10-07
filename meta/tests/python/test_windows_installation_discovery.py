@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures import windows_installation_discovery as windows_backend
-from annexation_procedures.installation_discovery import discover_installation
-from annexation_procedures.model import (
+from annexation import windows_installation_discovery as windows_backend
+from annexation.installation_discovery import discover_installation
+from annexation.model import (
     BuiltInExecutableDiscovery,
     ExecutableDiscovery,
     InstallationDiscoveryPlan,
@@ -23,7 +23,7 @@ from annexation_procedures.model import (
     WindowsArpDiscovery,
     WingetPackageDiscovery,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 class FakeWindowsDiscovery:
