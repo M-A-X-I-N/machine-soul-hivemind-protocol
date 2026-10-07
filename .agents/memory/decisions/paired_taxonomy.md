@@ -51,9 +51,9 @@ Cross-application discovery, configuration resolution, symlink/backup/state poli
 annexation/
 ```
 
-`accumulated_instruments/` is the general-purpose tracked toolbox for useful programs/scripts that are not intrinsically part of the assimilation/annexation system. The Machine-Soul runtime itself does not live there.
+`tools/` is the general-purpose tracked toolbox for useful programs/scripts that are not intrinsically part of the assimilation/annexation system. The Machine-Soul runtime itself does not live there.
 
-The former `accumulated_instruments/configuration_deployment/` Bash/PowerShell runtime was transitional and was retired after Python parity.
+The former `tools/configuration_deployment/` Bash/PowerShell runtime was transitional and was retired after Python parity.
 
 ## Historical note
 
@@ -62,7 +62,7 @@ The first v2 baseline temporarily used:
 ```text
 assimilation/<application>/config/
 assimilation/<application>/operations/
-accumulated_instruments/framework/
+tools/framework/
 ```
 
 Those paths are obsolete after post-baseline tasks V2-41/V2-42. They should appear only in historical discussion or migration context, not in active runtime paths.

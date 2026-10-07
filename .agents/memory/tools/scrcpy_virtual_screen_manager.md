@@ -2,7 +2,7 @@
 
 ## Audio isolation experiment (2026-10-03)
 
-The manager lives under accumulated_instruments/scrcpy_virtual_screen_manager/.
+The manager lives under tools/scrcpy_virtual_screen_manager/.
 
 Stock scrcpy 4.1 default audio source is output/REMOTE_SUBMIX, which is whole
 device audio. Multiple scrcpy clients therefore each receive the same mix.

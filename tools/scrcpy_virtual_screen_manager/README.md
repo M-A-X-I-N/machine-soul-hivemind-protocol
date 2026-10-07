@@ -7,7 +7,7 @@ scrcpy 4.1 server experiment.
 
 From the repository root on Windows:
 
-    python .\accumulated_instruments\scrcpy_virtual_screen_manager\scrcpy_virtual_screen_manager.py
+    python .\tools\scrcpy_virtual_screen_manager\scrcpy_virtual_screen_manager.py
 
 The ordinary manager still works with the stock scrcpy server. If the optional
 audio-isolation server has been built, app-backed managed screens automatically
@@ -31,7 +31,7 @@ intentionally narrower for this manager:
 
 Build it with:
 
-    .\accumulated_instruments\scrcpy_virtual_screen_manager\scrcpy_server\build.ps1
+    .\tools\scrcpy_virtual_screen_manager\scrcpy_server\build.ps1
 
 The build helper clones the official scrcpy v4.1 tag into an ignored local
 directory, applies patch_v4_1.py, builds only the Android server, and writes:

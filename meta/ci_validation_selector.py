@@ -87,8 +87,8 @@ _INERT_TEXT_PREFIXES = (
     "meta/tasks/",
     "meta/docs/",
     "meta/initiatives/",
-    "acquired_intelligence/",
-    "abandoned_artifacts/",
+    "research/",
+    "archive/",
 )
 _INERT_TEXT_FILES = frozenset({
     "AGENTS.md",

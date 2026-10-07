@@ -481,7 +481,7 @@ V2-59 then supplies real declarations using these capabilities. V2-60 introduces
 
 Do not delete these early. Once replacement behavior is proven, retire:
 
-- `accumulated_instruments/configuration_deployment/linux/app_config.sh`;
+- `tools/configuration_deployment/linux/app_config.sh`;
 - policy-heavy portions/all of `machine_soul.sh`;
 - `invoke_app_config.ps1`;
 - policy-heavy portions/all of `MachineSoul.psm1`;

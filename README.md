@@ -57,7 +57,7 @@ A target may legitimately have:
 
 There is no requirement that an annexation target have configuration files merely to be considered supported.
 
-`accumulated_instruments/` is reserved for tracked tools/programs/scripts that are useful enough to keep with the repository but are not intrinsically part of the assimilation/annexation system.
+`tools/` is reserved for tracked tools/programs/scripts that are useful enough to keep with the repository but are not intrinsically part of the assimilation/annexation system.
 
 Installing an application is deliberately separate from applying its configuration. A pre-existing software installation is not silently claimed as Machine-Soul-owned merely because its executable exists.
 

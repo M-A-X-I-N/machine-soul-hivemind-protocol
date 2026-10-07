@@ -15,7 +15,7 @@ Examples of repository-owned target names include:
 ```text
 assimilation/
 annexation/
-accumulated_instruments/
+tools/
 configuration_deployment/
 oh_my_posh/
 ```
