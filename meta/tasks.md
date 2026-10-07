@@ -16,7 +16,7 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 | Task | Lineage | Canonical branch | Claimed at (UTC) | Notes |
 |---|---|---|---|---|
-| `MSHP-LAYOUT-A-050` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-07T00:57:00Z` | Final cross-cutting layout audit after A-040 passed full Linux/Windows/fresh-clone/CodeQL validation. |
+| `MSHP-LAYOUT-A-060` | `sera_261003-192400` | `agent/sera_261003-192400/main` | `2026-10-07T01:05:00Z` | Final baseline-consumer conformance audit after A-050 passed the full selected validation matrix. |
 
 ## Active task index
 
@@ -30,8 +30,8 @@ Task rows are grouped by block for readability. Every block uses the same author
 | [`MSHP-LAYOUT-A-020`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-020.md) | COMPLETE | `MSHP-LAYOUT-A-010` | Move the MSHP control plane to meta | Move the complete `autonomic_affairs/` control plane to `meta/` while preserving task authority, archives, docs/tests, CI-control helpers, and root discovery. |
 | [`MSHP-LAYOUT-A-030`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-030.md) | COMPLETE | `MSHP-LAYOUT-A-020` | Shorten the Machine-Soul functional trees | Rename `annexation_procedures/` → `annexation/` and `assimilation_directives/` → `assimilation/`, updating runtime/import/configuration references without semantic redesign. |
 | [`MSHP-LAYOUT-A-040`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-040.md) | COMPLETE | `MSHP-LAYOUT-A-030` | Normalize generic support-directory names | Rename the generic thematic support directories to `tools/`, `research/`, `experiments/`, `assets/`, and `archive/` while preserving their placement contracts. |
-| [`MSHP-LAYOUT-A-050`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-050.md) | IN_PROGRESS | `MSHP-LAYOUT-A-040` | Validate and consolidate the normalized repository layout | Audit stale paths, update final layout/navigation docs, validate tests/CI/task recovery, and confirm the normalized topology is coherent end-to-end. |
-| [`MSHP-LAYOUT-A-060`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-060.md) | QUEUED | `MSHP-LAYOUT-A-050` | Reconcile MSHP fully against the canonical baseline | Perform a dedicated post-migration consumer-conformance pass against `M-A-X-I-N/baseline`, correcting generic drift or policy leakage while preserving MSHP-owned state. |
+| [`MSHP-LAYOUT-A-050`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-050.md) | COMPLETE | `MSHP-LAYOUT-A-040` | Validate and consolidate the normalized repository layout | Audit stale paths, update final layout/navigation docs, validate tests/CI/task recovery, and confirm the normalized topology is coherent end-to-end. |
+| [`MSHP-LAYOUT-A-060`](tasks/MSHP-LAYOUT-A/MSHP-LAYOUT-A-060.md) | IN_PROGRESS | `MSHP-LAYOUT-A-050` | Reconcile MSHP fully against the canonical baseline | Perform a dedicated post-migration consumer-conformance pass against `M-A-X-I-N/baseline`, correcting generic drift or policy leakage while preserving MSHP-owned state. |
 
 ### MSHP-WINGET-A
 
