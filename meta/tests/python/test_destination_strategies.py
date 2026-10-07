@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.configuration import resolve_destination
-from annexation_procedures.model import (
+from annexation.configuration import resolve_destination
+from annexation.model import (
     ConfigurationFile,
     LocalAppDataRelativeDestination,
     OperationContext,
@@ -16,7 +16,7 @@ from annexation_procedures.model import (
     WindowsPosixHomeDestination,
     WindowsTerminalSettingsDestination,
 )
-from annexation_procedures.process import ProcessResult
+from annexation.process import ProcessResult
 
 
 class DestinationStrategyTests(unittest.TestCase):
@@ -77,10 +77,10 @@ class DestinationStrategyTests(unittest.TestCase):
             context = self._context(root, environment={"PATH": "fixture"})
             expected = root / "profile.ps1"
             with patch(
-                "annexation_procedures.configuration.shutil.which",
+                "annexation.configuration.shutil.which",
                 return_value="powershell.exe",
             ), patch(
-                "annexation_procedures.configuration.run_process",
+                "annexation.configuration.run_process",
                 return_value=ProcessResult(0, str(expected), ""),
             ):
                 result = resolve_destination(
@@ -97,10 +97,10 @@ class DestinationStrategyTests(unittest.TestCase):
                 environment={"HOME": "/c/Users/fixture", "PATH": "fixture"},
             )
             with patch(
-                "annexation_procedures.configuration.shutil.which",
+                "annexation.configuration.shutil.which",
                 return_value="cygpath",
             ), patch(
-                "annexation_procedures.configuration.run_process",
+                "annexation.configuration.run_process",
                 return_value=ProcessResult(0, r"C:\Users\fixture\.config\fish\config.fish", ""),
             ) as runner:
                 result = resolve_destination(

@@ -5,7 +5,7 @@ import json
 import math
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     DiscoveryObservation,
     EvidenceStrength,
     InstallationAssessment,

@@ -4,8 +4,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.applications import discover_applications
-from annexation_procedures.model import (
+from annexation.applications import discover_applications
+from annexation.model import (
     DesiredPackageRoot,
     Operation,
     OperationContext,
@@ -30,13 +30,13 @@ from annexation_procedures.model import (
     Support,
     TargetAccount,
 )
-from annexation_procedures.package_environment import (
+from annexation.package_environment import (
     adopt_package_environment,
     package_environment_runtime_removal_guard,
     read_package_environment_ownerships,
     reconcile_package_environment,
 )
-from annexation_procedures.runtime import reconcile_runtime
+from annexation.runtime import reconcile_runtime
 
 
 class IntegrationRuntimeBackend:

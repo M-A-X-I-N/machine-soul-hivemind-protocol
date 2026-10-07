@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.filesystem import LinkStatus, classify_link
+from annexation.filesystem import LinkStatus, classify_link
 
 
 class FilesystemTests(unittest.TestCase):

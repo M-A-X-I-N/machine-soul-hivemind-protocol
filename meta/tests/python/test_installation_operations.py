@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     AptPackage,
     DpkgPackageDiscovery,
@@ -19,13 +19,13 @@ from annexation_procedures.model import (
     WingetPackage,
     WingetPackageDiscovery,
 )
-from annexation_procedures.operations.installation import (
+from annexation.operations.installation import (
     check_installed,
     install_application,
     uninstall_application,
 )
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.state import (
+from annexation.process import ProcessResult
+from annexation.state import (
     InstallState,
     read_install_state,
     read_install_states,

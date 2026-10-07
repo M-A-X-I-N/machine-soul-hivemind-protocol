@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Operation,
     OperationContext,
     OperationResult,
@@ -12,11 +12,11 @@ from annexation_procedures.model import (
     ResultStatus,
     TargetAccount,
 )
-from annexation_procedures.orchestration import (
+from annexation.orchestration import (
     WrapperBinding,
     discovery_status,
 )
-from annexation_procedures.status_presentation import (
+from annexation.status_presentation import (
     render_discovery_status_human,
     render_discovery_status_json,
 )

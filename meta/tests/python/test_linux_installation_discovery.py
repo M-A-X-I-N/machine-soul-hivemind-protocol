@@ -4,8 +4,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.installation_discovery import discover_installation
-from annexation_procedures.model import (
+from annexation.installation_discovery import discover_installation
+from annexation.model import (
     Application,
     DpkgPackageDiscovery,
     ExecutableDiscovery,
@@ -18,9 +18,9 @@ from annexation_procedures.model import (
     TargetAccount,
     TriState,
 )
-from annexation_procedures.operations.installation import check_installed
-from annexation_procedures.process import ProcessResult
-from annexation_procedures.state import InstallState, write_install_state
+from annexation.operations.installation import check_installed
+from annexation.process import ProcessResult
+from annexation.state import InstallState, write_install_state
 
 
 class FakeLinuxDiscovery:

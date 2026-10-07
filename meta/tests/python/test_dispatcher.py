@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     ConfigurationFile,
     ConflictPolicy,
@@ -16,7 +16,7 @@ from annexation_procedures.model import (
     Support,
     TargetAccount,
 )
-from annexation_procedures.operations import perform_operation
+from annexation.operations import perform_operation
 
 
 class DispatcherTests(unittest.TestCase):
@@ -24,7 +24,7 @@ class DispatcherTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             (root / ".machine_soul_root").write_text("marker\n", encoding="utf-8")
-            source = root / "assimilation_directives/example/default/common/config.txt"
+            source = root / "assimilation/example/default/common/config.txt"
             source.parent.mkdir(parents=True)
             source.write_text("canonical", encoding="utf-8")
             declaration = PlatformDeclaration(

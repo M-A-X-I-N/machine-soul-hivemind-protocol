@@ -3,19 +3,19 @@ from __future__ import annotations
 from pathlib import Path
 import unittest
 
-from annexation_procedures.installation_ownership import (
+from annexation.installation_ownership import (
     candidate_satisfies_scope_policy,
     installation_candidate_matches_state,
     state_satisfies_scope_policy,
 )
-from annexation_procedures.model import (
+from annexation.model import (
     InstallationCandidate,
     InstallationScope,
     InstallationScopePolicy,
     InstallationScopePolicyMode,
     TargetAccount,
 )
-from annexation_procedures.state import InstallState
+from annexation.state import InstallState
 
 
 class InstallationOwnershipTests(unittest.TestCase):

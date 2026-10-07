@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     CustomConfiguration,
     Operation,
@@ -15,7 +15,7 @@ from annexation_procedures.model import (
     Support,
     TargetAccount,
 )
-from annexation_procedures.operations import perform_operation
+from annexation.operations import perform_operation
 
 
 class CustomConfigurationDispatcherTests(unittest.TestCase):
