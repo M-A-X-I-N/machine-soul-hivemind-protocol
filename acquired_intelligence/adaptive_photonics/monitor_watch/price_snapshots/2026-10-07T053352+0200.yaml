@@ -1,0 +1,173 @@
+schema_version: 1
+
+snapshot:
+  date: 2026-10-07
+  started_at: 2026-10-07T05:33:52+02:00
+  finished_at: 2026-10-07T05:36:31+02:00
+  timezone: Europe/Stockholm
+  currency: SEK
+  run_kind: recurring_market_watch
+  previous_snapshot: 2026-10-05T040753+0200.yaml
+  notes:
+    - "Sixth structured run."
+    - "No new models or retailers were added; this run is primarily price/availability movement."
+    - "Employee-discount scenario state remains isolated in shortlist/current.yaml and does not feed normal market minima or historical price series."
+
+comparison_to_previous:
+  material_price_or_state_changes:
+    - model_id: philips_32m2n8900
+      previous_aggregator_floor_sek: 7491
+      current_aggregator_floor_sek: 8286
+      delta_sek: 795
+      interpretation: "Moved back above the existing <=7,800 very-strong threshold."
+    - model_id: asus_pg32ucwm
+      previous_best_observation_sek: 14490
+      current_direct_inet_sek: 13990
+      delta_sek: -500
+      interpretation: "Strict-RGB 32-inch pricing improved, but remains far above <=11,000 interesting."
+    - model_id: asrock_pgo32ufs
+      previous_aggregator_floor_sek: 8915
+      current_aggregator_floor_sek: 9173
+      delta_sek: 258
+    - model_id: gigabyte_mo27u2
+      previous_aggregator_floor_sek: 7955
+      current_aggregator_floor_sek: 8057
+      delta_sek: 102
+    - model_id: lenovo_27ud_10
+      current_aggregator_floor_sek: 6629
+      corroborating_aggregator_sek: 6741
+      interpretation: "Current comparison data crosses the existing <=6,800 absurd threshold; exact seller verification remains required."
+    - model_id: samsung_g81sf_27
+      current_direct_elgiganten_sek: 6990
+      interpretation: "Direct Elgiganten price is re-confirmed and meets the existing <=7,000 very-strong threshold."
+
+  stable_or_near_stable:
+    - "Acer CE270KX remains 6,490 SEK at Inet with 18 units, inside its <=6,500 absurd threshold."
+    - "LG 32GX850A remains around 7,490 SEK, inside its <=7,500 very-strong threshold."
+    - "ASUS XG32UCWMG remains around 9,819 SEK on comparison data, inside <=10,000 interesting."
+    - "MSI MPG 321URX remains around 8,990 SEK."
+    - "Dell AW2725Q remains directly available from Dell Sweden at 7,324.65 SEK."
+    - "ASUS PG27UCWM remains around 12,990 comparison / 13,490 Inet and therefore too expensive for its strict-RGB thresholds."
+
+coverage:
+  required_retailers_expected: 12
+  required_retailers_with_explicit_outcome: 12
+  retailers:
+    inet:
+      status: direct_retrieved
+      notes:
+        - "Acer CE270KX 6,490 SEK, 18 units."
+        - "ASUS PG32UCWM 13,990 SEK, 4 units."
+        - "ASUS PG27UCWM 13,490 SEK, listed release 2026-10-09."
+    webhallen:
+      status: recent_direct_retrieved
+      notes:
+        - "AOC AG326UD 7,990 SEK and web stock in recent retailer data."
+    elgiganten:
+      status: direct_retrieved
+      notes:
+        - "Samsung G81SF 27 remains 6,990 SEK."
+        - "TCL 32X3A cloud-blue remains 11,990 SEK and orderable."
+        - "Samsung G81SF 32, Samsung G80SH 32 and ASUS PG32UCDM3 currently say unavailable."
+    power:
+      status: attempted_no_fresh_direct_price
+    proshop:
+      status: attempted_no_fresh_direct_price
+    komplett:
+      status: attempted_no_fresh_direct_price
+    netonnet:
+      status: direct_retrieved_no_fresh_price
+      notes:
+        - "MSI MPG 321URX product page retrieved, but no trustworthy fresh price was exposed by the retrieval path."
+    dustinhome:
+      status: attempted_no_fresh_direct_price
+    maxgaming:
+      status: direct_retrieved
+      notes:
+        - "Twisted Minds TM32OLD4K240 12,490 SEK."
+        - "Acer X32X3 14,990 SEK."
+        - "BenQ EX271UZ 11,179 SEK."
+    amazon_se:
+      status: attempted_no_fresh_direct_result
+    computersalg:
+      status: attempted_no_fresh_direct_price
+    cdon:
+      status: marketplace_direct_retrieved
+      notes:
+        - "AOC AG326UZD2 surfaced at 13,166 SEK from seller CS Megastore."
+
+  discovery_sources:
+    prisjakt:
+      status: retrieved
+      notes:
+        - "Fresh observations include LG 32GX850A 7,490; Philips 32M2N8900 8,286; XG32UCWMG 9,819; XG32UCWG roughly 8,548–8,716; ASRock PGO32UFS 9,173; MSI 321URX 8,990; Lenovo 27UD-10 roughly 6,629–6,741; MO27U2 about 8,057."
+    pricerunner:
+      status: attempted_no_indexable_results
+    priceway:
+      status: not_rechecked
+    priskolla:
+      status: not_rechecked
+    sweclockers_prices:
+      status: partial
+      notes:
+        - "PG32UCWM comparison context still showed 14,490 SEK; fresh Inet direct price is lower at 13,990 SEK."
+    manufacturer_catalogs:
+      status: selective_refresh
+      notes:
+        - "Dell Sweden direct pricing and ASUS/retailer state were refreshed where useful."
+
+direct_offers:
+  - {model_id: acer_ce270kx, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 6490, stock: in_stock, url: "https://www.inet.se/", freshness: fresh_direct, notes: ["18 units shown in fresh catalogue data."]}
+  - {model_id: samsung_g81sf_27, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 6990, stock: in_stock, url: "https://www.elgiganten.se/product/datorer-kontor/skarmar-tillbehor/datorskarm/samsung-odyssey-g8-g81sf-27-uhdqdoled240hz003ms-bildskarm/896181", freshness: fresh_direct}
+  - {model_id: tcl_32x3a, retailer_id: elgiganten, source_kind: retailer_direct, condition: new, price_sek: 11990, stock: in_stock, url: "https://www.elgiganten.se/", freshness: fresh_direct, notes: ["Cloud-blue variant orderable; other color variants unavailable."]}
+  - {model_id: asus_pg32ucwm, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 13990, stock: in_stock, url: "https://www.inet.se/", freshness: fresh_direct, notes: ["4 units shown."]}
+  - {model_id: asus_pg27ucwm, retailer_id: inet, source_kind: retailer_direct, condition: new, price_sek: 13490, stock: preorder, url: "https://www.inet.se/", freshness: fresh_direct, notes: ["Release listed 2026-10-09."]}
+  - {model_id: dell_aw2725q, retailer_id: dell_se, source_kind: manufacturer_direct_store, condition: new, price_sek: 7324.65, stock: in_stock, url: "https://www.dell.com/sv-se/", freshness: fresh_direct}
+  - {model_id: aoc_ag326ud, retailer_id: webhallen, source_kind: retailer_direct, condition: new, price_sek: 7990, stock: in_stock, url: "https://www.webhallen.com/se/", freshness: recent_direct_index}
+  - {model_id: twisted_minds_tm32old4k240, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 12490, stock: in_stock, url: "https://www.maxgaming.se/", freshness: fresh_direct_index}
+  - {model_id: acer_x32x3, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 14990, stock: in_stock, url: "https://www.maxgaming.se/", freshness: fresh_direct_index}
+  - {model_id: benq_ex271uz, retailer_id: maxgaming, source_kind: retailer_direct, condition: new, price_sek: 11179, stock: in_stock, url: "https://www.maxgaming.se/", freshness: fresh_direct_index}
+  - {model_id: aoc_ag326uzd2, retailer_id: cdon, source_kind: marketplace, condition: new, price_sek: 13166, stock: in_stock, url: "https://cdon.se/", freshness: fresh_direct_index, notes: ["Seller CS Megastore."]}
+
+aggregator_observations:
+  - {model_id: lg_32gx850a, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7490, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: philips_32m2n8900, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8286, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: asus_xg32ucwmg, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 9819, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: asus_xg32ucwg, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8716, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator, notes: ["A second recent comparison page exposed 8,548 SEK; preserve the discrepancy."]}
+  - {model_id: aoc_ag326ud, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 7309, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: msi_321urx, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8990, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: asrock_pgo32ufs, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 9173, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: lenovo_27ud_10, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 6629, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator, notes: ["Other fresh comparison page exposed 6,741 SEK; exact lowest seller remains unresolved."]}
+  - {model_id: gigabyte_mo27u2, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 8057, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: asus_pg27ucwm, retailer_id: null, source_kind: aggregator, source_id: prisjakt, condition: new, price_sek: 12990, stock: in_stock, url: "https://www.prisjakt.nu/", freshness: fresh_aggregator}
+  - {model_id: asus_pg32ucwm, retailer_id: null, source_kind: aggregator, source_id: sweclockers_prices, condition: new, price_sek: 14490, stock: in_stock, url: "https://priser.sweclockers.com/", freshness: fresh_aggregator, notes: ["Fresh direct Inet offer is lower at 13,990 SEK."]}
+
+new_models_discovered_this_run: []
+new_retailers_or_sources_discovered_this_run: []
+
+shortlist_changes:
+  normal_lane:
+    - "Philips 32M2N8900 moved above its <=7,800 very-strong threshold."
+    - "Lenovo 27UD-10 comparison floor moved into <=6,800 absurd territory, pending seller verification."
+    - "Samsung G81SF 27 direct Elgiganten 6,990 price was re-confirmed."
+    - "Acer CE270KX 6,490 remained the strongest directly confirmed absurd-tier deal."
+  true_rgb_stripe_lane:
+    - "ASUS PG32UCWM improved to 13,990 SEK direct at Inet but remains too expensive."
+    - "ASUS PG27UCWM remains about 12,990–13,490 SEK and too expensive."
+  elgiganten_employee_discount:
+    public_price_changes: []
+    availability_changes:
+      - {model_id: samsung_g81sf_32, state: unavailable}
+      - {model_id: samsung_g80sh_32, state: unavailable}
+      - {model_id: asus_pg32ucdm3, state: unavailable}
+    notes:
+      - "Samsung G81SF 27 remains 6,990 SEK."
+      - "TCL 32X3A cloud-blue remains orderable at 11,990 SEK."
+      - "No verified strict true-RGB Elgiganten candidate emerged; employee true-RGB lane remains empty."
+
+unresolved:
+  - "Identify the exact seller behind Lenovo 27UD-10's ~6,629-SEK floor."
+  - "Resolve Philips 32M2N8900 seller/regional-SKU availability at the new ~8,286 floor."
+  - "Resolve Swedish launch pricing for Dell AW3226Q and Samsung G80SJ."
+  - "Resolve explicit Swedish burn-in coverage for Acer CE270KX and Lenovo 27UD-10."
+  - "PriceRunner again produced no usable retrievable current result."
