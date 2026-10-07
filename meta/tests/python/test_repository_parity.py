@@ -59,9 +59,9 @@ class RepositoryParityTests(unittest.TestCase):
 
         self.assertEqual([], sorted(offenders))
 
-    def test_root_marker_and_autonomic_namespace_exist(self) -> None:
+    def test_root_marker_and_meta_namespace_exist(self) -> None:
         self.assertTrue((self.root / ".machine_soul_root").is_file())
-        self.assertTrue((self.root / "autonomic_affairs").is_dir())
+        self.assertTrue((self.root / "meta").is_dir())
         self.assertFalse((self.root / "collective_affairs").exists())
 
 
