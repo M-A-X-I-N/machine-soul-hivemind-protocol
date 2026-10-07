@@ -2,7 +2,7 @@
 
 Durable implementation notes distilled from MSHP-DISC-A-030.
 
-The detailed source/research matrix is preserved in `autonomic_affairs/tasks/archive/MSHP-DISC-A/workspace/effective_configuration.md`.
+The detailed source/research matrix is preserved in `meta/tasks/archive/MSHP-DISC-A/workspace/effective_configuration.md`.
 
 ## Reusable strategy direction
 
@@ -32,7 +32,7 @@ Before committing to specific command parsing, validate:
 - Explicitly rendering/parsing an Oh My Posh theme is application evidence only; shell startup state is needed to prove selection.
 - Manually sourcing a shell config is not proof that ordinary startup would select it.
 
-The human-facing contract is `autonomic_affairs/docs/CONFIGURATION_VERIFICATION.md`.
+The human-facing contract is `meta/docs/CONFIGURATION_VERIFICATION.md`.
 
 
 ## Implemented shell verification — MSHP-DISC-B-070

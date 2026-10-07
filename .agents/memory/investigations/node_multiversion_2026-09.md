@@ -12,4 +12,4 @@ Durable findings from `MSHP-DEV-A-050` (2026-09-28):
 - Installed version set, global/default selection, project-local selection, and runtime-bound npm/tool state are independent concepts.
 - Compare nvm-windows/fnm/backend-specific management against cross-runtime mise in `DEV-A-070`; do not hardcode manager semantics into the core model.
 
-Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/node_multiversion.md`.
+Detailed research lives in `meta/tasks/archive/MSHP-DEV-A/workspace/node_multiversion.md`.

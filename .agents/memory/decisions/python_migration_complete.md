@@ -31,6 +31,6 @@ Do not remove those readers until the idiot human explicitly decides old state c
 
 ## Runtime shape
 
-No production Bash/PowerShell operation policy scripts remain. Shell/PowerShell scripts under `autonomic_affairs/tests/` are test harnesses. Scripts under `assimilation/` are canonical user configuration when applicable, not Machine-Soul runtime code.
+No production Bash/PowerShell operation policy scripts remain. Shell/PowerShell scripts under `meta/tests/` are test harnesses. Scripts under `assimilation/` are canonical user configuration when applicable, not Machine-Soul runtime code.
 
 The native-primitive protocol remains available for future platform operations that genuinely earn a process boundary; no old runtime script was grandfathered into primitive status.

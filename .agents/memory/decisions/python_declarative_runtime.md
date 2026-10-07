@@ -4,7 +4,7 @@
 
 The post-baseline redesign will converge on a Python 3, library-first, declarative application architecture.
 
-The human-facing target architecture is documented in [`../../../autonomic_affairs/docs/next_phase_architecture.md`](../../../autonomic_affairs/docs/next_phase_architecture.md). Read that document before implementing V2-45 through V2-63.
+The human-facing target architecture is documented in [`../../../meta/docs/next_phase_architecture.md`](../../../meta/docs/next_phase_architecture.md). Read that document before implementing V2-45 through V2-63.
 
 ## Agent-critical rules
 
@@ -29,8 +29,8 @@ The human-facing target architecture is documented in [`../../../autonomic_affai
 - Externally dictated names stay exact where required.
 - `AGENTS.md` stays at root for agent discovery.
 - Dotfiles/tool-defined roots may stay at root.
-- Repository meta material moves toward `autonomic_affairs/`.
-- The executable-work ledger is `autonomic_affairs/tasks.md`.
+- Repository meta material moves toward `meta/`.
+- The executable-work ledger is `meta/tasks.md`.
 - Agent tasks mean sufficiently specified/executable work; future roadmap/objectives/reminders are semantically separate concepts.
 
 ## Historical design note

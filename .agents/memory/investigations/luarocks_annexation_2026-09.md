@@ -12,4 +12,4 @@ Durable findings from `MSHP-DEV-A-080` (2026-09-28):
 - Project-local LuaRocks trees normally remain project-owned.
 - Initial useful Machine-Soul scope can include explicitly selected runtime-bound package inventories, not merely LuaRocks installation, provided runtime+tree identity is exact.
 
-Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/luarocks.md`.
+Detailed research lives in `meta/tasks/archive/MSHP-DEV-A/workspace/luarocks.md`.
