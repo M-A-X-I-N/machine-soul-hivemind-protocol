@@ -1,6 +1,6 @@
 # Native primitive protocol
 
-Canonical contract: [`../../../autonomic_affairs/docs/NATIVE_PRIMITIVES.md`](../../../autonomic_affairs/docs/NATIVE_PRIMITIVES.md).
+Canonical contract: [`../../../meta/docs/NATIVE_PRIMITIVES.md`](../../../meta/docs/NATIVE_PRIMITIVES.md).
 
 V2-55 rules:
 

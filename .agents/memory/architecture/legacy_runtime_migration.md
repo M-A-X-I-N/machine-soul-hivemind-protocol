@@ -2,7 +2,7 @@
 
 > **Historical migration record:** the Python/declarative migration is complete. This note preserves the rationale and parity checklist that led to retirement of the parallel shell/PowerShell policy runtime; current runtime shape is summarized in `python_core_implementation.md` and `../decisions/python_migration_complete.md`.
 
-V2-57 mapped the shell/PowerShell implementation to the Python architecture. Canonical detail is in `autonomic_affairs/docs/LEGACY_MIGRATION_MAP.md`.
+V2-57 mapped the shell/PowerShell implementation to the Python architecture. Canonical detail is in `meta/docs/LEGACY_MIGRATION_MAP.md`.
 
 High-value conclusions:
 

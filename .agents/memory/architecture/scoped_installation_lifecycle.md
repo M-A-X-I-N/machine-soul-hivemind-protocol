@@ -15,4 +15,4 @@ Key invariants:
 - legacy scope-less state is unreconciled unless a backend can prove one safe migration;
 - non-current user-scoped mutation is unsupported without a proven target-user mechanism.
 
-Deferred Flatpak/Homebrew/pipx/etc. concerns live in `autonomic_affairs/initiatives/MSHP-INST-SCOPE.md` and are not executable tasks merely because they are known.
+Deferred Flatpak/Homebrew/pipx/etc. concerns live in `meta/initiatives/MSHP-INST-SCOPE.md` and are not executable tasks merely because they are known.

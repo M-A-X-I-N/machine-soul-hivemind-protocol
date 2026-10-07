@@ -1,6 +1,6 @@
 # Atomic wrapper contract
 
-Canonical detail: [`../../../autonomic_affairs/docs/ATOMIC_WRAPPERS.md`](../../../autonomic_affairs/docs/ATOMIC_WRAPPERS.md).
+Canonical detail: [`../../../meta/docs/ATOMIC_WRAPPERS.md`](../../../meta/docs/ATOMIC_WRAPPERS.md).
 
 V2-53 decisions:
 

@@ -2,7 +2,7 @@
 
 V2-52 fixed the dependency/extension policy before Python operation implementation.
 
-Canonical human-facing detail: [`../../../autonomic_affairs/docs/OPERATION_ARCHITECTURE.md`](../../../autonomic_affairs/docs/OPERATION_ARCHITECTURE.md).
+Canonical human-facing detail: [`../../../meta/docs/OPERATION_ARCHITECTURE.md`](../../../meta/docs/OPERATION_ARCHITECTURE.md).
 
 Agent-critical rules:
 

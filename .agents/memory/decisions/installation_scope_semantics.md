@@ -14,4 +14,4 @@ Durable decisions from `MSHP-INST-A-010`:
 - uninstall must match exact scope/subject/native identity and refuse ambiguity;
 - post-install ownership should be recorded only after actual scope is compatible with the strategy contract.
 
-The human-facing canonical semantics are `autonomic_affairs/docs/INSTALLATION_SCOPE.md`.
+The human-facing canonical semantics are `meta/docs/INSTALLATION_SCOPE.md`.

@@ -12,4 +12,4 @@ Important reuse/debugging facts:
 - A correct-looking expected symlink without ownership state is not enough for Python Unapply; it reports `ownership_unproven` instead of deleting it.
 - Apt and WinGet are shared strategy handlers. Pre-existing installs remain unmanaged and are never silently claimed for uninstall.
 - Native process invocation now exists through the v1 protocol, but no current legacy helper is grandfathered into primitive status.
-- V2-61 retired the legacy policy/forwarding scripts after parity. Remaining shell/PowerShell under `autonomic_affairs/tests/` are harnesses, not production runtime.
+- V2-61 retired the legacy policy/forwarding scripts after parity. Remaining shell/PowerShell under `meta/tests/` are harnesses, not production runtime.

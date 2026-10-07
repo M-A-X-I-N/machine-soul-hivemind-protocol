@@ -1,6 +1,6 @@
 # Developer annexation implementation map
 
-This note is the agent-facing map for the first implemented developer-environment lifecycle. Human-facing capability details live in `autonomic_affairs/docs/RUNTIME_ANNEXATION_ARCHITECTURE.md`, `PACKAGE_ENVIRONMENT_ARCHITECTURE.md`, and `SUPPORT_MATRIX.md`.
+This note is the agent-facing map for the first implemented developer-environment lifecycle. Human-facing capability details live in `meta/docs/RUNTIME_ANNEXATION_ARCHITECTURE.md`, `PACKAGE_ENVIRONMENT_ARCHITECTURE.md`, and `SUPPORT_MATRIX.md`.
 
 ## Implemented first-phase layers
 
@@ -28,7 +28,7 @@ This note is the agent-facing map for the first implemented developer-environmen
 
 The integrated acceptance test is:
 
-`autonomic_affairs/tests/python/test_developer_environment_integration.py`
+`meta/tests/python/test_developer_environment_integration.py`
 
 Backend-specific detail remains in:
 

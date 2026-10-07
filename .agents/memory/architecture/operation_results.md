@@ -1,6 +1,6 @@
 # Common operation results
 
-Canonical contract: [`../../../autonomic_affairs/docs/OPERATION_RESULTS.md`](../../../autonomic_affairs/docs/OPERATION_RESULTS.md).
+Canonical contract: [`../../../meta/docs/OPERATION_RESULTS.md`](../../../meta/docs/OPERATION_RESULTS.md).
 
 V2-54 established real Python `OperationResult` / `ResultStatus` types and shared renderers.
 

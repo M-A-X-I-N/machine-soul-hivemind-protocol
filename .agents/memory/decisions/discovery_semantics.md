@@ -14,4 +14,4 @@ Installation mechanism/preference and Machine-Soul ownership are orthogonal dime
 
 Effective-config verification carries explicit evidence strength so application-native/runtime proof is not presented as equivalent to path convention.
 
-The human-facing canonical model is `autonomic_affairs/docs/DISCOVERY_SEMANTICS.md`.
+The human-facing canonical model is `meta/docs/DISCOVERY_SEMANTICS.md`.
