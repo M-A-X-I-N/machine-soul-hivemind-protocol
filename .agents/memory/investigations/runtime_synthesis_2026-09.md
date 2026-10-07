@@ -13,4 +13,4 @@ Durable findings from `MSHP-DEV-A-070` (2026-09-28):
 - Project-local runtime selection files normally remain project-owned, not global Machine-Soul desired state.
 - No implementation tasks were created at this checkpoint because `MSHP-DEV-A-080..110` must first establish how runtime-bound package environments affect the architecture. `MSHP-DEV-A-120` should taskify implementation using both syntheses.
 
-Detailed synthesis lives in `autonomic_affairs/tasks/archive/MSHP-DEV-A/workspace/runtime_synthesis.md`.
+Detailed synthesis lives in `meta/tasks/archive/MSHP-DEV-A/workspace/runtime_synthesis.md`.

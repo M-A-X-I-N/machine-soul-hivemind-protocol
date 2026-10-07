@@ -18,4 +18,4 @@ Durable findings from `MSHP-DEV-B-020` (2026-09-28):
 - Runtime/package native-build backends should query for a satisfying toolchain and report missing prerequisites rather than silently installing arbitrary Visual Studio components.
 - Promote `MSHP-DEV-B-025` for non-speculative instance/component discovery, prerequisite queries, explicit instance adoption, and conservative owned-component reconciliation.
 
-Detailed research lives in `autonomic_affairs/tasks/archive/MSHP-DEV-B/workspace/windows_native_toolchain.md`.
+Detailed research lives in `meta/tasks/archive/MSHP-DEV-B/workspace/windows_native_toolchain.md`.

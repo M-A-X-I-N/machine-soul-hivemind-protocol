@@ -9,4 +9,4 @@ Durable findings from `MSHP-INST-A-030` (2026-09-28).
 - Core scope vocabulary does not need expansion for these examples. The extension seam is backend-specific native selector + exact installation identity + scope discovery/verification.
 - Do not create Flatpak/Homebrew/pipx implementation tasks until Machine-Soul actually supports or needs those managers.
 
-Detailed scenario/source notes live in `autonomic_affairs/tasks/archive/MSHP-INST-A/workspace/linux_scope.md`.
+Detailed scenario/source notes live in `meta/tasks/archive/MSHP-INST-A/workspace/linux_scope.md`.

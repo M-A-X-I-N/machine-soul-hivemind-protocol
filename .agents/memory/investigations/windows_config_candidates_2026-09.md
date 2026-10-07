@@ -11,6 +11,6 @@ Durable findings from `MSHP-APPS-A-010` (2026-09-28):
 - Explorer/Advanced Windows Settings are OS registry/policy desired state, not ordinary application config.
 - Notepad currently lacks a supported ordinary settings contract; do not manage opaque package LocalState/session blobs.
 
-Strong candidates are intentionally not executable yet because their canonical desired content has not been supplied. They are tracked in `autonomic_affairs/initiatives/MSHP-WIN-CONFIG.md`.
+Strong candidates are intentionally not executable yet because their canonical desired content has not been supplied. They are tracked in `meta/initiatives/MSHP-WIN-CONFIG.md`.
 
-Detailed sources/matrix live in `autonomic_affairs/tasks/archive/MSHP-APPS-A/workspace/windows_config_candidates.md`.
+Detailed sources/matrix live in `meta/tasks/archive/MSHP-APPS-A/workspace/windows_config_candidates.md`.
