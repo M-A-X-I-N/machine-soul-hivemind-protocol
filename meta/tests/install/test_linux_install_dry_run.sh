@@ -12,7 +12,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-output="$(python3 "$repo_root/annexation_procedures/fish/install.py" --dry-run --json)"
+output="$(python3 "$repo_root/annexation/fish/install.py" --dry-run --json)"
 status=$?
 set -e
 [[ $status -le 3 ]]

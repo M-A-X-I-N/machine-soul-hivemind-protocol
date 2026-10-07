@@ -5,11 +5,11 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.configuration_verification import (
+from annexation.configuration_verification import (
     assess_verification,
     verify_config,
 )
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     ConfigurationVerificationPlan,
     CustomVerification,
@@ -23,7 +23,7 @@ from annexation_procedures.model import (
     VerificationConclusion,
     VerificationObservation,
 )
-from annexation_procedures.operations import perform_operation
+from annexation.operations import perform_operation
 
 
 class ConfigurationVerificationTests(unittest.TestCase):

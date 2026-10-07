@@ -5,7 +5,7 @@ import os
 import tempfile
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     ConfigurationFile,
     ConflictPolicy,
@@ -15,7 +15,7 @@ from annexation_procedures.model import (
     PlatformDeclaration,
     TargetAccount,
 )
-from annexation_procedures.operations import apply_config, check_config, unapply_config
+from annexation.operations import apply_config, check_config, unapply_config
 
 
 class ConfigurationOperationTests(unittest.TestCase):
@@ -49,7 +49,7 @@ class ConfigurationOperationTests(unittest.TestCase):
             conflict_policy=ConflictPolicy.BACKUP_AND_REPLACE,
         )
         for config in configs:
-            source = root / "assimilation_directives/example/default/common" / config.source_leaf
+            source = root / "assimilation/example/default/common" / config.source_leaf
             source.parent.mkdir(parents=True, exist_ok=True)
             source.write_text(f"canonical:{config.name}", encoding="utf-8")
         return app, declaration, context
@@ -84,7 +84,7 @@ class ConfigurationOperationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             app, declaration, context = self._build(root)
-            source = root / "assimilation_directives/example/default/common/config.txt"
+            source = root / "assimilation/example/default/common/config.txt"
             destination = root / "home/.config/example/config.txt"
             destination.parent.mkdir(parents=True)
             os.symlink(source, destination)
@@ -292,7 +292,7 @@ class ConfigurationOperationTests(unittest.TestCase):
             self.assertEqual("applied", repaired.code)
             self.assertTrue(repaired.changed)
             self.assertEqual(
-                (new_root / "assimilation_directives/example/default/common/config.txt").resolve(),
+                (new_root / "assimilation/example/default/common/config.txt").resolve(),
                 destination.resolve(),
             )
 

@@ -4,12 +4,12 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from annexation_procedures.configuration import (
+from annexation.configuration import (
     ConfigurationResolutionError,
     resolve_configurations,
     resolve_source,
 )
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     ConfigurationFile,
     HomeRelativeDestination,
@@ -43,8 +43,8 @@ class ConfigurationResolutionTests(unittest.TestCase):
             root = Path(raw)
             app, _, config = self._app()
             context = self._context(root)
-            common = root / "assimilation_directives/example/hosts/fixture_host/common/config.txt"
-            user = root / "assimilation_directives/example/hosts/fixture_host/users/fixture_user/config.txt"
+            common = root / "assimilation/example/hosts/fixture_host/common/config.txt"
+            user = root / "assimilation/example/hosts/fixture_host/users/fixture_user/config.txt"
             common.parent.mkdir(parents=True)
             common.write_text("common", encoding="utf-8")
             user.parent.mkdir(parents=True)
@@ -59,7 +59,7 @@ class ConfigurationResolutionTests(unittest.TestCase):
             root = Path(raw)
             app, _, config = self._app()
             context = self._context(root)
-            default = root / "assimilation_directives/example/default/common/config.txt"
+            default = root / "assimilation/example/default/common/config.txt"
             default.parent.mkdir(parents=True)
             default.write_text("default", encoding="utf-8")
             self.assertEqual(default, resolve_source(context, app, config))
@@ -69,7 +69,7 @@ class ConfigurationResolutionTests(unittest.TestCase):
             root = Path(raw)
             app, declaration, _ = self._app()
             context = self._context(root)
-            source = root / "assimilation_directives/example/default/common/config.txt"
+            source = root / "assimilation/example/default/common/config.txt"
             source.parent.mkdir(parents=True)
             source.write_text("x", encoding="utf-8")
 

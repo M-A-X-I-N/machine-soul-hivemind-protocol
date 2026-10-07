@@ -44,12 +44,12 @@ for host in "${hosts[@]}"; do
         leaf="$(leaf_for "$app")"
         if [[ "$app" == "oh_my_posh" ]]; then
             for account in "${accounts[@]}"; do
-                source="$soul/assimilation_directives/$app/hosts/$host/users/$account/$leaf"
+                source="$soul/assimilation/$app/hosts/$host/users/$account/$leaf"
                 mkdir -p "$(dirname "$source")"
                 printf '%s/%s/%s\n' "$host" "$account" "$app" > "$source"
             done
         else
-            source="$soul/assimilation_directives/$app/hosts/$host/common/$leaf"
+            source="$soul/assimilation/$app/hosts/$host/common/$leaf"
             mkdir -p "$(dirname "$source")"
             printf '%s/common/%s\n' "$host" "$app" > "$source"
         fi
@@ -64,7 +64,7 @@ for host in "${hosts[@]}"; do
             leaf="$(leaf_for "$app")"
             export MACHINE_SOUL_CONFIG_DESTINATION="$tmp/native/$host/$account/$app/config.file"
             mkdir -p "$(dirname "$MACHINE_SOUL_CONFIG_DESTINATION")"
-            ops="$repo_root/annexation_procedures/$app"
+            ops="$repo_root/annexation/$app"
 
             [[ "$(result_code "$ops/check_config.py" --account "$account")" == "not_applied" ]]
             [[ "$(result_code "$ops/apply_config.py" --account "$account" --conflict-policy abort)" == "applied" ]]
@@ -72,9 +72,9 @@ for host in "${hosts[@]}"; do
 
             target="$(readlink -- "$MACHINE_SOUL_CONFIG_DESTINATION")"
             if [[ "$app" == "oh_my_posh" ]]; then
-                expected="$soul/assimilation_directives/$app/hosts/$host/users/$account/$leaf"
+                expected="$soul/assimilation/$app/hosts/$host/users/$account/$leaf"
             else
-                expected="$soul/assimilation_directives/$app/hosts/$host/common/$leaf"
+                expected="$soul/assimilation/$app/hosts/$host/common/$leaf"
             fi
             [[ "$target" == "$expected" ]]
 

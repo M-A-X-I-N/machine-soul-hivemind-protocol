@@ -7,7 +7,7 @@ $env:MACHINE_SOUL_HOST = 'ci_install_windows'
 Remove-Item Env:MACHINE_SOUL_ACCOUNT -ErrorAction SilentlyContinue
 
 try {
-    $script = Join-Path $repoRoot 'annexation_procedures\oh_my_posh\install.py'
+    $script = Join-Path $repoRoot 'annexation\oh_my_posh\install.py'
     $raw = & python $script --dry-run --json
     $result = $raw | ConvertFrom-Json
 

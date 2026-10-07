@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from annexation_procedures.model import (
+from annexation.model import (
     ConflictPolicy,
     Operation,
     OperationContext,
@@ -18,7 +18,7 @@ from annexation_procedures.model import (
     Platform,
     TargetAccount,
 )
-from annexation_procedures.presentation import wrapper_main
+from annexation.presentation import wrapper_main
 
 
 EXPECTED_OPERATIONS = {
@@ -59,7 +59,7 @@ class AtomicWrapperTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.root = Path(__file__).resolve().parents[3]
-        cls.annexation = cls.root / "annexation_procedures"
+        cls.annexation = cls.root / "annexation"
 
     def test_every_current_application_exposes_uniform_atomic_wrappers(self) -> None:
         applications = {
@@ -137,7 +137,7 @@ class WrapperMainTests(unittest.TestCase):
 
         output = StringIO()
         with patch(
-            "annexation_procedures.presentation.build_operation_context",
+            "annexation.presentation.build_operation_context",
             return_value=self.context,
         ) as build, redirect_stdout(output):
             code = wrapper_main(
@@ -181,7 +181,7 @@ class WrapperMainTests(unittest.TestCase):
             return OperationResult.success("applied", "applied", changed=True)
 
         with patch(
-            "annexation_procedures.presentation.build_operation_context",
+            "annexation.presentation.build_operation_context",
             return_value=prompt_context,
         ), patch("builtins.input", return_value="yes"), redirect_stdout(StringIO()):
             code = wrapper_main(run, [])
@@ -214,7 +214,7 @@ class WrapperMainTests(unittest.TestCase):
 
         output = StringIO()
         with patch(
-            "annexation_procedures.presentation.build_operation_context",
+            "annexation.presentation.build_operation_context",
             return_value=prompt_context,
         ), patch("builtins.input", return_value="no"), redirect_stdout(output):
             code = wrapper_main(run, [])

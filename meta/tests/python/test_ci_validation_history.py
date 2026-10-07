@@ -237,8 +237,8 @@ class ScheduledReconciliationTests(unittest.TestCase):
     def test_unrelated_docs_change_preserves_python_check_coverage(self):
         temp, root = self._repo()
         with temp:
-            (root / "annexation_procedures").mkdir()
-            (root / "annexation_procedures/runtime.py").write_text(
+            (root / "annexation").mkdir()
+            (root / "annexation/runtime.py").write_text(
                 "x=1",
                 encoding="utf-8",
             )
@@ -266,8 +266,8 @@ class ScheduledReconciliationTests(unittest.TestCase):
     def test_relevant_python_change_invalidates_old_python_coverage(self):
         temp, root = self._repo()
         with temp:
-            (root / "annexation_procedures").mkdir()
-            runtime = root / "annexation_procedures/runtime.py"
+            (root / "annexation").mkdir()
+            runtime = root / "annexation/runtime.py"
             runtime.write_text("x=1", encoding="utf-8")
             old = self._commit(root, "[Test] Base")
             runtime.write_text("x=2", encoding="utf-8")

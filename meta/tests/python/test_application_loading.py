@@ -5,7 +5,7 @@ import tempfile
 import textwrap
 import unittest
 
-from annexation_procedures.applications import (
+from annexation.applications import (
     ApplicationLoadError,
     discover_applications,
     load_application,
@@ -17,7 +17,7 @@ class ApplicationLoadingTests(unittest.TestCase):
         path.write_text(
             textwrap.dedent(
                 f"""
-                from annexation_procedures.model import Application
+                from annexation.model import Application
                 APPLICATION = Application(id={app_id!r}, display_name={app_id!r}, platforms=())
                 """
             ),
@@ -34,7 +34,7 @@ class ApplicationLoadingTests(unittest.TestCase):
     def test_discovery_is_sorted_and_ignores_apps_without_declaration(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            annexation = root / "annexation_procedures"
+            annexation = root / "annexation"
             for name in ("zeta", "alpha", "ignored"):
                 (annexation / name).mkdir(parents=True)
             self._write_declaration(annexation / "zeta" / "_application.py", "zeta")

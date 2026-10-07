@@ -136,7 +136,7 @@ class PathClassificationTests(unittest.TestCase):
         self.assertEqual((), selection.selected)
 
     def test_runtime_python_selects_all_nonfresh_os_checks_and_codeql(self):
-        selection = checks_for_paths(("annexation_procedures/runtime.py",))
+        selection = checks_for_paths(("annexation/runtime.py",))
         self.assertEqual(
             (
                 "linux-python",
@@ -163,7 +163,7 @@ class PathClassificationTests(unittest.TestCase):
         )
 
     def test_install_surface_selects_all_blocking_plus_python_codeql(self):
-        selection = checks_for_paths(("annexation_procedures/fish/install.py",))
+        selection = checks_for_paths(("annexation/fish/install.py",))
         expected = tuple(c for c in EXPECTED_CHECKS if c != "codeql-actions")
         self.assertEqual(expected, selection.selected)
 
@@ -185,7 +185,7 @@ class PathClassificationTests(unittest.TestCase):
     def test_path_classification_unions_relevance(self):
         selection = checks_for_paths((
             "meta/tasks/MSHP-X/example.md",
-            "annexation_procedures/runtime.py",
+            "annexation/runtime.py",
             ".github/workflows/release.yml",
         ))
         self.assertEqual(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from annexation_procedures.model import (
+from annexation.model import (
     Application,
     AptPackage,
     ConfigurationVerificationPlan,

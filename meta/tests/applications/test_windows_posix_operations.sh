@@ -33,7 +33,7 @@ result_code() {
 }
 
 for app in fish bash zsh; do
-    ops="$repo_root/annexation_procedures/$app"
+    ops="$repo_root/annexation/$app"
 
     [[ "$(result_code "$ops/check_config.py")" == "not_applied" ]]
     [[ "$(result_code "$ops/apply_config.py" --conflict-policy abort)" == "applied" ]]
