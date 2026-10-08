@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-07T05:36:31+02:00
+updated: 2026-10-08T02:16:28+02:00
 catalogue_source: ../models/monitors.yaml
 
 criteria_summary:
@@ -27,7 +27,7 @@ retailer_scenarios:
       infer_percentage: false
       employee_effective_price_source: "Only an actually supplied/observed employee price."
       unknown_price_behavior: "Keep employee_effective_price_sek null and calculate discount needed to hit existing thresholds."
-      public_prices_observed_at: 2026-10-07T05:36:31+02:00
+      public_prices_observed_at: 2026-10-08T02:16:28+02:00
     isolation:
       affects_normal_shortlist: false
       affects_true_rgb_stripe_lane: false
@@ -83,25 +83,27 @@ retailer_scenarios:
 
         asus_xg32ucwmg:
           status: needs_verification
-          public_price_sek: 13490
+          public_price_sek: 13990
           employee_effective_price_sek: null
           public_price_source: "Elgiganten product 1008993"
           threshold_analysis:
             interesting_at_or_below_sek: 10000
-            discount_needed_for_interesting_pct: 25.9
+            discount_needed_for_interesting_pct: 28.5
             very_strong_at_or_below_sek: 9000
-            discount_needed_for_very_strong_pct: 33.3
+            discount_needed_for_very_strong_pct: 35.7
+          notes:
+            - "Fresh comparison/index data exposes 13,990 SEK while a cached direct Elgiganten page still exposes 13,490 SEK and unavailable state; keep scenario status needs_verification until the live page/cart reconciles."
 
         samsung_g81sf_32:
           status: unavailable
-          public_price_sek: 9990
+          public_price_sek: 6790
           employee_effective_price_sek: null
           public_price_source: "Elgiganten product 896180"
           threshold_analysis:
             numeric_thresholds: unknown
           notes:
-            - "Public price remains 9,990 SEK, but the current Elgiganten product page says unavailable."
-            - "Keep in the employee scenario for history; unavailability is scenario state, not a normal-market conclusion."
+            - "Elgiganten currently exposes a 6,790-SEK public listing but still says the product is unavailable."
+            - "Do not treat an unavailable public price as an employee-discount opportunity or normal-market minimum."
 
         samsung_g80sh_32:
           status: unavailable
@@ -162,7 +164,7 @@ true_rgb_stripe_lane:
         - "4K240/FHD480 Dual Mode matches both cinematic/high-resolution and competitive low-resolution use."
         - "Three-year warranty including burn-in and useful OLED-care features."
       reasons_against:
-        - "Fresh Inet pricing improved to 13,990 SEK, but this is still far above the <=11,000 interesting and <=10,000 very-strong thresholds."
+        - "Fresh Inet pricing is back at 14,490 SEK with stock, reversing the previous run's 13,990-SEK improvement and remaining far above the <=11,000 interesting threshold."
         - "The final text/subpixel improvement is real but the remaining premium over excellent normal-lane alternatives is still too large."
       price_logic: {interesting_at_or_below_sek: 11000, very_strong_at_or_below_sek: 10000}
 
@@ -308,7 +310,8 @@ candidates:
     reasons_for:
       - "KVM and 65-W USB-C."
     reasons_against:
-      - "Fresh Prisjakt pricing is around 8,286 SEK, up materially from ~7,491 and now above the pre-written <=7,800 very-strong threshold."
+      - "Fresh exact Prisjakt brand/category data is around 9,125 SEK, well above the <=7,800 very-strong threshold."
+      - "Other fresh generic comparison results exposed a contradictory ~7,085 SEK, so exact seller/SKU identity must be verified before treating any low offer as actionable."
       - "NetOnNet says no longer sold."
       - "Regional /00 versus /01 identity and remaining seller stock need verification."
     price_logic: {very_strong_at_or_below_sek: 7800}
@@ -431,7 +434,7 @@ candidates:
       - "TrueBlack Glossy WOLED is extremely well aligned with dark-room use and text-clarity preference."
       - "4K165/FHD330 Dual-Mode is genuinely useful rather than decorative for this gaming split."
       - "Three-year warranty including burn-in and KVM."
-      - "Fresh comparison pages are around 8,548–8,716 SEK, still inside the <=9,000 interesting threshold but no longer clearly inside <=8,500 very-strong."
+      - "Fresh comparison pricing is about 8,714 SEK, still inside the <=9,000 interesting threshold but above <=8,500 very-strong."
     reasons_against:
       - "Slower than the 240/480 XG32UCWMG sibling."
     price_logic: {very_strong_at_or_below_sek: 8500, interesting_at_or_below_sek: 9000}
@@ -441,14 +444,14 @@ candidates:
     summary: {size_in: 26.5, panel: OLED, coating: unknown, native_hz: 240}
     reasons_for:
       - "166-PPI-class 4K240 OLED."
-      - "Fresh Prisjakt pages expose roughly 6,629–6,741 SEK, crossing the pre-written <=6,800 absurd threshold at the low end."
+      - "Fresh Prisjakt data is about 6,741 SEK, still inside the pre-written <=6,800 absurd threshold."
     reasons_against:
-      - "The exact seller behind the lowest comparison price still needs verification."
+      - "The exact seller behind the comparison minimum still needs verification."
       - "Exact coating remains insufficiently characterized."
       - "Lenovo primary material still does not clearly state explicit burn-in coverage in the Swedish/EU warranty."
     price_logic: {absurd_at_or_below_sek: 6800, very_strong_at_or_below_sek: 7300, interesting_at_or_below_sek: 8000}
     unresolved:
-      - "Identify/verify the exact seller behind the current ~6,629-SEK aggregator floor."
+      - "Identify/verify the exact seller behind the current ~6,741-SEK aggregator floor."
       - "Resolve explicit burn-in warranty coverage."
 
   asus_xg32ucds:
@@ -568,3 +571,38 @@ candidates:
       - "Swedish burn-in warranty remains unknown."
     unresolved:
       - "Establish Swedish launch timing, street price, minimum luminance and burn-in warranty."
+
+  asus_xg32uqwms:
+    status: strong_watch
+    summary: {size_in: 31.5, panel: Tandem-WOLED, coating: trueblack_glossy, native_hz: 240, dual_mode_hz: 480}
+    reasons_for:
+      - "TrueBlack Glossy Tandem WOLED is exceptionally aligned with the dark-room/text-clarity preference."
+      - "4K240/FHD480 Dual Mode exactly matches the normal-versus-competitive gaming split."
+      - "ASUS OLED Care Pro, Neo Proximity Sensor, KVM and a three-year warranty."
+      - "Inet lists 10,990 SEK, close enough to the current value band to merit active watching."
+    reasons_against:
+      - "Expected Inet availability is 2027-01-08 rather than immediate."
+      - "At current price it costs roughly a thousand SEK more than the XG32UCWMG comparison floor, so the Tandem generation needs to justify the premium."
+
+  gigabyte_mo32u24:
+    status: strong_watch
+    summary: {size_in: 31.5, panel: QD-OLED, coating: anti_reflection, native_hz: 240}
+    reasons_for:
+      - "Direct Inet campaign price is 9,990 SEK with 34 units."
+      - "4K240 QD-OLED, KVM and explicit three-year burn-in coverage."
+      - "300-nit full-field SDR specification is stronger than many current OLED alternatives."
+    reasons_against:
+      - "No 480-Hz dual mode."
+      - "Anti-reflection surface is less aligned than TrueBlack Glossy."
+      - "At 9,990 SEK it must compete with cheaper 7.3–8.7k 32-inch options and the similarly priced XG32UCWMG."
+
+  samsung_g73sh_32:
+    status: strong_watch
+    summary: {size_in: 32, panel: OLED, coating: unknown, native_hz: 165, dual_mode_hz: 330}
+    reasons_for:
+      - "Flat 32-inch 4K165/FHD330 Dual Mode is closely aligned with the preferred size and competitive-gaming split."
+      - "Samsung explicitly covers burn-in during normal use."
+      - "Current CDON observations around 8.3–8.73k make it directly competitive with the current 32-inch value tier."
+    reasons_against:
+      - "Exact coating remains unresolved and could materially affect preference."
+      - "Current CDON observations conflict enough that exact seller/offer identity should be confirmed before purchase."
