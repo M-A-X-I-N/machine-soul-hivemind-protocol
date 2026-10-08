@@ -21,6 +21,12 @@ Claims are live coordination locks, not identity or recovery credentials. The ta
 
 Task rows are grouped by block for readability. Every block uses the same authoritative scheduling schema; headings are presentation only and do not change task identity, dependency, state, claim, or Dispatch semantics.
 
+### MSHP-AUDIT-A
+
+| ID | State | Depends on | Title | Summary |
+|---|---|---|---|---|
+| [`MSHP-AUDIT-A-010`](tasks/MSHP-AUDIT-A/MSHP-AUDIT-A-010.md) | QUEUED | — | Add Linux audit command collection | Collect long-lived human-session process execution history with auditd, preserving argv and original `auid` through sudo/root-shell escalation. |
+
 ### MSHP-WINGET-A
 
 | ID | State | Depends on | Title | Summary |
