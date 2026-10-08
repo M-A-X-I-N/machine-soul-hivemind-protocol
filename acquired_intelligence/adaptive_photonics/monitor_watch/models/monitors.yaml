@@ -1,5 +1,5 @@
 schema_version: 1
-updated: 2026-10-05T04:13:16+02:00
+updated: 2026-10-08T02:16:28+02:00
 
 models:
   dell_aw2725q:
@@ -258,11 +258,21 @@ models:
     resolution: 3840x2160
     shape: flat
     panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
-    coating: {type: unknown}
+    coating: {type: anti_reflection}
     refresh: {native_hz: 240, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1 x2", usb_c_pd_w: 18, kvm: true}
+    warranty: {years: 3, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
     market_status: available
-    verification: {specs: retailer_only}
-    notes: ["Do not merge with MO32U2 until primary identity relationship is established."]
+    verification: {specs: verified_primary, warranty: verified_primary, market: retailer_only}
+    sources:
+      - https://www.gigabyte.com/Monitor/MO32U24/sp
+      - https://www.inet.se/
+    notes:
+      - "Gigabyte confirms 31.5-inch 4K240 QD-OLED, Anti-Reflection surface, HDMI 2.1, DP 1.4 and USB-C 18 W."
+      - "Gigabyte advertises a three-year OLED warranty including panel burn-in; terms may vary by region."
+      - "Inet lists 9,990 SEK with 34 units during this run."
+      - "Do not merge with MO32U2 until primary identity relationship is established."
 
   gigabyte_fo32u24g:
     manufacturer: Gigabyte
@@ -335,15 +345,24 @@ models:
 
   asus_xg32uqwms:
     manufacturer: ASUS
-    model: ROG Strix XG32UQWMS
+    model: ROG Strix OLED XG32UQWMS
     size_in: 31.5
     resolution: 3840x2160
     shape: flat
-    panel: {family: OLED, generation: unknown, subpixel: unknown}
-    coating: {type: unknown}
+    panel: {family: Tandem-WOLED, generation: "third-gen", subpixel: unknown}
+    coating: {type: trueblack_glossy}
     refresh: {native_hz: 240, dual_mode: {resolution: 1920x1080, hz: 480}}
-    market_status: available
-    verification: {specs: retailer_only}
+    connectivity: {displayport: "1.4 DSC", hdmi: "2.1 x2", usb_c_pd_w: unknown, kvm: true}
+    warranty: {years: 3, burn_in_explicit: unknown}
+    measured: {minimum_sdr_nits: null}
+    market_status: preorder
+    verification: {specs: verified_primary, warranty: verified_primary, market: retailer_only}
+    sources:
+      - https://rog.asus.com/monitors/27-to-31-5-inches/rog-strix-oled-xg32uqwms/
+      - https://www.inet.se/
+    notes:
+      - "ASUS confirms TrueBlack Glossy Tandem WOLED, 4K240/FHD480 Dual Mode, OLED Care Pro, Neo Proximity Sensor, KVM and a three-year warranty."
+      - "Inet lists 10,990 SEK with expected availability 2027-01-08."
 
   asus_pg32ucwm:
     manufacturer: ASUS
@@ -922,3 +941,49 @@ models:
       - "Samsung confirms fifth-generation Penta-Tandem QD-OLED with RGB Stripe and UHD360/QHD520/FHD680 Triple Mode."
       - "Independent launch coverage describes the 32-inch panel as flat with Samsung Glare Free treatment."
       - "This belongs to Samsung's 2027 Odyssey lineup; Swedish price and exact availability remain unannounced."
+
+  samsung_m90sf_32:
+    manufacturer: Samsung
+    model: Smart Monitor M9 M90SF
+    regional_variants: ["LS32FM900SUXEN", "LS32FM902SUXEN"]
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: QD-OLED, generation: unknown, subpixel: unknown}
+    coating: {type: glare_free}
+    refresh: {native_hz: 165, dual_mode: null}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: 90, kvm: unknown}
+    warranty: {years: null, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary, market: retailer_only}
+    sources:
+      - https://www.samsung.com/se/monitors/smart/smart-monitor-m9-32-inch-smart-tv-apps-4k-oled-ls32fm900suxen/
+      - https://www.proshop.se/Skaerm/32-Samsung-S32FM902SU-3840x2160-4K-165Hz-OLED-90W-USB-C/3387343
+    notes:
+      - "Samsung confirms a flat 32-inch 4K QD-OLED panel at 165 Hz with Glare Free treatment."
+      - "Samsung explicitly states burn-in under normal use is covered by warranty."
+      - "Proshop exposed the closely related LS32FM902SUXEN regional variant at 12,690 SEK in stock during this run."
+      - "Smart-TV/camera features do not by themselves add material purchase value for this monitor search."
+
+  samsung_g73sh_32:
+    manufacturer: Samsung
+    model: Odyssey OLED G7 G73SH 32
+    regional_variants: ["LS32HG732SUXEN"]
+    size_in: 32
+    resolution: 3840x2160
+    shape: flat
+    panel: {family: OLED, generation: unknown, subpixel: unknown}
+    coating: {type: unknown}
+    refresh: {native_hz: 165, dual_mode: {resolution: 1920x1080, hz: 330}}
+    connectivity: {displayport: "1.4", hdmi: "2.1", usb_c_pd_w: null, kvm: false}
+    warranty: {years: null, burn_in_explicit: true}
+    measured: {minimum_sdr_nits: null}
+    market_status: available
+    verification: {specs: verified_primary, warranty: verified_primary, market: retailer_only}
+    sources:
+      - https://www.samsung.com/se/monitors/gaming/odyssey-oled-g7-g73sh-32-inch-dual-mode-4k-165hz-fhd-330hz-ls32hg732suxen/
+      - https://cdon.se/
+    notes:
+      - "Samsung confirms flat 32-inch 4K165/FHD330 Dual Mode, 0.03-ms OLED and normal-use burn-in warranty coverage."
+      - "CDON surfaced 8,730 SEK during this run; an earlier current category view exposed 8,300 SEK, so seller/offer identity should be verified before purchase."
