@@ -4,7 +4,7 @@
 
 ## Goal
 
-Keep the annexation tree intuitively application-centered by housing common internal runtime code in a dedicated hidden internal directory and leaving only genuinely necessary root entry points.
+Keep the annexation tree intuitively application-centered by housing common internal runtime code in a dedicated, clearly separated internal library directory and leaving only genuinely necessary root entry points.
 
 ## Current state / coverage
 
@@ -12,14 +12,14 @@ The current Python library-first annexation core works but shared library module
 
 ## Known gaps
 
-- Review the full shared-library import/dependency graph and select a Python-compatible hidden internal directory strategy.
+- Review the full shared-library import/dependency graph and select a Python-compatible internal directory strategy.
 - Migrate shared internals without breaking module imports, public wrappers, docs or existing CI.
 
 ## Deliberate boundaries / deferred work
 
-- A dot-prefixed directory can complicate Python import syntax; do not select a filesystem shape that silently breaks packages.
+- A dot-prefixed directory is preferred, but an underscore-prefixed directory is explicitly acceptable. Clear separation of shared library code from per-application directories is the sole naming/layout requirement; choose the safest Python-compatible approach.
 - Do not alter the core operation safety model as collateral of a layout-only move.
-- Directory name and migration compatibility can require maintainer approval at the design checkpoint.
+- The maintainer delegates directory naming to the design task. Escalate material compatibility or public API-breaking questions, not merely a dot-versus-underscore naming choice.
 
 ## Related executable tasks
 
