@@ -10,7 +10,7 @@ Implement, following schema approval, host-profile defaults that preselect a des
 
 ## Constraints / non-goals
 
-- No implicit installs upon cloning; do not assume inferred inventory is desired state.
+- Start with empty profiles until the maintainer explicitly chooses desired software. No automatic inventory-derived package lists or implicit installs upon cloning.
 
 ## Acceptance criteria
 
