@@ -17,7 +17,6 @@ Investigate whether and how Microsoft Store-backed WinGet packages differ materi
 
 - Do not implement Store-specific behavior in this task.
 - Do not assume Store packages are equivalent to ordinary `winget` source packages.
-- Do not thaw this task/block without explicit human authorization.
 
 ## Acceptance criteria
 
