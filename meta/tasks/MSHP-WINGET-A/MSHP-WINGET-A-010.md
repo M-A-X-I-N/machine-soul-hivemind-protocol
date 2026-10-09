@@ -8,6 +8,8 @@ Investigate whether and how Microsoft Store-backed WinGet packages differ materi
 
 - Use current official Microsoft/WinGet documentation and current CLI behavior.
 - Map `msstore` source identity, package identifiers, agreements, account/licensing dependencies, scope behavior, install/update/uninstall semantics, and machine-readable discovery.
+- Specifically establish what generated-looking Store IDs mean, their underlying identifier formats, stability, whether product/store IDs or alternative identifiers can be used for deterministic indexing, and which identity WinGet ultimately requires.
+- Research source-preference prerequisites for a later Store-first-through-WinGet install policy without assuming a Store package is equivalent to the ordinary WinGet catalog identity.
 - Compare the findings against the existing WinGet annexation/provenance model and identify concrete model gaps only when evidence requires them.
 - Persist reusable findings and taskify implementation only after the research supports a design.
 
