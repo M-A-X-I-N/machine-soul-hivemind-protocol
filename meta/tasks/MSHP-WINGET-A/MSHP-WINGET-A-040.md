@@ -10,7 +10,7 @@ After source-identity research and selection policy approval, add Store-priority
 
 ## Constraints / non-goals
 
-- Requires preceding Store investigation/design; frozen until thawed by maintainer.
+- Requires the preceding Store investigation and design, plus an explicit go-ahead for implementation through Dispatch; queuing does not authorize implementation.
 
 ## Acceptance criteria
 
