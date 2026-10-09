@@ -15,7 +15,6 @@ Investigate non-default/custom WinGet source semantics as a trust, identity, pro
 
 - Do not implement source management here.
 - Do not treat custom sources as trusted merely because WinGet accepts them.
-- Do not thaw this task/block without explicit human authorization.
 
 ## Acceptance criteria
 
