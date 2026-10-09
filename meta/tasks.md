@@ -31,10 +31,10 @@ Task rows are grouped by block for readability. Every block uses the same author
 
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
-| [`MSHP-WINGET-A-010`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | FROZEN | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
-| [`MSHP-WINGET-A-020`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | FROZEN | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
-| [`MSHP-WINGET-A-030`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-030.md) | FROZEN | `MSHP-WINGET-A-010` | Design a Store-first WinGet package selection policy | Study deterministic Store-first selection without changing WinGet as installation interface. |
-| [`MSHP-WINGET-A-040`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-040.md) | FROZEN | `MSHP-WINGET-A-030` | Implement Store-first selection through WinGet | Add scoped Store-first selection after research, validation and explicit thaw. |
+| [`MSHP-WINGET-A-010`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-010.md) | QUEUED | — | Investigate Microsoft Store packages through WinGet | Map identity, source, scope, agreements, account/licensing, discovery, ownership, update, and uninstall semantics for `msstore` packages before changing annexation behavior. |
+| [`MSHP-WINGET-A-020`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-020.md) | QUEUED | `MSHP-WINGET-A-010` | Investigate custom and non-default WinGet sources | Map source registration, trust, provenance, package identity collisions, lifecycle, restore/remove semantics, and whether source identity must become part of Machine-Soul package ownership. |
+| [`MSHP-WINGET-A-030`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-030.md) | QUEUED | `MSHP-WINGET-A-010` | Design a Store-first WinGet package selection policy | Study deterministic Store-first selection without changing WinGet as installation interface. |
+| [`MSHP-WINGET-A-040`](tasks/MSHP-WINGET-A/MSHP-WINGET-A-040.md) | QUEUED | `MSHP-WINGET-A-030` | Implement Store-first selection through WinGet | Add scoped Store-first selection after research, validation and explicit thaw. |
 
 
 
