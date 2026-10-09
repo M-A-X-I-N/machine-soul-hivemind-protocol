@@ -34,7 +34,7 @@ The current INST-B implementation block covers the scope behavior of the package
 
 ## Known gaps
 
-Known gaps are intentionally allowed to remain without executable tasks until Machine-Soul actually supports or needs the relevant mechanism.
+Known implementation gaps may remain deferred even while newly queued research tasks investigate the corresponding mechanisms. Investigation does not by itself authorize package-backend implementation.
 
 Current known future areas include:
 
@@ -73,6 +73,16 @@ Current implementation block:
 - `MSHP-INST-B-060` — integrated validation/current-coverage closure.
 
 The first five are implemented; B-060 records integration closure and the handoff back to application-config research.
+
+New research-only tasks explore future mechanisms without reopening the completed scope block:
+
+- [`MSHP-PKG-RESEARCH-A-010`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-010.md) — Flatpak;
+- [`MSHP-PKG-RESEARCH-A-020`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-020.md) — Homebrew/Linuxbrew;
+- [`MSHP-PKG-RESEARCH-A-030`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-030.md) — pipx;
+- [`MSHP-PKG-RESEARCH-A-050`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-050.md) — pacman/Manjaro;
+- [`MSHP-PKG-RESEARCH-A-060`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-060.md) — synthesis.
+
+These are separate unstarted tasks; their lifecycle/dependencies belong only to the active ledger.
 
 Task state, dependencies, and Dispatch remain authoritative in [`../tasks.md`](../tasks.md); this list is contextual only.
 
