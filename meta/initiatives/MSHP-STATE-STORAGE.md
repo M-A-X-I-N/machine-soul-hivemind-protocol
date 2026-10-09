@@ -12,7 +12,7 @@ MSHP currently uses ignored scratch/ for backups, deployment/installation proven
 
 ## Known gaps
 
-- Decide machine/account state path semantics (Windows local vs roaming AppData and Linux XDG state).
+- Research and recommend machine/account state path semantics (Windows local vs roaming AppData and Linux XDG state); the maintainer explicitly left the Windows path decision open for investigation.
 - Versioned on-disk schema and forward migration/compatibility behavior.
 - Move qualifying provenance and durable action logs without losing exact ownership or state safety.
 
