@@ -6,7 +6,7 @@ Specify MSHP-owned persistent state on Windows and Linux, with migration/version
 
 ## Requirements
 
-- Compare LOCALAPPDATA versus APPDATA, XDG_STATE_HOME or equivalent, host/account scope, sensitive logs, ownership provenance, backup/disaster recovery, schema IDs, migrations and portability.
+- Research and compare LOCALAPPDATA versus APPDATA, XDG_STATE_HOME or equivalent, host/account scope, sensitive logs, ownership provenance, backup/disaster recovery, schema IDs, migrations and portability. The maintainer explicitly deferred the Windows directory choice to this investigation, rather than expressing a LOCALAPPDATA or roaming APPDATA preference.
 
 ## Constraints / non-goals
 
