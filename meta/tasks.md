@@ -107,7 +107,7 @@ Task rows are grouped by block for readability. Every block uses the same author
 | ID | State | Depends on | Title | Summary |
 |---|---|---|---|---|
 | [`MSHP-ANNEX-LAYOUT-A-010`](tasks/MSHP-ANNEX-LAYOUT-A/MSHP-ANNEX-LAYOUT-A-010.md) | QUEUED | — | Design minimal per-application annexation directory layout | Minimal per-application annexation directory layout. |
-| [`MSHP-ANNEX-LAYOUT-A-020`](tasks/MSHP-ANNEX-LAYOUT-A/MSHP-ANNEX-LAYOUT-A-020.md) | QUEUED | `MSHP-ANNEX-LAYOUT-A-010` | Migrate shared annexation internals into a hidden directory | Shared annexation internals into a hidden directory. |
+| [`MSHP-ANNEX-LAYOUT-A-020`](tasks/MSHP-ANNEX-LAYOUT-A/MSHP-ANNEX-LAYOUT-A-020.md) | QUEUED | `MSHP-ANNEX-LAYOUT-A-010` | Migrate shared annexation internals into a dedicated library directory | Shared annexation internals into a clearly separated internal library directory. |
 
 ### MSHP-STATE-A
 
