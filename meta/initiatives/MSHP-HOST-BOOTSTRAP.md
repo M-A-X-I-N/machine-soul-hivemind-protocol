@@ -20,7 +20,7 @@ The broad manager already discovers and invokes atomic application wrappers and 
 ## Deliberate boundaries / deferred work
 
 - No automatic install merely by cloning or discovering a host.
-- Do not invent actual desired application inventories.
+- Begin with empty host-installation templates; the maintainer will explicitly select desired software later. Do not auto-populate them from installed package inventories.
 - Do not let bulk flows bypass per-operation provenance, scope, dependency, cancellation or partial-failure safety.
 
 ## Related executable tasks
