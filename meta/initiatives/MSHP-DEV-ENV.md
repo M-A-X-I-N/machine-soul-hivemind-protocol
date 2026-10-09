@@ -58,6 +58,8 @@ Completed investigation/synthesis block `MSHP-DEV-A` covers:
 
 ## Related executable tasks
 
+General unmanaged Windows EXE/MSI lifecycle research is separately planned in [`MSHP-PKG-RESEARCH-A-040`](../tasks/MSHP-PKG-RESEARCH-A/MSHP-PKG-RESEARCH-A-040.md); it must build on, not repeat, the finished Visual Studio/Build Tools instance/component research.
+
 `MSHP-DEV-A-010` through `MSHP-DEV-A-120` form the completed investigation/synthesis block. `MSHP-DEV-B-010` through `MSHP-DEV-B-100` (including inserted `MSHP-DEV-B-025`) form the completed first implementation/research phase. Mutable state and dependencies remain authoritative in [`../tasks.md`](../tasks.md).
 
 ## Promotion / closure criteria
