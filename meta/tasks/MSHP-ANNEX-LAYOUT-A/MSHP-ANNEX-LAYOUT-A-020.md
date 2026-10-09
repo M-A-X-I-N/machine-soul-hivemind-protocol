@@ -1,8 +1,8 @@
-# MSHP-ANNEX-LAYOUT-A-020 — Migrate shared annexation internals into a hidden directory
+# MSHP-ANNEX-LAYOUT-A-020 — Migrate shared annexation internals into a dedicated library directory
 
 ## Description
 
-After layout approval, reorganize shared operational modules into the selected internal directory while preserving app-specific folders and minimal necessary entry points.
+Following the completed layout design, reorganize shared operational modules into its selected internal directory while preserving app-specific folders and minimal necessary entry points.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ After layout approval, reorganize shared operational modules into the selected i
 
 ## Constraints / non-goals
 
-- Requires design and maintainer agreement on any externally visible import breaking changes.
+- Requires the layout design and explicit task dispatch. The directory name itself is delegated to the design task; material public import/API breakage may still require maintainer agreement.
 
 ## Acceptance criteria
 
