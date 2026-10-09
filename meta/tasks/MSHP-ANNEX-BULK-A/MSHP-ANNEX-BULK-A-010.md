@@ -10,7 +10,7 @@ Define a host-aware desired-app/package selection model, separate from configura
 
 ## Constraints / non-goals
 
-- No actual host inventory or defaults are fabricated; research and schema only.
+- Start from empty host/profile templates. Do not infer, capture, or auto-populate initial desired software from installed inventory; the maintainer will select desired applications later. Research and schema only.
 
 ## Acceptance criteria
 
