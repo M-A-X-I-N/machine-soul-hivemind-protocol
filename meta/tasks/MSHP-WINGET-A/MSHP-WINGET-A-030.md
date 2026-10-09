@@ -6,11 +6,11 @@ Design how Machine-Soul should prefer an equivalent Microsoft Store package when
 
 ## Requirements
 
-- Define app equivalence, Store listing/identity stability, licensing/account requirements, user/machine scope, offline availability, source trust, user override, fallback and provenance. Ensure compatibility with the frozen Store investigation.
+- Define app equivalence, Store listing/identity stability, licensing/account requirements, user/machine scope, offline availability, source trust, user override, fallback and provenance. Ensure compatibility with the Store investigation.
 
 ## Constraints / non-goals
 
-- Research only; do not thaw the WinGet block without explicit maintainer authorization; do not silently switch an already-owned non-Store install.
+- Research only; do not silently switch an already-owned non-Store install.
 
 ## Acceptance criteria
 
